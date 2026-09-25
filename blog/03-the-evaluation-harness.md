@@ -2,9 +2,7 @@
 
 <!-- draft: 322e9c66ca, stage: Building our tooling -->
 
-The [wishlist](01-the-wishlist.md) ended with eight tools, and building all of them before touching the bot would take weeks. So it's worth asking which ones we need before we can start improving a bot with any confidence. The answer is three. We need something that plays lots of games for us, something that looks at the results and tells us honestly whether a change helped, and something that checks our results still hold on maps we've never seen. Everything else on the list can wait until a later post needs it.
-
-This post builds the first of the three, the evaluation harness, because the other two both depend on having a pile of games to work with.
+The [wishlist](01-the-wishlist.md) ended with eight tools, and this stage of the series builds all of them before we start on strategy. The order matters, because most of the tools lean on each other. The statistics need results to judge, the map generator only helps once something is playing games on its maps, and the offline Elo ladder rates versions from games they've already played. So the first tool is the one that produces those games: the evaluation harness.
 
 ## Why the loop isn't enough
 

@@ -44,7 +44,7 @@ The candidate, `room-pearls`, keeps the flood fill, and adds one rule. When seve
 
 ![A terminal running just verdict room-pearls room-c. room-pearls wins 22 games against room-c, loses 78 and draws 4, with no errors. The chance an even match does this badly is 0.0000, and the verdict is worse.](images/verdict-room-pearls.png)
 
-It lost 78 of its 100 decisive games, so it's clearly worse, and not by a small margin. This is exactly the kind of result the tool exists for. If I'd tried the change in a game or two, I might well have kept it, because chasing food sounds like progress and the reasoning behind it sounds solid. Working out why it actually loses needs a closer look at the games themselves, which is a job for the debug viewer later in the series.
+It lost 78 of its 100 decisive games, so it's clearly worse, and not by a small margin. This is exactly the kind of result the tool exists for. If I'd tried the change in a game or two, I might well have kept it, because chasing food sounds like progress and the reasoning behind it sounds solid. Working out why it actually loses needs a closer look at the games themselves, which is a job for the debug viewer later in this stage.
 
 ## Keeping the versions that win
 
@@ -56,7 +56,7 @@ The reason for keeping older versions is that beating the previous version isn't
 
 Every step in that sequence passed a fair test, and the version numbers suggest six rounds of progress, but the bot has only gone round in a circle. Real bots can do the same thing in subtler ways. A change that makes our dragons better at dodging the last version's kamikazes might also make them worse against a bot that simply forages, and if we only ever tested against the previous version, we'd never find out. Running the verdict against the last few snapshots as well catches this, because a version that has quietly gone back round the circle will lose to one of its own ancestors.
 
-We keep only the last few snapshots in testing rather than all of them, because much older versions are usually easy wins, and playing them spends games without telling us anything new. The offline Elo ladder on the wishlist will eventually rate every snapshot against every other, so the whole history can be seen at once.
+We keep only the last few snapshots in testing rather than all of them, because much older versions are usually easy wins, and playing them spends games without telling us anything new. The offline Elo ladder, which comes later in this stage, will rate every snapshot against every other, so the whole history can be seen at once.
 
 ## Next up
 

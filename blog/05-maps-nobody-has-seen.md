@@ -38,14 +38,14 @@ Nine of the 13 bundled maps have portals too, and the bot rarely lost on them, s
 
 ## Where the tools fit
 
-That's three tools off the wishlist. The harness plays the games, the statistics tell us what the results mean, and the generator makes sure those results hold on maps nobody has seen. Here's how they fit around the bot, next to the official toolkit and the rest of the wishlist:
+That's three of the eight tools on the wishlist. The harness plays the games, the statistics tell us what the results mean, and the generator makes sure those results hold on maps nobody has seen. Here's how they fit around the bot, next to the official toolkit and the rest of the wishlist:
 
 ![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. Our wishlist tools are on the left with their languages: the evaluation harness, statistics and map generator in Python are built, and the offline Elo ladder, replay sampler, replay decoder, the Odin debug viewer and profiling are still to come. Ideas from the grand strategy and tactical ideas stages flow into the bot from the top.](images/pipeline.svg)
 
 The point of all this is to take the drudgery out of improving a bot. Without these tools, every idea means hours of running games by hand and squinting at results that might just be luck. With them, trying an idea is one command, and the answer comes back as better, worse or undecided, tested on maps the bot has never seen. When a version passes, we save a numbered snapshot of it, and it becomes the version to beat.
 
-That frees up our time for the part that actually decides games: the strategy and tactics of the dragons themselves. The rest of the wishlist will fill in the gaps as the strategy posts need it.
+Those three are enough to tell whether an idea worked, and every later post leans on them. The other five on the wishlist answer different questions. The offline Elo ladder shows whether the bot is getting better overall, and not just beating its last version. The replay sampler and decoder open up the other teams' games for study. The debug viewer shows why one of our dragons did what it did, and profiling shows where its CPU budget went. The rest of this stage builds those, and then the series turns to the part that actually decides games: the strategy and tactics of the dragons themselves.
 
 ## Next up
 
-That's enough tooling to start improving a bot with evidence. The next stage turns to grand strategy, starting with the portal blind spot this post found.
+The offline Elo ladder: rating every saved snapshot against every other, so we can see whether the bot is improving overall.

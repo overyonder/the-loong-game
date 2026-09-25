@@ -61,13 +61,13 @@ It's written in Nim, as [The choice](02-the-choice.md) planned, and compiled to 
 
 ## The first result
 
-To see whether the structure pays off, we'll test the first bot against the flood-fill bot from The choice, on the 13 bundled maps and the 20 generated ones from the last post:
+To see whether the structure pays off, we'll test the first bot against the flood-fill bot from The choice, on the 13 bundled maps and the 20 generated ones from the map generator post:
 
 ![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict. first-bot wins 78 games against room-c, loses 48 and draws 6, with no errors. The chance an even match does this well is 0.0048, and the verdict is better.](images/first-bot-verdict.png)
 
 The first bot is better, winning 78 games to 48. Two equally good bots would produce a result that lopsided only about once in 200 tries, so this is a real improvement.
 
-Where the gain comes from is interesting. On the bundled maps the two bots are level, 25 wins to 27. Almost all of the improvement is on the generated maps, where the first bot won 53 games to 21. The replays show why. On those maps, the first bot's dragons ran into their own bodies 7 times, against 36 times for the flood-fill bot. That's the portal blind spot from the last post, closed by the safety layer refusing to step through portals it can't see past.
+Where the gain comes from is interesting. On the bundled maps the two bots are level, 25 wins to 27. Almost all of the improvement is on the generated maps, where the first bot won 53 games to 21. The replays show why. On those maps, the first bot's dragons ran into their own bodies 7 times, against 36 times for the flood-fill bot. That's the portal blind spot from the [map generator post](05-maps-nobody-has-seen.md), closed by the safety layer refusing to step through portals it can't see past.
 
 It's a modest start, but it's measurably better, and now each new behaviour has an obvious place to go.
 
