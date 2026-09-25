@@ -10,8 +10,6 @@ The [last post](00-the-loong-game.md) got the official toolkit installed and a f
 
 That's a lot of useful information for one command. You get the winner, how each dragon died, and how many CPU points each team spent per turn. There's also a replay you can open in the [visualiser](https://game.battlecode.au/visualiser).
 
-<!-- screenshot: the web visualiser showing this replay -->
-
 What it can't tell you is whether `alpha` is the better bot. That takes more than one game.
 
 ## Playing it again tells you nothing
@@ -72,7 +70,7 @@ A replay is a packed binary file. You can make out the bot names and the map tex
 
 The visualiser shows the whole board, but none of your dragons ever sees that. Each dragon sees a 7×7 window around its head and whatever it chose to remember. When a dragon does something stupid, the question is usually "what did it think was there?" `unswbc run` can record each dragon's log lines, indicator text and drawn dots and lines into the replay, and that helps. But you still have to reconstruct the dragon's actual view and memory in your head from the full board.
 
-<!-- screenshot: the visualiser's full-board view mid-game, to contrast with the 7×7 window -->
+![The same round of a public ladder game twice. On the left, the whole board as the visualiser shows it. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
 
 Debugging needs the fog of war: the board as one dragon saw it on one turn, next to what it remembered and what it decided.
 
