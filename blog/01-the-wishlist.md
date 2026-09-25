@@ -94,7 +94,7 @@ Decoded games are also what we need to debug our own bot. The visualiser shows t
 
 When a dragon makes a bad move, we want to know what it thought was around it. `unswbc run` can record each dragon's logs, indicator text and drawings into the replay, but we'd still be working out its view from the full board. A viewer should show one dragon's window, its memory and its decision, turn by turn.
 
-I'm writing that viewer in Odin. It's good to try new things, and Odin is very good for graphics programming. It ships first-party vendor bindings for libraries like raylib, calling into C is easy, and memory management is granular, with the allocator chosen through an implicit context. If those terms are unfamiliar, don't worry, we'll get to them in the series.
+I'm writing that viewer in Odin, and the next post explains why.
 
 The seventh item is a **debug viewer**.
 
@@ -131,6 +131,6 @@ I already have most of these working in some form, so the tools posts will walk 
 
 ## Next up
 
-The evaluation harness, and how to run lots of games in parallel without losing results to crashes or hung games.
+Choosing a language, which settles how much of the CPU budget is left for thinking.
 
 Questions, heckling and "have you tried X" are all welcome 😄
