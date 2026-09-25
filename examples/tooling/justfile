@@ -29,3 +29,12 @@ unseen-maps:
         --maps maps/*.map --seeds 2 --output results/bundled-maps
     python3 -m harness.round_robin --bots room-c starter-c \
         --maps maps-generated/*.map --seeds 2 --output results/generated-maps
+
+# Build the first strategy bot from "The shape of the problem" and test it against the flood-fill bot.
+first-bot:
+    rm -rf first-bot && cp -r ../first-bot first-bot
+    cp starter-c/helper.c starter-c/helper.h first-bot/
+    cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" first-bot/
+    nim c first-bot/strategy.nim
+    python3 -m harness.verdict --candidate first-bot --baseline room-c \
+        --maps maps/*.map maps-generated/*.map --seeds 2 --output results/first-bot

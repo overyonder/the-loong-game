@@ -73,7 +73,7 @@ def schedule_round_robin(bots: list[str], maps: list[str], seeds_per_pairing: in
 def build_each_bot_once(bots: list[str], map_path: str) -> None:
     """Compile every bot before the parallel games start, since concurrent first builds of one bot can collide."""
     for bot in bots:
-        subprocess.run(["unswbc", "run", "--no-replay", "--seed", "0x0", map_path, bot, bot],
+        subprocess.run(["unswbc", "run", "--sandbox", "--no-replay", "--seed", "0x0", map_path, bot, bot],
                        check=True, capture_output=True)
 
 
