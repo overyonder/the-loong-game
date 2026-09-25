@@ -1,7 +1,5 @@
 # Tactics
 
-<!-- draft: 16ce51c717, stage: Tactical ideas and espionage -->
-
 The earlier posts built the tools and gave the bot a structure and some roles, and this one is about carrying those roles out well. It isn't the last word on either. Through the competition I'll keep publishing more strategy and tactics ideas as short follow-ups, numbered after the post they build on: 12b, 12c and so on after [roles](12-roles.md), and 13b, 13c after this one. Each takes a well-known idea, builds it into the example bots and puts it through the same verdict, so that every team following along starts from a higher floor. First, though, a note on how much of this I'm going to share.
 
 ## A note on secret sauce
