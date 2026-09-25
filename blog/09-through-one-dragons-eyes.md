@@ -86,4 +86,4 @@ So the change wasn't wrong to want length. It was missing the other half: a bot 
 
 ## Next up
 
-The last tool on the wishlist is profiling: where a bot's CPU points actually go.
+The last tool on the wishlist is profiling: [where the points go](10-where-the-points-go.md).

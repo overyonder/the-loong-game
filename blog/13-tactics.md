@@ -2,7 +2,7 @@
 
 <!-- draft: 16ce51c717, stage: Tactical ideas and espionage -->
 
-This is the last of the implementation posts. The earlier posts built the tools and gave the bot a structure and some roles. This one is about carrying those roles out well. First, though, a note on how much of this I'm going to share.
+This is the last post that builds a new strategy bot. The earlier posts built the tools and gave the bot a structure and some roles, and this one is about carrying those roles out well. First, though, a note on how much of this I'm going to share.
 
 ## A note on secret sauce
 
@@ -119,4 +119,4 @@ The ratings line up in the order the versions were saved, and every version has 
 
 ## Next up
 
-That finishes the implementation posts. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The last ideas post is about the mechanic all of this rests on: [sonar](14-sonar.md), and what else it could be used for.
+That's the last of the strategy bots. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The last ideas post is about the mechanic all of this rests on: [sonar](14-sonar.md), and what else it could be used for.

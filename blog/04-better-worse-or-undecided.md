@@ -64,10 +64,10 @@ The reason for keeping older versions is that beating the previous version isn't
 
 ![Rock, paper, scissors, rock, paper, scissors, labelled v1 to v6, with each version beating the one before it. The labels read as steady progress, but v4 plays exactly like v1.](images/version-cycle.svg)
 
-Every step in that sequence passed a fair test, and the version numbers suggest six rounds of progress, but the bot has only gone round in a circle. Real bots can do the same thing in subtler ways. A change that makes our dragons better at dodging the last version's kamikazes might also make them worse against a bot that simply forages, and if we only ever tested against the previous version, we'd never find out. Running the verdict against the last few snapshots as well catches this, because a version that has quietly gone back round the circle will lose to one of its own ancestors.
+Every step in that sequence passed a fair test, and the version numbers suggest six rounds of progress, but the bot has only gone round in a circle. Real bots can do the same thing in subtler ways. A change that makes our dragons better at dodging the last version's attacks might also make them worse against a bot that simply forages, and if we only ever tested against the previous version, we'd never find out. Running the verdict against the last few snapshots as well catches this, because a version that has quietly gone back round the circle will lose to one of its own ancestors.
 
 We keep only the last few snapshots in testing rather than all of them, because much older versions are usually easy wins, and playing them spends games without telling us anything new. The offline Elo ladder, which comes later in this stage, will rate every snapshot against every other, so the whole history can be seen at once.
 
 ## Next up
 
-Maps nobody has seen: generating plausible new maps, and what the flood-fill bot does on them.
+[Maps nobody has seen](05-maps-nobody-has-seen.md): generating plausible new maps, and what the flood-fill bot does on them.

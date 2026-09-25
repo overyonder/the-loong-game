@@ -52,4 +52,4 @@ At two seconds a request, a sample of a few hundred replays takes a quarter of a
 
 ## Next up
 
-Downloading a replay is the easy part. The file itself is packed binary, so the next post works out how to read it and rebuild the game turn by turn.
+Downloading a replay is the easy part. The file itself is packed binary, so [the next post](08-reading-a-replay.md) works out how to read it and rebuild the game turn by turn.

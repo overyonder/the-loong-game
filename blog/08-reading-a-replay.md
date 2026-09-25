@@ -107,4 +107,4 @@ The pearl chaser runs into walls nearly three times as often and into itself mor
 
 ## Next up
 
-The debug viewer: the board through one dragon's eyes, and what it shows about those deaths.
+[Through one dragon's eyes](09-through-one-dragons-eyes.md): the debug viewer, and what it shows about those deaths.

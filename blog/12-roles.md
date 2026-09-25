@@ -100,4 +100,4 @@ The obvious fix is to give friendly heads the same berth as enemy ones. Surprisi
 
 ## Next up
 
-Next is [tactics](13-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.
+[Tactics](13-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.

@@ -99,4 +99,4 @@ That's a good illustration of the problem the next tool solves. A results table 
 
 ## Next up
 
-Statistics: turning a pile of wins and losses into a clear answer on whether a change made the bot better.
+[Better, worse or undecided](04-better-worse-or-undecided.md): turning a pile of wins and losses into a clear answer on whether a change made the bot better.
