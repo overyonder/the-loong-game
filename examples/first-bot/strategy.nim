@@ -1,6 +1,6 @@
 # The first strategy bot: a safety layer, then one of a few modes, chosen each turn.
 
-# ---- The starter's C helper, called through Nim's FFI ----------------------
+# ---- The starter's C helper, called through Nim's FFI ------------------------
 
 type
   Controller {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
@@ -26,7 +26,7 @@ proc unswbc_facing(ct: ptr Controller): Direction {.importc, header: "helper.h".
 proc unswbc_team(ct: ptr Controller): cint {.importc, header: "helper.h".}
 var UNSWBC_DIRECTIONS {.importc, header: "helper.h".}: array[4, Direction]
 
-# ---- What the dragon sees --------------------------------------------------
+# ---- What the dragon sees ----------------------------------------------------
 
 const
   Size = 7
@@ -88,7 +88,7 @@ proc room(w: Window, first: int): int =
     if second >= 0 and second != Head:
       result = max(result, w.reachable(second, first))
 
-# ---- Safety: moves no mode may overrule -------------------------------------
+# ---- Safety: moves no mode may overrule --------------------------------------
 
 proc nextToEnemyHead(w: Window, i: int): bool =
   for head in w.enemyHeads:
@@ -101,11 +101,23 @@ proc safeMoves(w: Window): seq[int] =
     if next >= 0 and not w.nextToEnemyHead(next):
       result.add side
 
-# ---- Modes ------------------------------------------------------------------
+# ---- Behaviours: each one scores a first move for its mode -------------------
+
+proc roam(w: Window, first: int): int =
+  ## Nothing threatening in sight: keep the most room.
+  w.room(first)
+
+proc evade(w: Window, first: int): int =
+  ## An enemy head within two tiles: keep room, and open the gap to the nearest head.
+  var gap = Size
+  for head in w.enemyHeads: gap = min(gap, distance(first, head))
+  w.room(first) + 4 * gap
+
+# ---- The state machine: a mode, then that mode's behaviour -------------------
 
 type Mode = enum
-  Roam    ## nothing threatening in sight: keep the most room
-  Evade   ## an enemy head within two tiles: keep room and open the gap
+  Roam
+  Evade
 
 proc chooseMode(w: Window): Mode =
   for head in w.enemyHeads:
@@ -114,12 +126,9 @@ proc chooseMode(w: Window): Mode =
 
 proc score(w: Window, mode: Mode, side: int): int =
   let first = w.step(Head, side)
-  case mode
-  of Roam: w.room(first)
-  of Evade:
-    var gap = Size
-    for head in w.enemyHeads: gap = min(gap, distance(first, head))
-    w.room(first) + 4 * gap
+  case mode   # one socket per mode, each filled by a behaviour
+  of Roam: w.roam(first)
+  of Evade: w.evade(first)
 
 proc chooseMove(w: Window, fallback: Direction): Direction =
   let mode = w.chooseMode
@@ -139,7 +148,7 @@ proc chooseMove(w: Window, fallback: Direction): Direction =
     if w.score(mode, side) > w.score(mode, best): best = side
   UNSWBC_DIRECTIONS[best]
 
-# ---- The turn loop ------------------------------------------------------------
+# ---- The turn loop -----------------------------------------------------------
 
 var ct: ptr Controller
 var game: ptr Game

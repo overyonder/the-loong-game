@@ -1,7 +1,7 @@
 # The roles bot: the first bot's safety layer and modes, plus a role that decides which modes a dragon may use.
 # Every dragon runs this same program. Its role comes from its own length and what its teammates tell it by sonar.
 
-# ---- The starter's C helper, called through Nim's FFI ----------------------
+# ---- The starter's C helper, called through Nim's FFI ------------------------
 
 type
   Controller {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
@@ -34,7 +34,7 @@ proc unswbc_can_split(ct: ptr Controller, childSize: cint): cint {.importc, head
 proc unswbc_split(ct: ptr Controller, childSize: cint): cint {.importc, discardable, header: "helper.h".}
 var UNSWBC_DIRECTIONS {.importc, header: "helper.h".}: array[4, Direction]
 
-# ---- What the dragon sees --------------------------------------------------
+# ---- What the dragon sees ----------------------------------------------------
 
 const
   Size = 7
@@ -98,7 +98,7 @@ proc gapToEnemy(w: Window, i: int): int =
   result = Size
   for head in w.enemyHeads: result = min(result, distance(i, head))
 
-# ---- Sonar: telling teammates who we are ------------------------------------
+# ---- Sonar: telling teammates who we are -------------------------------------
 
 const
   TeamTag = 0x4C4F4F4E'u64    # "LOON": marks our messages, since sonar carries no sender or team
@@ -133,16 +133,11 @@ proc listen(ct: ptr Controller, ourId: int) =
       longestTeammateHeard = max(longestTeammateHeard, length)
       turnsSinceHeard = 0
 
-proc chooseRole(length: int): Role =
-  if length >= longestTeammateHeard: Champion
-  elif length <= 3: Kamikaze
-  else: Worker
-
 proc announce(id: int, role: Role, length: int) =
   ## One message each way. Whichever teammate a ray reaches first hears us.
   for side in 0 .. 3: unswbc_send_sonar_to(UNSWBC_DIRECTIONS[side], encode(id, role, length))
 
-# ---- Safety: moves no mode may overrule -------------------------------------
+# ---- Safety: moves no mode may overrule --------------------------------------
 
 proc nextToEnemyHead(w: Window, i: int): bool = w.gapToEnemy(i) <= 1
 
@@ -152,19 +147,19 @@ proc safeMoves(w: Window, allowEnemyReach: bool): seq[int] =
     if next >= 0 and (allowEnemyReach or not w.nextToEnemyHead(next)):
       result.add side
 
-# ---- Modes, and which ones each role may use ---------------------------------
+# ---- Behaviours: each one scores a first move for its mode -------------------
 
-type Mode = enum
-  Roam    ## keep the most room
-  Evade   ## keep room and open the gap to the nearest enemy head
-  Hunt    ## close on an enemy head and hit it
+proc roam(w: Window, first: int): int =
+  ## Keep the most room.
+  w.room(first)
 
-proc chooseMode(w: Window, role: Role): Mode =
-  let gap = w.gapToEnemy(Head)
-  case role
-  of Kamikaze: (if w.enemyHeads.len > 0: Hunt else: Roam)
-  of Champion: (if gap <= 2: Evade else: Roam)         # a wider berth made it too timid to win on length
-  of Worker: (if gap <= 2: Evade else: Roam)
+proc evade(w: Window, first: int): int =
+  ## Keep room, and open the gap to the nearest enemy head.
+  w.room(first) + 4 * w.gapToEnemy(first)
+
+proc hunt(w: Window, first: int): int =
+  ## Close on an enemy head: enough room to live, then get close.
+  min(w.room(first), 6) - 10 * w.gapToEnemy(first)
 
 proc headOnMove(w: Window): int =
   ## A move straight into an adjacent enemy head, which kills both dragons.
@@ -173,12 +168,32 @@ proc headOnMove(w: Window): int =
     if next in w.enemyHeads and w.open[Head][side]: return side
   -1
 
+# ---- The state machine: a role, then a mode, then that mode's behaviour ------
+
+type Mode = enum
+  Roam
+  Evade
+  Hunt
+
+proc chooseRole(length: int): Role =
+  if length >= longestTeammateHeard: Champion
+  elif length <= 3: Kamikaze
+  else: Worker
+
+proc chooseMode(w: Window, role: Role): Mode =
+  ## Each role may only use some modes.
+  let gap = w.gapToEnemy(Head)
+  case role
+  of Kamikaze: (if w.enemyHeads.len > 0: Hunt else: Roam)
+  of Champion: (if gap <= 2: Evade else: Roam)         # a wider berth made it too timid to win on length
+  of Worker: (if gap <= 2: Evade else: Roam)
+
 proc score(w: Window, mode: Mode, side: int): int =
   let first = w.step(Head, side)
-  case mode
-  of Roam: w.room(first)
-  of Evade: w.room(first) + 4 * w.gapToEnemy(first)
-  of Hunt: min(w.room(first), 6) - 10 * w.gapToEnemy(first)   # enough room to live, then get close
+  case mode   # one socket per mode, each filled by a behaviour
+  of Roam: w.roam(first)
+  of Evade: w.evade(first)
+  of Hunt: w.hunt(first)
 
 proc chooseMove(w: Window, role: Role, fallback: Direction): Direction =
   let mode = w.chooseMode(role)
@@ -196,7 +211,7 @@ proc chooseMove(w: Window, role: Role, fallback: Direction): Direction =
     if w.score(mode, side) > w.score(mode, best): best = side
   UNSWBC_DIRECTIONS[best]
 
-# ---- The turn loop ------------------------------------------------------------
+# ---- The turn loop -----------------------------------------------------------
 
 var ct: ptr Controller
 var game: ptr Game

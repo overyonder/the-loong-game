@@ -12,7 +12,7 @@ const feedEnabled = not defined(noFeed)
 const forageEnabled = feedEnabled
 const deliverEnabled = feedEnabled and defined(deliver)
 
-# ---- The starter's C helper, called through Nim's FFI ----------------------
+# ---- The starter's C helper, called through Nim's FFI ------------------------
 
 type
   Controller {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
@@ -51,7 +51,7 @@ proc unswbc_can_split(ct: ptr Controller, childSize: cint): cint {.importc, head
 proc unswbc_split(ct: ptr Controller, childSize: cint): cint {.importc, discardable, header: "helper.h".}
 var UNSWBC_DIRECTIONS {.importc, header: "helper.h".}: array[4, Direction]
 
-# ---- What the dragon sees --------------------------------------------------
+# ---- What the dragon sees ----------------------------------------------------
 
 const
   Size = 7
@@ -137,6 +137,12 @@ proc ownBodyAround(w: Window, i: int): int =
     let next = neighbour(i, side)
     if next >= 0 and w.ownBody[next]: inc result
 
+proc wrappedOffset(target, here, size: int): int =
+  ## The shortest signed distance from here to target on a wrapping axis.
+  result = (target - here) mod size
+  if result > size div 2: result -= size
+  elif result < -(size div 2): result += size
+
 # ---- Sonar: who we are, and where the champion is ----------------------------
 
 const
@@ -172,12 +178,7 @@ proc listen(ct: ptr Controller, ourId: int) =
       heard = Heard(longest: length, championId: sender, turnsAgo: 0,
                     championX: int((message shr 8) and 0xFF), championY: int(message and 0xFF))
 
-proc chooseRole(length: int): Role =
-  if length >= heard.longest: Champion
-  elif length <= 3: Kamikaze
-  else: Feeder
-
-# ---- Safety -------------------------------------------------------------------
+# ---- Safety ------------------------------------------------------------------
 
 proc safeMoves(w: Window, allowEnemyReach: bool): seq[int] =
   for side in 0 .. 3:
@@ -185,25 +186,71 @@ proc safeMoves(w: Window, allowEnemyReach: bool): seq[int] =
     if next >= 0 and (allowEnemyReach or w.gapToEnemy(next) > 1):
       result.add side
 
-# ---- Modes --------------------------------------------------------------------
+# ---- Behaviours: each one scores a first move for its mode -------------------
+
+proc roam(w: Window, first: int): int =
+  ## Keep the most room.
+  w.room(first)
+
+proc evade(w: Window, first: int): int =
+  ## Keep room, and open the gap to the nearest enemy head.
+  w.room(first) + 4 * w.gapToEnemy(first)
+
+proc hunt(w: Window, first: int): int =
+  ## Close on an enemy head: enough room to live, then get close.
+  min(w.room(first), 6) - 10 * w.gapToEnemy(first)
+
+proc coil(w: Window, first: int): int =
+  ## Hug our own body, but never so tightly that we box ourselves in, and eat any pearl in reach.
+  let room = w.room(first)
+  (if w.pearl[first]: 100 else: 0) + (if room >= 10: 20 * w.ownBodyAround(first) else: 0) + room
+
+proc forage(w: Window, first: int): int =
+  ## Head for the nearest visible pearl, keeping some room.
+  min(w.room(first), 10) * 4 - 6 * w.nearestPearl(first)
+
+proc deliver(w: Window, first: int, homeward: (int, int)): int =
+  ## Travel towards where the champion was last heard from.
+  let (dx, dy) = homeward
+  let (column, row) = (first mod Size - Head mod Size, first div Size - Head div Size)
+  min(w.room(first), 10) * 4 + 8 * (column * sgn(dx) + row * sgn(dy))
+
+proc headOnMove(w: Window): int =
+  ## A move straight into an adjacent enemy head, which kills both dragons.
+  for side in 0 .. 3:
+    let next = neighbour(Head, side)
+    if next in w.enemyHeads and w.open[Head][side]: return side
+  -1
+
+proc deliveryMove(w: Window): int =
+  ## A move straight into the champion's body, close to its head. Only the mover dies, and its
+  ## segments become pearls right where the champion can reach them.
+  if w.championHead < 0: return -1
+  for side in 0 .. 3:
+    let next = neighbour(Head, side)
+    if next >= 0 and w.championBody[next] and w.open[Head][side] and distance(Head, w.championHead) <= 2:
+      return side
+  -1
+
+# ---- The state machine: a role, then a mode, then that mode's behaviour ------
 
 type Mode = enum
-  Roam      ## keep the most room
-  Evade     ## keep room and open the gap to the nearest enemy head
-  Hunt      ## close on an enemy head and hit it
-  Coil      ## curl up against our own body, eating any pearl that comes within reach
-  Forage    ## head for the nearest visible pearl
-  Deliver   ## travel to the champion and die against its body
+  Roam
+  Evade
+  Hunt
+  Coil
+  Forage
+  Deliver
 
 const FeederDeliversAt = 6    # a feeder heads home once it has grown this long
 
-proc wrappedOffset(target, here, size: int): int =
-  ## The shortest signed distance from here to target on a wrapping axis.
-  result = (target - here) mod size
-  if result > size div 2: result -= size
-  elif result < -(size div 2): result += size
+proc chooseRole(length: int): Role =
+  if length >= heard.longest: Champion
+  elif length <= 3: Kamikaze
+  else: Feeder
 
 proc chooseMode(w: Window, role: Role, length: int): Mode =
+  ## Each role may only use some modes.
   let gap = w.gapToEnemy(Head)
   case role
   of Kamikaze: (if w.enemyHeads.len > 0: Hunt else: Roam)
@@ -219,35 +266,18 @@ proc chooseMode(w: Window, role: Role, length: int): Mode =
 
 proc score(w: Window, mode: Mode, side: int, homeward: (int, int)): int =
   let first = w.step(Head, side)
-  let room = w.room(first)
-  case mode
-  of Roam: room
-  of Evade: room + 4 * w.gapToEnemy(first)
-  of Hunt: min(room, 6) - 10 * w.gapToEnemy(first)
-  of Coil:
-    # Hug our own body, but never so tightly that we box ourselves in.
-    (if w.pearl[first]: 100 else: 0) + (if room >= 10: 20 * w.ownBodyAround(first) else: 0) + room
-  of Forage: min(room, 10) * 4 - 6 * w.nearestPearl(first)
-  of Deliver:
-    let (dx, dy) = homeward
-    let (column, row) = (first mod Size - Head mod Size, first div Size - Head div Size)
-    min(room, 10) * 4 + 8 * (column * sgn(dx) + row * sgn(dy))
-
-proc deliveryMove(w: Window): int =
-  ## A move straight into the champion's body, close to its head. Only the mover dies, and its
-  ## segments become pearls right where the champion can reach them.
-  if w.championHead < 0: return -1
-  for side in 0 .. 3:
-    let next = neighbour(Head, side)
-    if next >= 0 and w.championBody[next] and w.open[Head][side] and distance(Head, w.championHead) <= 2:
-      return side
-  -1
+  case mode   # one socket per mode, each filled by a behaviour
+  of Roam: w.roam(first)
+  of Evade: w.evade(first)
+  of Hunt: w.hunt(first)
+  of Coil: w.coil(first)
+  of Forage: w.forage(first)
+  of Deliver: w.deliver(first, homeward)
 
 proc chooseMove(w: Window, mode: Mode, homeward: (int, int), fallback: Direction): Direction =
   if mode == Hunt:
-    for side in 0 .. 3:
-      let next = neighbour(Head, side)
-      if next in w.enemyHeads and w.open[Head][side]: return UNSWBC_DIRECTIONS[side]
+    let strike = w.headOnMove
+    if strike >= 0: return UNSWBC_DIRECTIONS[strike]
   if mode == Deliver:
     let sacrifice = w.deliveryMove
     if sacrifice >= 0: return UNSWBC_DIRECTIONS[sacrifice]
@@ -262,7 +292,7 @@ proc chooseMove(w: Window, mode: Mode, homeward: (int, int), fallback: Direction
     if w.score(mode, side, homeward) > w.score(mode, best, homeward): best = side
   UNSWBC_DIRECTIONS[best]
 
-# ---- The turn loop ------------------------------------------------------------
+# ---- The turn loop -----------------------------------------------------------
 
 var ct: ptr Controller
 var game: ptr Game
