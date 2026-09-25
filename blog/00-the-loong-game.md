@@ -35,6 +35,6 @@ The organisers' `unswbc` toolkit covers the basics. It makes starter bots, runs 
 
 ## Missing pieces
 
-The toolkit gets you as far as playing a game and watching it. It won't tell you whether your latest change made the bot any better, what a dragon could see when it died, or where its CPU budget went. Each post in this series builds one of the tools that fills those gaps, with the code and results behind it. The [next post](01-the-wishlist.md) works out which tools we need.
+The toolkit gets you as far as playing a game and watching it. It won't tell you whether your latest change made the bot any better, what a dragon could see when it died, or where its CPU budget went. Filling those gaps is the tools strand of this series, running alongside the bot ideas, beginner tips and WASM deep dives. The [next post](01-the-wishlist.md) works out which tools we need.
 
 Questions, heckling and "have you tried X" are all welcome 😄

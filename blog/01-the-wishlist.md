@@ -1,6 +1,6 @@
 # The wishlist
 
-The [last post](00-the-loong-game.md) ended with a first bot running. Next we want to make it better, which means being able to tell when a change actually helped. In this post we'll try to do that with only the stock toolkit and starter bots. Every time we hit a wall, we'll put the tool that would get us past it into a basket. By the end we'll have the wishlist the rest of the series builds.
+Let's start where most of us are after `unswbc init`: a bot that runs, and plenty of ideas for making it better. Before trying any of them, we need a way to tell whether a change actually helped. This post tries to do that with nothing but the stock toolkit and its starter bots. Every time we hit a wall, we'll put the tool that would get us past it into a basket, and by the end we'll have the wishlist for the tools side of the series.
 
 ## Starting with one game
 
@@ -125,7 +125,7 @@ That's the wishlist. Here's how the pieces fit together:
 | **Debug viewer** | The board through one dragon's eyes, with its memory and decisions. |
 | **Profiling** | CPU cost from wall time down to individual instructions, native and WASM. |
 
-I already have most of these working in some form, so the posts will write up working tools, with code. The weird bot ideas, including the Jev test from the intro, come later. They'll be a lot more fun to judge with this lot in place.
+I already have most of these working in some form, so the tools posts will write up working code. They'll run alongside the rest of the series: the weird bot ideas (including the Jev test from the [intro](00-the-loong-game.md)), beginner tips and WASM deep dives. The bot experiments will be a lot more fun to judge with this lot in place.
 
 ## Next up
 
