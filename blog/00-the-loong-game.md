@@ -35,6 +35,6 @@ The organisers' `unswbc` toolkit covers the basics. It makes starter bots, runs 
 
 ## Missing pieces
 
-The toolkit gets you as far as playing a game and watching it. It won't tell you whether your latest change made the bot any better, what a dragon could see when it died, or where its CPU budget went. The tools posts in this series build what's missing, alongside the bot ideas, beginner tips and WASM deep dives. The [next post](01-the-wishlist.md) works out which tools we need.
+The toolkit gets you as far as playing a game and watching it. It won't tell you whether your latest change made the bot any better, what a dragon could see when it died, or where its CPU budget went. Building what's missing is the series' second stage. After it come strategic ideas, espionage, advanced tactics and performance, which is where the WASM deep dives live. The [next post](01-the-wishlist.md) works out which tools we need.
 
 Questions, heckling and "have you tried X" are all welcome 😄

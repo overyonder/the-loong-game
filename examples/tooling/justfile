@@ -1,0 +1,31 @@
+# Recipes from the tooling posts. Run `just setup` once, then any recipe.
+export PYTHONPATH := justfile_directory() / ".." / ".."
+
+# Starter bots, the flood-fill bots from "The choice", and the toolkit's helper files.
+setup:
+    unswbc maps
+    unswbc init c starter-c
+    unswbc init python starter-py
+    cp -r ../the-choice/c room-c
+    cp -r ../the-choice/python room-py
+    cp starter-c/helper.c starter-c/helper.h room-c/
+    cp starter-c/helper.c starter-c/helper.h room-pearls/
+    cp starter-py/helper.py room-py/
+
+# Four bots, every map, both sides, two seeds each.
+round-robin:
+    python3 -m harness.round_robin --bots starter-c starter-py room-c room-py \
+        --maps maps/*.map --seeds 2 --output results/round-robin
+
+# Is the candidate better than the baseline?
+verdict candidate baseline:
+    python3 -m harness.verdict --candidate {{candidate}} --baseline {{baseline}} \
+        --maps maps/*.map --seeds 4 --output results/{{candidate}}-vs-{{baseline}}
+
+# The same pairing on the bundled maps and on 20 generated ones.
+unseen-maps:
+    python3 -m harness.mapgen --count 20 --seed 2026 --output maps-generated
+    python3 -m harness.round_robin --bots room-c starter-c \
+        --maps maps/*.map --seeds 2 --output results/bundled-maps
+    python3 -m harness.round_robin --bots room-c starter-c \
+        --maps maps-generated/*.map --seeds 2 --output results/generated-maps

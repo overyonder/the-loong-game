@@ -1,0 +1,8 @@
+maps/
+maps-generated/
+results/
+starter-c/
+starter-py/
+room-c/
+room-py/
+room-pearls/helper.*

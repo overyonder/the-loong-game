@@ -1,6 +1,6 @@
 # The wishlist
 
-Most of us start the same way: `unswbc init`, a starter bot that runs, and a list of ideas for making it better. Before trying any of them, we need a way to tell whether a change actually helped. This post tries to do that with only the official toolkit and its starter bots. Each time we get stuck, we'll add the tool that would have helped to a wishlist. These tools are one strand of the series, alongside the bot ideas, beginner tips and WASM deep dives.
+Most of us start the same way: `unswbc init`, a starter bot that runs, and a list of ideas for making it better. Before trying any of them, we need a way to tell whether a change actually helped. This post tries to do that with only the official toolkit and its starter bots. Each time we get stuck, we'll add the tool that would have helped to a wishlist. Building them is the series' second stage, after this preparation and before strategic ideas, espionage, advanced tactics and performance.
 
 ## Two starter bots and one game
 
@@ -127,7 +127,7 @@ Here's how the eight tools connect:
 | **Debug viewer** | The board through one dragon's eyes, with its memory and decisions. |
 | **Profiling** | CPU cost from wall time down to individual instructions, native and WASM. |
 
-I already have most of these working in some form, so the tools posts will walk through working code. They'll run alongside the rest of the series, including the weird bot ideas like the Jev test from the [intro](00-the-loong-game.md), where these tools will tell us whether an idea actually works.
+I already have most of these working in some form, so the tools posts will walk through working code. The later stages lean on them to tell whether an idea actually works, from strategic ideas like the Jev test in the [intro](00-the-loong-game.md) through to the WASM work in the performance stage.
 
 ## Next up
 
