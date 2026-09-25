@@ -8,7 +8,7 @@ The [last post](00-the-loong-game.md) got the official toolkit installed and a f
 
 `unswbc init` gives you a starter bot in C, C++ or Python. I made a C one called `alpha` and a Python one called `bravo`, and played them against each other in the judge's sandbox:
 
-![Terminal output of unswbc run --sandbox on default_small with alpha against bravo. Three dragons die, one by hitting itself, one by hitting a wall. Team A wins after 65 rounds by elimination. Team A used 3.0M points per turn at p50, p99 and max. Team B used 5.0M at p50, 20.3M at p99 and 20.4M at max.](images/unswbc-run.png)
+![A terminal running unswbc run --sandbox on default_small with alpha against bravo. Three dragons die, one by hitting itself, one by hitting a wall. Team A wins after 65 rounds by elimination. Team A used 3.0M points per turn at p50, p99 and max. Team B used 5.0M at p50, 20.3M at p99 and 20.4M at max.](images/unswbc-run.png)
 
 That's a lot of useful information for one command. You get the winner, how each dragon died, and how many CPU points each team spent per turn. There's also a replay you can open in the [visualiser](https://game.battlecode.au/visualiser).
 
@@ -22,17 +22,9 @@ That's a good thing for debugging, since you can reproduce any game. It does mea
 
 ## A hand-rolled round robin
 
-So here's the next obvious step, a loop over all 11 bundled maps with both bots taking each side:
+So here's the next obvious step, a fish loop over all 11 bundled maps with both bots taking each side:
 
-```sh
-for map in maps/*.map; do
-  for pair in "alpha bravo" "bravo alpha"; do
-    echo "$map ($pair): $(unswbc run --sandbox --no-replay "$map" $pair | grep -o 'team . wins')"
-  done
-done
-```
-
-![Terminal output of the loop: 22 results, one per map and side, taking 1 minute 19 seconds.](images/unswbc-loop.png)
+![A terminal showing loop.fish in bat, then time fish loop.fish printing 22 results, one per map and side, in 57.8 seconds.](images/unswbc-loop.png)
 
 `alpha` won 12 of the 22 games. Is it better? No. Both bots run the same random walk, just in different languages. Some maps look like strong evidence on their own. On `default`, `bravo` won from both sides. On `default_small`, whoever was team A won both times. They're still just noise.
 
@@ -40,15 +32,15 @@ done
 
 ![Games needed to detect a better bot at 95% confidence and 80% power, by its true win rate: about 3,900 at 52%, 617 at 55%, 153 at 60%, 37 at 70% and 23 at 75%. A 22-game loop only catches bots that win about 75% of the time or more.](images/games-needed.svg)
 
-The question "did my change help?" is really a statistics question, and a `grep` loop can't answer it.
+The question "did my change help?" is really a statistics question, and a shell loop can't answer it.
 
-## And it gets slow
+## It gets slow
 
-Those 22 games took 1 minute 19 seconds, and the starter bots barely think. They also die early, so no game got anywhere near the 500-round limit. Real bots are a different story. In one of my recent offline ladders, 600 games between stronger bots took a median of 17 seconds each. One in ten went past four minutes, and the longest took over nine. Played back to back, that ladder is 14 hours of games.
+Those 22 games took 58 seconds, and the starter bots barely think. They also die early, so no game got anywhere near the 500-round limit. Real bots are a different story. In one of my recent offline ladders, 600 games between stronger bots took a median of 17 seconds each. One in ten went past four minutes, and the longest took over nine. Played back to back, that ladder is 14 hours of games.
 
 Your machine has more than one core, and games are independent, so they should run in parallel. Doing that properly means more than adding `&`. You need to cap how many games run at once, keep one hung game from blocking the batch, clean up the child processes when something dies, and keep crashes and timeouts apart from genuine losses.
 
-## Why not just use the ladder?
+## The ladder is the wrong test bench
 
 The online ladder already plays lots of games, but it's a poor way to test a change:
 
@@ -68,7 +60,7 @@ This bit me already. The docs say maps are at least 10 tiles on a side, and my b
 
 Every ladder battle is public, and game IDs on the site are already past 88,000. That's a huge record of what other bots do: how they open, whether they split early, how they use sonar, how they die. Nobody's going to watch 88,000 games in the visualiser, though, and the replay files aren't something you can grep:
 
-![A hexdump of a replay file. It is packed binary, with fragments of the map text and bot names visible.](images/replay-hexdump.png)
+![hexyl showing the first 160 bytes of a replay file. It is packed binary, with the bot names and fragments of the map text visible.](images/replay-hexdump.png)
 
 A replay is a packed binary file. You can make out the bot names and the map text, but not much else. Using the archive means downloading it politely, decoding the format, and rebuilding the game state turn by turn. Only then can you ask it questions.
 

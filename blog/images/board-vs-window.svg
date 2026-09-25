@@ -161,6 +161,6 @@
 <rect x="192" y="24" width="168" height="168" fill="none" stroke="#ff7a3d" stroke-width="2"/>
 <circle cx="276.0" cy="108.0" r="14.879999999999999" fill="none" stroke="#f3ecdf" stroke-width="3"/>
 </svg>
-<text x="192.0" y="412" font-size="15" fill="#20251f" text-anchor="middle">The whole board</text>
-<text x="608.0" y="412" font-size="15" fill="#20251f" text-anchor="middle">What the ringed dragon sees</text>
+<text x="192.0" y="412" font-size="15" fill="#20251f" text-anchor="middle">Full map reality</text>
+<text x="608.0" y="412" font-size="15" fill="#20251f" text-anchor="middle">Single dragon's perception</text>
 </svg>
