@@ -6,6 +6,9 @@ kitty window under Hyprland: gruvbox dark hard (stylix base16), FiraCode Nerd
 Font, 2px active border and 10px rounding.
 
     python3 tools/terminal_capture.py --cwd DIR --output out.png -- 'command' ...
+
+The PNG is drawn at twice its display size. Mark it as such for the site and shrink it:
+    magick out.png -density 144 -units PixelsPerInch -colors 256 PNG8:out.png && oxipng -o 4 out.png
 """
 
 import argparse

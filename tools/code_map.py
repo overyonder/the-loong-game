@@ -8,7 +8,8 @@ with a box over each part, and one <bot>-code-<piece>.png per close-up, drawn as
 Neovide with gruvbox dark hard inside a Hyprland window. Boxes take their part's
 colour from figure_palette, the same colour the part has in the block diagrams.
 Regions are found by pattern, so the figures follow the code when it changes.
-Quantise the PNGs afterwards like the terminal figures (magick -colors 256, oxipng).
+Quantise the PNGs afterwards like the terminal figures, marking them as 2x images for the site:
+    magick F -density 144 -units PixelsPerInch -colors 256 PNG8:F && oxipng -o 4 F
 """
 
 import html
