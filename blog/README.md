@@ -6,6 +6,6 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 
 | # | Post | Summary |
 | ---: | --- | --- |
-| 0 | [Introducing The Loong Game](00-the-loong-game.md) | What the series will cover: weird bot ideas, beginner tips, tools for `unswbc` and WASM deep dives. |
+| 0 | [Introducing The Loong Game](00-the-loong-game.md) | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
 
 Next up: testing Jev to see how smart the 'System 1' model is.
