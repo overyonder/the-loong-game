@@ -12,7 +12,7 @@ The run prints the seed, how each dragon died, who won, and how many CPU points 
 
 Each run picks a random seed, which sets the pearl spawns and both bots' random numbers. Running the same match again gives a different game, and passing a seed back with `--seed` reproduces one exactly:
 
-![Two runs of the same match print different seeds and different game lengths. A third run with --seed 0xf80f04670677fc31 reproduces the first game's 60-round win.](images/unswbc-seed.png)
+![Running the same match again without a seed gets seed 0x5007de0a57fc374d and a different 75-round game. Running it with --seed 0xf80f04670677fc31 repeats the first game exactly: the same three deaths and team A winning after 60 rounds.](images/unswbc-seed.png)
 
 ## Every map, both sides
 
