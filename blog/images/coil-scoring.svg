@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 614 290" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">How the coil scores a move</title>
+<desc id="d">A champion curled into a U, with two of its possible moves. Moving into the gap inside the curl touches two of its own segments and scores highest. Moving out of the curl touches none. Touching its own body only counts when the move still leaves at least 10 tiles of room.</desc>
+<rect width="614" height="290" fill="#ede5d5"/>
+<rect x="30" y="30" width="264" height="220" rx="4" fill="#1d3027"/>
+<line x1="74" x2="74" y1="30" y2="250" stroke="rgba(243,236,223,.08)"/>
+<line x1="118" x2="118" y1="30" y2="250" stroke="rgba(243,236,223,.08)"/>
+<line x1="162" x2="162" y1="30" y2="250" stroke="rgba(243,236,223,.08)"/>
+<line x1="206" x2="206" y1="30" y2="250" stroke="rgba(243,236,223,.08)"/>
+<line x1="250" x2="250" y1="30" y2="250" stroke="rgba(243,236,223,.08)"/>
+<line x1="30" x2="294" y1="74" y2="74" stroke="rgba(243,236,223,.08)"/>
+<line x1="30" x2="294" y1="118" y2="118" stroke="rgba(243,236,223,.08)"/>
+<line x1="30" x2="294" y1="162" y2="162" stroke="rgba(243,236,223,.08)"/>
+<line x1="30" x2="294" y1="206" y2="206" stroke="rgba(243,236,223,.08)"/>
+<polyline points="140.0,96.0 184.0,96.0 228.0,96.0 228.0,140.0 228.0,184.0 184.0,184.0 140.0,184.0 96.0,184.0 96.0,140.0 96.0,96.0" fill="none" stroke="#ff7a3d" stroke-width="22.0" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="140.0" cy="96.0" r="15.84" fill="#ff7a3d"/>
+<circle cx="140.0" cy="140.0" r="13.2" fill="none" stroke="#ffd166" stroke-width="2.5" stroke-dasharray="4 3"/>
+<text x="140.0" y="145.0" font-size="14" font-weight="bold" fill="#ffd166" text-anchor="middle">A</text>
+<circle cx="140.0" cy="52.0" r="13.2" fill="none" stroke="#ffd166" stroke-width="2.5" stroke-dasharray="4 3"/>
+<text x="140.0" y="57.0" font-size="14" font-weight="bold" fill="#ffd166" text-anchor="middle">B</text>
+<text x="318" y="50" font-size="15" font-weight="bold" fill="#b53b13">A</text>
+<text x="340" y="50" font-size="14" fill="#20251f">Into the gap inside the curl.</text>
+<text x="340" y="70" font-size="13" fill="#66675e">Touches 2 of its own segments.</text>
+<text x="318" y="114" font-size="15" font-weight="bold" fill="#b53b13">B</text>
+<text x="340" y="114" font-size="14" fill="#20251f">Out of the curl.</text>
+<text x="340" y="134" font-size="13" fill="#66675e">Touches none.</text>
+<text x="318" y="178" font-size="14" fill="#20251f">Only counted while the move still</text>
+<text x="318" y="198" font-size="13" fill="#66675e">leaves at least 10 tiles of room.</text>
+</svg>

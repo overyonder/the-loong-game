@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 408" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">Each tactic against the roles bot</title>
+<desc id="d">Coil only: 60 wins, 62 losses, undecided; Coil, forage and sacrifice: 43 wins, 78 losses, worse; Forage and sacrifice, no coil: 32 wins, 88 losses, worse; Sacrifice without foraging: 40 wins, 81 losses, worse; Sacrifice only near the champion's head: 50 wins, 72 losses, worse; Forage, no coil: 63 wins, 57 losses, undecided; Coil and forage, four seeds: 138 wins, 106 losses, better.</desc>
+<rect width="720" height="408" fill="#ede5d5"/>
+<line x1="300" x2="300" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="300" y="392" font-size="12" fill="#66675e" text-anchor="middle">0%</text>
+<line x1="375.0" x2="375.0" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="375.0" y="392" font-size="12" fill="#66675e" text-anchor="middle">25%</text>
+<line x1="450.0" x2="450.0" y1="32" y2="374" stroke="#8a8274" stroke-dasharray="4 3"/>
+<text x="450.0" y="392" font-size="12" fill="#66675e" text-anchor="middle">50%</text>
+<line x1="525.0" x2="525.0" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="525.0" y="392" font-size="12" fill="#66675e" text-anchor="middle">75%</text>
+<line x1="600" x2="600" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="600" y="392" font-size="12" fill="#66675e" text-anchor="middle">100%</text>
+<text x="450.0" y="26" font-size="12" fill="#66675e" text-anchor="middle">an even match</text>
+<text x="288" y="59" font-size="13" fill="#20251f" text-anchor="end">Coil only</text>
+<line x1="450.0" x2="447.5" y1="54" y2="54" stroke="#b9ad99" stroke-width="3"/>
+<circle cx="447.5" cy="54" r="6" fill="#b9ad99" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="59" font-size="12.5" fill="#20251f">60–62, undecided</text>
+<text x="288" y="103" font-size="13" fill="#20251f" text-anchor="end">Coil, forage and sacrifice</text>
+<line x1="450.0" x2="406.6" y1="98" y2="98" stroke="#8a8274" stroke-width="3"/>
+<circle cx="406.6" cy="98" r="6" fill="#8a8274" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="103" font-size="12.5" fill="#20251f">43–78, worse</text>
+<text x="288" y="147" font-size="13" fill="#20251f" text-anchor="end">Forage and sacrifice, no coil</text>
+<line x1="450.0" x2="380.0" y1="142" y2="142" stroke="#8a8274" stroke-width="3"/>
+<circle cx="380.0" cy="142" r="6" fill="#8a8274" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="147" font-size="12.5" fill="#20251f">32–88, worse</text>
+<text x="288" y="191" font-size="13" fill="#20251f" text-anchor="end">Sacrifice without foraging</text>
+<line x1="450.0" x2="399.2" y1="186" y2="186" stroke="#8a8274" stroke-width="3"/>
+<circle cx="399.2" cy="186" r="6" fill="#8a8274" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="191" font-size="12.5" fill="#20251f">40–81, worse</text>
+<text x="288" y="235" font-size="13" fill="#20251f" text-anchor="end">Sacrifice only near the champion's head</text>
+<line x1="450.0" x2="423.0" y1="230" y2="230" stroke="#8a8274" stroke-width="3"/>
+<circle cx="423.0" cy="230" r="6" fill="#8a8274" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="235" font-size="12.5" fill="#20251f">50–72, worse</text>
+<text x="288" y="279" font-size="13" fill="#20251f" text-anchor="end">Forage, no coil</text>
+<line x1="450.0" x2="457.5" y1="274" y2="274" stroke="#b9ad99" stroke-width="3"/>
+<circle cx="457.5" cy="274" r="6" fill="#b9ad99" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="279" font-size="12.5" fill="#20251f">63–57, undecided</text>
+<text x="288" y="323" font-size="13" fill="#20251f" text-anchor="end">Coil and forage, four seeds</text>
+<line x1="450.0" x2="469.7" y1="318" y2="318" stroke="#b53b13" stroke-width="3"/>
+<circle cx="469.7" cy="318" r="6" fill="#b53b13" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="323" font-size="12.5" fill="#20251f">138–106, better</text>
+</svg>

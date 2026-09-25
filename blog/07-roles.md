@@ -84,4 +84,4 @@ The replays showed one more problem. Head-on collisions kill teammates too, and 
 
 ## Next up
 
-The roles give the bot a way to act differently in different situations, and sonar gives it a way to share what it knows. Next is feeding: when it's safe to go for a pearl, and which role should.
+Next is [tactics](08-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.
