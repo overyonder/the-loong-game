@@ -67,6 +67,6 @@ The organisers' `unswbc` toolkit is a Python package (`uv tool install unswbc`),
 
 The website adds the docs, a [visualiser](https://game.battlecode.au/visualiser) for replays, a map editor, the leaderboard, public replays of every battle and an API.
 
-What you don't get is everything between one match and knowing whether a change helped. That is what this series will build in the posts to come.
+What you don't get is everything between one match and knowing whether a change helped. That's what this series will build, starting with the next post.
 
 Questions, heckling and "have you tried X" are all welcome 😄
