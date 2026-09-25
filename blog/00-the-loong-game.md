@@ -10,7 +10,7 @@ I'm Kieran Hannigan, and I run [over|yonder](https://over-yonder.tech), a perfor
 
 ## What to expect
 
-- **Weird bot ideas.** Some will work. Most won't. I'll post both! First cab off the rank is testing ~~my-name-is~~-jev to see how smart this highly hyped 'System 1' model is.
+- **Weird bot ideas.** Some will work. Most won't. I'll post both! One I'm keen on is testing ~~my-name-is~~-jev to see how smart this highly hyped 'System 1' model is.
 - **Beginner tips.** Getting a first bot running, reading the 7×7 window properly, and sprinting into our own tails as a rite of passage.
 - **Tools for unswbc.** Round-robin harnesses, offline Elo ladders, replay analysis and whatever else I end up wanting at 2am.
 - **WASM deep dives.** What our C actually compiles to under the judge's toolchain: SIMD, instruction counts, where the cycles go, and how to fit more search into the same budget.
@@ -67,17 +67,10 @@ The organisers' `unswbc` toolkit is a Python package (`uv tool install unswbc`),
 
 The website adds the docs, a [visualiser](https://game.battlecode.au/visualiser) for replays, a map editor, the leaderboard, public replays of every battle and an API.
 
-What you don't get is everything between one match and knowing whether a change helped. That's what this series will build:
-
-- **Many games at once.** Round robins across several bots and maps, swapping sides, on every core you have.
-- **Ratings you can trust offline.** An Elo ladder that includes your own older versions, so you can tell a real improvement from a lucky spawn.
-- **Maps you haven't seen.** Tournament maps are unseen, so you need a way to test on more than the bundled set.
-- **Replay analysis in bulk.** Downloading public replays and working out what other bots actually do.
-- **Seeing what each dragon saw.** The visualiser shows the whole board, which none of your dragons can see. Debugging needs the fog of war and each dragon's memory.
-- **Knowing where your CPU points go.** The sandbox tells you when you've spent too much, not where.
+What you don't get is everything between one match and knowing whether a change helped. That's what this series will build, starting with the next post.
 
 ## Next up
 
-[Post 1](01-testing-jev.md) puts Jev through its paces, to see how smart this 'System 1' model really is.
+[Post 1](01-the-wishlist.md) looks at what the toolkit can't tell you yet, and turns that into a wishlist of tools for the rest of the series.
 
 Questions, heckling and "have you tried X" are all welcome 😄
