@@ -35,8 +35,8 @@ def render_wishlist_card_svg(filled_count):
         ' font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">',
         f'<title id="t">Wishlist so far: {listed}</title>',
         f'<rect width="{width}" height="{height}" fill="{PAPER}"/>',
-        f'<text x="{MARGIN}" y="{MARGIN + 16}" font-size="13" font-weight="700" letter-spacing="1.3"'
-        f' fill="{MUTED}">WISHLIST</text>',
+        f'<text x="{MARGIN}" y="{MARGIN + 16}" font-size="14" font-weight="700"'
+        f' fill="{MUTED}">Wishlist</text>',
         f'<text x="{width - MARGIN}" y="{MARGIN + 16}" font-size="13" fill="{MUTED}"'
         f' text-anchor="end">{filled_count} of {len(WISHLIST_ITEMS)}</text>',
     ]
