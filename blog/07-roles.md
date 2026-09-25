@@ -24,18 +24,23 @@ Every dragon runs the same program, and each one is a separate process with its 
 
 Each turn, every dragon announces its length in all four directions. Each dragon remembers the longest teammate it has heard from in the last 12 turns, and picks its role from that:
 
-```nim
-proc chooseRole(length: int): Role =
-  if length >= longestTeammateHeard: Champion
-  elif length <= 3: Kamikaze
-  else: Worker
-```
-
 ![How a dragon picks its role. It listens for the longest teammate heard in the last 12 turns. If it is at least that long, it is the champion. Otherwise, if it has three segments or fewer, it is a kamikaze, and if not, a worker.](images/roles-rule.svg)
 
 The role doesn't replace the architecture. It slots in above it and decides which modes a dragon may use. The champion and workers roam and evade like the first bot, and a kamikaze roams until it sees an enemy head, then hunts it. The safety layer stays in charge of every role, with one exception: a hunting kamikaze may step next to an enemy head, because that's the point.
 
-![The roles bot's structure. Each turn the dragon reads its sonar and its window, picks a role, and the role limits its modes: the champion roams, evades and splits off kamikazes, a worker roams or evades, and a kamikaze roams or hunts. The safety layer removes deadly moves, the chosen mode scores the rest, the best move is sent, and the dragon announces its role and length on sonar.](images/roles-architecture.svg)
+![The roles bot's structure. Each turn the dragon reads its sonar and its window, picks a role, and the role limits its modes: the champion roams, evades and splits off kamikazes, a worker roams or evades, and a kamikaze roams or hunts. The safety layer removes deadly moves, the chosen mode's behaviour scores the rest, the best move is sent or the champion splits, and the dragon announces itself on sonar.](images/roles-architecture.svg)
+
+In the code, the new pieces slot in around the first bot's. Sonar gets its own section, there's one more behaviour, and the state machine gains a layer on top:
+
+![A code map of the roles bot's strategy.nim. After the folded C helper bindings come the window reading and flood fill, a new sonar section, the safety layer, and the Roam, Evade and Hunt behaviours. The state machine holds Roam, Evade and Hunt sockets. In the turn loop, the champion's split and the sonar announcement are boxed.](images/roles-bot-code-map.svg)
+
+The state machine is where the hierarchy lives. `chooseRole` picks the outer state, and `chooseMode` then picks a mode from only the ones that role allows. A worker behaves exactly like the first bot, a kamikaze hunts as soon as it sees an enemy head, and `score` gains a third socket for the new behaviour:
+
+![The roles bot's state machine, lines 178 to 196. chooseRole returns Champion if the dragon is at least as long as the longest teammate heard, Kamikaze if it has three segments or fewer, and Worker otherwise. chooseMode picks Hunt or Roam for a kamikaze and Evade or Roam for the other roles. score has Roam, Evade and Hunt sockets.](images/roles-bot-code-frame.png)
+
+Hunt is the one new behaviour. It keeps just enough room to stay alive, then scores a move higher the closer it gets to an enemy head. When the head is right next to it, `headOnMove` skips the scoring and drives straight in:
+
+![The hunt behaviour, lines 160 to 169. hunt returns the room left, capped at 6, minus ten times the gap to the nearest enemy head. headOnMove returns a side whose neighbouring tile holds an enemy head and is open, or -1.](images/roles-bot-code-hunt.png)
 
 ## Talking by sonar
 
@@ -46,6 +51,10 @@ That means a dragon needs some way to tell our messages from everyone else's. So
 ![One sonar message, 64 bits. The top 32 bits hold the team tag 0x4C4F4F4E, which spells LOON. Bits 31 to 16 hold the sender's ID, bits 15 to 12 its role, and bits 11 to 0 its length.](images/sonar-message.svg)
 
 The tag stops a dragon from mistaking random enemy traffic for a teammate. It won't stop an opponent who decodes our messages and copies the tag.
+
+Packing and unpacking the message takes a couple of shifts each way. `decodeLength` throws away anything without our tag, and it also throws away our own messages. The reason for that second check comes up in the replays below.
+
+![Sonar encoding, lines 112 to 120. encode puts the team tag in the top 32 bits, then the sender's ID, its role and its length. decodeLength returns -1 when the tag is wrong or the sender is this dragon, and the length otherwise.](images/roles-bot-code-sonar.png)
 
 ## The first try was worse
 
@@ -65,6 +74,10 @@ If kamikazes are rare because short dragons are rare, the answer is to make shor
 
 The child is a new dragon running a fresh copy of the same program, with no memory. Nothing tells it to be a kamikaze. It hears the champion announce length 10, sees that it's only three segments long, and picks the role itself.
 
+All of this happens in the turn loop. Each turn, the dragon listens, picks its role and reads its window. A long enough champion then splits instead of moving, and everyone announces themselves at the end:
+
+![The roles bot's turn loop, lines 219 to 233. It reads the dragon's ID, listens to sonar, reads its length, chooses a role, shows it as an indicator and reads the window. A champion of length 10 or more that can split off three segments splits. Otherwise the dragon moves. Then it announces its ID, role and length and ends the turn.](images/roles-bot-code-turn.png)
+
 With splitting, the roles bot beat the first bot convincingly, 91 games to 29. But that result mixes two changes: there are more dragons now, and the new ones hunt. To separate them, I tried a version that split in exactly the same way but made its children ordinary workers. That version also beat the first bot, 86 to 31, so having more dragons helps on its own. Then I played the two versions directly against each other, and the one with kamikazes won 84 games to 38. So the splitting and the kamikaze role each earn their place.
 
 ## A bug in the replay
@@ -75,7 +88,7 @@ Here's one of those kamikazes at work, on Arena, the turn before it drives into 
 
 The dragon at the top is the one that just split off that kamikaze. It's still our longest dragon, so it should be the champion, but its indicator says Worker. Working out why took a closer look at how sonar travels. A ray stops at the first dragon segment it reaches, and nothing exempts the sender's own body. Rays also wrap around the edges of the board, so on a small map like Arena, which is 11 tiles across, a ray can travel all the way round and come back to hit the dragon that sent it. This dragon had been 13 segments long before it split, so it heard its own old announcement of 13, concluded that some teammate was longer than its current 10, and demoted itself for the 12 turns that message stayed in its memory.
 
-The fix is to put the sender's ID in each message and ignore our own. The fixed version beat the one before it 80–38, and it's the version in [examples/roles-bot](../examples/roles-bot/strategy.nim):
+The fix is to put the sender's ID in each message and ignore our own, which is the `ourId` check in `decodeLength` above. The fixed version beat the one before it 80–38, and it's the version in [examples/roles-bot](../examples/roles-bot/strategy.nim):
 
 ![A terminal running just roles, which builds the roles bot from Nim and runs the verdict against the first bot. roles-bot wins 90 games, loses 30 and draws 12, with no errors, and the verdict is better.](images/roles-verdict.png)
 

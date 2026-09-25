@@ -49,7 +49,7 @@ Game AI has settled on a handful of ways to organise an agent's decisions. This 
 
 Everything above points the same way. The dragon has to decide from its own limited view, and we have to be able to find and fix bad behaviour quickly as the game and the opponents change. So our first strategy bot is a small **hierarchical state machine with scored moves inside each state**:
 
-![The first bot's structure. Each turn, the dragon reads its 7×7 window. A safety layer removes moves into kelp, portals, bodies and tiles next to an enemy head. A mode is then chosen from what's visible: Roam when nothing threatens, Evade when an enemy head is within two tiles. The chosen mode scores the remaining moves, and the best one is sent.](images/first-bot-architecture.svg)
+![The first bot's structure. Each turn, the dragon reads its 7×7 window. A safety layer removes moves into kelp, portals, bodies and tiles next to an enemy head. A mode is then chosen from what's visible: Roam when nothing threatens, Evade when an enemy head is within two tiles. The chosen mode's behaviour scores the remaining moves, and the best one is sent.](images/first-bot-architecture.svg)
 
 - **A safety layer** that no mode can overrule. It removes any move into kelp, a dragon's body, or a portal. Vision doesn't reach through portals, so a portal is only taken when there's nothing else. It also avoids tiles next to an enemy head, because dragons move in turn and a head-to-head collision kills both.
 - **Modes**, chosen fresh each turn from what the dragon can see. The first version has two. It **roams** when nothing threatens it, keeping the most room, as the flood-fill bot did. It **evades** when an enemy head is within two tiles, trading a little room for distance.
@@ -57,7 +57,29 @@ Everything above points the same way. The dragon has to decide from its own limi
 
 Each part stays small enough to read, and each new behaviour arrives as a new mode or a change to one score. The verdict tool can test every change on its own.
 
-It's written in Nim, as [The choice](02-the-choice.md) planned, and compiled to C for the judge. The code is in [examples/first-bot](../examples/first-bot/strategy.nim).
+## Inside the code
+
+The bot is written in Nim, as [The choice](02-the-choice.md) planned, and compiled to C for the judge. All of it lives in one file, [examples/first-bot/strategy.nim](../examples/first-bot/strategy.nim), and the file is laid out the same way as the diagram. Here's the whole file as an editor minimap, with each part boxed in the colour it has in the diagram:
+
+![A code map of the first bot's strategy.nim, drawn as an editor minimap with coloured boxes. After the folded C helper bindings, the largest block reads the window and flood-fills it. Below it are a short safety layer, the Roam and Evade behaviours as two small procs, the state machine with a Roam socket and an Evade socket inside it, and the turn loop at the end.](images/first-bot-code-map.svg)
+
+Most of the file is the same work the flood-fill bot did: reading the 7×7 window and counting how much room each move leaves. The parts that make it a state machine are short, and that's deliberate. Each one is small enough to read in a few seconds, which is what makes a bad decision quick to track down.
+
+The state machine is the frame the behaviours plug into. `chooseMode` decides which state the dragon is in this turn, and `score` has one socket for each mode: a branch of the `case` that hands the move over to that mode's behaviour.
+
+![The state machine in strategy.nim, lines 118 to 131. The Mode type lists Roam and Evade. chooseMode returns Evade when an enemy head is within two tiles, and Roam otherwise. score takes the first step of a move and, in a case statement on the mode, hands it to w.roam in the Roam socket or w.evade in the Evade socket.](images/first-bot-code-frame.png)
+
+Each behaviour is a proc that takes a candidate first move and returns how good it is. Roam only asks how much room the move leaves, which is exactly what the flood-fill bot did:
+
+![The roam behaviour, lines 106 to 108: it returns w.room(first).](images/first-bot-code-roam.png)
+
+Evade starts from the same room score and adds four points for every tile between the move and the nearest enemy head, so it will give up a little room to get away:
+
+![The evade behaviour, lines 110 to 114: it finds the smallest distance from the move to any enemy head, starting from the window size, and returns w.room(first) plus four times that gap.](images/first-bot-code-evade.png)
+
+Adding a new behaviour later means writing one more proc like these, adding its mode, and plugging it into a new socket. Nothing else in the file has to change. And whichever behaviour is in charge, it only chooses among the moves the safety layer lets through, unless there's no safe move left at all:
+
+![The safety layer, lines 93 to 102. nextToEnemyHead checks whether a tile is within one tile of any enemy head. safeMoves keeps each first move that is open, not into a body, and not next to an enemy head.](images/first-bot-code-safety.png)
 
 ## The first result
 

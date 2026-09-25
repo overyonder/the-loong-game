@@ -41,7 +41,17 @@ That's two tactics working together. The big dragon, the champion, curls up tigh
 
 The second one is less strange than it sounds. When a dragon dies, every other segment of its body turns into a pearl. So a mini that has grown by eating pearls elsewhere can pass about half its length on to the champion by dying where the champion can eat the remains. Since the longest dragon decides the game at round 500, funnelling the team's length into one dragon makes sense.
 
-Let's try building both.
+Let's try building both. Each one fits into the roles bot's structure as new behaviours, so the frame stays as it was. The champion gains a Coil mode, and the workers become feeders, with a Forage mode for finding food and a Deliver mode for the sacrifice:
+
+![The tactics bot's structure. It is the roles bot's structure with new behaviours. The champion evades, coils when nothing threatens it, roams and splits. A feeder evades or forages, with its Deliver mode switched off because it made the bot worse. A kamikaze roams or hunts. Sonar messages now carry each dragon's head position.](images/tactics-architecture.svg)
+
+The code follows the same shape. The behaviours section grows three new procs, and the state machine grows a socket for each:
+
+![A code map of the tactics bot's strategy.nim. After the folded C helper bindings come the window reading with a small coil helper, the sonar section, the safety layer, and the behaviours: Roam, Evade, Hunt, Coil, Forage and Deliver, with Hunt's strike and Deliver's sacrifice after them. The state machine holds a socket for each of the six behaviours, and the turn loop ends with the champion's split and the sonar announcement.](images/tactics-bot-code-map.svg)
+
+The only other change to the state machine is which modes each role may use. `chooseMode` now lets a safe champion coil and sends a feeder foraging, and Deliver only switches on in a build with `-d:deliver`:
+
+![The tactics bot's state machine, lines 252 to 275. chooseMode picks Hunt or Roam for a kamikaze. A champion evades within two tiles of an enemy head, coils when the nearest one is more than three tiles away, and roams otherwise. A feeder evades, delivers when that is enabled and it has grown long enough, forages, or roams. score has sockets for Roam, Evade, Hunt, Coil, Forage and Deliver.](images/tactics-bot-code-frame.png)
 
 ## Coiling
 
@@ -53,19 +63,9 @@ Getting a dragon to curl up turns out to need only one simple preference: it sho
 
 Left unchecked, that preference would have the dragon curl so tightly that it walls itself in and dies on its own body. So hugging only counts while the move still leaves at least 10 tiles of room, measured with the same flood fill the bot already uses for safety. And since a coiled champion still needs to grow, it always takes a pearl that's right next to it.
 
-```nim
-proc ownBodyAround(w: Window, i: int): int =
-  ## How many of our own segments touch this tile. A coil keeps this high.
-  for side in 0 .. 3:
-    let next = neighbour(i, side)
-    if next >= 0 and w.ownBody[next]: inc result
-```
+In code, that's a small helper that counts our own segments around a tile, and a behaviour that puts the three preferences together. A pearl beside the head is worth 100, each touching segment is worth 20 while there's room to spare, and the room itself breaks ties:
 
-```nim
-  of Coil:
-    # Hug our own body, but never so tightly that we box ourselves in.
-    (if w.pearl[first]: 100 else: 0) + (if room >= 10: 20 * w.ownBodyAround(first) else: 0) + room
-```
+![The coil behaviour. ownBodyAround, lines 134 to 138, counts how many of the four neighbouring tiles hold our own body. coil, lines 203 to 206, returns 100 if the move eats a pearl, plus 20 for each touching segment when the move leaves at least 10 tiles of room, plus the room itself.](images/tactics-bot-code-coil.png)
 
 Here's a champion from one of the test games, nine segments packed into a three-by-three square:
 
@@ -77,7 +77,17 @@ On its own, coiling didn't change the result. Against the roles bot it came out 
 
 To bring the champion food, the roles bot's workers became **feeders**. A feeder goes looking for pearls, and once it has grown to six segments, it travels back to the champion and deliberately drives into the champion's body. When a dragon runs into another dragon's body, only the one that moved dies, so the champion comes to no harm, and half the feeder's segments turn into pearls right beside it.
 
+Foraging is the simpler of the two behaviours. It keeps a reasonable amount of room and heads for the nearest pearl it can see:
+
+![The forage behaviour. nearestPearl, lines 129 to 132, finds the distance to the closest visible pearl. forage, lines 208 to 210, returns the room left, capped at 10 and multiplied by 4, minus 6 times the distance to the nearest pearl.](images/tactics-bot-code-forage.png)
+
+Delivering has two parts. While the champion is far away, `deliver` scores each move by how far it heads in the champion's direction. Once the champion's head is within two tiles and one of its segments is right beside the feeder, `deliveryMove` skips the scoring and drives into it:
+
+![The deliver behaviour. deliver, lines 212 to 216, adds 8 points for each step the move takes towards the champion's last known position, on top of the capped room. deliveryMove, lines 225 to 233, returns a side leading straight into the champion's body when its head is within two tiles, or -1.](images/tactics-bot-code-deliver.png)
+
 For that to work, a feeder has to know where the champion is, and the champion is usually far out of sight. The roles bot's sonar message only carried each dragon's length, so it needed to carry a position as well. To make room in the 64 bits, the team tag shrank to 16 bits, and every dragon now includes where its head is. A feeder remembers the position of the longest teammate it has heard from, and heads there when it's ready to deliver.
+
+![The tactics bot's sonar, lines 162 to 179. encode packs a 16-bit tag, the 16-bit sender ID, a 4-bit role, a 12-bit length and the head position into 64 bits. listen skips messages without our tag and our own echoes, and remembers the longest teammate heard, with its ID and head position.](images/tactics-bot-code-sonar.png)
 
 Here's how each version did against the roles bot:
 

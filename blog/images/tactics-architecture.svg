@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 600" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">The tactics bot's structure</title>
+<desc id="d">The roles bot's structure with new behaviours. The champion evades, coils when nothing threatens it, roams and splits. A feeder evades or forages, with its Deliver mode switched off because it made the bot worse. A kamikaze roams or hunts. Sonar messages now carry each dragon's head position.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="720" height="600" fill="#ede5d5"/>
+<rect x="40" y="20" width="280" height="58" rx="7" fill="#f6f1e7" stroke="#2f7f79" stroke-width="2.2"/>
+<text x="180.0" y="46" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Read sonar</text>
+<text x="180.0" y="68" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">longest teammate and where it is</text>
+<rect x="400" y="20" width="280" height="58" rx="7" fill="#f6f1e7" stroke="#3f6e8c" stroke-width="2.2"/>
+<text x="540.0" y="46" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Read the 7×7 window</text>
+<text x="540.0" y="68" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">bodies, pearls, the champion's body</text>
+<path d="M180 78 L300 106" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<path d="M540 78 L420 106" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="230" y="108" width="260" height="58" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="360.0" y="134" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Pick a role</text>
+<text x="360.0" y="156" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">from length and the longest heard</text>
+<path d="M300 166 L130 204" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<path d="M360 166 L360 204" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<path d="M420 166 L590 204" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="10" y="206" width="250" height="74" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="135.0" y="231" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Champion</text>
+<rect x="31.400000000000006" y="246" width="51" height="22" rx="11" fill="#7a4f8a"/><text x="56.900000000000006" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
+<rect x="88.4" y="246" width="44" height="22" rx="11" fill="#4f5d99"/><text x="110.2" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Coil</text>
+<rect x="138.0" y="246" width="44" height="22" rx="11" fill="#5d8a2e"/><text x="159.8" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Roam</text>
+<rect x="187.6" y="246" width="51" height="22" rx="11" fill="#6f6a5f"/><text x="213.1" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Split</text>
+<rect x="270" y="206" width="180" height="74" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="360.0" y="231" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Feeder</text>
+<rect x="302.3" y="246" width="51" height="22" rx="11" fill="#7a4f8a"/><text x="327.8" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
+<rect x="359.3" y="246" width="58" height="22" rx="11" fill="#8f8a25"/><text x="388.5" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Forage</text>
+<rect x="460" y="206" width="250" height="74" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="585.0" y="231" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Kamikaze</text>
+<rect x="538.4" y="246" width="44" height="22" rx="11" fill="#5d8a2e"/><text x="560.1999999999999" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Roam</text>
+<rect x="588.0" y="246" width="44" height="22" rx="11" fill="#a23b5f"/><text x="609.8" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Hunt</text>
+<rect x="166" y="290" width="66" height="22" rx="11" fill="#9c5b2e"/><text x="198.9" y="305.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Deliver</text>
+<text x="240" y="305" font-size="12" fill="#66675e" text-anchor="start" font-weight="normal">a feeder's sacrifice, switched off: it made the bot worse</text>
+<path d="M360 314 L360 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="170" y="332" width="380" height="80" rx="7" fill="#f6f1e7" stroke="#b53b13" stroke-width="2.2"/>
+<text x="360.0" y="358" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Safety layer</text>
+<text x="360.0" y="380" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">no kelp, bodies or unseen portals; a hunting</text>
+<text x="360.0" y="398" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">kamikaze alone may step next to an enemy head</text>
+<path d="M360 412 L360 438" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="200" y="440" width="320" height="58" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="360.0" y="466" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Score moves</text>
+<text x="360.0" y="488" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">with the chosen mode's behaviour</text>
+<path d="M300 498 L200 524" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<path d="M420 498 L520 524" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="60" y="526" width="280" height="58" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="200.0" y="552" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Move, or split</text>
+<text x="200.0" y="574" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">the best move, or a champion's split</text>
+<rect x="380" y="526" width="280" height="58" rx="7" fill="#f6f1e7" stroke="#2f7f79" stroke-width="2.2"/>
+<text x="520.0" y="552" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Announce</text>
+<text x="520.0" y="574" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">team tag, ID, role, length and position</text>
+</svg>

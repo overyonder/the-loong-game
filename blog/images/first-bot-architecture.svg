@@ -1,34 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">The first bot's structure</title>
-<desc id="d">Each turn the dragon reads its 7 by 7 window. A safety layer removes moves into kelp, portals, bodies and tiles next to an enemy head. A mode is chosen from what is visible: Roam when nothing threatens, Evade when an enemy head is within two tiles. The mode scores the remaining moves and the best one is sent.</desc>
+<desc id="d">Each turn the dragon reads its 7 by 7 window. A safety layer removes moves into kelp, portals, bodies and tiles next to an enemy head. A mode is chosen from what is visible: Roam when nothing threatens, Evade when an enemy head is within two tiles. The mode's behaviour scores the remaining moves and the best one is sent.</desc>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="720" height="520" fill="#ede5d5"/>
-<rect x="235" y="20" width="250" height="62" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
-<text x="360.0" y="46" font-size="16" font-weight="bold" fill="#20251f" text-anchor="middle">Read the 7×7 window</text>
-<text x="360.0" y="68" font-size="12.5" fill="#66675e" text-anchor="middle">bodies, kelp, portals, enemy heads</text>
+<rect x="235" y="20" width="250" height="62" rx="7" fill="#f6f1e7" stroke="#3f6e8c" stroke-width="2.2"/>
+<text x="360.0" y="46" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Read the 7×7 window</text>
+<text x="360.0" y="68" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">bodies, kelp, portals, enemy heads</text>
 <path d="M360 82 L360 108" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<rect x="160" y="110" width="400" height="84" rx="7" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
-<text x="360.0" y="136" font-size="16" font-weight="bold" fill="#20251f" text-anchor="middle">Safety layer</text>
-<text x="360.0" y="158" font-size="12.5" fill="#66675e" text-anchor="middle">drops moves into kelp, bodies and portals,</text>
-<text x="360.0" y="176" font-size="12.5" fill="#66675e" text-anchor="middle">and tiles next to an enemy head</text>
+<rect x="160" y="110" width="400" height="84" rx="7" fill="#f6f1e7" stroke="#b53b13" stroke-width="2.2"/>
+<text x="360.0" y="136" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Safety layer</text>
+<text x="360.0" y="158" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">drops moves into kelp, bodies and portals,</text>
+<text x="360.0" y="176" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">and tiles next to an enemy head</text>
 <path d="M360 194 L360 220" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<rect x="235" y="222" width="250" height="62" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
-<text x="360.0" y="248" font-size="16" font-weight="bold" fill="#20251f" text-anchor="middle">Choose a mode</text>
-<text x="360.0" y="270" font-size="12.5" fill="#66675e" text-anchor="middle">enemy head within two tiles?</text>
+<rect x="235" y="222" width="250" height="62" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="360.0" y="248" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Choose a mode</text>
+<text x="360.0" y="270" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">enemy head within two tiles?</text>
 <path d="M300 284 L180 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<text x="222.0" y="307.0" font-size="12" fill="#66675e" text-anchor="middle">no</text>
 <path d="M420 284 L540 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<text x="498.0" y="307.0" font-size="12" fill="#66675e" text-anchor="middle">yes</text>
-<rect x="60" y="332" width="240" height="84" rx="7" fill="#263d31" stroke="#263d31" stroke-width="1.2"/>
-<text x="180.0" y="358" font-size="16" font-weight="bold" fill="#ede5d5" text-anchor="middle">Roam</text>
-<text x="180.0" y="380" font-size="12.5" fill="#c7c1b2" text-anchor="middle">score = room left</text>
-<text x="180.0" y="398" font-size="12.5" fill="#c7c1b2" text-anchor="middle">after two moves</text>
-<rect x="420" y="332" width="240" height="84" rx="7" fill="#263d31" stroke="#263d31" stroke-width="1.2"/>
-<text x="540.0" y="358" font-size="16" font-weight="bold" fill="#ede5d5" text-anchor="middle">Evade</text>
-<text x="540.0" y="380" font-size="12.5" fill="#c7c1b2" text-anchor="middle">score = room left</text>
-<text x="540.0" y="398" font-size="12.5" fill="#c7c1b2" text-anchor="middle">+ 4 × gap to the nearest head</text>
-<path d="M180 416 L296 447" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<path d="M540 416 L424 447" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<rect x="235" y="450" width="250" height="56" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
-<text x="360.0" y="476" font-size="16" font-weight="bold" fill="#20251f" text-anchor="middle">Send the best safe move</text>
+<text x="222" y="307" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">no</text>
+<text x="498" y="307" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">yes</text>
+<rect x="60" y="332" width="240" height="84" rx="7" fill="#5d8a2e" stroke="#5d8a2e" stroke-width="2.2"/>
+<text x="180.0" y="358" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold">Roam</text>
+<text x="180.0" y="380" font-size="12.5" fill="#f3ece0" text-anchor="middle" font-weight="normal">score = room left</text>
+<text x="180.0" y="398" font-size="12.5" fill="#f3ece0" text-anchor="middle" font-weight="normal">after two moves</text>
+<rect x="420" y="332" width="240" height="84" rx="7" fill="#7a4f8a" stroke="#7a4f8a" stroke-width="2.2"/>
+<text x="540.0" y="358" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
+<text x="540.0" y="380" font-size="12.5" fill="#f3ece0" text-anchor="middle" font-weight="normal">score = room left</text>
+<text x="540.0" y="398" font-size="12.5" fill="#f3ece0" text-anchor="middle" font-weight="normal">+ 4 × gap to the nearest head</text>
+<path d="M180 416 L300 448" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<path d="M540 416 L420 448" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="235" y="450" width="250" height="56" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
+<text x="360.0" y="483.5" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Send the best safe move</text>
 </svg>
