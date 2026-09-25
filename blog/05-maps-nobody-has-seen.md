@@ -40,7 +40,7 @@ Nine of the 13 bundled maps have portals too, and the bot rarely lost on them, s
 
 That's three tools off the wishlist. The harness plays the games, the statistics tell us what the results mean, and the generator makes sure those results hold on maps nobody has seen. Here's how they fit around the bot, next to the official toolkit and the rest of the wishlist:
 
-![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. Our wishlist tools are on the left with their languages: the evaluation harness, statistics and map generator in Python are built, and the offline Elo ladder, replay sampler, replay decoder, the Odin debug viewer and profiling are still to come. Ideas from the strategic ideas, espionage and advanced tactics stages flow into the bot from the top.](images/pipeline.svg)
+![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. Our wishlist tools are on the left with their languages: the evaluation harness, statistics and map generator in Python are built, and the offline Elo ladder, replay sampler, replay decoder, the Odin debug viewer and profiling are still to come. Ideas from the grand strategy and tactical ideas stages flow into the bot from the top.](images/pipeline.svg)
 
 The point of all this is to take the drudgery out of improving a bot. Without these tools, every idea means hours of running games by hand and squinting at results that might just be luck. With them, trying an idea is one command, and the answer comes back as better, worse or undecided, tested on maps the bot has never seen. When a version passes, we save a numbered snapshot of it, and it becomes the version to beat.
 
@@ -48,4 +48,4 @@ That frees up our time for the part that actually decides games: the strategy an
 
 ## Next up
 
-That's enough tooling to start improving a bot with evidence. The next stage turns to strategic ideas, starting with the portal blind spot this post found.
+That's enough tooling to start improving a bot with evidence. The next stage turns to grand strategy, starting with the portal blind spot this post found.

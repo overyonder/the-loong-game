@@ -6,9 +6,9 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 
 | # | Post | Stage | Summary |
 | ---: | --- | --- | --- |
-| 0 | [Introducing The Loong Game](00-the-loong-game.md) | Preparation | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
-| 1 | [The wishlist](01-the-wishlist.md) | Preparation | Trying to improve a bot with only the stock toolkit, and the eight tools we'll need along the way. |
-| 2 | [The choice](02-the-choice.md) | Preparation | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim and Odin. |
+| 0 | [Introducing The Loong Game](00-the-loong-game.md) | Understanding the problem | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
+| 1 | [The wishlist](01-the-wishlist.md) | Understanding the problem | Trying to improve a bot with only the stock toolkit, and the eight tools we'll need along the way. |
+| 2 | [The choice](02-the-choice.md) | Understanding the problem | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim and Odin. |
 
 Next up: the evaluation harness.
 
@@ -16,9 +16,8 @@ Next up: the evaluation harness.
 
 The series runs through these stages in order. The site shows them as a stepper at the top of each post.
 
-1. Preparation
+1. Understanding the problem
 2. Building our tooling
-3. Strategic ideas
-4. Espionage
-5. Advanced tactics
-6. Performance
+3. Grand strategy
+4. Tactical ideas
+5. Performance

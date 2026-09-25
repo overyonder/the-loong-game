@@ -130,4 +130,4 @@ If some of those terms are unfamiliar, don't worry. We'll get to them properly l
 
 ## Next up
 
-That's the end of the preparation stage. The next stage builds the tools on the wishlist, starting with the evaluation harness.
+That's the end of the first stage, understanding the problem. The next stage builds the tools on the wishlist, starting with the evaluation harness.

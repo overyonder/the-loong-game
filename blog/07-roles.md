@@ -1,6 +1,6 @@
 # Roles
 
-<!-- draft: 504c335716, stage: Strategic ideas -->
+<!-- draft: 504c335716, stage: Grand strategy -->
 
 The [first strategy bot](06-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500. Another is two segments long and not worth much alive. This post uses the architecture from last time to give dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its role.
 
@@ -45,7 +45,7 @@ That means a dragon needs some way to tell our messages from everyone else's. So
 
 ![One sonar message, 64 bits. The top 32 bits hold the team tag 0x4C4F4F4E, which spells LOON. Bits 31 to 16 hold the sender's ID, bits 15 to 12 its role, and bits 11 to 0 its length.](images/sonar-message.svg)
 
-The tag stops a dragon from mistaking random enemy traffic for a teammate. It won't stop an opponent who decodes our messages and copies the tag, but that's a problem for the espionage stage.
+The tag stops a dragon from mistaking random enemy traffic for a teammate. It won't stop an opponent who decodes our messages and copies the tag.
 
 ## The first try was worse
 

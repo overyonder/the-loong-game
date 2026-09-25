@@ -85,8 +85,8 @@ def main():
         text(LEFT_X, 34, "Our tools", 15, INK, weight="bold"),
         text(RIGHT_X, 34, "Official toolkit", 15, INK, weight="bold"),
         text(CENTRE_X + CENTRE_WIDTH / 2, 34, "Where our time goes", 15, INK, "middle", "bold"),
-        text(CENTRE_X + CENTRE_WIDTH / 2, 58, "strategic ideas, espionage,", 12, MUTED, "middle"),
-        text(CENTRE_X + CENTRE_WIDTH / 2, 74, "advanced tactics", 12, MUTED, "middle"),
+        text(CENTRE_X + CENTRE_WIDTH / 2, 58, "grand strategy and", 12, MUTED, "middle"),
+        text(CENTRE_X + CENTRE_WIDTH / 2, 74, "tactical ideas", 12, MUTED, "middle"),
     ]
 
     # The current bot, and the frozen versions it had to beat trailing below it.

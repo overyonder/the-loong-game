@@ -1,6 +1,6 @@
 # Tactics
 
-<!-- draft: 16ce51c717, stage: Advanced tactics -->
+<!-- draft: 16ce51c717, stage: Tactical ideas -->
 
 This is the last of the implementation posts. The earlier posts built the tools and gave the bot a structure and some roles. This one is about carrying those roles out well. First, though, a note on how much of this I'm going to share.
 
@@ -101,4 +101,4 @@ Over 264 games the tactics bot is better, 138 wins to 106. The code is in [examp
 
 ## Next up
 
-That finishes the implementation section. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The next stage is espionage: what we can learn about other teams from their public replays and their sonar messages.
+That finishes the implementation section. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The next stage is performance: finding out where the bot's CPU budget goes, and fitting more thinking into it.

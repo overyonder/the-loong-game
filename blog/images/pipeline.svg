@@ -6,8 +6,8 @@
 <text x="20" y="34" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Our tools</text>
 <text x="580" y="34" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Official toolkit</text>
 <text x="400.0" y="34" font-size="15" fill="#20251f" text-anchor="middle" font-weight="bold">Where our time goes</text>
-<text x="400.0" y="58" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">strategic ideas, espionage,</text>
-<text x="400.0" y="74" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">advanced tactics</text>
+<text x="400.0" y="58" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">grand strategy and</text>
+<text x="400.0" y="74" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">tactical ideas</text>
 <path d="M400.0 82 L400.0 106" stroke="#66675e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 <rect x="300" y="110" width="200" height="150" rx="8" fill="#263d31"/>
 <text x="400.0" y="144" font-size="19" fill="#ede5d5" text-anchor="middle" font-weight="bold">Current bot</text>
