@@ -15,7 +15,7 @@ The organisers have said that every Sprint, Qualifier and Grand Final map will b
 - **Pearl spawns**, spread out, starved, contested in the middle, or split into a private field for each side.
 - **Starting dragons**, placed symmetrically.
 
-Before a map is kept, the generator checks that most of the board is connected, that the two teams start at least four tiles apart, and that every starting head has at least two open moves. A seed makes the output repeatable, so `--seed 2026` always gives the same 20 maps:
+Random layouts can easily be unplayable, so the generator throws away any map that wouldn't make a fair game. A map where half the board is walled off, or where the two teams start on top of each other, would tell us nothing about our bot. So it checks that most of the board is connected, that the teams start at least four tiles apart, and that no dragon starts boxed in. A seed makes the output repeatable, so `--seed 2026` always gives the same 20 maps:
 
 ![Twenty generated maps, drawn as boards with their kelp, portals and starting dragons. They range from a narrow 10×8 map to 64×64, with open maps, mazes and walled rooms.](images/generated-maps.svg)
 
@@ -37,7 +37,9 @@ That's three tools off the wishlist: a harness to play the games, statistics to 
 
 ![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with frozen earlier versions trailing below it, each beaten by the next. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. Our wishlist tools are on the left with their languages: the evaluation harness, statistics and map generator in Python are built, and the offline Elo ladder, replay sampler, replay decoder, the Odin debug viewer and profiling are still to come. Ideas from the strategic ideas, espionage and advanced tactics stages flow into the bot from the top.](images/pipeline.svg)
 
-The point of all this is to keep the backend work out of the way. A new idea goes into the bot, the harness plays it across every map and side, the statistics say whether it helped, and the map generator makes sure it still holds on boards nobody has seen. If it's better, it's frozen and becomes the version to beat. The rest of the wishlist fills in the gaps as the strategy posts need it, and most of our time goes into the strategy and tactics of the dragons themselves.
+The point of all this is to take the drudgery out of improving a bot. Without these tools, every idea means hours of running games by hand and squinting at results that might just be luck. With them, trying an idea is one command, and the answer comes back as better, worse or undecided, tested on maps the bot has never seen. When a version wins, it's frozen and becomes the one to beat.
+
+That frees up our time for the part that actually decides games: the strategy and tactics of the dragons themselves. The rest of the wishlist will fill in the gaps as the strategy posts need it.
 
 ## Next up
 

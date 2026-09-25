@@ -1,28 +1,30 @@
 # The wishlist
 
-Most of us start the same way: `unswbc init`, a starter bot that runs, and a list of ideas for making it better. Before trying any of them, we need a way to tell whether a change actually helped. This post tries to do that with only the official toolkit and its starter bots. Each time we get stuck, we'll add the tool that would have helped to a wishlist. Building them is the series' second stage, after this preparation and before strategic ideas, espionage, advanced tactics and performance.
+Most of us start the same way: we run `unswbc init`, get a starter bot going, and immediately have a list of ideas for making it better. Before trying any of them, though, we need a way to tell whether a change actually helped. Otherwise we're just guessing, and a guess that feels like progress is worse than no change at all.
+
+So this post tries to answer that one question using only the official toolkit and its starter bots. Every time we get stuck, we'll write down the tool that would have got us unstuck. By the end, that list is the wishlist, and building it is the next stage of the series.
 
 ## Two starter bots and one game
 
-`unswbc init` makes a starter bot in C, C++ or Python. Here it makes one in C and one in Python, then plays them against each other in the judge's sandbox:
+`unswbc init` makes a starter bot in C, C++ or Python. To have something to compare, we'll make one in C and one in Python and play them against each other in the judge's sandbox:
 
 ![A terminal running unswbc init c alpha and unswbc init python bravo, which list the files each creates, then unswbc run --sandbox on default_small. The match uses seed 0xf80f04670677fc31, three dragons hit themselves, and team A wins after 60 rounds by elimination. Team A used 3.0M points per turn at p50, p99 and max. Team B used 5.0M at p50 and 20.4M at p99 and max.](images/unswbc-run.png)
 
-The run prints the seed, how each dragon died, who won, and how many CPU points each team spent per turn. It also writes a replay for the [visualiser](https://game.battlecode.au/visualiser). It doesn't tell us whether `alpha` is the better bot, and one game can't.
+That's one game, and it tells us who won it. It also saves a replay we can watch in the [visualiser](https://game.battlecode.au/visualiser), and it prints how many CPU points each team spent, which we'll come back to at the end. What it can't tell us is whether `alpha` is the better bot. One game is one roll of the dice.
 
-Each run picks a random seed, which sets the pearl spawns and both bots' random numbers. Running the same match again gives a different game, and passing a seed back with `--seed` reproduces one exactly:
+Luckily the dice can be rolled again. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as. So running the same match again gives a genuinely different game, and passing a seed back with `--seed` replays one exactly, which will be handy for debugging:
 
 ![Running the same match again without a seed gets seed 0x5007de0a57fc374d and a different 75-round game. Running it with --seed 0xf80f04670677fc31 repeats the first game exactly: the same three deaths and team A winning after 60 rounds.](images/unswbc-seed.png)
 
 ## Every map, both sides
 
-The next step is a loop over all 13 bundled maps, with each bot playing each side:
+If one game isn't enough, the natural thing is to play lots. Maps matter too, since a bot can be strong on one layout and hopeless on another, and so does which side you start on. So the obvious next move is a loop that plays every one of the 13 bundled maps, with each bot taking each side:
 
 ![A terminal showing loop.fish in bat, then time fish loop.fish printing 26 results, one per map and side, in 175.8 seconds.](images/unswbc-loop.png)
 
-The 26 games took nearly three minutes, and the starter bots do almost no work per turn. Stronger bots take much longer. In one of my recent offline ladders, 600 games had a median of 17 seconds each, one in ten took more than four minutes, and the longest took over nine. Played one after another, that ladder would take 14 hours.
+Those 26 games took nearly three minutes, and the starter bots barely think. A bot that searches takes far longer per game. In one of my own test runs, 600 games between stronger bots added up to 14 hours when played one after another.
 
-The games don't depend on each other, so they can run in parallel on every core. That needs a few things the loop doesn't have: a cap on how many games run at once, a timeout so one stuck game can't hold up the rest, cleanup of child processes when a game crashes, and a record that keeps crashes and timeouts separate from real losses.
+We're going to be improving our bot for weeks, and every change needs this kind of test, so running a loop by hand and reading the output isn't going to last. We'll want to pit a whole pool of bots against each other and keep a tidy record of every result. And since the games don't depend on each other, we can play them side by side on every core instead of one at a time. Doing that well brings the usual chores along with it: capping how many games run at once, giving up on a game that hangs, cleaning up after crashes, and not mistaking a crash for a loss.
 
 That's the first item on the wishlist, an **evaluation harness**.
 
@@ -30,13 +32,13 @@ That's the first item on the wishlist, an **evaluation harness**.
 
 ## Seventeen wins out of twenty-six
 
-`alpha` won 17 of the 26 games. Both starters do the same thing each turn, stepping in a random direction that isn't blocked, so a 17–9 split looks like more than it is. If the two bots are equally good, a result at least that lopsided in `alpha`'s favour still happens about 8% of the time. That's too often to rule out luck. Team A also won 16 of the 26, which could be an advantage for the first side or more noise.
+Back to the results. `alpha` won 17 of the 26 games, which looks like a clear lead. It isn't one. Both starters do exactly the same thing each turn, stepping in a random direction that isn't blocked, so neither can really be better. Two equally good bots will still produce a split at least that lopsided about 8% of the time, so a 17–9 result isn't enough to tell skill from luck.
 
-Separating a real improvement from luck takes more games than most people expect. To tell a bot that wins 60% of its games from an even match, at the usual 95% confidence, takes about 150 games, and smaller improvements need far more:
+This is the trap every bot developer falls into sooner or later: a handful of wins feels like proof. It takes far more games than intuition suggests. To reliably tell a bot that wins 60% of its games from an even match takes about 150 games, and a smaller improvement needs far more:
 
 ![Games needed to detect a better bot at 95% confidence and 80% power, by its true win rate: about 3,900 at 52%, 617 at 55%, 153 at 60%, 37 at 70% and 23 at 75%. A 26-game loop only catches bots that win about 74% of the time or more.](images/games-needed.svg)
 
-Whether a change helped is a statistics question. We need a test that gives a clear yes or no, and tells us how many games that answer needs.
+So "did my change help?" is really a statistics question. We want a tool that looks at a pile of results and gives a straight answer, better, worse or not sure yet, and tells us how many more games we'd need when it isn't sure.
 
 The second item is **statistics**.
 
@@ -44,13 +46,13 @@ The second item is **statistics**.
 
 ## A ladder of our own
 
-The online ladder already plays plenty of games, but it can't tell us whether one version of our bot beats the last:
+At this point you might wonder why we don't just upload each version and let the online ladder play the games for us. It plays plenty of them, after all. The trouble is that it answers a different question from ours:
 
 - **It's slow.** Battles are drawn every two hours, five games each, and uploads are limited to 12 an hour.
 - **It's noisy.** Each new submission resets your rating's K factor to 96, so the rating moves most right after an upload.
 - **It measures something else.** Your rating compares you with whoever's on the ladder this week, and they're changing their bots too.
 
-A ladder we run ourselves can answer it. It rates the current bot against frozen copies of our older versions and a few fixed baselines, so a new version only counts as progress if it beats the old ones.
+What we actually want to know is whether this version beats the last one. A ladder we run ourselves can answer that. We keep frozen copies of our older versions and rate the current bot against them, so a new version only counts as progress if it beats the ones before it.
 
 The third item is an **offline Elo ladder**.
 
@@ -58,9 +60,9 @@ The third item is an **offline Elo ladder**.
 
 ## Maps nobody has seen
 
-The loop only played the 13 bundled maps. The ladder has served others, and the organisers have said every Sprint, Qualifier and Grand Final map will be new.
+Everything so far has used the 13 bundled maps, but those aren't the maps that matter. The organisers have said every Sprint, Qualifier and Grand Final map will be new. A bot that has only ever been tested on the bundled maps can be quietly relying on something about them.
 
-An unseen map already caught me out once. The docs say maps are at least 10 tiles on a side, and my bot refused to play on anything smaller. Then the ladder served a 16×8 map called Small, and every one of my dragons died in round 0. We can't tune for maps we haven't seen, but we can test on lots of plausible ones.
+That's already caught me out once. The docs say maps are at least 10 tiles on a side, so my bot refused to play on anything smaller. Then the ladder served a 16×8 map called Small, and every one of my dragons died in round 0. We can't tune for maps we haven't seen, but we can make lots of plausible ones and test on those.
 
 The fourth item is a **map generator**.
 
@@ -68,7 +70,7 @@ The fourth item is a **map generator**.
 
 ## Everyone else's games
 
-Our own games only show our own bot. Every ladder battle is public, and game IDs on the site are past 88,000. Those replays show how other bots open, when they split, how they use sonar and how they die. There are far too many to watch, so we need to download a useful sample, slowly enough not to load the organisers' server.
+So far every test has been our bot against our own bots. But the real opponents are the other teams, and every ladder battle is public. Game IDs on the site are already past 88,000. That's a huge record of what the best bots actually do, and learning from it is how we'll spot ideas worth borrowing and weaknesses worth exploiting. Nobody can watch that many games, so we need a tool that downloads a useful sample, and does it slowly enough not to load the organisers' server.
 
 The fifth item is a **replay sampler**.
 
@@ -76,11 +78,11 @@ The fifth item is a **replay sampler**.
 
 ## Reading a replay
 
-A replay file is packed binary. Opening one in a hex viewer shows the bot names and scraps of the map text, and nothing else readable:
+Once we have the replays, we hit the next wall. A replay file is packed binary. Opening one in a hex viewer shows the bot names and scraps of the map text, and nothing else we can read:
 
 ![hexyl showing the first 160 bytes of a replay file. The bot names alpha and bravo and parts of the map text are readable, and the rest is binary.](images/replay-hexdump.png)
 
-Before we can search the archive, we need to decode the format and rebuild the game state turn by turn.
+To ask questions of thousands of games, like how often top bots split early, we first need to decode the format and rebuild each game turn by turn.
 
 The sixth item is a **replay decoder**.
 
@@ -88,11 +90,11 @@ The sixth item is a **replay decoder**.
 
 ## Through one dragon's eyes
 
-Decoded games are also what we need to debug our own bot. The visualiser shows the whole board, but a dragon only sees the 7×7 square around its head, plus whatever it chose to remember:
+Decoding replays also helps with our own bot. When one of our dragons does something stupid, the visualiser shows us the whole board. But the dragon never saw the whole board. It only saw the 7×7 square around its head, plus whatever it chose to remember:
 
 ![The same round of a public ladder game twice. On the left, the whole board. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
 
-When a dragon makes a bad move, we want to know what it thought was around it. `unswbc run` can record each dragon's logs, indicator text and drawings into the replay, but we'd still be working out its view from the full board. A viewer should show one dragon's window, its memory and its decision, turn by turn.
+So the question when debugging is never "what was on the board?" but "what did this dragon think was on the board?" A bot can write notes into the replay, which helps, but we'd still be squinting at the full board and imagining the window. It would be much easier with a viewer that shows exactly what one dragon saw and remembered, and what it decided, turn by turn.
 
 I'm writing that viewer in Odin, and the next post explains why.
 
@@ -102,9 +104,9 @@ The seventh item is a **debug viewer**.
 
 ## Where the points go
 
-The first game's summary lines say how many CPU points each team spent per turn, but not what they were spent on.
+Last, back to that first game's CPU points. Each dragon gets a budget of 100 million points per turn, and a smart bot will want to spend as much of it as possible thinking. The summary tells us how much was spent, but not what it was spent on.
 
-The C starter spends 3.0 million points a turn on a random walk. I guessed the log line it writes every turn was to blame, so I deleted it. That saved about 0.1 million. Most of the rest is the one write to stdout that every turn needs to send its move, which costs 2.5 million by itself. The Python starter spends 5.0 million at the median and over 20 million on its worst turns. Once a bot runs a search, every wasted point is search depth it doesn't get. Finding this took a guess and an experiment, and a real bot needs a profiler to show it directly.
+The C starter spends 3.0 million points a turn just walking randomly, which seemed like a lot. My first guess was the log line it writes every turn, so I deleted it. That saved about 0.1 million. It turns out most of the rest is the single write to stdout that every turn needs to send its move, which costs 2.5 million on its own. That's a useful thing to know, but it took a guess and an experiment to find out. Once our bot is running a real search, every wasted point is search depth it doesn't get, and we'll want a profiler to show us where the points go directly.
 
 The last item is **profiling**.
 
@@ -127,7 +129,7 @@ Here's how the eight tools connect:
 | **Debug viewer** | The board through one dragon's eyes, with its memory and decisions. |
 | **Profiling** | CPU cost from wall time down to individual instructions, native and WASM. |
 
-I already have most of these working in some form, so the tools posts will walk through working code. The later stages lean on them to tell whether an idea actually works, from strategic ideas like the Jev test in the [intro](00-the-loong-game.md) through to the WASM work in the performance stage.
+I already have most of these working in some form, so the tools posts will walk through real, working code. Everything after that leans on them. Whenever a later post tries a strategic idea, the Jev test from the [intro](00-the-loong-game.md) included, these tools are how we'll know whether it worked.
 
 ## Next up
 

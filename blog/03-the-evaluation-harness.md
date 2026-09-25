@@ -2,9 +2,9 @@
 
 <!-- draft: 322e9c66ca, stage: Building our tooling -->
 
-This post starts the tooling stage by building the first item on the [wishlist](01-the-wishlist.md). The loop from that post played every map from both sides, but it ran one game at a time, had no timeout, and would have reported a crashed bot as a loss. The evaluation harness fixes all three. It's a single Python file, [harness/round_robin.py](../harness/round_robin.py), and it drives the official `unswbc run` for every game, so each result is exactly what the toolkit would report.
+The [wishlist](01-the-wishlist.md) has eight tools on it, but we don't need all eight before we can start improving a bot. What we need first is a way to tell whether a change helped. That takes three of them: something to play lots of games, something to judge the results, and something to make sure the results hold on maps we haven't seen. So this stage builds those three, starting with the one everything else depends on, the evaluation harness. The rest of the wishlist can wait until a later post needs it.
 
-Out of the eight wishlist items, I'm building three now: this harness, the [statistics](04-better-worse-or-undecided.md) that turn its results into a verdict, and the [map generator](05-maps-nobody-has-seen.md) that tests on maps we haven't seen. Those three are enough to start improving a bot with evidence. The rest can wait until a later post needs them.
+The loop from the wishlist post already played every map from both sides. Its real problem is that we'll be running tests like it for weeks, and a hand-run loop doesn't scale to that. We want to hand over a pool of bots, walk away, and come back to a complete, trustworthy record of every game. The harness is a single Python file, [harness/round_robin.py](../harness/round_robin.py), and it runs the official `unswbc run` for every game, so each result is exactly what the toolkit would report.
 
 ## What a round robin plays
 
@@ -35,7 +35,7 @@ with log_path.open("w") as log:
 
 Every game runs in its own process group. `unswbc run` starts a process for every dragon, so when a game finishes or runs past its timeout, the harness kills the whole group. Stray dragon processes can't pile up over a long run.
 
-The harness keeps each game's full output as a log and its replay. It reads the result from the log, and anything that stops a game from counting as a win, loss or draw is recorded as an error: a timeout, `unswbc` exiting with an error, or a dragon that crashed or ran out of time. Errors are counted in their own column and never scored as losses, because a crash says something different about a bot than losing does.
+The harness also has to be honest about games that go wrong. If a bot crashes, that's a bug to fix, not a game it lost, and scoring it as a loss would hide the bug inside the win rate. So the harness reads each game's result from its log and keeps anything that isn't a clean win, loss or draw in a separate errors column. That covers timeouts and crashes, as well as dragons that run out of CPU time. Every game's full log and replay are kept too, so any odd result can be looked at later.
 
 ## A first run
 

@@ -6,7 +6,7 @@ Before writing any strategy, every team has to pick a language, and it's the har
 
 ## One strategy, two languages
 
-To see how much it matters, I wrote the same small strategy in Python and in C. Each turn, the dragon tries every move and every follow-up move, flood-fills the visible 7×7 window from where it would end up, and takes the move that leaves it the most room. That's up to 16 flood fills a turn. Here's the flood fill in Python:
+To see how much it matters, I wrote the same small strategy in Python and in C. The idea behind it is that a dragon usually dies by running out of room, so each turn it looks for the move that leaves it the most space. For every move, and every follow-up move after that, it flood-fills the visible 7×7 window from where it would end up and counts how many tiles it could still reach. That's up to 16 flood fills a turn, which is enough work to measure. Here's the flood fill in Python:
 
 ```python
 def reachable(window, start, first):
@@ -53,7 +53,7 @@ The two bots make exactly the same move on every turn. I checked by playing each
 
 The Python bot's median turn costs 23.8 million points, and its slowest 1% cost more than 55 million. The C bot's median turn costs 3.0 million, and most of that isn't the strategy. A C bot that only repeats its last move costs 2.9 million a turn, almost all of it the write to stdout that sends each move. Taking each language's idle cost away, the strategy itself costs about 43,000 points in C and 19.7 million in Python, roughly 450 times as much.
 
-This is a small search. A stronger bot looks further ahead and weighs more than open space, and at 450 times the cost, a search that takes C 220,000 points a turn would use Python's entire budget. C++ goes through the same clang to the same WebAssembly, so it lands where C does.
+This is a small search, and a stronger bot will want to look much further ahead. That's where the gap starts to bite. At 450 times the cost, a search that takes C 220,000 points a turn, a tiny fraction of its budget, would use up Python's entire 100 million. C++ goes through the same clang to the same WebAssembly, so it lands where C does.
 
 So the choice looks simple. Python is quick to write and slow to run. C and C++ are fast, but verbose and unforgiving while you're still trying ideas.
 
