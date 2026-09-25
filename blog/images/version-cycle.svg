@@ -4,55 +4,55 @@
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="signal-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
 <rect width="800" height="330" fill="#ede5d5"/>
 <path d="M466.0 90 C466.0 34 70.0 34 70.0 90" stroke="#b53b13" stroke-width="1.8" fill="none" stroke-dasharray="6 4" marker-end="url(#signal-arrow)"/>
-<text x="268.0" y="38" font-size="13" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v4 plays exactly like v1</text>
+<text x="268.0" y="38" font-size="17" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v4 plays exactly like v1</text>
 <rect x="23.0" y="96" width="94" height="110" rx="8" fill="#263d31"/>
 <path d="M50.0 142 Q48.0 122 66.0 120 Q86.0 116 90.0 134 Q94.0 154 72.0 155 Q52.0 158 50.0 142Z" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-<text x="70.0" y="190" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Rock</text>
-<text x="70.0" y="240" font-size="20" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v1</text>
+<text x="70.0" y="190" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Rock</text>
+<text x="70.0" y="240" font-size="24" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v1</text>
 <rect x="155.0" y="96" width="94" height="110" rx="8" fill="#263d31"/>
 <rect x="186.0" y="118" width="32" height="40" rx="2" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <path d="M193.0 128 H211.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
 <path d="M193.0 136 H211.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
 <path d="M193.0 144 H211.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
 <path d="M193.0 152 H211.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
-<text x="202.0" y="190" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Paper</text>
-<text x="202.0" y="240" font-size="20" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v2</text>
+<text x="202.0" y="190" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Paper</text>
+<text x="202.0" y="240" font-size="24" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v2</text>
 <path d="M151.0 151.0 H121.0" stroke="#66675e" stroke-width="1.5" marker-end="url(#arrow)"/>
-<text x="136.0" y="143.0" font-size="10.5" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
+<text x="136.0" y="143.0" font-size="13" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
 <rect x="287.0" y="96" width="94" height="110" rx="8" fill="#263d31"/>
 <circle cx="323.0" cy="151" r="6" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <circle cx="345.0" cy="151" r="6" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <path d="M327.0 146 L346.0 118" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <path d="M341.0 146 L322.0 118" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-<text x="334.0" y="190" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Scissors</text>
-<text x="334.0" y="240" font-size="20" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v3</text>
+<text x="334.0" y="190" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Scissors</text>
+<text x="334.0" y="240" font-size="24" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v3</text>
 <path d="M283.0 151.0 H253.0" stroke="#66675e" stroke-width="1.5" marker-end="url(#arrow)"/>
-<text x="268.0" y="143.0" font-size="10.5" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
+<text x="268.0" y="143.0" font-size="13" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
 <rect x="419.0" y="96" width="94" height="110" rx="8" fill="#263d31"/>
 <path d="M446.0 142 Q444.0 122 462.0 120 Q482.0 116 486.0 134 Q490.0 154 468.0 155 Q448.0 158 446.0 142Z" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-<text x="466.0" y="190" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Rock</text>
-<text x="466.0" y="240" font-size="20" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v4</text>
+<text x="466.0" y="190" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Rock</text>
+<text x="466.0" y="240" font-size="24" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v4</text>
 <path d="M415.0 151.0 H385.0" stroke="#66675e" stroke-width="1.5" marker-end="url(#arrow)"/>
-<text x="400.0" y="143.0" font-size="10.5" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
+<text x="400.0" y="143.0" font-size="13" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
 <rect x="551.0" y="96" width="94" height="110" rx="8" fill="#263d31"/>
 <rect x="582.0" y="118" width="32" height="40" rx="2" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <path d="M589.0 128 H607.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
 <path d="M589.0 136 H607.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
 <path d="M589.0 144 H607.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
 <path d="M589.0 152 H607.0" stroke="#ede5d5" stroke-width="1.6" stroke-linecap="round"/>
-<text x="598.0" y="190" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Paper</text>
-<text x="598.0" y="240" font-size="20" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v5</text>
+<text x="598.0" y="190" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Paper</text>
+<text x="598.0" y="240" font-size="24" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v5</text>
 <path d="M547.0 151.0 H517.0" stroke="#66675e" stroke-width="1.5" marker-end="url(#arrow)"/>
-<text x="532.0" y="143.0" font-size="10.5" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
+<text x="532.0" y="143.0" font-size="13" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
 <rect x="683.0" y="96" width="94" height="110" rx="8" fill="#263d31"/>
 <circle cx="719.0" cy="151" r="6" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <circle cx="741.0" cy="151" r="6" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <path d="M723.0 146 L742.0 118" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
 <path d="M737.0 146 L718.0 118" stroke="#ede5d5" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-<text x="730.0" y="190" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Scissors</text>
-<text x="730.0" y="240" font-size="20" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v6</text>
+<text x="730.0" y="190" font-size="16" fill="#ede5d5" text-anchor="middle" font-weight="bold" font-style="normal">Scissors</text>
+<text x="730.0" y="240" font-size="24" fill="#b53b13" text-anchor="middle" font-weight="bold" font-style="normal">v6</text>
 <path d="M679.0 151.0 H649.0" stroke="#66675e" stroke-width="1.5" marker-end="url(#arrow)"/>
-<text x="664.0" y="143.0" font-size="10.5" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
+<text x="664.0" y="143.0" font-size="13" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="normal">beats</text>
 <path d="M50.0 268 H750.0" stroke="#66675e" stroke-width="1.5" marker-end="url(#arrow)"/>
-<text x="400.0" y="292" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="italic">Each version beat the one before it, so the numbers look like steady progress.</text>
+<text x="400.0" y="292" font-size="16" fill="#66675e" text-anchor="middle" font-weight="normal" font-style="italic">Each version beat the one before it, so the numbers look like steady progress.</text>
 </svg>
