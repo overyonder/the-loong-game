@@ -8,12 +8,7 @@ This is the last post that builds a new strategy bot. The earlier posts built th
 
 I'm competing in this tournament too, so I can't walk through every strategy I'm working on without handing it to everyone else. What I can do is share the questions that shaped my own thinking. None of them have obvious answers.
 
-- Sonar reaches whoever a ray hits, enemies included. What could you learn from the other team's messages, and what could you make them believe from yours?
 - Which of your dragons would it hurt most to lose, and does your plan survive losing it?
-- Every map is symmetric. What does your own starting position tell you about the enemy's?
-- Pearls respawn on a schedule for each tile. Who controls the tiles that feed the most?
-- Length decides round 500, but numbers decide fights. When is it worth trading one for the other?
-- A head-on collision kills both dragons. When is a small dragon worth more dead than alive?
 - How much of your 100 million points a turn do you actually use, and what would the rest buy?
 - What does your bot do differently when it's winning than when it's losing?
 
@@ -25,7 +20,7 @@ It's also worth reading how winners of other Battlecode competitions thought abo
 
 ## From strategy to tactics
 
-The last two posts were about strategy, which is deciding what each dragon is for. Giving one dragon the job of staying long for round 500 and another the job of hunting enemy heads is a strategic choice. So is anything else that shapes the plan for the whole team, like deceiving the enemy or keeping a spare champion in case the first one dies.
+The last two posts were about strategy, which is deciding what each dragon is for. Giving one dragon the job of staying long for round 500 and another the job of hunting enemy heads is a strategic choice. So is anything else that shapes the plan for the whole team.
 
 Tactics is the other half. Once a dragon knows its job, tactics is about doing that job precisely and efficiently. The question changes from "who should be the champion?" to "given I'm the champion right now, how do I do that well?" Two bots with the same strategy can play very differently depending on how well each one carries it out.
 

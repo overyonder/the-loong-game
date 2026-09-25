@@ -4,7 +4,7 @@
 
 Battlecode seasons usually hinge on one unusual mechanic, something the designers built that year's game around and that the strongest teams learn to exploit better than anyone else. In unswbc 2026, it's sonar. It's the only way dragons can talk to each other, it's the only way they can learn anything beyond their 7×7 window, and every message is just as audible to the enemy as to a teammate.
 
-The strategy posts used sonar for plain jobs: announcing a dragon's length in [Roles](12-roles.md), and its position in [Tactics](13-tactics.md). This post steps back and looks at what else it could do. It's closer to a notebook than a tutorial. Like the questions at the start of the tactics post, most of what follows is open, and I'd rather hand out good questions than my own answers.
+The strategy posts used sonar for plain jobs: announcing a dragon's length in [Roles](12-roles.md), and its position in [Tactics](13-tactics.md). This post steps back and looks at what else it could do. It's closer to a notebook than a tutorial: a tour of what the rules allow, with the working out left to you.
 
 ## How it works
 
@@ -18,23 +18,23 @@ Every one of those details turned out to matter somewhere. The wrap-around is wh
 
 ## Encoding
 
-Sixty-four bits is both a lot and very little. It's enough for a team tag, an ID, a role, a length and a position, which is what the tactics bot sends, but every bit spent on one thing is a bit not spent on another. The roles bot spent 32 bits on its tag and the tactics bot only 16, to make room for a position. How short can a tag be before random enemy traffic starts to pass for ours? Is it better to spend bits on a checksum than on a longer tag? And a message doesn't have to fit in one ray: a dragon can send four values a turn, over as many turns as it likes, so larger things, like a map of what it has seen, can be split and reassembled, at the cost of every piece having to reach the same listener.
+Sixty-four bits is both a lot and very little. It's enough for a team tag, an ID, a role, a length and a position, which is what the tactics bot sends, but every bit spent on one thing is a bit not spent on another. The roles bot spent 32 bits on its tag and the tactics bot only 16, to make room for a position. And a message doesn't have to fit in one ray. A dragon can send four values a turn, over as many turns as it likes, so larger things can be split up and reassembled, as long as every piece reaches the same listener.
 
 ## Decoding
 
-Nothing stops an enemy reading our messages, and nothing stops us reading theirs. A dragon in the path of an enemy ray receives the value like any other. And the [public replays](08-reading-a-replay.md) record every sonar message ever sent on the ladder, with its value, where it came from and what it hit. So a team's message format isn't a secret for long if anyone cares to look. What would you learn from another team's traffic, if you could read it? And what could you deliberately leave in yours for them to find?
+Every message reaches whoever the ray hits, so an enemy dragon in the way receives ours just as a teammate would, and our dragons receive theirs. A team tag keeps random traffic from being mistaken for a teammate's, but it doesn't hide what a message says. Anything a bot sends should be something it doesn't mind the other team reading.
 
 ## Fingerprinting
 
-Even without decoding a message, its shape says something. A team that always sends four rays, or always puts the same 16 bits at the top, is recognisable from a single message. That raises two questions. Can a bot tell which opponent it's facing, part way through a game, from the messages that hit it, and switch strategies to suit? And how much of your own identity leaks from the way you talk, before anyone decodes a word of it?
+Even without decoding a message, its shape can say something about who sent it. A team whose messages always look the same is recognisable from them, and that works in both directions: whatever another team's messages give away about them, ours give away about us.
 
 ## Echolocation
 
-The echo counts are the only information a dragon gets from beyond its window that no teammate has to send. A ray fired down a long corridor that comes back with "enemy head: 1" says something is coming from that direction, well before it's visible. But the counts are totals over all the rays a dragon sent that turn, so four rays and one enemy head don't say which way it is. Firing fewer rays tells you more about each. How much can a dragon learn by aiming its rays deliberately, or by comparing its echoes with a teammate's? And since the rays pass through portals, what can a dragon learn about where a portal leads without ever using it?
+The echo counts are the only information a dragon gets from beyond its window that no teammate has to send. They say what the dragon's rays hit, which means something out of sight is in that direction. Because the counts are totals over all of a dragon's rays, turning them into a direction takes some thought.
 
 ## Misinformation
 
-If our team tag can be copied, so can the enemy's. A dragon that learns another team's message format can speak it: announce a champion that doesn't exist, report a longer length than it has, or send the enemy's feeders somewhere empty. The roles post noted that our own tag stops random traffic but not a deliberate forgery. The open question is whether any of this is worth the effort. A lie only pays off if the enemy's bot acts on what it hears, and measuring that takes the same careful testing as any other change.
+Messages carry no sender, so nothing in the game stops a dragon from sending a message in another team's format, or stops another team from sending one in ours. A bot that believes everything it hears can be misled. Checking a message against what the dragon can see for itself is the simplest defence.
 
 ## Poker
 

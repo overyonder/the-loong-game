@@ -10,7 +10,7 @@ Two of the game's rules pull our dragons in opposite directions, and that's what
 
 The first is how the game ends. If neither team is wiped out, the winner at round 500 is the team with the longest living dragon. So whichever of our dragons is longest is carrying the whole team's result, and it should spend the game growing and staying out of trouble.
 
-The second is what happens in a head-on collision. When two heads meet, both dragons die, however long each of them was. For a long dragon that's a disaster, but for a dragon with only two or three segments it's the best trade on the board, because it can take an enemy champion down with it.
+The second is what happens in a head-on collision. When two heads meet, both dragons die, however long each of them was. A long dragon has a lot to lose from that, and a dragon with only two or three segments has very little.
 
 A long dragon should avoid enemy heads and a short one should seek them out, so the plan is three roles:
 
