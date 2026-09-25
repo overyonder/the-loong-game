@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 760" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">Our tools around the bot</title>
-<desc id="d">The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with frozen earlier versions trailing below it. The official toolkit is on the right. Our wishlist tools are on the left, with the ones built so far drawn solid: Evaluation harness, Map generator, Statistics.</desc>
+<desc id="d">The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right. Our wishlist tools are on the left, with the ones built so far drawn solid: Evaluation harness, Map generator, Statistics.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="800" height="760" fill="#ede5d5"/>
 <text x="20" y="34" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Our tools</text>
@@ -20,19 +20,20 @@
 <text x="441" y="230" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">hot paths</text>
 <text x="400.0" y="251" font-size="11.5" fill="#c7c1b2" text-anchor="middle" font-weight="normal">→ C → WebAssembly</text>
 <g opacity="0.80"><rect x="320" y="300" width="160" height="60" rx="6" fill="#263d31"/>
-<text x="400.0" y="326" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold">Frozen v3</text>
-<text x="400.0" y="345" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">beaten by the next</text></g>
+<text x="400.0" y="326" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold">Snapshot v3</text>
+<text x="400.0" y="345" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">an earlier version</text></g>
 <path d="M400.0 300 L400.0 264" stroke="#66675e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 <g opacity="0.58"><rect x="320" y="392" width="160" height="60" rx="6" fill="#263d31"/>
-<text x="400.0" y="418" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold">Frozen v2</text>
-<text x="400.0" y="437" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">beaten by the next</text></g>
+<text x="400.0" y="418" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold">Snapshot v2</text>
+<text x="400.0" y="437" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">an earlier version</text></g>
 <path d="M400.0 392 L400.0 364" stroke="#66675e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 <g opacity="0.36"><rect x="320" y="484" width="160" height="60" rx="6" fill="#263d31"/>
-<text x="400.0" y="510" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold">Frozen v1</text>
-<text x="400.0" y="529" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">beaten by the next</text></g>
+<text x="400.0" y="510" font-size="14" fill="#ede5d5" text-anchor="middle" font-weight="bold">Snapshot v1</text>
+<text x="400.0" y="529" font-size="11" fill="#c7c1b2" text-anchor="middle" font-weight="normal">an earlier version</text></g>
 <path d="M400.0 484 L400.0 456" stroke="#66675e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
-<text x="400.0" y="586" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">Each version is frozen when</text>
-<text x="400.0" y="602" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">the statistics call the next one better</text>
+<text x="400.0" y="586" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">When a version tests better, it is saved</text>
+<text x="400.0" y="602" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">as a numbered snapshot. Only the last</text>
+<text x="400.0" y="618" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">few snapshots stay in testing.</text>
 <rect x="20" y="60" width="200" height="66" rx="6" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
 <text x="32" y="82" font-size="14" fill="#20251f" text-anchor="start" font-weight="bold">Evaluation harness</text>
 <text x="32" y="104" font-size="11.5" fill="#66675e" text-anchor="start" font-weight="normal">every map, both sides, in parallel</text>

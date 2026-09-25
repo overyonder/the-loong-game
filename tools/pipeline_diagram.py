@@ -77,7 +77,7 @@ def main():
         ' role="img" aria-labelledby="t d">',
         '<title id="t">Our tools around the bot</title>',
         '<desc id="d">The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly,'
-        ' with frozen earlier versions trailing below it. The official toolkit is on the right. Our wishlist tools are on'
+        ' with numbered snapshots of earlier versions saved below it. The official toolkit is on the right. Our wishlist tools are on'
         f' the left, with the ones built so far drawn solid: {", ".join(sorted(BUILT))}.</desc>',
         f'<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
         f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{MUTED}"/></marker></defs>',
@@ -109,13 +109,14 @@ def main():
         opacity = 0.8 - index * 0.22
         parts += [
             f'<g opacity="{opacity:.2f}"><rect x="{CENTRE_X + 20}" y="{y}" width="{CENTRE_WIDTH - 40}" height="60" rx="6" fill="{FOREST}"/>',
-            text(CENTRE_X + CENTRE_WIDTH / 2, y + 26, f"Frozen {version}", 14, PAPER, "middle", "bold"),
-            text(CENTRE_X + CENTRE_WIDTH / 2, y + 45, "beaten by the next", 11, "#c7c1b2", "middle") + "</g>",
+            text(CENTRE_X + CENTRE_WIDTH / 2, y + 26, f"Snapshot {version}", 14, PAPER, "middle", "bold"),
+            text(CENTRE_X + CENTRE_WIDTH / 2, y + 45, "an earlier version", 11, "#c7c1b2", "middle") + "</g>",
         ]
         previous_bottom = bot_y + 150 if index == 0 else y - 32
         parts.append(arrow(CENTRE_X + CENTRE_WIDTH / 2, y, CENTRE_X + CENTRE_WIDTH / 2, previous_bottom + 4))
-    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, frozen_y + 3 * 92 + 10, "Each version is frozen when", 11.5, MUTED, "middle"))
-    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, frozen_y + 3 * 92 + 26, "the statistics call the next one better", 11.5, MUTED, "middle"))
+    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, frozen_y + 3 * 92 + 10, "When a version tests better, it is saved", 11.5, MUTED, "middle"))
+    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, frozen_y + 3 * 92 + 26, "as a numbered snapshot. Only the last", 11.5, MUTED, "middle"))
+    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, frozen_y + 3 * 92 + 42, "few snapshots stay in testing.", 11.5, MUTED, "middle"))
 
     # Each side feeds the bot through one spine, so the arrows stay readable.
     left_spine_x, right_spine_x = CENTRE_X - 34, CENTRE_X + CENTRE_WIDTH + 34

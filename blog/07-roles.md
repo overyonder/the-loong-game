@@ -54,7 +54,7 @@ The first version played the champion more cautiously, keeping three tiles from 
 
 The verdict tool turns "that didn't work" into a series of questions with answers. Removing the kamikazes didn't help, so they weren't the problem. A control that removed them and gave the champion the first bot's two-tile berth came out dead even, 58–58, which showed the sonar messages themselves cost nothing. That left the champion's berth. Keeping three tiles from enemy heads made it too timid to hold its ground, and narrowing it brought the roles bot level with the first bot.
 
-Level isn't better, though, and counting labels in the replays showed why. Each dragon shows its role as an indicator, and across the games, only 1.7% of dragon-turns were kamikaze turns. Short dragons with a longer teammate nearby were rare, so the role hardly ever came into play.
+A level result isn't an improvement, and counting role labels in the replays showed why. Each dragon shows its role as an indicator, and across the games, only 1.7% of dragon-turns were kamikaze turns. Short dragons with a longer teammate nearby were rare, so the role hardly ever came into play.
 
 ## Making kamikazes
 
@@ -64,7 +64,7 @@ The fix is to make them. A champion that reaches 10 segments splits off its last
 
 The child is a new dragon running a fresh copy of the same program, with no memory. Nothing tells it to be a kamikaze. It hears the champion announce length 10, sees that it's only three segments long, and picks the role itself.
 
-With splitting, the roles bot beat the first bot 91–29. To check where that came from, one version split the same way but made its children workers. It still beat the first bot, 86–31, so splitting helps on its own. Played directly against that version, the one with kamikazes won 84–38. Both halves of the idea earn their place.
+With splitting, the roles bot beat the first bot 91–29. To check where that came from, one version split the same way but made its children workers. It still beat the first bot, 86–31, so splitting helps on its own. Played directly against that version, the one with kamikazes won 84–38. So the splitting and the kamikaze role each add something on their own.
 
 ## A bug in the replay
 

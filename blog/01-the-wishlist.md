@@ -10,9 +10,9 @@ So this post tries to answer that one question using only the official toolkit a
 
 ![A terminal running unswbc init c alpha and unswbc init python bravo, which list the files each creates, then unswbc run --sandbox on default_small. The match uses seed 0xf80f04670677fc31, three dragons hit themselves, and team A wins after 60 rounds by elimination. Team A used 3.0M points per turn at p50, p99 and max. Team B used 5.0M at p50 and 20.4M at p99 and max.](images/unswbc-run.png)
 
-That's one game, and it tells us who won it. It also saves a replay we can watch in the [visualiser](https://game.battlecode.au/visualiser), and it prints how many CPU points each team spent, which we'll come back to at the end. What it can't tell us is whether `alpha` is the better bot. One game is one roll of the dice.
+That's one game, and it tells us who won it. It also saves a replay we can watch in the [visualiser](https://game.battlecode.au/visualiser), and it prints how many CPU points each team spent, which we'll come back to at the end. What it can't tell us is whether `alpha` is the better bot. One game obviously isn't statistically significant, and working out how many games it does take is part of what this post is about.
 
-Luckily the dice can be rolled again. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as. So running the same match again gives a genuinely different game, and passing a seed back with `--seed` replays one exactly, which will be handy for debugging:
+We can get more games, though. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as. So running the same match again gives a genuinely different game, and passing a seed back with `--seed` replays one exactly, which will be handy for debugging:
 
 ![Running the same match again without a seed gets seed 0x5007de0a57fc374d and a different 75-round game. Running it with --seed 0xf80f04670677fc31 repeats the first game exactly: the same three deaths and team A winning after 60 rounds.](images/unswbc-seed.png)
 
