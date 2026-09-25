@@ -1,6 +1,6 @@
 # The choice
 
-Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later. The online judge accepts Python, C and C++. It runs all three inside WebAssembly and charges each dragon in CPU points, with a budget of 100 million per turn. The language decides how much of that budget is left for thinking.
+Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
 
 ## One strategy, two languages
 

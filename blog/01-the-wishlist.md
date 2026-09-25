@@ -46,11 +46,13 @@ The second item is **statistics**.
 
 ## A ladder of our own
 
-At this point you might wonder why we don't just upload each version and let the online ladder play the games for us. It plays plenty of them, after all. The trouble is that it answers a different question from ours:
+At this point you might wonder why we don't just upload each version and let the online ladder play the games for us. It plays plenty of them, after all. The trouble is that it's slow, noisy, and answers a different question from ours.
 
-- **It's slow.** Battles are drawn every two hours, five games each, and uploads are limited to 12 an hour.
-- **It's noisy.** Each new submission resets your rating's K factor to 96, so the rating moves most right after an upload.
-- **It measures something else.** Your rating compares you with whoever's on the ladder this week, and they're changing their bots too.
+It's slow because battles are only drawn every two hours, five games at a time, and uploads are limited to 12 an hour. We saw above that telling a modest improvement from luck takes hundreds of games, so waiting on the ladder for each one would mean days per idea.
+
+It's noisy because each new submission resets your rating's K factor to 96, which makes the rating swing hardest in exactly the games right after an upload, when we're trying to read what the change did.
+
+And even a settled rating measures something else. It compares you with whoever happens to be on the ladder this week, and they're changing their bots too, so a rating can rise or fall without our bot getting any better or worse.
 
 What we actually want to know is whether this version beats the last one. A ladder we run ourselves can answer that. We keep frozen copies of our older versions and rate the current bot against them, so a new version only counts as progress if it beats the ones before it.
 

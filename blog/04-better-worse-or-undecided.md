@@ -2,15 +2,21 @@
 
 <!-- draft: 7f0371a745, stage: Building our tooling -->
 
-The [evaluation harness](03-the-evaluation-harness.md) plays lots of games, but a results table doesn't say whether a change helped. This post builds the second wishlist item, a verdict: [harness/verdict.py](../harness/verdict.py) plays a candidate bot against a baseline and answers better, worse or undecided.
+With the [evaluation harness](03-the-evaluation-harness.md) we can play as many games as we like. But at the end of the last post we had two bots that make identical moves finishing four wins apart. A results table on its own will always tempt us to read meaning into gaps like that. This post builds the second tool on the wishlist, which answers the question we actually care about: did this change make the bot better?
 
-## Counting decisive games
+The tool is [harness/verdict.py](../harness/verdict.py). You give it a candidate bot and the baseline it's meant to improve on, and it comes back with one of three answers: better, worse, or undecided.
 
-The verdict plays the candidate against the baseline on every map, from both sides, a few times each. Draws and errored games are set aside, which leaves the decisive games: the candidate either won them or lost them.
+## Judging a result against luck
 
-If the two bots were exactly as good as each other, each decisive game would be a coin flip, and the candidate's wins would follow a binomial distribution with a 50% chance per game. That makes it easy to ask how surprising a result is. Out of 100 decisive games, an even match wins 60 or more about 3% of the time, so 60 wins is strong evidence. Winning 55 happens by luck about 18% of the time, which isn't.
+The idea behind it is simple, and worth understanding, because it's the same reasoning you'd use to judge any result by eye.
 
-This is called an exact sign test, and the code is short:
+Suppose the candidate and the baseline were exactly as good as each other. Then every game between them would be a coin flip, and over many games the candidate would win about half. It wouldn't win exactly half, though. Flip a coin a hundred times and you'll often get 55 heads, and now and then 60. So the right question isn't "did the candidate win more than half?" It's "how often would a coin flip do at least this well?" If the answer is "almost never", the candidate is probably genuinely better. If it's "fairly often", we can't tell yet.
+
+The numbers make this concrete. Out of 100 games, two equally good bots will see one of them win 60 or more only about 3% of the time, so a 60–40 result is strong evidence of a real difference. But one of them will win 55 or more about 18% of the time, so a 55–45 result could easily be luck.
+
+Draws don't tell us which bot is better, so the verdict leaves them out and only counts decisive games. Errored games are left out too, for the reason from the last post: a crash is a bug to fix, not a result.
+
+The calculation itself is short. Statisticians call it an exact sign test:
 
 ```python
 def probability_of_at_least(wins: int, games: int) -> float:
@@ -18,25 +24,31 @@ def probability_of_at_least(wins: int, games: int) -> float:
     return sum(math.comb(games, k) for k in range(wins, games + 1)) / 2**games
 ```
 
-The candidate is "better" when an even match would do this well less than 5% of the time, and "worse" when an even match would do this badly less than 5% of the time. Anything in between is "undecided", and the tool estimates how many decisive games the observed win rate would need to settle it.
+It adds up the chances of every result at least as good as the one we got, if each game were a fair coin flip. The verdict then applies the usual cut-off. If an even match would do this well less than 5% of the time, the candidate is better. If an even match would do this badly less than 5% of the time, it's worse. Anything in between is undecided, and for that case the tool also estimates how many decisive games it would take to settle the question at the win rate we're seeing.
 
-## Three verdicts
+To get the games it needs, the verdict simply hands the two bots to the harness from the last post, which plays them against each other on every map and from both sides, repeating the whole set with a few different seeds so that one lucky pearl layout can't decide the answer.
 
-Each run below plays 104 games: the 13 bundled maps, both sides, four seeds each. A new tool needs checking before it's trusted, so the first two runs have answers we already know.
+## Checking the tool on questions we can answer
 
-The flood-fill bot against the C starter should be clearly better, and it is: 101 wins, 3 losses, and a verdict of better.
+Before trusting a new tool with a real question, it's worth giving it a couple of questions where we already know the answer, because if it gets those wrong, nothing else it says can be trusted. For each of the runs below, the two bots meet on all 13 bundled maps, from both sides, with four different seeds, which comes to 104 games per run.
 
-The C and Python flood-fill bots make exactly the same moves, so neither can be better. They split 51 wins each with 2 draws, and the verdict is undecided. A tool that called a winner here would be finding patterns in noise.
+The first check should be easy. The flood-fill bot from [The choice](02-the-choice.md) plays against the C starter bot, which just wanders about at random, so the flood-fill bot ought to come out clearly better. It does, winning 101 games and losing 3.
 
-The third run is a real question. The flood-fill bot only cares about room to move. An obvious improvement is to also head for pearls, since eating makes a dragon longer and length decides the game at round 500. The candidate, `room-pearls`, keeps the flood fill, and when several moves leave enough room, it takes the one nearest a visible pearl:
+The second check is the more important one. The C and Python versions of the flood-fill bot make exactly the same move in every position, so neither can be better than the other, and a trustworthy tool has to say so. They won 51 games each with 2 draws, and the verdict was undecided. That's reassuring. A tool that declared a winner here would be finding patterns in pure noise, and we'd have no business believing anything else it told us.
+
+## A real question
+
+Now for something we don't know the answer to. The flood-fill bot only cares about keeping room to move, and it ignores food completely. That seems like an obvious thing to fix. Eating pearls makes a dragon longer, and the longest dragon decides the game at round 500, so a bot that heads for food ought to do better.
+
+The candidate, `room-pearls`, keeps the flood fill, and adds one rule. When several moves all leave plenty of room, it picks the one nearest to a visible pearl:
 
 ![A terminal running just verdict room-pearls room-c. room-pearls wins 22 games against room-c, loses 78 and draws 4, with no errors. The chance an even match does this badly is 0.0000, and the verdict is worse.](images/verdict-room-pearls.png)
 
-The pearl-seeking version lost 78 of its 100 decisive games. It's clearly worse. If I'd tried it in one or two games, I might well have kept it, because chasing food sounds like progress. Working out why it loses needs a closer look at the games, which is a job for the debug viewer later in the series.
+It lost 78 of its 100 decisive games, so it's clearly worse, and not by a small margin. This is exactly the kind of result the tool exists for. If I'd tried the change in a game or two, I might well have kept it, because chasing food sounds like progress and the reasoning behind it sounds solid. Working out why it actually loses needs a closer look at the games themselves, which is a job for the debug viewer later in the series.
 
-## Freezing versions
+## Keeping the versions that win
 
-When a candidate comes out better, it becomes the new baseline, and a copy of the old one is kept. The next candidate has to beat the new baseline, and the frozen copies record every step that counted as progress. For now that's a `cp -r` into a folder of frozen versions. The offline Elo ladder on the wishlist will rate all of them against each other when it arrives.
+When a candidate does come out better, it becomes the new baseline, and the next idea has to beat it. The old version isn't thrown away, though. We save a numbered snapshot of each version that passed, so there's always a record of every step that counted as progress, and we can check later that newer versions still beat the ones before. For now that's just a copy of the bot's folder. The offline Elo ladder on the wishlist will eventually rate all the snapshots against each other.
 
 ## Next up
 

@@ -6,7 +6,7 @@ With the tools in place, the series turns to strategy. Before writing any, it's 
 
 ## Not a problem to grind
 
-When a game has a fixed simulator and a clear score, it's tempting to throw compute at it: generate thousands of candidate bots, play them against each other on a GPU for a week, and keep whatever wins. That works when the thing you're optimising against holds still. Here, very little does.
+When a game has a fixed simulator and a clear score, it's tempting to throw compute at it: generate thousands of candidate bots, play them against each other on a GPU for a week, and keep whatever wins. That works when the thing you're optimising against holds still. In Battlecode, very little does, for four reasons.
 
 - **The opponents change.** Every team on the ladder can upload a new bot twelve times an hour. A bot trained to beat this week's field is tuned for opponents that won't exist at the tournament.
 - **The maps change.** Every Sprint, Qualifier and Grand Final map will be new. The [map generator post](05-maps-nobody-has-seen.md) showed how a bot that looks solid on the bundled maps can have a blind spot the moment the boards change.
@@ -25,7 +25,9 @@ Put together, this is an adaptive, adversarial problem. The opponents, the maps 
 
 That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
 
-Chapter 2 of Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* is the standard reference for this kind of reasoning. It classifies environments by whether they're fully or partially observable, single or multi-agent, deterministic or stochastic, static or dynamic, and known or unknown, and shows how each property shapes the right agent design. By that classification, Battlecode is partially observable, multi-agent (competitive between teams and cooperative within one), stochastic, sequential and unknown, with a hard compute budget on every decision.
+There's a standard way to think about this. Chapter 2 of Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* describes environments by a handful of properties and shows how each one changes what a good agent looks like. A few of them describe Battlecode especially well.
+
+It's *partially observable*: a dragon only sees its 7×7 window, so it has to act on an incomplete picture and remember what it can. It's *multi-agent*, and in two ways at once, competing against the other team while cooperating with its own dragons, which can't share memory. And it's *unknown* in the book's sense: the maps and opponents we'll face at the tournament aren't the ones we can test against now. On top of all that, every decision has a hard compute budget. Each of those properties pushes towards bots whose behaviour we can inspect and adjust, rather than ones tuned blindly for the conditions we happen to see today.
 
 ## A menu of control architectures
 
@@ -45,7 +47,7 @@ Game AI has settled on a handful of ways to organise an agent's decisions. This 
 
 ## What we're building
 
-Given a partially observable, adversarial and changing game, and a need to see and fix behaviour quickly, our first strategy bot is a small **hierarchical state machine with scored moves inside each state**:
+Everything above points the same way. The dragon has to decide from its own limited view, and we have to be able to find and fix bad behaviour quickly as the game and the opponents change. So our first strategy bot is a small **hierarchical state machine with scored moves inside each state**:
 
 ![The first bot's structure. Each turn, the dragon reads its 7×7 window. A safety layer removes moves into kelp, portals, bodies and tiles next to an enemy head. A mode is then chosen from what's visible: Roam when nothing threatens, Evade when an enemy head is within two tiles. The chosen mode scores the remaining moves, and the best one is sent.](images/first-bot-architecture.svg)
 
@@ -59,11 +61,15 @@ It's written in Nim, as [The choice](02-the-choice.md) planned, and compiled to 
 
 ## The first result
 
-Against the flood-fill bot, on the 13 bundled maps and the 20 generated ones:
+To see whether the structure pays off, we'll test the first bot against the flood-fill bot from The choice, on the 13 bundled maps and the 20 generated ones from the last post:
 
 ![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict. first-bot wins 78 games against room-c, loses 48 and draws 6, with no errors. The chance an even match does this well is 0.0048, and the verdict is better.](images/first-bot-verdict.png)
 
-The first bot is better, 78 wins to 48, and an even match would do that well about 1 time in 200. The gain comes almost entirely from the generated maps. On the bundled maps the two bots are level, 25 wins to 27. On the generated maps the first bot won 53 games to 21. There, its dragons ran into their own bodies 7 times against the flood-fill bot's 36, which is the portal blind spot from the last post closing, and into other dragons 24 times against 42. It's a modest start, but it's measurably better, and there's a clear place to put each new behaviour.
+The first bot is better, winning 78 games to 48. Two equally good bots would produce a result that lopsided only about once in 200 tries, so this is a real improvement.
+
+Where the gain comes from is interesting. On the bundled maps the two bots are level, 25 wins to 27. Almost all of the improvement is on the generated maps, where the first bot won 53 games to 21. The replays show why. On those maps, the first bot's dragons ran into their own bodies 7 times, against 36 times for the flood-fill bot. That's the portal blind spot from the last post, closed by the safety layer refusing to step through portals it can't see past.
+
+It's a modest start, but it's measurably better, and now each new behaviour has an obvious place to go.
 
 ## Next up
 

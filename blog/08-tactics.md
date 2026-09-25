@@ -25,7 +25,7 @@ It's also worth reading how winners of other Battlecode competitions thought abo
 
 ## From strategy to tactics
 
-The last two posts were about strategy. Roles, like the champion and the kamikaze, are strategic ideas, and so are deception, redundancy and supply lines. They decide what each dragon is for.
+The last two posts were about strategy, which is deciding what each dragon is for. Giving one dragon the job of staying long for round 500 and another the job of hunting enemy heads is a strategic choice. So is anything else that shapes the plan for the whole team, like deceiving the enemy or keeping a spare champion in case the first one dies.
 
 Tactics is the other half. Once a dragon knows its job, tactics is about doing that job precisely and efficiently. The question changes from "who should be the champion?" to "given I'm the champion right now, how do I do that well?" Two bots with the same strategy can play very differently depending on how well each one carries it out.
 
@@ -45,13 +45,13 @@ Let's try building both.
 
 ## Coiling
 
-A coiled champion covers very little ground. It exposes less of its body to enemies, and it stays close to wherever food is being delivered. In the tactics bot, a champion with no enemy head within three tiles switches to a new **Coil** mode.
+The reason to coil is that a long dragon stretched across the board is an easy target. Every segment is somewhere an enemy can cut in front of it, and the further it roams the more of them it meets. A champion curled up in a tight knot keeps most of its body out of reach, and it stays in one place, which matters if teammates are going to bring food to it. So in the tactics bot, when a champion has no enemy head within three tiles, it switches to a new **Coil** mode.
 
-The geometry comes down to a simple preference: move to tiles that touch our own body. Each own segment next to the new tile adds to the move's score. A dragon that keeps hugging its own body curls into a spiral.
+Getting a dragon to curl up turns out to need only one simple preference: it should like moving onto tiles that touch its own body. Each of our own segments next to a candidate tile adds to that move's score, and a dragon that keeps choosing to hug itself this way naturally winds into a spiral.
 
 ![How the coil scores a move. A champion is curled into a U, with two of its possible moves. Moving into the gap inside the curl touches two of its own segments and scores highest. Moving out of the curl touches none. Touching its own body only counts while the move still leaves at least 10 tiles of room.](images/coil-scoring.svg)
 
-There's a catch, though. A snake that curls too tightly traps itself. So the preference only applies while the move still leaves at least 10 tiles of room to move into, measured with the same flood fill as before. The coil also always takes a pearl if one is right next to it.
+Left unchecked, that preference would have the dragon curl so tightly that it walls itself in and dies on its own body. So hugging only counts while the move still leaves at least 10 tiles of room, measured with the same flood fill the bot already uses for safety. And since a coiled champion still needs to grow, it always takes a pearl that's right next to it.
 
 ```nim
 proc ownBodyAround(w: Window, i: int): int =
@@ -71,29 +71,29 @@ Here's a champion from one of the test games, nine segments packed into a three-
 
 ![A game on Colosseum at round 76. Our champion, nine segments long, is coiled into a tight three-by-three square at the edge of the board.](images/champion-coil.svg)
 
-On its own, coiling didn't change the result: against the roles bot it came out level, 60–62. A tight champion is only half of the idea.
+On its own, coiling didn't change the result. Against the roles bot it came out level, winning 60 games and losing 62. That isn't surprising, because a champion that stays put only pays off if something is bringing it food, and that's the other half of the idea.
 
 ## Feeding the champion
 
-The other half is the minis. The roles bot's workers became **feeders**. A feeder goes looking for pearls, and once it has grown to six segments, it travels back to the champion and drives into the champion's body. Only the mover dies when it hits another dragon's body, so the champion is safe, and the feeder's segments turn into pearls beside it.
+To bring the champion food, the roles bot's workers became **feeders**. A feeder goes looking for pearls, and once it has grown to six segments, it travels back to the champion and deliberately drives into the champion's body. When a dragon runs into another dragon's body, only the one that moved dies, so the champion comes to no harm, and half the feeder's segments turn into pearls right beside it.
 
-A feeder has to know where the champion is, and the champion is usually far out of sight. So the sonar message changed. The team tag shrank to 16 bits to make room, and every dragon now includes its head's position. A feeder remembers where the longest teammate it heard from was, and heads there.
+For that to work, a feeder has to know where the champion is, and the champion is usually far out of sight. The roles bot's sonar message only carried each dragon's length, so it needed to carry a position as well. To make room in the 64 bits, the team tag shrank to 16 bits, and every dragon now includes where its head is. A feeder remembers the position of the longest teammate it has heard from, and heads there when it's ready to deliver.
 
 Here's how each version did against the roles bot:
 
 ![Each tactic against the roles bot. Coil only: 60 wins, 62 losses, undecided. Coil, forage and sacrifice: 43–78, worse. Forage and sacrifice, no coil: 32–88, worse. Sacrifice without foraging: 40–81, worse. Sacrifice only near the champion's head: 50–72, worse. Forage, no coil: 63–57, undecided. Coil and forage, four seeds: 138–106, better.](images/tactics-experiments.svg)
 
-Every version with the sacrifice in it came out worse, and splitting the tactic apart showed why. Foraging on its own was fine. The sacrifice was what hurt. My first guess was that feeders were dying against the champion's tail, far from its head, so the champion never came back for the pearls. So one version only sacrificed when the champion's head was within two tiles. That helped a little, but it was still clearly worse.
+Every version with the sacrifice in it came out worse. To find out which part was hurting, I tested the pieces separately, the same way as in the roles post. Feeders that only foraged were fine, so the damage came from the sacrifice itself. My first guess was that feeders were dying against the champion's tail, far from its head, so the champion never came back for the pearls. So one version only sacrificed when the champion's head was within two tiles. That helped a little, but it was still clearly worse.
 
 So whatever the number one team is doing, it's more careful than this. Perhaps their feeders sacrifice only when the champion is short of food. Or perhaps the champion is positioned to collect the pearls, not the feeder. It's a good open question, and I'd love to hear from anyone who cracks it.
 
-What did work was the combination of the two halves that survived. Feeders that forage but don't sacrifice, with a champion that coils, beat the roles bot. Foraging without the coil was only level, and the coil on its own was only level, so the two work together.
+What did work was putting together the two pieces that hadn't hurt. Feeders that forage but never sacrifice, alongside a champion that coils, beat the roles bot. Each of those pieces was only level on its own, so they're helping each other.
 
 ## Checking the result properly
 
-That combination first came out better, 73–51, in a run of 132 games. When I ran it again as the final version, the harness drew a different set of seeds, because each game's seed is derived from the bots' names. The same bot came out 66–56, undecided.
+That combination first came out better, 73 games to 51, in a run of 132 games. When I ran it again under its final name, the harness drew a different set of seeds, because each game's seed is derived from the bots' names, and the very same bot came out 66 to 56, which is undecided.
 
-That's a useful reminder of what a 5% threshold means. A result that just clears it can fail to clear it on the next sample. So the final check doubled the sample to four seeds per map and side:
+That's worth understanding rather than brushing aside. A 5% threshold means that a result near the edge is only just distinguishable from luck, so a fresh sample of games can easily land on the other side of it. The honest response is to collect more evidence, so the final check doubled the sample to four seeds for every map and side:
 
 ![A terminal running just tactics, which builds the tactics bot and runs the verdict against the roles bot on four seeds. tactics-bot wins 138 games, loses 106 and draws 20, with no errors. The chance an even match does this well is 0.0235, and the verdict is better.](images/tactics-verdict.png)
 
@@ -101,4 +101,4 @@ Over 264 games the tactics bot is better, 138 wins to 106. The code is in [examp
 
 ## Next up
 
-That finishes the implementation section. We have tools to test ideas, a structure to put them in, roles that give each dragon a job, and tactics that carry those jobs out. The next stage is espionage: what we can learn about other teams from their public replays and their sonar messages.
+That finishes the implementation section. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The next stage is espionage: what we can learn about other teams from their public replays and their sonar messages.
