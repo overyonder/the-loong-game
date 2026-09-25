@@ -1,9 +1,11 @@
 """Draw how our tools and the official toolkit fit around the bot we're improving.
 
     python3 tools/pipeline_diagram.py blog/images/pipeline.svg
+    python3 tools/pipeline_diagram.py --nothing-built blog/images/pipeline-wishlist.svg
 
 Tools in BUILT are drawn solid. The rest of the wishlist is drawn dashed until
-a post builds it.
+a post builds it. --nothing-built draws the whole wishlist dashed, as it stands
+at the end of the wishlist post.
 """
 
 import sys
@@ -78,7 +80,8 @@ def main():
         '<title id="t">Our tools around the bot</title>',
         '<desc id="d">The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly,'
         ' with numbered snapshots of earlier versions saved below it. The official toolkit is on the right. Our wishlist tools are on'
-        f' the left, with the ones built so far drawn solid: {", ".join(sorted(BUILT))}.</desc>',
+        + (f' the left, with the ones built so far drawn solid: {", ".join(sorted(BUILT))}.</desc>' if BUILT
+           else ' the left, all still on the wishlist.</desc>'),
         f'<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
         f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{MUTED}"/></marker></defs>',
         f'<rect width="{WIDTH}" height="{HEIGHT}" fill="{PAPER}"/>',
@@ -136,14 +139,19 @@ def main():
     parts.append(arrow(right_spine_x, spine_join_y, CENTRE_X + CENTRE_WIDTH + 4, spine_join_y))
 
     legend_y = HEIGHT - 30
-    parts.append(f'<rect x="{LEFT_X}" y="{legend_y - 12}" width="22" height="14" rx="3" fill="{CARD}" stroke="{SIGNAL}" stroke-width="1.8"/>')
-    parts.append(text(LEFT_X + 30, legend_y, "built so far", 12, MUTED))
-    parts.append(f'<rect x="{LEFT_X + 130}" y="{legend_y - 12}" width="22" height="14" rx="3" fill="{PAPER}" stroke="{RULE}" stroke-dasharray="4 3"/>')
-    parts.append(text(LEFT_X + 160, legend_y, "still on the wishlist", 12, MUTED))
+    wishlist_x = LEFT_X
+    if BUILT:
+        parts.append(f'<rect x="{LEFT_X}" y="{legend_y - 12}" width="22" height="14" rx="3" fill="{CARD}" stroke="{SIGNAL}" stroke-width="1.8"/>')
+        parts.append(text(LEFT_X + 30, legend_y, "built so far", 12, MUTED))
+        wishlist_x = LEFT_X + 130
+    parts.append(f'<rect x="{wishlist_x}" y="{legend_y - 12}" width="22" height="14" rx="3" fill="{PAPER}" stroke="{RULE}" stroke-dasharray="4 3"/>')
+    parts.append(text(wishlist_x + 30, legend_y, "still on the wishlist", 12, MUTED))
     parts.append("</svg>")
-    with open(sys.argv[1], "w") as output:
+    with open(sys.argv[-1], "w") as output:
         output.write("\n".join(parts) + "\n")
 
 
 if __name__ == "__main__":
+    if "--nothing-built" in sys.argv:
+        BUILT = set()
     main()

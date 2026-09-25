@@ -120,16 +120,9 @@ Here's how the eight tools connect:
 
 ![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which decides the next change. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
 
-| Tool | What it gives us |
-| --- | --- |
-| **Evaluation harness** | Games across every map and both sides, in parallel in the judge's sandbox, with errors kept apart from losses. |
-| **Statistics** | A yes-or-no verdict on whether a change helped, and the number of games that takes. |
-| **Offline Elo ladder** | Ratings against our own older versions and fixed baselines. |
-| **Map generator** | Plausible maps modelled on the ladder's, for testing on maps we haven't seen. |
-| **Replay sampler** | A slow, rating-ordered sample of public ladder replays. |
-| **Replay decoder** | Game state rebuilt turn by turn, including what each dragon could see. |
-| **Debug viewer** | The board through one dragon's eyes, with its memory and decisions. |
-| **Profiling** | CPU cost from wall time down to individual instructions, native and WASM. |
+And here's where they'll sit around the bot, next to the official toolkit. For now every one of them is still on the wishlist, and the tools posts build them one at a time:
+
+![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. The eight wishlist tools are on the left with their languages, all still on the wishlist: the evaluation harness, statistics, map generator, offline Elo ladder, replay sampler and replay decoder in Python, the debug viewer in Odin, and profiling with perf. Ideas from the grand strategy and tactical ideas stages flow into the bot from the top.](images/pipeline-wishlist.svg)
 
 I already have most of these working in some form, so the tools posts will walk through real, working code. Everything after that leans on them. Whenever a later post tries a strategic idea, the Jev test from the [intro](00-the-loong-game.md) included, these tools are how we'll know whether it worked.
 
