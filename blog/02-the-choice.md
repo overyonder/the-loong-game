@@ -94,12 +94,14 @@ That remaining gap to C comes from the growable list. Nim allocates it on the he
 
 How Nim manages that memory is configurable too. The `mm` setting picks the strategy:
 
-```
+```ini nim.cfg
 mm = arc    # reference counting: memory is freed as soon as its last reference goes
 # mm = orc  # the Nim 2 default: ARC plus a collector for data that points back at itself
 ```
 
-ARC counts references and frees each object the moment nothing refers to it any more, so there's no garbage collector pausing to scan memory in the middle of a turn. ORC adds a collector for reference cycles, such as two objects that point at each other. Our bot never builds cycles, so plain ARC does the job without the collector's overhead. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it contains none of the build-time date or time macros the judge rejects.
+ARC counts references and frees each object the moment nothing refers to it any more, so there's no garbage collector pausing to scan memory in the middle of a turn. ORC adds a collector for reference cycles, such as two objects that point at each other. Our bot never builds cycles, so plain ARC does the job without the collector's overhead.
+
+The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it contains none of the build-time date or time macros the judge rejects.
 
 Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody has tuned it. The hottest parts of a serious bot, like the inner loop of its search, still need hand-optimised C, and hand-written WebAssembly would go further if the judge accepted it. Nim is for writing and changing strategies quickly, and C is for the parts where every point counts.
 
