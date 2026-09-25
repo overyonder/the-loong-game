@@ -278,14 +278,19 @@ def draw_map(bot, source_lines, styled):
 
 # ---- Close-ups: readable code with the same boxes -----------------------------------------
 
-def draw_close_up(close_up, source_lines, styled):
+def close_up_rows(close_up, source_lines):
     rows = []  # source line index, or None for a fold marker between blocks
     for index, piece in enumerate(close_up.blocks):
         first, last = piece.span(source_lines)
         if index:
             rows.append(None)
         rows.extend(range(first, last + 1))
-    columns = max(len(source_lines[line]) for line in rows if line is not None)
+    return rows
+
+
+def draw_close_up(close_up, source_lines, styled, columns):
+    """Every close-up is drawn `columns` wide, so code prints at the same size in every figure."""
+    rows = close_up_rows(close_up, source_lines)
     code_x = MARGIN + BORDER + PADDING + (GUTTER + 2) * CELL_WIDTH
     inner_width = (GUTTER + 2 + columns + 18) * CELL_WIDTH + 2 * PADDING
     inner_height = len(rows) * LINE_HEIGHT + 2 * PADDING + 10
@@ -345,13 +350,16 @@ def write_png(svg, path):
 
 def main():
     output = Path(sys.argv[1])
+    sources = {bot.name: (ROOT / "examples" / bot.name / "strategy.nim").read_text().split("\n") for bot in BOTS}
+    columns = max(len(sources[bot.name][line]) for bot in BOTS for close_up in bot.close_ups
+                  for line in close_up_rows(close_up, sources[bot.name]) if line is not None)
     for bot in BOTS:
         source = (ROOT / "examples" / bot.name / "strategy.nim").read_text()
         source_lines = source.split("\n")
         styled = styled_lines(source)
         (output / f"{bot.name}-code-map.svg").write_text(draw_map(bot, source_lines, styled))
         for close_up in bot.close_ups:
-            write_png(draw_close_up(close_up, source_lines, styled), output / f"{bot.name}-code-{close_up.name}.png")
+            write_png(draw_close_up(close_up, source_lines, styled, columns), output / f"{bot.name}-code-{close_up.name}.png")
 
 
 if __name__ == "__main__":
