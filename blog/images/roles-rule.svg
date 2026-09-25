@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">How a dragon picks its role</title>
+<desc id="d">Each turn a dragon compares its own length with the longest teammate it has heard of by sonar in the last 12 turns. If it is at least as long, it is the champion. Otherwise, if it is three segments or shorter, it is a kamikaze. Otherwise it is a worker.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="720" height="330" fill="#ede5d5"/>
+<rect x="220" y="16" width="280" height="62" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
+<text x="360.0" y="40" font-size="15" font-weight="bold" fill="#20251f" text-anchor="middle">Listen</text>
+<text x="360.0" y="60" font-size="12" fill="#66675e" text-anchor="middle">longest teammate heard in 12 turns</text>
+<path d="M360 78 L360 104" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="200" y="106" width="320" height="58" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
+<text x="360.0" y="130" font-size="15" font-weight="bold" fill="#20251f" text-anchor="middle">Am I at least that long?</text>
+<path d="M250 164 L120 214" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<text x="171.0" y="185.0" font-size="12" fill="#66675e" text-anchor="middle">yes</text>
+<path d="M470 164 L520 188" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<text x="511.0" y="172.0" font-size="12" fill="#66675e" text-anchor="middle">no</text>
+<rect x="20" y="216" width="200" height="96" rx="7" fill="#263d31" stroke="#263d31" stroke-width="1.2"/>
+<text x="120.0" y="240" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="middle">Champion</text>
+<text x="120.0" y="260" font-size="12" fill="#c7c1b2" text-anchor="middle">plays for length,</text>
+<text x="120.0" y="277" font-size="12" fill="#c7c1b2" text-anchor="middle">splits at length 10</text>
+<text x="120.0" y="294" font-size="12" fill="#c7c1b2" text-anchor="middle">to make kamikazes</text>
+<rect x="400" y="190" width="240" height="50" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
+<text x="520.0" y="214" font-size="14" font-weight="bold" fill="#20251f" text-anchor="middle">Three segments or fewer?</text>
+<path d="M470 240 L380 262" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<text x="413.0" y="249.0" font-size="12" fill="#66675e" text-anchor="middle">yes</text>
+<path d="M590 240 L640 262" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<text x="629.0" y="249.0" font-size="12" fill="#66675e" text-anchor="middle">no</text>
+<rect x="270" y="264" width="190" height="58" rx="7" fill="#b53b13" stroke="#b53b13" stroke-width="1.2"/>
+<text x="365.0" y="288" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="middle">Kamikaze</text>
+<text x="365.0" y="308" font-size="12" fill="#f3d9cc" text-anchor="middle">hunts enemy heads</text>
+<rect x="540" y="264" width="170" height="58" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>
+<text x="625.0" y="288" font-size="15" font-weight="bold" fill="#20251f" text-anchor="middle">Worker</text>
+<text x="625.0" y="308" font-size="12" fill="#66675e" text-anchor="middle">the first bot's modes</text>
+</svg>

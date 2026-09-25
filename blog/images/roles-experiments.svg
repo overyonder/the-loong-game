@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 408" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">Each change against the first bot</title>
+<desc id="d">Roles, first try: 46 wins, 72 losses, worse; No kamikazes: 49 wins, 68 losses, worse; No kamikazes, narrower champion berth: 58 wins, 58 losses, undecided; Narrower champion berth: 55 wins, 58 losses, undecided; Champion splits at length 10: 91 wins, 29 losses, better; Splits, but children work instead: 86 wins, 31 losses, better; Splits, and ignores its own echo: 90 wins, 30 losses, better.</desc>
+<rect width="720" height="408" fill="#ede5d5"/>
+<line x1="290" x2="290" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="290" y="392" font-size="12" fill="#66675e" text-anchor="middle">0%</text>
+<line x1="367.5" x2="367.5" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="367.5" y="392" font-size="12" fill="#66675e" text-anchor="middle">25%</text>
+<line x1="445.0" x2="445.0" y1="32" y2="374" stroke="#8a8274" stroke-dasharray="4 3"/>
+<text x="445.0" y="392" font-size="12" fill="#66675e" text-anchor="middle">50%</text>
+<line x1="522.5" x2="522.5" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="522.5" y="392" font-size="12" fill="#66675e" text-anchor="middle">75%</text>
+<line x1="600" x2="600" y1="32" y2="374" stroke="#d9d0bf"/>
+<text x="600" y="392" font-size="12" fill="#66675e" text-anchor="middle">100%</text>
+<text x="445.0" y="26" font-size="12" fill="#66675e" text-anchor="middle">an even match</text>
+<text x="278" y="59" font-size="13" fill="#20251f" text-anchor="end">Roles, first try</text>
+<line x1="445.0" x2="410.8" y1="54" y2="54" stroke="#8a8274" stroke-width="3"/>
+<circle cx="410.8" cy="54" r="6" fill="#8a8274" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="59" font-size="12.5" fill="#20251f">46–72, worse</text>
+<text x="278" y="103" font-size="13" fill="#20251f" text-anchor="end">No kamikazes</text>
+<line x1="445.0" x2="419.8" y1="98" y2="98" stroke="#8a8274" stroke-width="3"/>
+<circle cx="419.8" cy="98" r="6" fill="#8a8274" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="103" font-size="12.5" fill="#20251f">49–68, worse</text>
+<text x="278" y="147" font-size="13" fill="#20251f" text-anchor="end">No kamikazes, narrower champion berth</text>
+<line x1="445.0" x2="445.0" y1="142" y2="142" stroke="#b9ad99" stroke-width="3"/>
+<circle cx="445.0" cy="142" r="6" fill="#b9ad99" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="147" font-size="12.5" fill="#20251f">58–58, undecided</text>
+<text x="278" y="191" font-size="13" fill="#20251f" text-anchor="end">Narrower champion berth</text>
+<line x1="445.0" x2="440.9" y1="186" y2="186" stroke="#b9ad99" stroke-width="3"/>
+<circle cx="440.9" cy="186" r="6" fill="#b9ad99" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="191" font-size="12.5" fill="#20251f">55–58, undecided</text>
+<text x="278" y="235" font-size="13" fill="#20251f" text-anchor="end">Champion splits at length 10</text>
+<line x1="445.0" x2="525.1" y1="230" y2="230" stroke="#b53b13" stroke-width="3"/>
+<circle cx="525.1" cy="230" r="6" fill="#b53b13" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="235" font-size="12.5" fill="#20251f">91–29, better</text>
+<text x="278" y="279" font-size="13" fill="#20251f" text-anchor="end">Splits, but children work instead</text>
+<line x1="445.0" x2="517.9" y1="274" y2="274" stroke="#b53b13" stroke-width="3"/>
+<circle cx="517.9" cy="274" r="6" fill="#b53b13" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="279" font-size="12.5" fill="#20251f">86–31, better</text>
+<text x="278" y="323" font-size="13" fill="#20251f" text-anchor="end">Splits, and ignores its own echo</text>
+<line x1="445.0" x2="522.5" y1="318" y2="318" stroke="#b53b13" stroke-width="3"/>
+<circle cx="522.5" cy="318" r="6" fill="#b53b13" stroke="#ede5d5" stroke-width="2"/>
+<text x="614" y="323" font-size="12.5" fill="#20251f">90–30, better</text>
+</svg>

@@ -67,6 +67,6 @@ The first bot is better, 78 wins to 48, and an even match would do that well abo
 
 ## Next up
 
-From here the series adds behaviour one mode at a time, starting with feeding: the pearl-seeking change that failed in the verdict post, now inside a structure that can tell when it's safe to eat.
+From here the series adds behaviour one piece at a time, starting with [roles](07-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.
 
 Questions, heckling and "have you tried X" are all welcome 😄

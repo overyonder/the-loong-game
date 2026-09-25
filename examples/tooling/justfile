@@ -38,3 +38,12 @@ first-bot:
     nim c first-bot/strategy.nim
     python3 -m harness.verdict --candidate first-bot --baseline room-c \
         --maps maps/*.map maps-generated/*.map --seeds 2 --output results/first-bot
+
+# Build the roles bot from "Roles" and test it against the first bot.
+roles:
+    rm -rf roles-bot && cp -r ../roles-bot roles-bot
+    cp starter-c/helper.c starter-c/helper.h roles-bot/
+    cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" roles-bot/
+    nim c roles-bot/strategy.nim
+    python3 -m harness.verdict --candidate roles-bot --baseline first-bot \
+        --maps maps/*.map maps-generated/*.map --seeds 2 --output results/roles

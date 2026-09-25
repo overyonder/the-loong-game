@@ -1,0 +1,5 @@
+# created by `unswbc init`
+# only translation units belong in include; headers are pulled in by #include
+[project]
+language = "c"
+include = [ "*.c", "gen/*.c" ]

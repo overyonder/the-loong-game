@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 190" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">One sonar message, 64 bits</title>
+<desc id="d">The top 32 bits hold the team tag 0x4C4F4F4E, which spells LOON. Bits 31 to 16 hold the sender's ID, bits 15 to 12 its role, and bits 11 to 0 its length.</desc>
+<rect width="720" height="190" fill="#ede5d5"/>
+<rect x="30.0" y="60" width="330.0" height="56" fill="#263d31" stroke="#ede5d5" stroke-width="2"/>
+<text x="195.0" y="84" font-size="14" font-weight="bold" fill="#ede5d5" text-anchor="middle">team tag</text>
+<text x="195.0" y="103" font-size="11.5" fill="#ede5d5" text-anchor="middle">0x4C4F4F4E, "LOON"</text>
+<text x="33.0" y="52" font-size="11" fill="#66675e">63</text>
+<rect x="360.0" y="60" width="165.0" height="56" fill="#5b5e57" stroke="#ede5d5" stroke-width="2"/>
+<text x="442.5" y="84" font-size="14" font-weight="bold" fill="#ede5d5" text-anchor="middle">sender ID</text>
+<text x="442.5" y="103" font-size="11.5" fill="#ede5d5" text-anchor="middle">to ignore our own echo</text>
+<text x="363.0" y="52" font-size="11" fill="#66675e">31</text>
+<rect x="525.0" y="60" width="41.2" height="56" fill="#b53b13" stroke="#ede5d5" stroke-width="2"/>
+<text x="545.6" y="84" font-size="12" font-weight="bold" fill="#ede5d5" text-anchor="middle">role</text>
+<text x="528.0" y="52" font-size="11" fill="#66675e">15</text>
+<rect x="566.2" y="60" width="123.8" height="56" fill="#3f6e8c" stroke="#ede5d5" stroke-width="2"/>
+<text x="628.1" y="84" font-size="14" font-weight="bold" fill="#ede5d5" text-anchor="middle">length</text>
+<text x="628.1" y="103" font-size="11.5" fill="#ede5d5" text-anchor="middle">segments</text>
+<text x="569.2" y="52" font-size="11" fill="#66675e">11</text>
+<text x="687" y="52" font-size="11" fill="#66675e" text-anchor="end">0</text>
+<text x="30" y="150" font-size="12.5" fill="#66675e">Sent north, east, south and west every turn. The first dragon each ray reaches hears it, friend, enemy or the sender.</text>
+<text x="30" y="170" font-size="12.5" fill="#66675e">Messages without the tag are ignored. It keeps out noise, not a determined opponent.</text>
+</svg>
