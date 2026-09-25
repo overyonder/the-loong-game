@@ -48,7 +48,15 @@ It lost 78 of its 100 decisive games, so it's clearly worse, and not by a small 
 
 ## Keeping the versions that win
 
-When a candidate does come out better, it becomes the new baseline, and the next idea has to beat it. The old version isn't thrown away, though. We save a numbered snapshot of each version that passed, so there's always a record of every step that counted as progress, and we can check later that newer versions still beat the ones before. For now that's just a copy of the bot's folder. The offline Elo ladder on the wishlist will eventually rate all the snapshots against each other.
+When a candidate comes out better, it becomes the new baseline, and the next idea has to beat it. We also save a numbered snapshot of it, which for now is just a copy of the bot's folder, and keep the last few snapshots around so that every new candidate has to beat them as well as the current baseline.
+
+The reason for keeping older versions is that beating the previous version isn't the same thing as getting better. Strategies in a game like this can go round in circles, the way rock, paper and scissors do. Suppose our first bot plays rock. Paper beats it, passes the verdict and becomes version 2. Scissors beats paper and becomes version 3. Then rock beats scissors and becomes version 4, even though it's exactly the bot we started with:
+
+![Rock, paper, scissors, rock, paper, scissors, labelled v1 to v6, with each version beating the one before it. The labels read as steady progress, but v4 plays exactly like v1.](images/version-cycle.svg)
+
+Every step in that sequence passed a fair test, and the version numbers suggest six rounds of progress, but the bot has only gone round in a circle. Real bots can do the same thing in subtler ways. A change that makes our dragons better at dodging the last version's kamikazes might also make them worse against a bot that simply forages, and if we only ever tested against the previous version, we'd never find out. Running the verdict against the last few snapshots as well catches this, because a version that has quietly gone back round the circle will lose to one of its own ancestors.
+
+We keep only the last few snapshots in testing rather than all of them, because much older versions are usually easy wins, and playing them spends games without telling us anything new. The offline Elo ladder on the wishlist will eventually rate every snapshot against every other, so the whole history can be seen at once.
 
 ## Next up
 
