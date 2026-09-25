@@ -32,7 +32,7 @@
 <rect x="20" y="300" width="160" height="64" rx="6" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
 <text x="100.0" y="337.0" font-size="15" fill="#20251f" text-anchor="middle">Profiling</text>
 <rect x="200" y="300" width="160" height="64" rx="6" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
-<text x="280.0" y="328.0" font-size="15" fill="#20251f" text-anchor="middle">Public replay</text>
+<text x="280.0" y="328.0" font-size="15" fill="#20251f" text-anchor="middle">Replay</text>
 <text x="280.0" y="346.0" font-size="15" fill="#20251f" text-anchor="middle">sampler</text>
 <rect x="390" y="300" width="160" height="64" rx="6" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
 <text x="470.0" y="328.0" font-size="15" fill="#20251f" text-anchor="middle">Replay</text>
