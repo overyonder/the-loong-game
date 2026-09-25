@@ -120,11 +120,14 @@ def render_kitty_window_svg(lines):
 
 
 def main():
+    global TERMINAL_COLUMNS
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cwd", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--columns", type=int, default=TERMINAL_COLUMNS)
     parser.add_argument("commands", nargs="+")
     arguments = parser.parse_args()
+    TERMINAL_COLUMNS = arguments.columns
     svg = render_kitty_window_svg(ansi_to_styled_lines(record_commands_as_ansi(arguments.commands, arguments.cwd)))
     subprocess.run(["rsvg-convert", "--zoom", "2", "--output", str(arguments.output)],
                    input=svg.encode(), check=True)
