@@ -3,3 +3,4 @@
 */helper.h
 */nimbase.h
 native/bench
+native/machine

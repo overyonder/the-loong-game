@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 -20 948 742" role="img" aria-labelledby="plot-title plot-desc">
+<style>
+.plot-grid path { fill: none; stroke: #596057; stroke-width: 1; }
+.plot-grid .major-grid { stroke-opacity: .75; }
+.plot-grid .minor-grid { stroke-opacity: .23; }
+.barriers path { fill: none; stroke: #596057; stroke-width: 1.25; stroke-opacity: .75; }
+.hardware-boundary path { fill: none; stroke: #ff7a3d; stroke-width: 1.5; stroke-dasharray: 7 5; }
+.hardware-boundary text { fill: #ff7a3d; font: 700 11px "SFMono-Regular", Consolas, monospace; letter-spacing: .1em; text-anchor: end; }
+.axis-labels, .group-labels, .stage-labels { font-family: "SFMono-Regular", Consolas, "DejaVu Sans Mono", monospace; }
+.axis-labels { fill: #a5a293; font-size: 14px; text-anchor: middle; }
+.axis-labels .axis-title { fill: #f3ecdf; font-size: 13px; letter-spacing: .02em; }
+.group-labels { fill: #a5a293; font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+.stage-labels .domain { fill: #f3ecdf; font-size: 11.5px; font-weight: 500; }
+.stage-labels .intervention { fill: #ff7a3d; stroke: #263d31; stroke-width: 4px; paint-order: stroke; font-size: 10.5px; font-weight: 650; }
+.stage-labels .intervention-before { text-anchor: end; }
+.progress-halo { fill: none; stroke: #ff7a3d; stroke-width: 15; stroke-opacity: .12; }
+.progress-line { fill: none; stroke: #ff7a3d; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.plot-points circle { fill: #263d31; stroke: #ff7a3d; stroke-width: 3; }
+.plot-points g:last-child circle { fill: #ff7a3d; }
+</style>
+<rect x="-24" y="-20" width="948" height="742" fill="#263d31"/>
+          <title id="plot-title">Optimization through the computing stack</title>
+          <desc id="plot-desc">An illustrative optimisation path through the computing stack. Each fix, from product architecture down to custom hardware, cuts the time per operation further, from about one second towards ten microseconds on a logarithmic scale. A dashed line separates the fixes made in software from those that build new hardware.</desc>
+
+          <g class="plot-grid">
+            <path class="major-grid" d="M450 25V634M530 25V634M610 25V634M690 25V634M770 25V634M850 25V634"/>
+            <path class="minor-grid" d="M453.7 25V634M457.7 25V634M462.4 25V634M467.8 25V634M474.1 25V634M481.8 25V634M491.9 25V634M505.9 25V634M533.7 25V634M537.7 25V634M542.4 25V634M547.8 25V634M554.1 25V634M561.8 25V634M571.9 25V634M585.9 25V634M613.7 25V634M617.7 25V634M622.4 25V634M627.8 25V634M634.1 25V634M641.8 25V634M651.9 25V634M665.9 25V634M693.7 25V634M697.7 25V634M702.4 25V634M707.8 25V634M714.1 25V634M721.8 25V634M731.9 25V634M745.9 25V634M773.7 25V634M777.7 25V634M782.4 25V634M787.8 25V634M794.1 25V634M801.8 25V634M811.9 25V634M825.9 25V634"/>
+          </g>
+
+          <g class="barriers">
+            <path d="M440 38H438M466 38H860M440 64H461M489 64H860M440 90H484M512 90H860M440 138H507M535 138H860M440 164H530M558 164H860M440 190H553M581 190H860M440 216H576M604 216H860M440 242H599M627 242H860M440 290H622M650 290H860M440 316H645M673 316H860M440 364H668M696 364H860M440 390H691M719 390H860M440 416H714M742 416H860M440 464H737M765 464H860M440 490H760M788 490H860M440 516H783M811 516H860M440 594H806M834 594H860M440 620H829M857 620H860"/>
+          </g>
+
+          <g class="hardware-boundary">
+            <path d="M20 551H860"/>
+            <text x="428" y="544">SOFTWARE ↑</text>
+            <text x="428" y="566">HARDWARE ↓</text>
+          </g>
+
+          <g class="axis-labels">
+            <text x="450" y="665">1 s</text>
+            <text x="530" y="665">100 ms</text>
+            <text x="610" y="665">10 ms</text>
+            <text x="690" y="665">1 ms</text>
+            <text x="770" y="665">100 µs</text>
+            <text x="850" y="665">10 µs</text>
+            <text class="axis-title" x="650" y="694">Time per operation after each fix</text>
+          </g>
+
+          <g class="group-labels">
+            <text x="20" y="16">PRODUCT AND ARCHITECTURE</text>
+            <text x="20" y="116">DATA AND EXECUTION</text>
+            <text x="20" y="268">RUNTIME AND TOOLCHAIN</text>
+            <text x="20" y="342">OPERATING SYSTEM AND SERVICES</text>
+            <text x="20" y="442">MACHINE ARCHITECTURE</text>
+            <text x="20" y="572">CUSTOM HARDWARE</text>
+          </g>
+
+          <g class="stage-labels">
+            <text class="domain" x="30" y="42">Workflow / product</text><text class="intervention" x="466" y="30">delete redundant workflow steps</text>
+            <text class="domain" x="30" y="68">System / distribution</text><text class="intervention" x="489" y="56">collapse synchronous service hops</text>
+            <text class="domain" x="30" y="94">Algorithm</text><text class="intervention" x="512" y="82">hoist invariants out of hot loops</text>
+            <text class="domain" x="30" y="142">Data model / query plan</text><text class="intervention" x="535" y="130">push predicates into storage scans</text>
+            <text class="domain" x="30" y="168">Data structure / access pattern</text><text class="intervention" x="558" y="156">replace scans with indexed lookups</text>
+            <text class="domain" x="30" y="194">Allocation / garbage collection</text><text class="intervention" x="581" y="182">reuse arena storage in hot paths</text>
+            <text class="domain" x="30" y="220">Data layout / locality</text><text class="intervention" x="604" y="208">pack hot fields into contiguous arrays</text>
+            <text class="domain" x="30" y="246">Concurrency / synchronization</text><text class="intervention" x="627" y="234">shard locks; remove contention</text>
+            <text class="domain" x="30" y="294">Language runtime / virtual machine</text><text class="intervention" x="650" y="282">specialize hot-path dispatch</text>
+            <text class="domain" x="30" y="320">Compiler / code generation</text><text class="intervention" x="673" y="308">fuse and vectorize hot kernels</text>
+            <text class="domain" x="30" y="368">Storage / filesystem / I/O</text><text class="intervention intervention-before" x="668" y="380">batch I/O; eliminate seeks and copies</text>
+            <text class="domain" x="30" y="394">Network / interprocess calls</text><text class="intervention intervention-before" x="691" y="406">coalesce RPCs; compress wire payloads</text>
+            <text class="domain" x="30" y="420">Operating system / scheduler</text><text class="intervention intervention-before" x="714" y="432">batch syscalls; keep state in kernel</text>
+            <text class="domain" x="30" y="468">Instruction set / vector execution</text><text class="intervention intervention-before" x="737" y="480">pack data into SIMD lanes</text>
+            <text class="domain" x="30" y="494">Microarchitecture / cache / memory</text><text class="intervention intervention-before" x="760" y="506">tile working sets to fit cache</text>
+            <text class="domain" x="30" y="520">Graphics processor / accelerator</text><text class="intervention intervention-before" x="783" y="532">map independent work across GPU lanes</text>
+            <text class="domain" x="30" y="598">Reconfigurable logic / FPGA</text><text class="intervention intervention-before" x="806" y="610">pipeline a dedicated datapath</text>
+            <text class="domain" x="30" y="624">Application-specific silicon / ASIC</text><text class="intervention intervention-before" x="829" y="636">hardwire the critical datapath</text>
+          </g>
+
+          <path class="progress-halo" d="M452 38L475 64 498 90 521 138 544 164 567 190 590 216 613 242 636 290 659 316 682 364 705 390 728 416 751 464 774 490 797 516 820 594 843 620"/>
+          <path class="progress-line" d="M452 38L475 64 498 90 521 138 544 164 567 190 590 216 613 242 636 290 659 316 682 364 705 390 728 416 751 464 774 490 797 516 820 594 843 620"/>
+
+          <g class="plot-points">
+            <g><circle cx="452" cy="38" r="5"/></g>
+            <g><circle cx="475" cy="64" r="5"/></g>
+            <g><circle cx="498" cy="90" r="5"/></g>
+            <g><circle cx="521" cy="138" r="5"/></g>
+            <g><circle cx="544" cy="164" r="5"/></g>
+            <g><circle cx="567" cy="190" r="5"/></g>
+            <g><circle cx="590" cy="216" r="5"/></g>
+            <g><circle cx="613" cy="242" r="5"/></g>
+            <g><circle cx="636" cy="290" r="5"/></g>
+            <g><circle cx="659" cy="316" r="5"/></g>
+            <g><circle cx="682" cy="364" r="5"/></g>
+            <g><circle cx="705" cy="390" r="5"/></g>
+            <g><circle cx="728" cy="416" r="5"/></g>
+            <g><circle cx="751" cy="464" r="5"/></g>
+            <g><circle cx="774" cy="490" r="5"/></g>
+            <g><circle cx="797" cy="516" r="5"/></g>
+            <g><circle cx="820" cy="594" r="5"/></g>
+            <g><circle cx="843" cy="620" r="7"/></g>
+          </g>
+        </svg>

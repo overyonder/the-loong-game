@@ -19,5 +19,5 @@ The series runs through these stages in order. The site shows them as a stepper 
 1. Understanding the problem
 2. Building our tooling
 3. Grand strategy
-4. Tactical ideas
+4. Tactical ideas and espionage
 5. Performance

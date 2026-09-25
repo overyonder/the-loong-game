@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 444" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">One dragon's four sonar rays and the echo counts they return</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="720" height="444" fill="#ede5d5"/>
+<rect x="24" y="24" width="396" height="396" fill="#1d3027"/>
+<path d="M60 24V420M24 60H420M96 24V420M24 96H420M132 24V420M24 132H420M168 24V420M24 168H420M204 24V420M24 204H420M240 24V420M24 240H420M276 24V420M24 276H420M312 24V420M24 312H420M348 24V420M24 348H420M384 24V420M24 384H420" stroke="rgba(243,236,223,.08)" stroke-width="1"/>
+<path d="M168 60h36M204 60h36M240 60h36" stroke="#7fb069" stroke-width="5" stroke-linecap="round"/>
+<polyline points="42,294 42,258 42,222" fill="none" stroke="#ff7a3d" stroke-width="18.0" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><circle cx="42.0" cy="294.0" r="12.24" fill="#ff7a3d"/>
+<polyline points="366,222 366,186 366,150 402,150" fill="none" stroke="#f3ecdf" stroke-width="18.0" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><circle cx="366.0" cy="222.0" r="12.24" fill="#f3ecdf"/>
+<polyline points="222,222 186,222 150,222 114,222" fill="none" stroke="#ff7a3d" stroke-width="18.0" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><circle cx="222.0" cy="222.0" r="12.24" fill="#ff7a3d"/>
+<path d="M222 208 L222 64" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#arrow)"/><text x="230.0" y="82" font-size="13" font-weight="bold" fill="#b53b13" text-anchor="start">N: kelp</text>
+<path d="M236 222 L350 222" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#arrow)"/><text x="252.0" y="212.0" font-size="13" font-weight="bold" fill="#b53b13" text-anchor="start">E: enemy head</text>
+<path d="M222 236 L222 420" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#arrow)"/><text x="0" y="0" font-size="13" font-weight="bold" fill="#b53b13" text-anchor="start"></text>
+<path d="M222 24 L222 56" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#arrow)"/><text x="230.0" y="44" font-size="13" font-weight="bold" fill="#b53b13" text-anchor="start">S: wraps round, kelp</text>
+<path d="M100 222 L58 222" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#arrow)"/><text x="62.0" y="254.0" font-size="13" font-weight="bold" fill="#b53b13" text-anchor="start">W: from the tail, ally body</text>
+<text x="450" y="54" font-size="16" font-weight="bold" fill="#20251f">Echoes next turn</text>
+<text x="450" y="76" font-size="12.5" fill="#66675e">totals over all four rays</text>
+<rect x="450" y="92" width="230" height="28" rx="5" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="462" y="111" font-size="14" fill="#20251f">kelp</text>
+<text x="666" y="111" font-size="15" font-weight="bold" fill="#b53b13" text-anchor="end">2</text>
+<rect x="450" y="126" width="230" height="28" rx="5" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="462" y="145" font-size="14" fill="#20251f">allied body</text>
+<text x="666" y="145" font-size="15" font-weight="bold" fill="#b53b13" text-anchor="end">1</text>
+<rect x="450" y="160" width="230" height="28" rx="5" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="462" y="179" font-size="14" fill="#20251f">allied head</text>
+<text x="666" y="179" font-size="15" font-weight="bold" fill="#66675e" text-anchor="end">0</text>
+<rect x="450" y="194" width="230" height="28" rx="5" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="462" y="213" font-size="14" fill="#20251f">enemy body</text>
+<text x="666" y="213" font-size="15" font-weight="bold" fill="#66675e" text-anchor="end">0</text>
+<rect x="450" y="228" width="230" height="28" rx="5" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="462" y="247" font-size="14" fill="#20251f">enemy head</text>
+<text x="666" y="247" font-size="15" font-weight="bold" fill="#b53b13" text-anchor="end">1</text>
+<text x="450" y="314" font-size="12.5" fill="#66675e">Each ray also delivers its</text>
+<text x="450" y="330" font-size="12.5" fill="#66675e">64-bit value to the dragon it hits,</text>
+<text x="450" y="346" font-size="12.5" fill="#66675e">with no sender and no team.</text>
+</svg>

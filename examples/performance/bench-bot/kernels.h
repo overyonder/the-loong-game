@@ -27,5 +27,7 @@ void RoomsInlineAsm(KernelWindow const* window, int rooms[4]);
 void RoomsSimdMasks(KernelWindow const* window, int rooms[4]);
 uint64_t MasksOnly(KernelWindow const* window);
 uint64_t MasksOnlySimd(KernelWindow const* window);
+uint64_t MasksOnlyRake(KernelWindow const* window);
+uint64_t MasksOnlyPolished(KernelWindow const* window);
 
 #endif

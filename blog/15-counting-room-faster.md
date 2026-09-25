@@ -129,4 +129,4 @@ The second is the instruction set itself, which we can't change but can at least
 
 ## Next up
 
-This is the first of the performance posts. The next one turns to the other side of the turn, the 320,000 points the helper spends reading the input.
+The last post looks underneath all of this, at the machine the judge actually runs our code on: [the machine inside the judge](16-the-machine-inside-the-judge.md).

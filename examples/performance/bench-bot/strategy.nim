@@ -169,6 +169,8 @@ proc roomsInlineAsm(w: ptr KernelWindow, rooms: var Rooms) {.importc: "RoomsInli
 proc roomsSimdMasks(w: ptr KernelWindow, rooms: var Rooms) {.importc: "RoomsSimdMasks", header: "kernels.h".}
 proc masksOnly(w: ptr KernelWindow): uint64 {.importc: "MasksOnly", header: "kernels.h".}
 proc masksOnlySimd(w: ptr KernelWindow): uint64 {.importc: "MasksOnlySimd", header: "kernels.h".}
+proc masksOnlyRake(w: ptr KernelWindow): uint64 {.importc: "MasksOnlyRake", header: "kernels.h".}
+proc masksOnlyPolished(w: ptr KernelWindow): uint64 {.importc: "MasksOnlyPolished", header: "kernels.h".}
 proc clockNanoseconds(): uint64 {.importc: "ClockNanoseconds", header: "kernels.h".}
 proc unswbc_log(message: cstring) {.importc, header: "helper.h".}
 
@@ -235,17 +237,20 @@ proc benchmark(w: Window) =
   measure("simd", roomsSimd(kernelWindow.addr, rooms))
   measure("inline-asm", roomsInlineAsm(kernelWindow.addr, rooms))
   measure("simd-masks", roomsSimdMasks(kernelWindow.addr, rooms))
-  # The masks alone, to see how much of a kernel is building them. Both builds must agree.
+  # The masks alone, to see how much of a kernel is building them. Every build must agree.
   var sink = masksOnly(kernelWindow.addr)
   if sink != masksOnlySimd(kernelWindow.addr): inc mismatches
-  block:
-    let started = clockNanoseconds()
-    for repeat in 1 .. Repeats: sink = sink xor masksOnly(kernelWindow.addr)
-    line.add " masks=" & $((clockNanoseconds() - started) div Repeats)
-  block:
-    let started = clockNanoseconds()
-    for repeat in 1 .. Repeats: sink = sink xor masksOnlySimd(kernelWindow.addr)
-    line.add " masks-simd=" & $((clockNanoseconds() - started) div Repeats)
+  if sink != masksOnlyRake(kernelWindow.addr): inc mismatches
+  if sink != masksOnlyPolished(kernelWindow.addr): inc mismatches
+  template measureMasks(name: string, call: untyped) =
+    block:
+      let started = clockNanoseconds()
+      for repeat in 1 .. Repeats: sink = sink xor call(kernelWindow.addr)
+      line.add " " & name & "=" & $((clockNanoseconds() - started) div Repeats)
+  measureMasks("masks", masksOnly)
+  measureMasks("masks-simd", masksOnlySimd)
+  measureMasks("masks-rake", masksOnlyRake)
+  measureMasks("masks-polished", masksOnlyPolished)
   if sink == 0xdeadbeef'u64: line.add "!"
   line.add " mismatches=" & $mismatches
   when defined(dumpWindows):

@@ -344,6 +344,46 @@ static WindowBits ReadWindowBitsSimd(KernelWindow const* window)
     return bits;
 }
 
+/* ---- The same masks from Rake: rake/window_bits.rk, compiled to window_bits.h ------------------ */
+
+#include "window_bits.h"
+#include "window_bits_polished.h"
+
+/* One reader per set of mask functions. Clang keeps ReadWindowBitsSimd as a call, since two kernels
+ * use it, so these stay calls too and the three builds differ only in the mask functions. */
+#define READ_WINDOW_BITS(name, occupied_fn, north_fn, east_fn, south_fn, west_fn)                  \
+    __attribute__((noinline)) static WindowBits name(KernelWindow const* window)                    \
+    {                                                                                               \
+        uint8_t const* occupied = (uint8_t const*)window->occupied;                                 \
+        uint64_t taken = 0;                                                                         \
+        for (int chunk = 0; chunk < 4; chunk++)                                                     \
+        {                                                                                           \
+            taken |= (uint64_t)occupied_fn(wasm_v128_load(occupied + 16 * chunk)) << (16 * chunk);  \
+        }                                                                                           \
+        WindowBits bits = EMPTY_BITS;                                                               \
+        bits.free = ~taken & WINDOW_BITS;                                                           \
+        uint8_t const* open = (uint8_t const*)window->open;                                         \
+        for (int chunk = 0; chunk < 4; chunk++)                                                     \
+        {                                                                                           \
+            uint8_t const* tiles = open + 64 * chunk;                                               \
+            v128_t const   a = wasm_v128_load(tiles), b = wasm_v128_load(tiles + 16);               \
+            v128_t const   c = wasm_v128_load(tiles + 32), d = wasm_v128_load(tiles + 48);          \
+            bits.can_move[0] |= (uint64_t)north_fn(a, b, c, d) << (16 * chunk);                     \
+            bits.can_move[1] |= (uint64_t)east_fn(a, b, c, d) << (16 * chunk);                      \
+            bits.can_move[2] |= (uint64_t)south_fn(a, b, c, d) << (16 * chunk);                     \
+            bits.can_move[3] |= (uint64_t)west_fn(a, b, c, d) << (16 * chunk);                      \
+        }                                                                                           \
+        bits.can_move[0] &= NOT_TOP_ROW;                                                            \
+        bits.can_move[1] &= NOT_RIGHT;                                                              \
+        bits.can_move[2] &= NOT_BOTTOM;                                                             \
+        bits.can_move[3] &= NOT_LEFT;                                                               \
+        return bits;                                                                                \
+    }
+
+READ_WINDOW_BITS(ReadWindowBitsRake, occupied_bits, north_bits, east_bits, south_bits, west_bits)
+READ_WINDOW_BITS(ReadWindowBitsPolished, occupied_bits_polished, north_bits_polished, east_bits_polished,
+                 south_bits_polished, west_bits_polished)
+
 #endif
 
 static void RoomsFromBits(WindowBits const* bits, int rooms[4])
@@ -387,6 +427,20 @@ uint64_t MasksOnly(KernelWindow const* window)
 uint64_t MasksOnlySimd(KernelWindow const* window)
 {
     WindowBits const bits = ReadWindowBitsSimd(window);
+    return bits.free ^ bits.can_move[0] ^ bits.can_move[1] ^ bits.can_move[2] ^ bits.can_move[3];
+}
+#endif
+
+#if defined(__wasm_simd128__)
+uint64_t MasksOnlyRake(KernelWindow const* window)
+{
+    WindowBits const bits = ReadWindowBitsRake(window);
+    return bits.free ^ bits.can_move[0] ^ bits.can_move[1] ^ bits.can_move[2] ^ bits.can_move[3];
+}
+
+uint64_t MasksOnlyPolished(KernelWindow const* window)
+{
+    WindowBits const bits = ReadWindowBitsPolished(window);
     return bits.free ^ bits.can_move[0] ^ bits.can_move[1] ^ bits.can_move[2] ^ bits.can_move[3];
 }
 #endif

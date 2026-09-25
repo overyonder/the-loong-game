@@ -1,0 +1,5 @@
+in-order        1112324 ns  result=1161418198
+strided        10228876 ns  result=1161418198
+one-chain       1502205 ns  result=267250064
+four-chains     1102424 ns  result=267251712
+vector           112221 ns  result=1161418198

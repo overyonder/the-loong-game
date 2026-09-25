@@ -43,3 +43,16 @@ bench-maps:
     for map in arena default Colosseum trophy big_empty stronghold; do unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/$map.map bench-bot {{tooling}}/starter-c | grep "LOG bench"; done > bench-six-maps.log
     python3 summarise.py < bench-six-maps.log
     python3 ../../tools/kernel_chart.py bench-six-maps.log ../../blog/images/room-kernels.svg
+
+# Compile the Rake mask kernel to C for the bench bot. Needs rakec from Rake's wasm-simd128 branch.
+# window_bits_polished.h is the same file with one change made by hand, described at its top.
+rake:
+    rakec --emit-asm --target wasm-simd128 -o bench-bot/window_bits.h rake/window_bits.rk
+
+# The machine bot's loops in the judge, one per turn, then the same loops natively, logged for post 16.
+machine:
+    cp -f {{tooling}}/starter-c/helper.c {{tooling}}/starter-c/helper.h machine-bot/
+    unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/arena.map machine-bot {{tooling}}/starter-c | grep "LOG machine" > machine-judge.log
+    clang -O2 -I machine-bot native/machine.c machine-bot/experiments.c -o native/machine
+    native/machine > machine-native.log
+    cat machine-judge.log machine-native.log

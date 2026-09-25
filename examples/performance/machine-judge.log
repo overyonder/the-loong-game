@@ -1,0 +1,5 @@
+LOG machine in-order points=33564773 result=1161418198
+LOG machine strided points=33564773 result=1161418198
+LOG machine one-chain points=24117351 result=267250064
+LOG machine four-chains points=24117363 result=267251712
+LOG machine vector points=5242996 result=1161418198
