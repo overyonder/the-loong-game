@@ -81,9 +81,11 @@ Adding up the same array four words at a time with `i32x4.add` costs 5,242,996 p
 
 ## Writing the hot kernel in Rake
 
-The biggest saving in the last post came from building the bitboards with vector instructions, which took them from 7,800 points to 435. It was written in C with SIMD intrinsics, and C gives no guarantee that it stays vectorised. A small change can make the compiler fall back to scalar code without a word, and the cost goes back up by an order of magnitude.
+The biggest saving in the last post came from building the bitboards with vector instructions, which took them from 7,800 points to 435. That code is C with SIMD intrinsics, and it has the usual problem with vectorised C: nothing in the language promises it stays vectorised. The intrinsics name the instructions we want, but the compiler is free to rewrite the code around them, and a small change somewhere else, like a different loop bound or one extra branch, can quietly turn part of the kernel back into scalar code. The only way to know is to look at what came out. In practice that means pasting the kernel into [Compiler Explorer](https://godbolt.org) after every change and reading the assembly, or finding out later when the benchmark is ten times slower.
 
-[Rake](https://github.com/rakelang/rake) is a language I'm building for this kind of code. A value in Rake is a rack: one vector register, with one lane per element. The compiler either turns every operation into a vector instruction or refuses to compile the program. It never splits a rack or falls back to scalar code. Rake has had x86 AVX2 and ARM NEON backends. For this post I added a WebAssembly profile, `wasm-simd128`, with byte racks, two-rack shuffles and `bitmask`. It lives on a branch for now, as a proposal.
+[Rake](https://rake-lang.org) is a language I'm building to solve exactly that problem. You write a kernel in terms of racks, where a rack is one vector register with one lane per element, and the compiler guarantees at compile time that it stays that way. Every operation becomes vector instructions, or the program doesn't compile. Rake never splits a rack across registers, spills it to memory or falls back to scalar code, and when it can't keep that promise it stops with an error naming the operation it couldn't vectorise. You don't have to take the compiler's word for it either. `rakec --verify-native` disassembles the object it produced and checks every instruction against the target's allow-list, so the evidence is the machine code itself.
+
+Rake has backends for x86 AVX2 and ARM NEON. For this post I added a WebAssembly profile, `wasm-simd128`, with byte racks, two-rack shuffles and `bitmask`. It lives on a branch for now, as a proposal.
 
 Here's the mask builder in Rake. Four racks hold the open sides of sixteen tiles, four bytes per tile, and one function pulls out the north side of each:
 
@@ -119,7 +121,7 @@ RAKE_WASM_LINKAGE uint32_t north_bits(v128_t a, v128_t b, v128_t c, v128_t d)
 
 Clang still chooses the locals, and it may swap one vector instruction for an equivalent one. Here it turns the splatted zero into a `v128.const`. To keep the guarantee, `rakec --verify-native` compiles the C itself, disassembles the result, and rejects any function that contains anything but locals, constants and vector instructions. There can be no loops, calls, memory access or scalar fallbacks.
 
-Because the output is plain C, it runs in the online judge like any other bot. In the benchmark bot, over the same 1,477 turns on six maps, the Rake masks cost 437 points against 435 for the hand-written intrinsics, and matched the scalar masks on every turn. The code is in [examples/performance/rake](../examples/performance/rake/window_bits.rk), and `just rake` regenerates the C.
+Because the output is plain C, it runs in the online judge like any other bot. In the benchmark bot, over the same 1,477 turns on six maps, the Rake masks cost 437 points against 435 for the hand-written intrinsics, and matched the scalar masks on every turn. So the kernel is as fast as the careful C version. The difference shows up the next time it changes: if an edit ever makes part of it scalar, `rakec` refuses to build it, and we find out at compile time rather than from a benchmark or a session in Compiler Explorer. The code is in [examples/performance/rake](../examples/performance/rake/window_bits.rk), and `just rake` regenerates the C.
 
 ## One manual polish
 

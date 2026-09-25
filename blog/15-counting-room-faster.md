@@ -129,4 +129,4 @@ The second is the instruction set itself, which we can't change but can at least
 
 ## Next up
 
-The last post looks underneath all of this, at the machine the judge actually runs our code on: [the machine inside the judge](16-the-machine-inside-the-judge.md).
+The last post looks underneath all of this, at the machine the judge actually runs our code on, and rewrites the mask builder in a language designed to keep kernels like it vectorised: [the machine inside the judge](16-the-machine-inside-the-judge.md).
