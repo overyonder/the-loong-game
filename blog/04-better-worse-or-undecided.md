@@ -4,57 +4,82 @@
 
 With the [evaluation harness](03-the-evaluation-harness.md) we can play as many games as we like. But at the end of the last post we had two bots that make identical moves finishing four wins apart. A results table on its own will always tempt us to read meaning into gaps like that. This post builds the second tool on the wishlist, which answers the question we actually care about: did this change make the bot better?
 
-The tool is [harness/verdict.py](../harness/verdict.py). You give it a candidate bot and the baseline it's meant to improve on, and it comes back with one of three answers: better, worse, or undecided.
+The tool is [harness/verdict.py](../harness/verdict.py). You give it a candidate bot and the baseline it changes, and it comes back with one of three answers: better, worse, or undecided.
 
 ## Judging a result against luck
 
-The idea behind it is simple, and worth understanding, because it's the same reasoning you'd use to judge any result by eye.
+The idea underneath is the same reasoning you'd use to judge any result by eye. Suppose a change made no difference at all. Then every game it won or lost could just as easily have gone the other way, like a coin flip. So the right question isn't "did the candidate win more?" but "how often would coin flips do at least this well?" If the answer is "almost never", the change is probably real. If it's "fairly often", we can't tell yet.
 
-Suppose the candidate and the baseline were exactly as good as each other. Then every game between them would be a coin flip, and over many games the candidate would win about half. It wouldn't win exactly half, though. Flip a coin a hundred times and you'll often get 55 heads, and now and then 60. So the right question isn't "did the candidate win more than half?" It's "how often would a coin flip do at least this well?" If the answer is "almost never", the candidate is probably genuinely better. If it's "fairly often", we can't tell yet.
+The numbers make this concrete. Out of 100 games, an even match will see one side win 60 or more only about 3% of the time, so a 60–40 result is strong evidence. But one side will win 55 or more about 18% of the time, so 55–45 could easily be luck. The verdict uses the usual cut-off: if coin flips would do this well less than 5% of the time, the candidate is better, and if they'd do this badly less than 5% of the time, it's worse.
 
-The numbers make this concrete. Out of 100 games, two equally good bots will see one of them win 60 or more only about 3% of the time, so a 60–40 result is strong evidence of a real difference. But one of them will win 55 or more about 18% of the time, so a 55–45 result could easily be luck.
+The hard part is deciding which games to count, and that's where most of this tool's design goes.
 
-Draws don't tell us which bot is better, so the verdict leaves them out and only counts decisive games. Errored games are left out too, for the reason from the last post: a crash is a bug to fix, not a result.
+## Comparing like with like
 
-The calculation itself is short. Statisticians call it an exact sign test:
+A game of unswbc depends on two things besides the bots: the map, and the seed that decides where pearls appear and how each bot's random choices fall. So the verdict plays every game twice. The candidate plays the baseline on a map, side and seed, and then the baseline plays that same map, side and seed against the same opponent, sitting in the candidate's seat.
+
+Seeded games are deterministic. If the candidate's change never comes into play in a game, both versions make exactly the same moves and the two games are identical. They cancel out, and only the games whose result changed are left:
+
+![Twelve pairs of games, the baseline above and the candidate below. Eight pairs have the same result and don't count. Four are outlined: in three the candidate won a game the baseline lost, and in one it lost a game the baseline won. Under each pair a bar shows how much of the game the changed behaviour ran.](images/paired-games.svg)
+
+This matters more than it looks. Most changes to a bot only fire in some situations: a rule for portals, a tactic for narrow corridors. If a change never fires on nine maps in ten and wins the tenth outright, counting every game hides that win among nine maps' worth of games that couldn't have gone any other way. Pairing throws those games out, so a change is judged on the games it could actually affect.
+
+## Weighing each game by how much the change ran
+
+Pairing still treats every changed game the same, whether the new behaviour ran for most of the game or for two turns near the end. A game where it ran for most of the turns says much more about it. So each bot names its behaviours: on every turn it writes the one that chose its move as its indicator, the short text the viewer shows beside a dragon. Running games with `unswbc run -v` puts every indicator in the log, so the verdict can count them.
+
+If you tell the verdict which behaviour changed, it weights each changed game by the share of the candidate's turns in which that behaviour was active. A result the change played a large part in counts for more than one it barely touched.
+
+With weights, counting wins isn't enough any more, so the test becomes a sign flip. Add up the weighted changes, then ask how often random signs on the same changes would add up to at least as much:
 
 ```python
-def probability_of_at_least(wins: int, games: int) -> float:
-    """P(X >= wins) for X ~ Binomial(games, 1/2): the chance an even match does this well."""
-    return sum(math.comb(games, k) for k in range(wins, games + 1)) / 2**games
+def sign_flip_p_values(changes: list[float], trials: int = 200_000) -> tuple[float, float]:
+    """P(a random sign on each change sums to at least, and at most, the observed total)."""
+    changes = [change for change in changes if change]
+    if not changes:
+        return 1.0, 1.0
+    observed = sum(changes)
+    magnitudes = [abs(change) for change in changes]
+    generator = random.Random(0)
+    at_least = at_most = 0
+    for _ in range(trials):
+        total = sum(magnitude if generator.random() < 0.5 else -magnitude for magnitude in magnitudes)
+        at_least += total >= observed - 1e-12
+        at_most += total <= observed + 1e-12
+    return at_least / trials, at_most / trials
 ```
 
-It adds up the chances of every result at least as good as the one we got, if each game were a fair coin flip. The verdict then applies the usual cut-off. If an even match would do this well less than 5% of the time, the candidate is better. If an even match would do this badly less than 5% of the time, it's worse. Anything in between is undecided, and for that case the tool also estimates how many decisive games it would take to settle the question at the win rate we're seeing.
+It's the coin-flip question again, asked of the changes themselves. With every weight equal to one, it gives the same answer as counting wins against losses.
 
-The decision checks both directions with the same function. It asks how often an even match would win this many, and how often it would lose this many:
+## Games we should never lose
 
-```python
-def decide(candidate_wins: int, candidate_losses: int, significance: float) -> dict:
-    decisive = candidate_wins + candidate_losses
-    p_better = probability_of_at_least(candidate_wins, decisive)
-    p_worse = probability_of_at_least(candidate_losses, decisive)
-    verdict = "better" if p_better < significance else "worse" if p_worse < significance else "undecided"
-```
+Testing a change against the bot it came from has a blind spot. It never shows how the bot does against bots unlike itself. So the candidate and the baseline also both play a set of weak bots, the two starters, on the same maps, sides and seeds, and those games are paired too.
 
-To get the games it needs, the verdict simply hands the two bots to the harness from the last post, which plays them against each other on every map and from both sides, repeating the whole set with a few different seeds so that one lucky pearl layout can't decide the answer.
+The standard here is different. A decent bot should beat a bot that walks at random every single time, so a loss to one can't be put down to bad luck. It should be about as likely as a mouse beating a lion. A candidate that loses more of these games than the baseline did is never called better, and one that loses significantly more is worse. The verdict also lists every game the candidate lost to a weak bot that the baseline won, because each one is a bug to find, whatever the verdict says.
+
+## How hard a win was
+
+A win in 40 rounds and a win in 400 aren't the same result. So the verdict also compares game length, pair by pair: in the pairs both versions won, how often did the candidate win faster? It reports the median rounds to win for each version, and flags any win that's much shorter than the rest, because a very short game is sometimes a fluke worth looking at before trusting it.
 
 ## Checking the tool on questions we can answer
 
-Before trusting a new tool with a real question, it's worth giving it a couple of questions where we already know the answer, because if it gets those wrong, nothing else it says can be trusted. For each of the runs below, the two bots meet on all 13 bundled maps, from both sides, with four different seeds, which comes to 104 games per run.
+Before trusting a new tool with a real question, it's worth giving it questions where we already know the answer. For each of the runs below, the bots meet on all 13 bundled maps, from both sides, with four seeds.
 
-The first check should be easy. The flood-fill bot from [The choice](02-the-choice.md) plays against the C starter bot, which just wanders about at random, so the flood-fill bot ought to come out clearly better. It does, winning 101 games and losing 3.
+The first check should be easy: the flood-fill bot from [The choice](02-the-choice.md) in place of the C starter bot, which just wanders about at random, so the flood-fill bot ought to come out clearly better. It does. Of the 104 paired games, 49 came out the same, and of the rest it gained 53 and dropped 2. Even so, it lost 4 games to the Python starter that the C starter had won, which is a reminder that a bot that only counts room can still walk into trouble.
 
-The second check is the more important one. The C and Python versions of the flood-fill bot make exactly the same move in every position, so neither can be better than the other, and a trustworthy tool has to say so. They won 51 games each with 2 draws, and the verdict was undecided. That's reassuring. A tool that declared a winner here would be finding patterns in pure noise, and we'd have no business believing anything else it told us.
+The second check is the more important one. The C and Python versions of the flood-fill bot make exactly the same move in every position, so neither can be better than the other, and a trustworthy tool has to say so. With pairing, the answer is exact rather than statistical: all 104 paired games were identical, nothing changed, and the verdict was undecided. A tool that found a difference here would be finding it in pure noise.
 
 ## A real question
 
 Now for something we don't know the answer to. The flood-fill bot only cares about keeping room to move, and it ignores food completely. That seems like an obvious thing to fix. Eating pearls makes a dragon longer, and the longest dragon decides the game at round 500, so a bot that heads for food ought to do better.
 
-The candidate, `room-pearls`, keeps the flood fill, and adds one rule. When several moves all leave plenty of room, it picks the one nearest to a visible pearl:
+The candidate, `room-pearls`, keeps the flood fill, and adds one rule: when several moves all leave plenty of room, it picks the one nearest to a visible pearl. On the turns where that rule picks a different move from the one room alone would pick, it writes `Pearl` as its indicator, so the verdict can weigh each game by it. The rule decided about one turn in six:
 
-![A terminal running just verdict room-pearls room-c. room-pearls wins 22 games against room-c, loses 78 and draws 4, with no errors. The chance an even match does this badly is 0.0000, and the verdict is worse.](images/verdict-room-pearls.png)
+![A terminal running just verdict room-pearls room-c Pearl. Of 104 paired games, room-pearls gained 19, dropped 32 and left 53 unchanged, weighted by Pearl activation. Random signs do this badly 13% of the time. Against the weak bots it lost 47 games that room-c won and won 7 that room-c lost, and the first five losses are listed. Median rounds to win: 183 for room-pearls, 213 for room-c. The verdict is worse.](images/verdict-room-pearls.png)
 
-It lost 78 of its 100 decisive games, so it's clearly worse, and not by a small margin. This is exactly the kind of result the tool exists for. If I'd tried the change in a game or two, I might well have kept it, because chasing food sounds like progress and the reasoning behind it sounds solid. Working out why it actually loses needs a closer look at the games themselves, which is a job for the debug viewer later in this stage.
+Head to head, the result is unclear. Of the 104 paired games, 53 came out the same, the pearl chaser won 19 that the flood-fill bot lost, and it lost 32 that the flood-fill bot won. Weighted by how much the pearl rule ran, random signs would do this badly 13% of the time, so on those games alone we couldn't call it worse.
+
+The weak bots settle it. Against the two starters, the pearl chaser lost 47 games that the flood-fill bot won, and won back only 7. Chasing food makes the bot beatable by bots that don't try at all, which is exactly the kind of failure a head-to-head test between two versions of the same bot can miss. It does win faster when it wins, a median of 183 rounds against 213, which fits: a bot that eats more grows faster. Working out why it keeps dying is a job for the debug viewer later in this stage.
 
 ## Keeping the versions that win
 

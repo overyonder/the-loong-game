@@ -58,13 +58,13 @@ Packing and unpacking the message takes a couple of shifts each way. `decodeLeng
 
 ## The first try was worse
 
-Since the champion carries the team's hopes for round 500, the first version played it extra carefully, keeping three tiles away from enemy heads instead of the usual two. Against the first bot, on the bundled and generated maps, that version lost. The chart below shows it, along with every variant I tried while working out why:
+Since the champion carries the team's hopes for round 500, the first version played it extra carefully, keeping three tiles away from enemy heads instead of the usual two. Against the first bot, on the bundled and generated maps, that version lost. The chart below shows it, along with every variant I tried while working out why. Each row is the share of the changed games that the variant gained, from the paired verdict in [the statistics post](04-better-worse-or-undecided.md):
 
-![Each change against the first bot. Roles, first try: 46 wins, 72 losses, worse. No kamikazes: 49–68, worse. No kamikazes with a narrower champion berth: 58–58, undecided. Narrower champion berth: 55–58, undecided. Champion splits at length 10: 91–29, better. Splits, but children work instead: 86–31, better. Splits, and ignores its own echo: 90–30, better.](images/roles-experiments.svg)
+![Each change against the first bot, as the share of changed games it gained, out of 132 paired games. Roles, first try: 12 gained, 26 dropped, worse. No kamikazes: 10–25, worse. No kamikazes with a narrower champion berth: no game changed, undecided. Narrower champion berth: 3–4, undecided. Champion splits at length 10: 39–4, better. Splits, but children work instead: 35–8, better. Splits, and ignores its own echo: 39–5, better.](images/roles-experiments.svg)
 
-When a change comes out worse, the useful thing to do is test its pieces separately, and the verdict tool makes that cheap. Removing the kamikazes didn't help, so they weren't the problem. A control that removed them and gave the champion the first bot's two-tile berth came out dead even, 58–58, which showed the sonar messages themselves cost nothing. That left the champion's berth. Keeping three tiles from enemy heads made it too timid to hold its ground, and narrowing it brought the roles bot level with the first bot.
+When a change comes out worse, the useful thing to do is test its pieces separately, and the verdict tool makes that cheap. Removing the kamikazes didn't help, so they weren't the problem. A control that removed them and gave the champion the first bot's two-tile berth played every one of its 132 games exactly as the first bot did, which showed the sonar messages themselves cost nothing. That left the champion's berth. Keeping three tiles from enemy heads made it too timid to hold its ground, and it also lost 12 games to the weak bots that the first bot won. Narrowing the berth brought the roles bot level with the first bot.
 
-A level result isn't an improvement, and counting role labels in the replays showed why. Each dragon shows its role as an indicator, and across the games, only 1.7% of dragon-turns were kamikaze turns. Short dragons with a longer teammate nearby were rare, so the role hardly ever came into play.
+A level result isn't an improvement, and the pairing showed why. Only 7 of the 132 games came out any differently from the first bot's, and counting role labels in the replays explained it: only 1.7% of dragon-turns were kamikaze turns. Short dragons with a longer teammate nearby were rare, so the role hardly ever came into play.
 
 ## Making kamikazes
 
@@ -78,7 +78,7 @@ All of this happens in the turn loop. Each turn, the dragon listens, picks its r
 
 ![The roles bot's turn loop, lines 219 to 233. It reads the dragon's ID, listens to sonar, reads its length, chooses a role, shows it as an indicator and reads the window. A champion of length 10 or more that can split off three segments splits. Otherwise the dragon moves. Then it announces its ID, role and length and ends the turn.](images/roles-bot-code-turn.png)
 
-With splitting, the roles bot beat the first bot convincingly, 91 games to 29. But that result mixes two changes: there are more dragons now, and the new ones hunt. To separate them, I tried a version that split in exactly the same way but made its children ordinary workers. That version also beat the first bot, 86 to 31, so having more dragons helps on its own. Then I played the two versions directly against each other, and the one with kamikazes won 84 games to 38. So the splitting and the kamikaze role each earn their place.
+With splitting, the roles bot beat the first bot convincingly: of 132 paired games it changed 43, gaining 39 and dropping 4. But that result mixes two changes: there are more dragons now, and the new ones hunt. To separate them, I tried a version that split in exactly the same way but made its children ordinary workers. That version also beat the first bot, gaining 35 and dropping 8, so having more dragons helps on its own. Then I played the two versions directly against each other, weighting each game by the turns spent as a kamikaze, and the one with kamikazes gained 30 and dropped 12. So the splitting and the kamikaze role each earn their place.
 
 ## A bug in the replay
 
@@ -88,15 +88,15 @@ Here's one of those kamikazes at work, on Arena, the turn before it drives into 
 
 The dragon at the top is the one that just split off that kamikaze. It's still our longest dragon, so it should be the champion, but its indicator says Worker. Working out why took a closer look at how sonar travels. A ray stops at the first dragon segment it reaches, and nothing exempts the sender's own body. Rays also wrap around the edges of the board, so on a small map like Arena, which is 11 tiles across, a ray can travel all the way round and come back to hit the dragon that sent it. This dragon had been 13 segments long before it split, so it heard its own old announcement of 13, concluded that some teammate was longer than its current 10, and demoted itself for the 12 turns that message stayed in its memory.
 
-The fix is to put the sender's ID in each message and ignore our own, which is the `ourId` check in `decodeLength` above. The fixed version beat the one before it 80–38, and it's the version in [examples/roles-bot](../examples/roles-bot/strategy.nim):
+The fix is to put the sender's ID in each message and ignore our own, which is the `ourId` check in `decodeLength` above. The fixed version beat the one before it, gaining 26 changed games and dropping 14, and it's the version in [examples/roles-bot](../examples/roles-bot/strategy.nim):
 
-![A terminal running just roles, which builds the roles bot from Nim and runs the verdict against the first bot. roles-bot wins 90 games, loses 30 and draws 12, with no errors, and the verdict is better.](images/roles-verdict.png)
+![A terminal running just roles, which builds the roles bot from Nim and runs the verdict against the first bot. Of 132 paired games, roles-bot gained 39, dropped 5 and left 88 unchanged. Against the weak bots it lost one game on Trauma that the first bot won, and won 5 that it lost. Median rounds to win: 130 against 143, with 115 paired wins faster and 31 slower. The verdict is better.](images/roles-verdict.png)
 
 ## Friendly fire
 
 The replays showed one more problem. Head-on collisions kill teammates as well as enemies, but the safety layer only keeps clear of enemy heads. Once splitting fills the board with our own dragons, they start running into each other. In the version that split at length 10, there were 382 head-on collisions between two of our own dragons, against 78 with the enemy.
 
-The obvious fix is to give friendly heads the same berth as enemy ones. Surprisingly, that came out undecided against the version without it, 55 games to 66, so it isn't clearly an improvement. Finding out why will need a closer look at the games themselves.
+The obvious fix is to give friendly heads the same berth as enemy ones. Surprisingly, that came out undecided against the version without it, and leaned the wrong way: it gained 19 changed games and dropped 29, and lost 5 games to the weak bots that the version without it won. So it isn't an improvement. Finding out why will need a closer look at the games themselves.
 
 ## Next up
 

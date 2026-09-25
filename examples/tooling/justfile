@@ -19,9 +19,10 @@ round-robin:
     python3 -m harness.round_robin --bots starter-c starter-py room-c room-py \
         --maps maps/*.map --seeds 2 --output results/round-robin
 
-# Is the candidate better than the baseline?
-verdict candidate baseline:
+# Is the candidate better than the baseline it changes? Name the changed behaviour to weigh games by it.
+verdict candidate baseline *behaviour:
     python3 -m harness.verdict --candidate {{candidate}} --baseline {{baseline}} \
+        {{ if behaviour == "" { "" } else { "--behaviour " + behaviour } }} \
         --maps maps/*.map --seeds 4 --output results/{{candidate}}-vs-{{baseline}}
 
 # The same pairing on the bundled maps and on 20 generated ones.
@@ -39,7 +40,7 @@ first-bot:
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" first-bot/
     nim c first-bot/strategy.nim
     python3 -m harness.verdict --candidate first-bot --baseline room-c \
-        --maps maps/*.map maps-generated/*.map --seeds 2 --output results/first-bot
+        --maps maps/*.map maps-generated/*.map --seeds 4 --output results/first-bot
 
 # Build the roles bot from "Roles" and test it against the first bot.
 roles:
@@ -56,7 +57,7 @@ tactics:
     cp starter-c/helper.c starter-c/helper.h tactics-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" tactics-bot/
     nim c tactics-bot/strategy.nim
-    python3 -m harness.verdict --candidate tactics-bot --baseline roles-bot \
+    python3 -m harness.verdict --candidate tactics-bot --baseline roles-bot --behaviour Coil Forage \
         --maps maps/*.map maps-generated/*.map --seeds 4 --output results/tactics
 
 # Copy one of the Nim example bots next to the toolkit's helper and compile it to C.

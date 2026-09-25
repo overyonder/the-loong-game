@@ -66,7 +66,7 @@ Here's a champion from one of the test games, nine segments packed into a three-
 
 ![A game on Colosseum at round 76. Our champion, nine segments long, is coiled into a tight three-by-three square at the edge of the board.](images/champion-coil.svg)
 
-On its own, coiling didn't change the result. Against the roles bot it came out level, winning 60 games and losing 62. That isn't surprising, because a champion that stays put only pays off if something is bringing it food, and that's the other half of the idea.
+On its own, coiling didn't clearly change the result. Of the 132 paired games against the roles bot, 76 came out exactly the same, and in the rest the coiling bot gained 31 and dropped 25, weighted by how much of each game the champion spent coiled. That's undecided. It isn't surprising, because a champion that stays put only pays off if something is bringing it food, and that's the other half of the idea.
 
 ## Feeding the champion
 
@@ -84,25 +84,25 @@ For that to work, a feeder has to know where the champion is, and the champion i
 
 ![The tactics bot's sonar, lines 162 to 179. encode packs a 16-bit tag, the 16-bit sender ID, a 4-bit role, a 12-bit length and the head position into 64 bits. listen skips messages without our tag and our own echoes, and remembers the longest teammate heard, with its ID and head position.](images/tactics-bot-code-sonar.png)
 
-Here's how each version did against the roles bot:
+Here's how each version did against the roles bot, weighted by the turns its new behaviours were active:
 
-![Each tactic against the roles bot. Coil only: 60 wins, 62 losses, undecided. Coil, forage and sacrifice: 43–78, worse. Forage and sacrifice, no coil: 32–88, worse. Sacrifice without foraging: 40–81, worse. Sacrifice only near the champion's head: 50–72, worse. Forage, no coil: 63–57, undecided. Coil and forage, four seeds: 138–106, better.](images/tactics-experiments.svg)
+![Each tactic against the roles bot, as the share of changed games it gained. Coil only: 31 gained and 25 dropped of 132 paired games, undecided. Coil, forage and sacrifice: 24–42, worse. Forage and sacrifice, no coil: 16–40, worse. Sacrifice without foraging: 25–39, worse. Sacrifice only near the champion's head: 24–41, worse. Forage, no coil: 32–21, undecided. Coil and forage, four seeds: 80–45 of 264, undecided.](images/tactics-experiments.svg)
 
-Every version with the sacrifice in it came out worse. To find out which part was hurting, I tested the pieces separately, the same way as in the roles post. Feeders that only foraged were fine, so the damage came from the sacrifice itself. My first guess was that feeders were dying against the champion's tail, far from its head, so the champion never came back for the pearls. So one version only sacrificed when the champion's head was within two tiles. That helped a little, but it was still clearly worse.
+Every version with the sacrifice in it came out worse. To find out which part was hurting, I tested the pieces separately, the same way as in the roles post. Feeders that only foraged were fine, so the damage came from the sacrifice itself. My first guess was that feeders were dying against the champion's tail, far from its head, so the champion never came back for the pearls. So one version only sacrificed when the champion's head was within two tiles. That made no difference: 24 changed games gained and 41 dropped, against 25 and 39 without the restriction.
 
 So whatever the number one team is doing, it's more careful than this. Perhaps their feeders sacrifice only when the champion is short of food. Or perhaps the champion is positioned to collect the pearls, not the feeder. It's a good open question, and I'd love to hear from anyone who cracks it.
 
-What did work was putting together the two pieces that hadn't hurt. Feeders that forage but never sacrifice, alongside a champion that coils, beat the roles bot. Each of those pieces was only level on its own, so they're helping each other.
+What came closest to working was putting together the two pieces that hadn't hurt: feeders that forage but never sacrifice, alongside a champion that coils. Each piece was undecided on its own. Together, on four seeds, they gained 80 changed games against the roles bot and dropped 45, weighted by the turns spent coiling or foraging. Random signs do that well less than half a percent of the time, so head to head the combination is clearly better.
 
-## Checking the result properly
+## What the weak bots found
 
-That combination first came out better, 73 games to 51, in a run of 132 games. When I ran it again under its final name, the harness drew a different set of seeds, because each game's seed is derived from the bots' names, and the very same bot came out 66 to 56, which is undecided.
+Head to head isn't the whole verdict, though. The tactics bot also played the two starter bots on the same maps and seeds as the roles bot, and it lost three games to them that the roles bot won, while winning back only one. So the verdict is undecided:
 
-That's worth understanding rather than brushing aside. A 5% threshold means that a result near the edge is only just distinguishable from luck, so a fresh sample of games can easily land on the other side of it. The honest response is to collect more evidence, so the final check doubled the sample to four seeds for every map and side:
+![A terminal running just tactics, which builds the tactics bot and runs the verdict against the roles bot on four seeds, weighted by Coil and Forage activation. Of 264 paired games, tactics-bot gained 80, dropped 45 and left 139 unchanged, and random signs do this well 0.36% of the time. Against the weak bots it lost 3 games to starter-py that roles-bot won, all listed, and won back one. The verdict is undecided.](images/tactics-verdict.png)
 
-![A terminal running just tactics, which builds the tactics bot and runs the verdict against the roles bot on four seeds. tactics-bot wins 138 games, loses 106 and draws 20, with no errors. The chance an even match does this well is 0.0235, and the verdict is better.](images/tactics-verdict.png)
+Three games out of hundreds sounds like bad luck, but a bot this much stronger than a starter shouldn't lose to one at all, so each is worth a look. Two were on the same generated map, 40 tiles square, and both went to round 500. The starter wandered, ate what it bumped into and grew, while our coiled champion sat in its knot waiting for food that feeders brought too slowly on a board that big, and lost on length. The third was on a small 16×10 map, where both our dragons died in head-on collisions in round 22.
 
-Over 264 games the tactics bot is better, 138 wins to 106. The code is in [examples/tactics-bot](../examples/tactics-bot/strategy.nim), with the sacrifice behind a `-d:deliver` switch for anyone who wants to try making it work.
+Those two failures are exactly the kind of thing a head-to-head test between two versions of our own bot can't show, because the roles bot never coils and the starters never hunt. The coil is a good idea on a crowded board and a bad one on an empty one. The code is in [examples/tactics-bot](../examples/tactics-bot/strategy.nim), with the sacrifice behind a `-d:deliver` switch for anyone who wants to try making it work, and teaching the champion when not to coil is the obvious next step.
 
 ## Every version on one ladder
 
@@ -110,7 +110,7 @@ Each verdict in the last three posts compared a new version with the one before 
 
 ![A terminal running just ladder-all, which rates six bots from 990 games with no errors. tactics-bot 1791, roles-bot 1739, first-bot 1547, room-c 1485, room-pearls 1377, starter-c 1060. tactics-bot scored 34.5 of 66 against roles-bot and 57 against first-bot. first-bot scored 39.5 against room-c.](images/ladder-all.png)
 
-The ratings line up in the order the versions were saved, and every version has a winning record against every version before it, so the verdicts weren't going round in a circle. The gaps also say something the verdicts couldn't. The roles bot's jump over the first bot, nearly 200 points, is the biggest step among the strategy bots. The tactics bot's lead over the roles bot is real but small: 34.5 games to 31.5 here, on a single seed, which matches how close the four-seed verdict was.
+The ratings line up in the order the versions were saved, and every version has a winning record against every version before it, so the verdicts weren't going round in a circle. The gaps also say something the verdicts couldn't. The roles bot's jump over the first bot, nearly 200 points, is the biggest step among the strategy bots. The tactics bot's lead over the roles bot is real but small: 34.5 games to 31.5 here, on a single seed, which fits a change that matters in some games and not others.
 
 ## Next up
 

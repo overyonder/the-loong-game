@@ -100,11 +100,15 @@ static int StepsToNearestPearl(LocalWindow const* window, int start)
     return UNSWBC_VISION_TILES;
 }
 
-/* Score each first move by the most room any second move leaves us. */
-static UnswbcDirection ChooseMoveWithMostRoomTwoStepsAhead(LocalWindow const* window, UnswbcDirection fallback)
+/* Score each first move by the most room any second move leaves us. Sets *pearl_decided when
+ * heading for a pearl picked a different move from the one room alone would pick. */
+static UnswbcDirection ChooseMoveWithMostRoomTwoStepsAhead(LocalWindow const* window, UnswbcDirection fallback,
+                                                           bool* pearl_decided)
 {
     UnswbcDirection best_direction = fallback;
+    UnswbcDirection roomiest_direction = fallback;
     int             best_score      = -1;
+    int             best_room       = -1;
     for (int first_side = 0; first_side < 4; first_side++)
     {
         int const first_step = StepWithinWindow(window, HEAD_INDEX, first_side);
@@ -122,6 +126,11 @@ static UnswbcDirection ChooseMoveWithMostRoomTwoStepsAhead(LocalWindow const* wi
                 room                = reachable > room ? reachable : room;
             }
         }
+        if (room > best_room)
+        {
+            best_room          = room;
+            roomiest_direction = UNSWBC_DIRECTIONS[first_side];
+        }
         /* Room matters most. Among moves with room to spare, head for the nearest pearl. */
         int const score = (room < 8 ? room * 100 : 800) - StepsToNearestPearl(window, first_step);
         if (score > best_score)
@@ -130,6 +139,7 @@ static UnswbcDirection ChooseMoveWithMostRoomTwoStepsAhead(LocalWindow const* wi
             best_direction = UNSWBC_DIRECTIONS[first_side];
         }
     }
+    *pearl_decided = best_direction != roomiest_direction;
     return best_direction;
 }
 
@@ -142,7 +152,13 @@ int main(void)
     {
         LocalWindow window;
         ReadLocalWindowFromController(ct, game, &window);
-        unswbc_move(ChooseMoveWithMostRoomTwoStepsAhead(&window, unswbc_facing(ct)));
+        bool pearl_decided = false;
+        unswbc_move(ChooseMoveWithMostRoomTwoStepsAhead(&window, unswbc_facing(ct), &pearl_decided));
+        /* Name the behaviour on the turns it decided, so the verdict can weigh games by it. */
+        if (pearl_decided)
+        {
+            unswbc_indicator("Pearl");
+        }
         unswbc_end_turn();
     }
     return 0;

@@ -77,12 +77,13 @@ def build_each_bot_once(bots: list[str], map_path: str) -> None:
                        check=True, capture_output=True)
 
 
-def play_game(game: ScheduledGame, output_directory: Path, timeout_seconds: float) -> PlayedGame:
+def play_game(game: ScheduledGame, output_directory: Path, timeout_seconds: float, verbose: bool = False) -> PlayedGame:
     name = f"{game.team_a_bot}-vs-{game.team_b_bot}-on-{Path(game.map_path).stem}-{game.seed}"
     log_path = output_directory / "logs" / f"{name}.log"
     replay_path = output_directory / "replays" / f"{name}.replay"
-    command = ["unswbc", "run", "--sandbox", "--seed", game.seed, "--replay", str(replay_path),
-               game.map_path, game.team_a_bot, game.team_b_bot]
+    # Verbose logs keep every dragon's output, including the indicator naming its behaviour.
+    command = ["unswbc", "run", "--sandbox", *(["-v"] if verbose else []), "--seed", game.seed,
+               "--replay", str(replay_path), game.map_path, game.team_a_bot, game.team_b_bot]
     timed_out = False
     started = time.monotonic()
     with log_path.open("w") as log:
@@ -133,11 +134,12 @@ def summarise_standings(bots: list[str], games: list[PlayedGame]) -> list[dict]:
     return sorted(standings.values(), key=lambda row: (-(row["wins"] + row["draws"] / 2), row["bot"]))
 
 
-def run_games_in_parallel(schedule: list[ScheduledGame], output_directory: Path, workers: int, timeout_seconds: float) -> list[PlayedGame]:
+def run_games_in_parallel(schedule: list[ScheduledGame], output_directory: Path, workers: int, timeout_seconds: float,
+                          verbose: bool = False) -> list[PlayedGame]:
     (output_directory / "logs").mkdir(parents=True, exist_ok=True)
     (output_directory / "replays").mkdir(parents=True, exist_ok=True)
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        return list(executor.map(lambda game: play_game(game, output_directory, timeout_seconds), schedule))
+        return list(executor.map(lambda game: play_game(game, output_directory, timeout_seconds, verbose), schedule))
 
 
 def main() -> None:

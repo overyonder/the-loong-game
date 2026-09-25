@@ -83,13 +83,13 @@ Adding a new behaviour later means writing one more proc like these, adding its 
 
 ## The first result
 
-To see whether the structure pays off, we'll test the first bot against the flood-fill bot from The choice, on the 13 bundled maps and the 20 generated ones from the map generator post:
+To see whether the structure pays off, we'll test the first bot in place of the flood-fill bot from The choice, on the 13 bundled maps and the 20 generated ones from the map generator post. The first bot doesn't name its behaviours yet, so every changed game counts in full:
 
-![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict. first-bot wins 78 games against room-c, loses 48 and draws 6, with no errors. The chance an even match does this well is 0.0048, and the verdict is better.](images/first-bot-verdict.png)
+![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict on four seeds. Of 264 paired games, first-bot gained 77, dropped 50 and left 137 unchanged. Random signs do this well about 3% of the time. Against the weak bots it lost 5 games that room-c won, all listed, and won 51 that room-c lost. The verdict is better.](images/first-bot-verdict.png)
 
-The first bot is better, winning 78 games to 48. Two equally good bots would produce a result that lopsided only about once in 200 tries, so this is a real improvement.
+On two seeds per map and side, the result was undecided: the first bot gained 38 changed games and dropped 23, which random signs match about one time in eleven. The verdict estimated that about 130 changed games would settle it, so the run above doubles the seeds. Over four seeds, 137 of the 264 paired games came out the same, and of the rest the first bot gained 77 and dropped 50. Random signs do that well about 3% of the time, so this is a real improvement, if not a large one. It also beat the starters more often: of the games where the two versions' results against a starter differed, the first bot won 51 and lost 5.
 
-Where the gain comes from is interesting. On the bundled maps the two bots are level, 25 wins to 27. Almost all of the improvement is on the generated maps, where the first bot won 53 games to 21. The replays show why. On those maps, the first bot's dragons ran into their own bodies 7 times, against 36 times for the flood-fill bot. That's the portal blind spot from the [map generator post](05-maps-nobody-has-seen.md), closed by the safety layer refusing to step through portals it can't see past.
+Where the gain comes from is interesting. On the bundled maps the two bots are level, 21 changed games gained and 25 dropped. Almost all of the improvement is on the generated maps, where the first bot gained 56 and dropped 25. The replays show why. In the games on those maps, the first bot's dragons ran into their own bodies 23 times, against 74 times for the flood-fill bot. That's the portal blind spot from the [map generator post](05-maps-nobody-has-seen.md), closed by the safety layer refusing to step through portals it can't see past.
 
 It's a modest start, but it's measurably better, and now each new behaviour has an obvious place to go.
 

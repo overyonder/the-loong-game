@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 330" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Paired games: the candidate and the baseline on the same map, side and seed</title>
+<rect width="1040" height="330" fill="#ede5d5"/>
+<text x="186" y="72" font-size="21" font-weight="bold" fill="#20251f" text-anchor="end">baseline</text>
+<text x="186" y="152" font-size="21" font-weight="bold" fill="#20251f" text-anchor="end">candidate</text>
+<text x="186" y="224" font-size="19" font-weight="normal" fill="#66675e" text-anchor="end">activation</text>
+<rect x="210" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="236" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="210" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="236" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="210" y="226.0" width="52" height="0.0" fill="#b53b13" opacity=".75"/>
+<path d="M210 226H262" stroke="#b9ad99"/>
+<rect x="278" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="304" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="278" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="304" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="278" y="226.0" width="52" height="0.0" fill="#b53b13" opacity=".75"/>
+<path d="M278 226H330" stroke="#b9ad99"/>
+<rect x="346" y="40" width="52" height="52" rx="6" fill="#dcd0bb" stroke="#b9ad99"/>
+<text x="372" y="72" font-size="22" font-weight="bold" fill="#66675e" text-anchor="middle">L</text>
+<rect x="346" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="372" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="346" y="202.0" width="52" height="24.0" fill="#b53b13" opacity=".75"/>
+<path d="M346 226H398" stroke="#b9ad99"/>
+<rect x="340" y="32" width="64" height="148" rx="9" fill="none" stroke="#b53b13" stroke-width="3"/>
+<text x="372" y="256" font-size="18" font-weight="bold" fill="#b53b13" text-anchor="middle">gained</text>
+<rect x="414" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="440" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="414" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="440" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="414" y="220.0" width="52" height="6.0" fill="#b53b13" opacity=".75"/>
+<path d="M414 226H466" stroke="#b9ad99"/>
+<rect x="482" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="508" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="482" y="120" width="52" height="52" rx="6" fill="#dcd0bb" stroke="#b9ad99"/>
+<text x="508" y="152" font-size="22" font-weight="bold" fill="#66675e" text-anchor="middle">L</text>
+<rect x="482" y="223.0" width="52" height="3.0" fill="#b53b13" opacity=".75"/>
+<path d="M482 226H534" stroke="#b9ad99"/>
+<rect x="476" y="32" width="64" height="148" rx="9" fill="none" stroke="#b53b13" stroke-width="3"/>
+<text x="508" y="256" font-size="18" font-weight="bold" fill="#b53b13" text-anchor="middle">dropped</text>
+<rect x="550" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="576" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="550" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="576" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="550" y="226.0" width="52" height="0.0" fill="#b53b13" opacity=".75"/>
+<path d="M550 226H602" stroke="#b9ad99"/>
+<rect x="618" y="40" width="52" height="52" rx="6" fill="#dcd0bb" stroke="#b9ad99"/>
+<text x="644" y="72" font-size="22" font-weight="bold" fill="#66675e" text-anchor="middle">L</text>
+<rect x="618" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="644" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="618" y="208.0" width="52" height="18.0" fill="#b53b13" opacity=".75"/>
+<path d="M618 226H670" stroke="#b9ad99"/>
+<rect x="612" y="32" width="64" height="148" rx="9" fill="none" stroke="#b53b13" stroke-width="3"/>
+<text x="644" y="256" font-size="18" font-weight="bold" fill="#b53b13" text-anchor="middle">gained</text>
+<rect x="686" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="712" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="686" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="712" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="686" y="214.0" width="52" height="12.0" fill="#b53b13" opacity=".75"/>
+<path d="M686 226H738" stroke="#b9ad99"/>
+<rect x="754" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="780" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="754" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="780" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="754" y="226.0" width="52" height="0.0" fill="#b53b13" opacity=".75"/>
+<path d="M754 226H806" stroke="#b9ad99"/>
+<rect x="822" y="40" width="52" height="52" rx="6" fill="#dcd0bb" stroke="#b9ad99"/>
+<text x="848" y="72" font-size="22" font-weight="bold" fill="#66675e" text-anchor="middle">L</text>
+<rect x="822" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="848" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="822" y="217.0" width="52" height="9.0" fill="#b53b13" opacity=".75"/>
+<path d="M822 226H874" stroke="#b9ad99"/>
+<rect x="816" y="32" width="64" height="148" rx="9" fill="none" stroke="#b53b13" stroke-width="3"/>
+<text x="848" y="256" font-size="18" font-weight="bold" fill="#b53b13" text-anchor="middle">gained</text>
+<rect x="890" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="916" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="890" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="916" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="890" y="226.0" width="52" height="0.0" fill="#b53b13" opacity=".75"/>
+<path d="M890 226H942" stroke="#b9ad99"/>
+<rect x="958" y="40" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="984" y="72" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="958" y="120" width="52" height="52" rx="6" fill="#263d31" stroke="#b9ad99"/>
+<text x="984" y="152" font-size="22" font-weight="bold" fill="#ede5d5" text-anchor="middle">W</text>
+<rect x="958" y="226.0" width="52" height="0.0" fill="#b53b13" opacity=".75"/>
+<path d="M958 226H1010" stroke="#b9ad99"/>
+<text x="204" y="306" font-size="21" font-weight="normal" fill="#20251f" text-anchor="start">Only the outlined pairs count, each weighted by how much the change ran.</text>
+</svg>

@@ -99,7 +99,7 @@ That lit square is all the dragon's program was given that turn. Everything else
 
 ## A first question
 
-The decoder can already answer questions across many games at once. The [verdict post](04-better-worse-or-undecided.md) found that the pearl-chasing bot loses badly to the plain flood-fill bot, and left the reason for later. The ladder from [two posts ago](06-a-ladder-of-our-own.md) kept every replay, so we can count how each bot's dragons died across the 66 games between them:
+The decoder can already answer questions across many games at once. The [verdict post](04-better-worse-or-undecided.md) found that the pearl-chasing bot loses far more games than the plain flood-fill bot, above all to the starter bots, and left the reason for later. The ladder from [two posts ago](06-a-ladder-of-our-own.md) kept every replay, so we can count how each bot's dragons died across the 66 games between them:
 
 ![A terminal running just deaths over 66 replays. room-c's dragons hit a wall 11 times, hit themselves 16 times, hit another body 25 times and lost 22 head-on collisions. room-pearls hit a wall 31 times, hit itself 51 times, hit another body 17 times and lost 20 head-on collisions. Neither had a turn with no valid action.](images/replay-deaths.png)
 

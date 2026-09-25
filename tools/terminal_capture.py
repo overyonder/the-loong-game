@@ -67,7 +67,10 @@ def record_commands_as_ansi(commands, cwd):
 
 def ansi_to_styled_lines(transcript):
     """Play the transcript through a VT emulator and return lines of (text, colour, bold) runs."""
-    screen = pyte.Screen(TERMINAL_COLUMNS, transcript.count("\n") + 2)
+    # Long lines wrap onto extra rows, so allow for every wrap or the top would scroll away.
+    rows = sum(1 + len(re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", line)) // TERMINAL_COLUMNS
+               for line in transcript.split("\n")) + 2
+    screen = pyte.Screen(TERMINAL_COLUMNS, rows)
     screen.set_mode(pyte.modes.LNM)
     pyte.Stream(screen).feed(transcript)
     lines = []
