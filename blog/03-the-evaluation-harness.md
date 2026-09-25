@@ -20,6 +20,26 @@ Playing both sides matters because the two sides aren't quite equal even on a sy
 
 The harness also picks the seeds itself, in a repeatable way. Each game's seed is worked out from the two bots, the map and which repeat it is. That has two nice consequences. Running the same schedule again replays exactly the same games, so a surprising result can always be looked at again. And both side orders of a pairing get the same seed, so each bot faces the same map and the same pearls from each side, which takes one more source of luck out of the comparison.
 
+Both ideas fit in a few lines. The seed is a hash of the pairing, sorted so that the side order doesn't change it, together with the map and the repeat number. The schedule is then just four nested loops:
+
+```python
+def seed_for_game(base_seed: str, team_a_bot: str, team_b_bot: str, map_path: str, repeat: int) -> str:
+    pairing = "/".join(sorted((team_a_bot, team_b_bot)))
+    digest = hashlib.sha256(f"{base_seed}/{pairing}/{map_path}/{repeat}".encode()).digest()
+    return "0x" + digest[:8].hex()
+
+
+def schedule_round_robin(bots: list[str], maps: list[str], seeds_per_pairing: int, base_seed: str) -> list[ScheduledGame]:
+    schedule = []
+    for first_bot, second_bot in itertools.combinations(bots, 2):
+        for team_a_bot, team_b_bot in ((first_bot, second_bot), (second_bot, first_bot)):
+            for map_path in maps:
+                for repeat in range(seeds_per_pairing):
+                    seed = seed_for_game(base_seed, team_a_bot, team_b_bot, map_path, repeat)
+                    schedule.append(ScheduledGame(team_a_bot, team_b_bot, map_path, seed))
+    return schedule
+```
+
 ## Running games side by side
 
 A game takes anywhere from a second to several minutes, and hundreds of them one after another would take hours. Luckily, games don't depend on each other, so there's no reason to play them one at a time. The harness runs as many at once as you have cores.
@@ -50,6 +70,20 @@ The important detail is that `unswbc run` doesn't run as a single process. It st
 There's one more thing the harness has to get right, and it's easy to miss. When a game goes wrong, it mustn't be recorded as a loss.
 
 Imagine a change to our bot that makes it crash on one map in ten. If crashes counted as losses, the bot's win rate would drop a little, and we'd probably conclude the change was a slightly bad idea. In fact it's a bug, and a very fixable one. Hiding it inside the win rate would throw that information away. So the harness reads each game's result from its log, and anything that isn't a clean win, loss or draw goes into a separate errors column instead. That includes timeouts and crashes, and dragons that ran out of CPU time. It also keeps every game's full log and replay, so when an error does turn up, we can go straight to the game and see what happened.
+
+The check itself runs in order of how badly the game went wrong. A timeout or a crash of `unswbc` itself comes first, then a bot's execution error, which the toolkit prints on the same kind of line as a death, and last a log with no result in it at all. Only a game that passes all four counts as a win, loss or draw:
+
+```python
+error = None
+if timed_out:
+    error = f"timed out after {timeout_seconds:.0f} s"
+elif process.returncode:
+    error = f"unswbc exited with code {process.returncode}"
+elif execution_error:
+    error = f"team {execution_error['team']}: {execution_error['error']}"
+elif result is None:
+    error = "no result in the log"
+```
 
 ## A first run
 

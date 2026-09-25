@@ -14,11 +14,48 @@ Size and shape come first. Ladder maps range from small, cramped boards where dr
 
 Every map is also symmetric, mirrored or rotated so that both teams start in equivalent positions. That's how the real maps are built, and it keeps the games fair, so a win means something.
 
+The generator never places anything on its own. Every tile it uses has a mirror image, found by flipping one axis or rotating the board half a turn, and every piece of kelp goes in together with its mirror:
+
+```python
+def mirror_tile(layout: GeneratedMap, tile: Tile) -> Tile:
+    x, y = tile
+    w, h = layout.width, layout.height
+    if layout.symmetry == "y":
+        return (w - 1 - x, y)
+    if layout.symmetry == "x":
+        return (x, h - 1 - y)
+    return (w - 1 - x, h - 1 - y)
+
+
+def add_kelp_symmetrically(layout: GeneratedMap, edge: Edge) -> None:
+    layout.kelp.add(edge)
+    layout.kelp.add(mirror_edge(layout, edge))
+```
+
 The kelp is where the variety really comes in. Kelp walls change how a dragon has to move, and different layouts demand different skills: open ground, scattered short walls, closed rooms, a maze, or a single wall dividing the board. The generator mixes these, and adds portals in pairs, because portals are the part of the game that most often breaks a bot's assumptions about where a move leads.
 
 Pearls matter too. On some maps food is spread everywhere, on others it's scarce, and on others it's concentrated in a contested middle or in a private field on each side. A bot's sense of when to go looking for food is tested very differently by each.
 
-Random choices like these can easily produce a map that's useless for testing, like a board mostly walled off, or teams starting right on top of each other. So before a map is kept, the generator checks that most of the board is reachable, that the two teams start at least four tiles apart, and that no dragon starts boxed in. It's also seeded, so `--seed 2026` gives the same 20 maps every time, and anyone can reproduce these results:
+Random choices like these can easily produce a map that's useless for testing, like a board mostly walled off, or teams starting right on top of each other. So before a map is kept, the generator checks that most of the board is reachable, that the two teams start at least four tiles apart, and that no dragon starts boxed in. The whole recipe is one retry loop. It picks a size, a symmetry and one to three kelp styles, adds portals, and throws the map away and starts again whenever a check fails:
+
+```python
+def generate_map(generator: random.Random, name: str) -> GeneratedMap:
+    while True:
+        # ... pick the size, symmetry and kelp styles, and draw the kelp
+        if len(layout.kelp) > (0.6 if dense else 0.35) * 2 * width * height:
+            continue
+        add_portals(layout, generator, min(generator.choice([0, 0, 1, 2, 3, 4, 6]), width * height // 80))
+        playable = largest_component(layout)
+        if len(playable) < (0.35 if dense else 0.6) * width * height:
+            continue
+        # ... choose how many dragons each team starts with, and how long
+        if not place_dragons(layout, generator, playable, len(lengths), lengths):
+            continue
+        assign_spawn_ranges(layout, generator, playable, generator.choice(FOOD_LAYOUTS))
+        return layout
+```
+
+It's also seeded, so `--seed 2026` gives the same 20 maps every time, and anyone can reproduce these results:
 
 ![Twenty generated maps, drawn as boards with their kelp, portals and starting dragons. They range from a narrow 10×8 map to 64×64, with open maps, mazes and walled rooms.](images/generated-maps.svg)
 

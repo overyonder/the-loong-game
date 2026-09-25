@@ -26,6 +26,16 @@ def probability_of_at_least(wins: int, games: int) -> float:
 
 It adds up the chances of every result at least as good as the one we got, if each game were a fair coin flip. The verdict then applies the usual cut-off. If an even match would do this well less than 5% of the time, the candidate is better. If an even match would do this badly less than 5% of the time, it's worse. Anything in between is undecided, and for that case the tool also estimates how many decisive games it would take to settle the question at the win rate we're seeing.
 
+The decision checks both directions with the same function. It asks how often an even match would win this many, and how often it would lose this many:
+
+```python
+def decide(candidate_wins: int, candidate_losses: int, significance: float) -> dict:
+    decisive = candidate_wins + candidate_losses
+    p_better = probability_of_at_least(candidate_wins, decisive)
+    p_worse = probability_of_at_least(candidate_losses, decisive)
+    verdict = "better" if p_better < significance else "worse" if p_worse < significance else "undecided"
+```
+
 To get the games it needs, the verdict simply hands the two bots to the harness from the last post, which plays them against each other on every map and from both sides, repeating the whole set with a few different seeds so that one lucky pearl layout can't decide the answer.
 
 ## Checking the tool on questions we can answer
