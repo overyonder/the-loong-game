@@ -148,8 +148,8 @@ draw_panel :: proc(viewer: ^Viewer, area: rl.Rectangle) {
 		text(fmt.tprintf("Dragon %d", viewer.selected), x, y, 24); y += 32
 		if turn, found := latest_turn(viewer); found {
 			text(fmt.tprintf("team %s, length %d", turn.team == 0 ? "A" : "B", turn.length), x, y, 18, MUTED); y += 26
-			text(fmt.tprintf("indicator: %s", len(turn.indicator) > 0 ? turn.indicator : "none"), x, y, 18); y += 26
-			text(fmt.tprintf("action:    %s", turn.action), x, y, 18); y += 36
+			text(fmt.tprintf("indicator:   %s", len(turn.indicator) > 0 ? turn.indicator : "none"), x, y, 18); y += 26
+			text(fmt.tprintf("last action: %s", turn.action), x, y, 18); y += 36
 		} else {
 			text("no turns yet", x, y, 18, MUTED); y += 36
 		}

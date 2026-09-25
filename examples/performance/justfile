@@ -29,3 +29,17 @@ fast:
     just nim-bot fast-bot
     unswbc run --sandbox --no-replay --seed 0x42 {{tooling}}/maps/default.map {{tooling}}/first-bot {{tooling}}/room-c
     unswbc run --sandbox --no-replay --seed 0x42 {{tooling}}/maps/default.map fast-bot {{tooling}}/room-c
+
+# Where a kernel spends its cycles, down to the instructions that take more than 2% of them.
+native-profile kernel="queue":
+    clang -O2 -march=native -g -fno-omit-frame-pointer -I bench-bot native/bench.c bench-bot/kernels.c -o native/bench
+    perf record -q -g -o /tmp/loong-perf.data native/bench {{kernel}} native/windows.bin
+    perf report -i /tmp/loong-perf.data --stdio --no-children 2>/dev/null | grep -E '^ +[0-9.]+%|--' | head -6
+    perf annotate -i /tmp/loong-perf.data --stdio -s RoomsQueue 2>/dev/null | awk '$1 + 0 >= 2.0'
+
+# The benchmark over six maps, logged to bench-six-maps.log for the chart in the performance post.
+bench-maps:
+    just nim-bot bench-bot
+    for map in arena default Colosseum trophy big_empty stronghold; do unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/$map.map bench-bot {{tooling}}/starter-c | grep "LOG bench"; done > bench-six-maps.log
+    python3 summarise.py < bench-six-maps.log
+    python3 ../../tools/kernel_chart.py bench-six-maps.log ../../blog/images/room-kernels.svg

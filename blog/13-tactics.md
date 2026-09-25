@@ -109,6 +109,14 @@ That's worth understanding rather than brushing aside. A 5% threshold means that
 
 Over 264 games the tactics bot is better, 138 wins to 106. The code is in [examples/tactics-bot](../examples/tactics-bot/strategy.nim), with the sacrifice behind a `-d:deliver` switch for anyone who wants to try making it work.
 
+## Every version on one ladder
+
+Each verdict in the last three posts compared a new version with the one before it. The [ladder](06-a-ladder-of-our-own.md) can check that the chain of improvements adds up, and that nothing went round in a circle along the way. Here are the saved versions from the flood-fill bot onwards, with the rejected pearl chaser and the C starter for reference, over the same 33 maps:
+
+![A terminal running just ladder-all, which rates six bots from 990 games with no errors. tactics-bot 1791, roles-bot 1739, first-bot 1547, room-c 1485, room-pearls 1377, starter-c 1060. tactics-bot scored 34.5 of 66 against roles-bot and 57 against first-bot. first-bot scored 39.5 against room-c.](images/ladder-all.png)
+
+The ratings line up in the order the versions were saved, and every version has a winning record against every version before it, so the verdicts weren't going round in a circle. The gaps also say something the verdicts couldn't. The roles bot's jump over the first bot, nearly 200 points, is the biggest step among the strategy bots. The tactics bot's lead over the roles bot is real but small: 34.5 games to 31.5 here, on a single seed, which matches how close the four-seed verdict was.
+
 ## Next up
 
-That finishes the implementation section. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The next stage is performance: finding out where the bot's CPU budget goes, and fitting more thinking into it.
+That finishes the implementation section. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The next stage is performance, starting with the job every one of these bots leans on: [counting the room a move leaves](14-counting-room-faster.md).

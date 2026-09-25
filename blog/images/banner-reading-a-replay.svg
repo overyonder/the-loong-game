@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<rect width="600" height="600" fill="#1d3027"/>
+<path d="M24 0V600M48 0V600M72 0V600M96 0V600M120 0V600M144 0V600M168 0V600M192 0V600M216 0V600M240 0V600M264 0V600M288 0V600M312 0V600M336 0V600M360 0V600M384 0V600M408 0V600M432 0V600M456 0V600M480 0V600M504 0V600M528 0V600M552 0V600M576 0V600M0 24H600M0 48H600M0 72H600M0 96H600M0 120H600M0 144H600M0 168H600M0 192H600M0 216H600M0 240H600M0 264H600M0 288H600M0 312H600M0 336H600M0 360H600M0 384H600M0 408H600M0 432H600M0 456H600M0 480H600M0 504H600M0 528H600M0 552H600M0 576H600" stroke="rgba(243,236,223,.07)" stroke-width="1"/>
+<path d="M168 96h24M192 96h24M216 96h24M240 96h24M264 96h24M288 96h24M312 96h24M336 96h24M360 96h24M384 96h24M408 96h24M168 96v24M432 96v24M144 120h24M432 120h24M144 120v24M456 120v24M48 144h24M72 144h24M504 144h24M528 144h24M48 144v24M96 144v24M144 144v24M456 144v24M504 144v24M552 144v24M24 168h24M96 168h24M480 168h24M552 168h24M24 168v24M144 168v24M456 168v24M576 168v24M24 192v24M144 192v24M456 192v24M576 192v24M24 216v24M144 216v24M456 216v24M576 216v24M24 240v24M144 240v24M456 240v24M576 240v24M144 264h24M432 264h24M24 264v24M168 264v24M432 264v24M576 264v24M24 288h24M552 288h24M48 288v24M168 288v24M432 288v24M552 288v24M48 312h24M528 312h24M72 312v24M168 312v24M432 312v24M528 312v24M72 336h24M504 336h24M96 336v24M168 336v24M432 336v24M504 336v24M96 360h24M168 360h24M408 360h24M480 360h24M192 360v24M408 360v24M240 432v24M360 432v24M240 456h24M336 456h24M264 456v24M336 456v24M264 480h24M312 480h24M288 480v24M312 480v24M288 504h24" stroke="#7fb069" stroke-width="4" stroke-linecap="round" fill="none"/>
+<path d="M288 144h24M288 528h24" stroke="#e8c872" stroke-width="4" stroke-dasharray="3 3" fill="none"/>
+<circle cx="540.0" cy="156.0" r="4.32" fill="#e8c872"/>
+<circle cx="300.0" cy="492.0" r="4.32" fill="#e8c872"/>
+<circle cx="540.0" cy="180.0" r="4.32" fill="#e8c872"/>
+<polyline points="132.0,468.0 156.0,468.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="132.0" cy="468.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="516.0,180.0 492.0,180.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="516.0" cy="180.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="228.0,204.0 252.0,204.0 252.0,228.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="228.0" cy="204.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="540.0,276.0 540.0,252.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="540.0" cy="276.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="492.0,132.0 468.0,132.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="492.0" cy="132.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="252.0,132.0 252.0,156.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="252.0" cy="132.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="252.0,252.0 228.0,252.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="252.0" cy="252.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,420.0 372.0,444.0 372.0,468.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="420.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="228.0,492.0 252.0,492.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="228.0" cy="492.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="564.0,348.0 588.0,348.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="564.0" cy="348.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="252.0,108.0 276.0,108.0 300.0,108.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="252.0" cy="108.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="156.0,252.0 156.0,228.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="156.0" cy="252.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="588.0,12.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<polyline points="12.0,12.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="588.0" cy="12.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="204.0,180.0 228.0,180.0 252.0,180.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="204.0" cy="180.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="588.0,492.0 588.0,468.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="588.0" cy="492.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="156.0,180.0 156.0,204.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="156.0" cy="180.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="516.0,84.0 516.0,108.0 516.0,132.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="516.0" cy="84.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,348.0 348.0,348.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="348.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="276.0,444.0 276.0,420.0 300.0,420.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="276.0" cy="444.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="276.0,204.0 276.0,228.0 276.0,252.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="276.0" cy="204.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="564.0,132.0 564.0,108.0 540.0,108.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="564.0" cy="132.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="588.0,156.0 588.0,132.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="588.0" cy="156.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,372.0 348.0,372.0 348.0,396.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="372.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="204.0,516.0 228.0,516.0 228.0,540.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="204.0" cy="516.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="324.0,132.0 348.0,132.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="324.0" cy="132.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,276.0 348.0,276.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="276.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,324.0 348.0,324.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="324.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,300.0 348.0,300.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="300.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="420.0,540.0 444.0,540.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="420.0" cy="540.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="516.0,324.0 492.0,324.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="516.0" cy="324.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="420.0,468.0 420.0,444.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="420.0" cy="468.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="348.0,180.0 348.0,156.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="348.0" cy="180.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="396.0,372.0 396.0,348.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="396.0" cy="372.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="204.0,540.0 204.0,564.0 204.0,588.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="204.0" cy="540.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="36.0,276.0 36.0,252.0 60.0,252.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="36.0" cy="276.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="420.0,228.0 420.0,204.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="420.0" cy="228.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="228.0,396.0 228.0,420.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="228.0" cy="396.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="540.0,204.0 564.0,204.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="540.0" cy="204.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="420.0,132.0 420.0,156.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="420.0" cy="132.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="180.0,444.0 156.0,444.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="180.0" cy="444.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="12.0,348.0 12.0,324.0 36.0,324.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="12.0" cy="348.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="84.0,180.0 84.0,156.0 60.0,156.0 60.0,180.0 36.0,180.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="84.0" cy="180.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="180.0,492.0 180.0,516.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="180.0" cy="492.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="300.0,396.0 300.0,372.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="300.0" cy="396.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="420.0,300.0 396.0,300.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="420.0" cy="300.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="324.0,468.0 300.0,468.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="324.0" cy="468.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="444.0,492.0 468.0,492.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="444.0" cy="492.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="348.0,492.0 348.0,516.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="348.0" cy="492.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="108.0,396.0 108.0,420.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="108.0" cy="396.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,228.0 348.0,228.0 324.0,228.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="228.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="60.0,228.0 84.0,228.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="60.0" cy="228.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="324.0,300.0 300.0,300.0 300.0,276.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="324.0" cy="300.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="420.0,180.0 396.0,180.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="420.0" cy="180.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="204.0,276.0 204.0,252.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="204.0" cy="276.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="132.0,276.0 108.0,276.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="132.0" cy="276.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="516.0,516.0 516.0,492.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="516.0" cy="516.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="588.0,396.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<polyline points="12.0,396.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="588.0" cy="396.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="444.0,276.0 444.0,300.0" fill="none" stroke="#f3ecdf" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="444.0" cy="276.0" r="8.64" fill="#f3ecdf"/>
+<polyline points="396.0,12.0 372.0,12.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="396.0" cy="12.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,108.0 396.0,108.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="108.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="324.0,180.0 324.0,156.0 300.0,156.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="324.0" cy="180.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="84.0,468.0 84.0,444.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="84.0" cy="468.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="372.0,204.0 348.0,204.0 324.0,204.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="372.0" cy="204.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="300.0,516.0 324.0,516.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="300.0" cy="516.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="516.0,228.0 516.0,204.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="516.0" cy="228.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="492.0,156.0 468.0,156.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="492.0" cy="156.0" r="8.64" fill="#ff7a3d"/>
+<polyline points="492.0,252.0 492.0,276.0" fill="none" stroke="#ff7a3d" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+<circle cx="492.0" cy="252.0" r="8.64" fill="#ff7a3d"/>
+</svg>

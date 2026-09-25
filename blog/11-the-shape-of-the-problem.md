@@ -95,4 +95,4 @@ It's a modest start, but it's measurably better, and now each new behaviour has 
 
 ## Next up
 
-From here the series adds behaviour one piece at a time, starting with [roles](07-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.
+From here the series adds behaviour one piece at a time, starting with [roles](12-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.

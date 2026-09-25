@@ -2,7 +2,7 @@
 
 <!-- draft: 504c335716, stage: Grand strategy -->
 
-The [first strategy bot](06-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500. Another is two segments long and not worth much alive. This post uses the architecture from last time to give dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its role.
+The [first strategy bot](11-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500. Another is two segments long and not worth much alive. This post uses the architecture from last time to give dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its role.
 
 ## Why dragons need different jobs
 
@@ -100,4 +100,4 @@ The obvious fix is to give friendly heads the same berth as enemy ones. Surprisi
 
 ## Next up
 
-Next is [tactics](08-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.
+Next is [tactics](13-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.

@@ -85,4 +85,4 @@ Those three are enough to tell whether an idea worked, and every later post lean
 
 ## Next up
 
-The offline Elo ladder: rating every saved snapshot against every other, so we can see whether the bot is improving overall.
+[A ladder of our own](06-a-ladder-of-our-own.md): rating every saved version against every other, so we can see whether the bot is improving overall.

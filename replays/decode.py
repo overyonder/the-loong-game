@@ -102,7 +102,7 @@ def state_at_round(replay, round_number: int) -> GameState:
     """The board at the start of a round."""
     state = GameState(replay.map)
     for kind, event in events(replay):
-        if kind == "roundStart" and event["round"] > round_number:
+        if kind == "roundStart" and event["round"] >= round_number:
             break
         state.apply(kind, event)
     return state

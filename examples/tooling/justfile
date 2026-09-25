@@ -66,13 +66,25 @@ nim-bot name:
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" {{name}}/
     nim c {{name}}/strategy.nim
 
-# Rate every saved version against every other, on the bundled and generated maps.
-ladder:
+# The Nim flood-fill bot from "The choice", built next to the others.
+room-nim:
+    rm -rf room-nim && cp -r ../the-choice/nim room-nim
+    cp starter-c/helper.c starter-c/helper.h room-nim/
+    cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" room-nim/
+    nim c room-nim/strategy.nim
+
+# Rate every bot we have so far against every other, on the bundled and generated maps.
+ladder: room-nim
+    python3 -m harness.ladder --bots starter-c starter-py room-c room-py room-nim room-pearls \
+        --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder
+
+# The ladder again at the end of the tactics stage, with the strategy bots.
+ladder-all:
     just nim-bot first-bot
     just nim-bot roles-bot
     just nim-bot tactics-bot
     python3 -m harness.ladder --bots starter-c room-c room-pearls first-bot roles-bot tactics-bot \
-        --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder
+        --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder-all
 
 # Download a few of the highest-rated public replays, gently, into public-replays/.
 sample-replays count="5":
