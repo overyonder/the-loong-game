@@ -1,6 +1,6 @@
 # The wishlist
 
-The [last post](00-the-loong-game.md) ended with a first bot running. The next job is making it better, and that means knowing when a change actually helped. So in this post we'll try to answer that with nothing but the stock toolkit and the stock starter bots. Every time we hit a wall, we'll put the tool that would get us past it into a basket. By the end we'll have the wishlist the rest of the series builds.
+The [last post](00-the-loong-game.md) ended with a first bot running. Next we want to make it better, which means being able to tell when a change actually helped. In this post we'll try to do that with only the stock toolkit and starter bots. Every time we hit a wall, we'll put the tool that would get us past it into a basket. By the end we'll have the wishlist the rest of the series builds.
 
 ## Starting with one game
 
@@ -14,7 +14,7 @@ Running it again doesn't help either. Both starters pick a random direction each
 
 ## Every map, both sides
 
-So we write the obvious loop, over all 11 bundled maps with each bot taking each side:
+So we write the obvious loop: every one of the 11 bundled maps, with each bot playing each side.
 
 ![A terminal showing loop.fish in bat, then time fish loop.fish printing 22 results, one per map and side, in 79.2 seconds.](images/unswbc-loop.png)
 
@@ -28,9 +28,9 @@ Into the basket goes an **evaluation harness**.
 
 ## Twelve wins out of twenty-two
 
-Back to the loop's results. `alpha` won 12 of the 22 games, and it isn't the better bot. Both bots run the same random walk, just in different languages. Some maps even look like they favour a side: team B won both games on `default`, and team A won both on `default_small`.
+Now look at the results. `alpha` won 12 of the 22 games, even though it isn't the better bot. Both bots run the same random walk, just in different languages. Some maps even look like they favour a side: team B won both games on `default`, and team A won both on `default_small`.
 
-A bot that's exactly as good as its opponent wins 12 or more of 22 about 42% of the time. To tell a bot that really wins 60% of its games from a coin flip, at the usual 95% confidence, takes about 150 games, and smaller improvements need far more:
+A bot that's exactly as good as its opponent wins 12 or more of 22 about 42% of the time. Telling a bot that really wins 60% of its games apart from a coin flip takes about 150 games at the usual 95% confidence, and smaller improvements need far more:
 
 ![Games needed to detect a better bot at 95% confidence and 80% power, by its true win rate: about 3,900 at 52%, 617 at 55%, 153 at 60%, 37 at 70% and 23 at 75%. A 22-game loop only catches bots that win about 75% of the time or more.](images/games-needed.svg)
 
@@ -74,7 +74,7 @@ Into the basket goes a **replay sampler**.
 
 ## Reading a replay
 
-Once we have the replays, we find they aren't something we can grep:
+Once we have the replays, it turns out we can't just grep them:
 
 ![hexyl showing the first 160 bytes of a replay file. It is packed binary, with the bot names and fragments of the map text visible.](images/replay-hexdump.png)
 
@@ -100,9 +100,9 @@ Into the basket goes a **debug viewer**.
 
 ## Where the points go
 
-Last stop: that first screenshot's summary lines. They say how many CPU points each team spent per turn, but not what spent them.
+The last stop is back at the summary lines from the first screenshot. They say how many CPU points each team spent per turn, but not what spent them.
 
-The C starter spends 3.0 million points a turn on a random walk. My first guess was its log line, so I deleted it. That saved about 0.1 million. Most of the rest is the one write to stdout that every turn needs to send its move, which costs 2.5 million on its own. The Python starter spends 5.0 million at the median and over 20 million on its worst turns. That's fine for a random walk. It isn't once we're running a search, where every wasted point is search depth we don't get. An experiment and a guess got us here. For a real bot we want a profile that shows it directly.
+The C starter spends 3.0 million points a turn on a random walk. My first guess was its log line, so I deleted it. That saved about 0.1 million. Most of the rest is the one write to stdout that every turn needs to send its move, which costs 2.5 million on its own. The Python starter spends 5.0 million at the median and over 20 million on its worst turns. That's fine for a random walk. It isn't once we're running a search, where every wasted point is search depth we don't get. It took a guess and an experiment to find that out. For a real bot we want a profiler that shows it directly.
 
 Into the basket goes **profiling**.
 
@@ -125,7 +125,7 @@ That's the wishlist. Here's how the pieces fit together:
 | **Debug viewer** | The board through one dragon's eyes, with its memory and decisions. |
 | **Profiling** | CPU cost from wall time down to individual instructions, native and WASM. |
 
-Most of these already exist in some form in my own setup, so the posts will be write-ups of working tools, with code. The weird bot ideas, including the Jev test from the intro, come later. They'll be a lot more fun to judge with this lot in place.
+I already have most of these working in some form, so the posts will write up working tools, with code. The weird bot ideas, including the Jev test from the intro, come later. They'll be a lot more fun to judge with this lot in place.
 
 ## Next up
 

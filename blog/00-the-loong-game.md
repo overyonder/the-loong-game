@@ -1,6 +1,6 @@
 # Introducing The Loong Game
 
-Hi all! The Loong Game is a little open source series running alongside UNSW Battlecode 2026. I'll be building tools for `unswbc`, trying out odd bot ideas and writing up what I learn along the way. This first post covers who I am, what the series is for, the tournament itself, and what you get out of the box before we start building on it.
+Hi all! The Loong Game is a little open source series running alongside UNSW Battlecode 2026. I'll be building tools for `unswbc`, trying out odd bot ideas and writing up what I learn along the way. This first post covers who I am, why I'm doing it, a quick look at the tournament, and what the official tools give you.
 
 ## Who I am
 
@@ -25,16 +25,16 @@ UNSW Battlecode is a bot programming competition. You write one program, every d
 
 ![The 2026 season: the seed ladder runs from 21 September, the Sprint is on 1 October, the Qualifiers on 10 October, final submissions close on 16 October, and the Grand Final is on 17 October at UNSW Sydney.](images/2026-timeline.svg)
 
-The ladder runs all season and sets the tournament seeding. The Sprint is open to every team. The Qualifiers and the in-person Grand Final are for eligible teams, whose members study in the Asia-Pacific or are Asia-Pacific citizens studying elsewhere. A few things the organisers have said on Discord are worth knowing early:
+The ladder runs all season and sets the tournament seeding. The Sprint is open to every team. The Qualifiers and the in-person Grand Final are only for eligible teams: everyone on the team has to study in the Asia-Pacific, or be an Asia-Pacific citizen studying overseas. A few things the organisers have said on Discord are worth knowing early:
 
 - **Tournament maps are unseen**, so don't tune your bot to the ladder's maps.
 - **Each new submission resets your rating's K factor**, so a fresh upload swings your rating harder.
-- **Eligibility needs a resume on your profile**, due before the Qualifiers on 10 October.
+- **You need a resume on your profile to be eligible**, and it's due before the Qualifiers on 10 October.
 
 The organisers' `unswbc` toolkit covers the basics. It makes starter bots, runs a match in the judge's sandbox, builds C and C++ with the judge's own clang, and submits your bot. The website adds the docs, a replay visualiser, a map editor, the leaderboard and public replays of every battle.
 
 ## Missing pieces
 
-What the toolkit doesn't give you is everything between one match and knowing whether a change helped. You can run a game and watch it, but you can't easily tell whether your new version is better, what a dragon could see when it died, or where its CPU budget went. That's the gap this series fills. Each post builds one of the missing tools, with the code and results behind it, and the [next post](01-the-wishlist.md) works out the list.
+The toolkit gets you as far as playing a game and watching it. It won't tell you whether your latest change made the bot any better, what a dragon could see when it died, or where its CPU budget went. Each post in this series builds one of the tools that fills those gaps, with the code and results behind it. The [next post](01-the-wishlist.md) works out which tools we need.
 
 Questions, heckling and "have you tried X" are all welcome 😄
