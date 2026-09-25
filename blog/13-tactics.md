@@ -2,7 +2,7 @@
 
 <!-- draft: 16ce51c717, stage: Tactical ideas and espionage -->
 
-This is the last post that builds a new strategy bot. The earlier posts built the tools and gave the bot a structure and some roles, and this one is about carrying those roles out well. First, though, a note on how much of this I'm going to share.
+The earlier posts built the tools and gave the bot a structure and some roles, and this one is about carrying those roles out well. It isn't the last word on either. Through the competition I'll keep publishing more strategy and tactics ideas as short follow-ups, numbered after the post they build on: 12b, 12c and so on after [roles](12-roles.md), and 13b, 13c after this one. Each takes a well-known idea, builds it into the example bots and puts it through the same verdict, so that every team following along starts from a higher floor. First, though, a note on how much of this I'm going to share.
 
 ## A note on secret sauce
 
@@ -114,4 +114,4 @@ The ratings line up in the order the versions were saved, and every version has 
 
 ## Next up
 
-That's the last of the strategy bots. We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. The last ideas post is about the mechanic all of this rests on: [sonar](14-sonar.md), and what else it could be used for.
+We started with tools that tell us whether an idea works, used them to give the bot a structure and then roles, and in this post made the champion better at its job. More strategy and tactics ideas will follow as 12b, 13b and onwards. Next in the main series is the mechanic all of this rests on: [sonar](14-sonar.md), and what else it could be used for.
