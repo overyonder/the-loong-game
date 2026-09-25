@@ -18,9 +18,9 @@ Running it again doesn't help either. Both starters pick a random direction each
 
 So we write the obvious loop, over all 11 bundled maps with each bot taking each side:
 
-![A terminal showing loop.fish in bat, then time fish loop.fish printing 22 results, one per map and side, in 57.8 seconds.](images/unswbc-loop.png)
+![A terminal showing loop.fish in bat, then time fish loop.fish printing 22 results, one per map and side, in 79.2 seconds.](images/unswbc-loop.png)
 
-That took 58 seconds, and the starter bots barely think. Real bots are a different story. In one of my recent offline ladders, 600 games between stronger bots took a median of 17 seconds each, one in ten went past four minutes, and the longest took over nine. Back to back, that's 14 hours.
+That took 79 seconds, and the starter bots barely think. Real bots are a different story. In one of my recent offline ladders, 600 games between stronger bots took a median of 17 seconds each, one in ten went past four minutes, and the longest took over nine. Back to back, that's 14 hours.
 
 Games are independent, so they should run in parallel on every core. Doing that properly takes more than adding `&`, though. We need to cap how many games run at once, stop one hung game from blocking the batch, clean up child processes when something dies, and keep crashes and timeouts apart from real losses.
 
@@ -30,7 +30,7 @@ Into the basket goes an **evaluation harness**.
 
 ## Twelve wins out of twenty-two
 
-Back to the loop's results. `alpha` won 12 of the 22 games, and it isn't the better bot. Both bots run the same random walk, just in different languages. Some maps even look convincing on their own: on `default`, `bravo` won from both sides.
+Back to the loop's results. `alpha` won 12 of the 22 games, and it isn't the better bot. Both bots run the same random walk, just in different languages. Some maps even look like they favour a side: team B won both games on `default`, and team A won both on `default_small`.
 
 A bot that's exactly as good as its opponent wins 12 or more of 22 about 42% of the time. To tell a bot that really wins 60% of its games from a coin flip, at the usual 95% confidence, takes about 150 games, and smaller improvements need far more:
 
