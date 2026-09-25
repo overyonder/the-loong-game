@@ -1,0 +1,31 @@
+# Recipes from the profiling and performance posts. Run `just setup` in ../tooling first.
+tooling := "../tooling"
+
+# Copy the toolkit's helper into a Nim bot here and compile it to C.
+nim-bot name:
+    cp -f {{tooling}}/starter-c/helper.c {{tooling}}/starter-c/helper.h {{name}}/
+    cp -f "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" {{name}}/
+    nim c {{name}}/strategy.nim
+
+# Where the first bot's points go, part by part, over one game.
+profile map="arena":
+    just nim-bot profiled-bot
+    unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/{{map}}.map profiled-bot {{tooling}}/starter-c \
+        | python3 summarise.py
+
+# Every room-counting kernel on the same windows, in CPU points.
+bench map="arena":
+    just nim-bot bench-bot
+    unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/{{map}}.map bench-bot {{tooling}}/starter-c \
+        | python3 summarise.py
+
+# The same kernels natively, on windows recorded from real games, under perf.
+native kernel="components":
+    clang -O2 -march=native -g -fno-omit-frame-pointer -I bench-bot native/bench.c bench-bot/kernels.c -o native/bench
+    perf stat -e cycles,instructions,branches,branch-misses native/bench {{kernel}} native/windows.bin
+
+# The first bot, and the same bot with its hot path in C, turn by turn.
+fast:
+    just nim-bot fast-bot
+    unswbc run --sandbox --no-replay --seed 0x42 {{tooling}}/maps/default.map {{tooling}}/first-bot {{tooling}}/room-c
+    unswbc run --sandbox --no-replay --seed 0x42 {{tooling}}/maps/default.map fast-bot {{tooling}}/room-c

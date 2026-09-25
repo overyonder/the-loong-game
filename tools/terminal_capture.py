@@ -26,7 +26,7 @@ ANSI_COLOURS  = ["#1d2021", "#fb4934", "#b8bb26", "#fabd2f", "#83a598", "#d3869b
                  "#504945", "#fb4934", "#b8bb26", "#fabd2f", "#83a598", "#d3869b", "#8ec07c", "#fbf1c7"]
 FONT          = "FiraCode Nerd Font"
 FONT_SIZE     = 15
-CELL_WIDTH    = FONT_SIZE * 0.6
+CELL_WIDTH    = FONT_SIZE * 1200 / 1950  # FiraCode's advance: 1200 units on a 1950-unit em
 LINE_HEIGHT   = FONT_SIZE * 1.45
 PADDING       = 18
 BORDER        = 2
