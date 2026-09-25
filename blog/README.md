@@ -9,8 +9,10 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 0 | [Introducing The Loong Game](00-the-loong-game.md) | Understanding the problem | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
 | 1 | [The wishlist](01-the-wishlist.md) | Understanding the problem | Trying to improve a bot with only the stock toolkit, and the eight tools we'll need along the way. |
 | 2 | [The choice](02-the-choice.md) | Understanding the problem | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim and Odin. |
+| 3 | [The evaluation harness](03-the-evaluation-harness.md) | Building our tooling | A harness that plays every pairing on every map from both sides, runs games side by side, and keeps crashes apart from losses. |
+| 4 | [Better, worse or undecided](04-better-worse-or-undecided.md) | Building our tooling | A paired verdict that says whether a change made the bot better, weighs each game by how much the change ran, and counts every loss to a weak bot. |
 
-Next up: the evaluation harness.
+Next up: maps nobody has seen.
 
 ## Stages
 

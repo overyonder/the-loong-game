@@ -1,7 +1,5 @@
 # Better, worse or undecided
 
-<!-- draft: 7f0371a745, stage: Building our tooling -->
-
 With the [evaluation harness](03-the-evaluation-harness.md) we can play as many games as we like. But at the end of the last post we had two bots that make identical moves finishing four wins apart. A results table on its own will always tempt us to read meaning into gaps like that. This post builds the second tool on the wishlist, which answers the question we actually care about: did this change make the bot better?
 
 The tool is [harness/verdict.py](../harness/verdict.py). You give it a candidate bot and the baseline it changes, and it comes back with one of three answers: better, worse, or undecided.

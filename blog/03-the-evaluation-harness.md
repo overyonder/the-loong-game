@@ -1,7 +1,5 @@
 # The evaluation harness
 
-<!-- draft: 322e9c66ca, stage: Building our tooling -->
-
 The [wishlist](01-the-wishlist.md) ended with eight tools, and this stage of the series builds all of them before we start on strategy. The order matters, because most of the tools lean on each other. The statistics need results to judge, the map generator only helps once something is playing games on its maps, and the offline Elo ladder rates versions from games they've already played. So the first tool is the one that produces those games: the evaluation harness.
 
 ## Why the loop isn't enough
