@@ -1,7 +1,5 @@
 # The choice
 
-<!-- draft: 5c1e0a7d93, stage: Preparation -->
-
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later. The online judge accepts Python, C and C++. It runs all three inside WebAssembly and charges each dragon in CPU points, with a budget of 100 million per turn. The language decides how much of that budget is left for thinking.
 
 ## One strategy, two languages
@@ -63,7 +61,7 @@ This series will do a fair amount of its work in two languages a lot of folks ha
 
 ### Nim for strategies
 
-Nim reads a lot like Python, with indentation for blocks, inferred types and short loops. It also compiles to C, and C is one of several backends you can choose. With the right settings, `nim c` stops once it has written the C files, and the judge accepts C source. Here's the same flood fill, written the way a Python programmer would write it:
+[Nim](https://nim-lang.org) reads a lot like Python, with indentation for blocks, inferred types and short loops. It also compiles to C, and C is one of several backends you can choose. With the right settings, `nim c` stops once it has written the C files, and the judge accepts C source. Here's the same flood fill, written the way a Python programmer would write it:
 
 ```nim
 proc reachable(w: Window, start, first: int): int =
@@ -107,7 +105,28 @@ Nim doesn't replace hand-written C. The generated C is correct and fast, but nob
 
 ### Odin for tools
 
-Tools that never go near the judge can use anything. The debug viewer from the [wishlist](01-the-wishlist.md) is written in Odin, partly because it's good to try new things, and partly because Odin is very good for graphics programming. It ships first-party vendor bindings for libraries like raylib, calling into C is easy, and memory management is granular, with the allocator chosen through an implicit context. If those terms are unfamiliar, don't worry, we'll get to them in the series.
+Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](01-the-wishlist.md) is written in [Odin](https://odin-lang.org). Partly that's because it's good to try new things. Mostly it's because Odin is *very* good at graphics programming, for three reasons that matter to a tool like this.
+
+The first is memory. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs and slowdowns. Odin passes an implicit `context` into every procedure, and the context carries the allocator. Set it once, and everything called after that, including library code, allocates from wherever you chose:
+
+```odin
+arena: virtual.Arena
+_ = virtual.arena_init_growing(&arena)
+context.allocator = virtual.arena_allocator(&arena)
+
+frames := make([dynamic]Frame)   // allocated from the arena, through the context
+tiles := make([]Tile, 64 * 64)   // this too, and anything the procedures we call allocate
+
+virtual.arena_destroy(&arena)    // one call frees the lot
+```
+
+The viewer loads each game into an arena like this and throws the whole arena away when you open the next one. The same pattern would suit a high-performance harness too: give each game its own arena, and use the context's temporary allocator for scratch work that only lasts a turn.
+
+The second is libraries. Odin ships a `vendor` collection of bindings that the Odin team maintains alongside the compiler. It covers most of what graphics work needs: windowing and input through SDL and GLFW, the OpenGL, Vulkan, DirectX and WebGPU graphics APIs, raylib for quick 2D and 3D drawing, stb for images and fonts, and miniaudio for sound. The viewer uses raylib, and it's one `import "vendor:raylib"` away with no package manager involved.
+
+The third is proof that it holds up in real products. [JangaFX](https://jangafx.com) builds its real-time simulation tools in Odin, including EmberGen for volumetric fire and smoke and LiquiGen for liquids. Both are featured on Odin's own [showcase](https://odin-lang.org/showcase/). Those are demanding, commercial graphics applications.
+
+If some of those terms are unfamiliar, don't worry. We'll get to them properly later in the series.
 
 ## Next up
 

@@ -8,8 +8,9 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | ---: | --- | --- | --- |
 | 0 | [Introducing The Loong Game](00-the-loong-game.md) | Preparation | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
 | 1 | [The wishlist](01-the-wishlist.md) | Preparation | Trying to improve a bot with only the stock toolkit, and the eight tools we'll need along the way. |
+| 2 | [The choice](02-the-choice.md) | Preparation | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim and Odin. |
 
-Next up: choosing a language.
+Next up: the evaluation harness.
 
 ## Stages
 
