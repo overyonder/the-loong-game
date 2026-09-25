@@ -35,6 +35,6 @@ The organisers' `unswbc` toolkit covers the basics. It makes starter bots, runs 
 
 ## Missing pieces
 
-What the toolkit doesn't give you is everything between one match and knowing whether a change helped. You can run a game and watch it, but you can't easily tell whether your new version is better, what a dragon could see when it died, or where its CPU budget went. That's the gap this series fills. Each post builds one of the missing tools, with the code and results behind it, and the next post works out the list.
+What the toolkit doesn't give you is everything between one match and knowing whether a change helped. You can run a game and watch it, but you can't easily tell whether your new version is better, what a dragon could see when it died, or where its CPU budget went. That's the gap this series fills. Each post builds one of the missing tools, with the code and results behind it, and the [next post](01-the-wishlist.md) works out the list.
 
 Questions, heckling and "have you tried X" are all welcome 😄

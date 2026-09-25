@@ -1,7 +1,5 @@
 # The wishlist
 
-<!-- draft: a2fd9e19d8 -->
-
 The [last post](00-the-loong-game.md) ended with a first bot running. The next job is making it better, and that means knowing when a change actually helped. So in this post we'll try to answer that with nothing but the stock toolkit and the stock starter bots. Every time we hit a wall, we'll put the tool that would get us past it into a basket. By the end we'll have the wishlist the rest of the series builds.
 
 ## Starting with one game

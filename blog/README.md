@@ -7,5 +7,6 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | # | Post | Summary |
 | ---: | --- | --- |
 | 0 | [Introducing The Loong Game](00-the-loong-game.md) | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
+| 1 | [The wishlist](01-the-wishlist.md) | Trying to improve a bot with only the stock toolkit, and the eight tools we'll need along the way. |
 
-Next up: a wishlist of the tools the series will build, and why each one is worth having.
+Next up: the evaluation harness.
