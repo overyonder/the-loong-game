@@ -1,10 +1,10 @@
 # The choice
 
-<!-- draft: 5c1e0a7d93 -->
+<!-- draft: 5c1e0a7d93, stage: Preparation -->
 
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later. The online judge accepts Python, C and C++. It runs all three inside WebAssembly and charges each dragon in CPU points, with a budget of 100 million per turn. The language decides how much of that budget is left for thinking.
 
-## One strategy, three ways
+## One strategy, two languages
 
 To see how much it matters, I wrote the same small strategy in Python and in C. Each turn, the dragon tries every move and every follow-up move, flood-fills the visible 7×7 window from where it would end up, and takes the move that leaves it the most room. That's up to 16 flood fills a turn. Here's the flood fill in Python:
 
