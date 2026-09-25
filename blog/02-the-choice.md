@@ -49,7 +49,7 @@ static int CountReachableTiles(LocalWindow const* window, int start, int first_s
 
 The two bots make exactly the same move on every turn. I checked by playing each against itself with the same seeds and comparing every move. Then I played each against itself on all 13 bundled maps and recorded the points spent on every turn, about 18,000 turns per bot. `unswbc run -v` prints each dragon's points after every turn, which is all the measuring this needs. The bots and the script are in [examples/the-choice](../examples/the-choice/README.md).
 
-![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Nim compiled to C: 3.0 million median, 3.1 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-by-language.svg)
+![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-c-python.svg)
 
 The Python bot's median turn costs 23.8 million points, and its slowest 1% cost more than 55 million. The C bot's median turn costs 3.0 million, and most of that isn't the strategy. A C bot that only repeats its last move costs 2.9 million a turn, almost all of it the write to stdout that sends each move. Taking each language's idle cost away, the strategy itself costs about 43,000 points in C and 19.7 million in Python, roughly 450 times as much.
 
@@ -57,9 +57,9 @@ This is a small search, and a stronger bot will want to look much further ahead.
 
 So the choice looks simple. Python is quick to write and slow to run. C and C++ are fast, but verbose and unforgiving while you're still trying ideas.
 
-## Two languages the judge doesn't take
+## Two less familiar languages
 
-This series will do a fair amount of its work in two languages the judge has never heard of.
+This series will do a fair amount of its work in two languages a lot of folks have never heard of.
 
 ### Nim for strategies
 
@@ -84,7 +84,22 @@ The rest of the bot is just as short. It calls the starter's C helper directly t
 
 ![A terminal showing nim.cfg in bat, then nim c nimbot/strategy.nim, an eza tree of the bot folder with the generated C files in gen, and a match between the Nim bot and the Python bot. The Nim bot uses 3.0M points per turn at the median and the Python bot uses 26.6M.](images/nim-to-c.png)
 
-The Nim bot makes exactly the same moves as the C and Python bots. Its strategy costs about 69,000 points a turn, 1.6 times the C version and about 280 times cheaper than Python. The difference from C is the growable list: Nim allocates it on the heap for every flood fill, where the C uses a fixed array. Switching the Nim version to a fixed array brings it level with the C, to within a few hundred points. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it contains none of the build-time date or time macros the judge rejects.
+The Nim bot makes exactly the same moves as the C and Python bots, so it slots straight into the same measurement. Here's the chart again with Nim added:
+
+![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Nim compiled to C: 3.0 million median, 3.1 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-by-language.svg)
+
+So Nim written the way you'd write Python lands almost exactly where C does. Its strategy costs about 69,000 points a turn, which is 1.6 times the C version but about 280 times cheaper than Python.
+
+That remaining gap to C comes from the growable list. Nim allocates it on the heap for every flood fill, where the C uses a fixed array on the stack. Switching the Nim version to a fixed array brings it level with the C, to within a few hundred points.
+
+How Nim manages that memory is configurable too. The `mm` setting picks the strategy:
+
+```
+mm = arc    # reference counting: memory is freed as soon as its last reference goes
+# mm = orc  # the Nim 2 default: ARC plus a collector for data that points back at itself
+```
+
+ARC counts references and frees each object the moment nothing refers to it any more, so there's no garbage collector pausing to scan memory in the middle of a turn. ORC adds a collector for reference cycles, such as two objects that point at each other. Our bot never builds cycles, so plain ARC does the job without the collector's overhead. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it contains none of the build-time date or time macros the judge rejects.
 
 Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody has tuned it. The hottest parts of a serious bot, like the inner loop of its search, still need hand-optimised C, and hand-written WebAssembly would go further if the judge accepted it. Nim is for writing and changing strategies quickly, and C is for the parts where every point counts.
 
@@ -95,5 +110,3 @@ Tools that never go near the judge can use anything. The debug viewer from the [
 ## Next up
 
 That's the end of the preparation stage. The next stage builds the tools on the wishlist, starting with the evaluation harness.
-
-Questions, heckling and "have you tried X" are all welcome 😄

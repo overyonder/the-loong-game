@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 192" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">CPU points per turn for the same strategy</title>
+<desc id="d">Median points per turn out of a 100 million budget, with the 99th percentile marked: C 3.0 million (p99 3.0 million), Python 23.8 million (p99 55.4 million).</desc>
+<rect width="720" height="192" fill="#ede5d5"/>
+<line x1="150.0" x2="150.0" y1="30" y2="152" stroke="#d9d0bf"/>
+<text x="150.0" y="172" font-size="12" fill="#66675e" text-anchor="middle">0M</text>
+<line x1="282.5" x2="282.5" y1="30" y2="152" stroke="#d9d0bf"/>
+<text x="282.5" y="172" font-size="12" fill="#66675e" text-anchor="middle">25M</text>
+<line x1="415.0" x2="415.0" y1="30" y2="152" stroke="#d9d0bf"/>
+<text x="415.0" y="172" font-size="12" fill="#66675e" text-anchor="middle">50M</text>
+<line x1="547.5" x2="547.5" y1="30" y2="152" stroke="#d9d0bf"/>
+<text x="547.5" y="172" font-size="12" fill="#66675e" text-anchor="middle">75M</text>
+<line x1="680.0" x2="680.0" y1="30" y2="152" stroke="#d9d0bf"/>
+<text x="680.0" y="172" font-size="12" fill="#66675e" text-anchor="middle">100M</text>
+<text x="680.0" y="24" font-size="12" fill="#66675e" text-anchor="end">Budget: 100M points per turn</text>
+<text x="138" y="67" font-size="14" fill="#20251f" text-anchor="end">C</text>
+<rect x="150" y="50" width="15.8" height="24" rx="3" fill="#b53b13"/>
+<line x1="165.8" x2="166.1" y1="62" y2="62" stroke="#20251f" stroke-width="1.5"/>
+<line x1="166.1" x2="166.1" y1="55" y2="69" stroke="#20251f" stroke-width="1.5"/>
+<text x="176.1" y="67" font-size="13" fill="#20251f">3.0M median, 3.0M p99</text>
+<text x="138" y="123" font-size="14" fill="#20251f" text-anchor="end">Python</text>
+<rect x="150" y="106" width="126.0" height="24" rx="3" fill="#b53b13"/>
+<line x1="276.0" x2="443.6" y1="118" y2="118" stroke="#20251f" stroke-width="1.5"/>
+<line x1="443.6" x2="443.6" y1="111" y2="125" stroke="#20251f" stroke-width="1.5"/>
+<text x="453.6" y="123" font-size="13" fill="#20251f">23.8M median, 55.4M p99</text>
+</svg>

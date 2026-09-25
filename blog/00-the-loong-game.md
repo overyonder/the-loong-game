@@ -37,5 +37,3 @@ The organisers' `unswbc` toolkit covers the basics well. It gives you a starter 
 The toolkit gets you as far as playing a game and watching it. What it won't tell you is whether your changes are actually helping, and that's essential if we want to improve a bot. Beyond that, we'll want to know why our dragons die and what they could see at the time, so we can tell whether they could have done anything about it. And we'll want to know where the CPU budget goes, to see whether more of it could have been spent finding a way out.
 
 Building those tools is the next stage of the series, and the [next post](01-the-wishlist.md) works out exactly which ones we need. After that the series turns to strategy, and eventually to squeezing more out of that CPU budget in the WASM deep dives.
-
-Questions, heckling and "have you tried X" are all welcome 😄

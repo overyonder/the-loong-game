@@ -1,17 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 248" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">CPU points per turn for the same strategy</title>
 <desc id="d">Median points per turn out of a 100 million budget, with the 99th percentile marked: C 3.0 million (p99 3.0 million), Nim compiled to C 3.0 million (p99 3.1 million), Python 23.8 million (p99 55.4 million).</desc>
-<rect width="720" height="250" fill="#ede5d5"/>
-<line x1="150.0" x2="150.0" y1="30" y2="210" stroke="#d9d0bf"/>
-<text x="150.0" y="230" font-size="12" fill="#66675e" text-anchor="middle">0M</text>
-<line x1="282.5" x2="282.5" y1="30" y2="210" stroke="#d9d0bf"/>
-<text x="282.5" y="230" font-size="12" fill="#66675e" text-anchor="middle">25M</text>
-<line x1="415.0" x2="415.0" y1="30" y2="210" stroke="#d9d0bf"/>
-<text x="415.0" y="230" font-size="12" fill="#66675e" text-anchor="middle">50M</text>
-<line x1="547.5" x2="547.5" y1="30" y2="210" stroke="#d9d0bf"/>
-<text x="547.5" y="230" font-size="12" fill="#66675e" text-anchor="middle">75M</text>
-<line x1="680.0" x2="680.0" y1="30" y2="210" stroke="#d9d0bf"/>
-<text x="680.0" y="230" font-size="12" fill="#66675e" text-anchor="middle">100M</text>
+<rect width="720" height="248" fill="#ede5d5"/>
+<line x1="150.0" x2="150.0" y1="30" y2="208" stroke="#d9d0bf"/>
+<text x="150.0" y="228" font-size="12" fill="#66675e" text-anchor="middle">0M</text>
+<line x1="282.5" x2="282.5" y1="30" y2="208" stroke="#d9d0bf"/>
+<text x="282.5" y="228" font-size="12" fill="#66675e" text-anchor="middle">25M</text>
+<line x1="415.0" x2="415.0" y1="30" y2="208" stroke="#d9d0bf"/>
+<text x="415.0" y="228" font-size="12" fill="#66675e" text-anchor="middle">50M</text>
+<line x1="547.5" x2="547.5" y1="30" y2="208" stroke="#d9d0bf"/>
+<text x="547.5" y="228" font-size="12" fill="#66675e" text-anchor="middle">75M</text>
+<line x1="680.0" x2="680.0" y1="30" y2="208" stroke="#d9d0bf"/>
+<text x="680.0" y="228" font-size="12" fill="#66675e" text-anchor="middle">100M</text>
 <text x="680.0" y="24" font-size="12" fill="#66675e" text-anchor="end">Budget: 100M points per turn</text>
 <text x="138" y="67" font-size="14" fill="#20251f" text-anchor="end">C</text>
 <rect x="150" y="50" width="15.8" height="24" rx="3" fill="#b53b13"/>

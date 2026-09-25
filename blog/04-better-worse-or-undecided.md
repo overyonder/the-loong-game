@@ -41,5 +41,3 @@ When a candidate comes out better, it becomes the new baseline, and a copy of th
 ## Next up
 
 Maps nobody has seen: generating plausible new maps, and what the flood-fill bot does on them.
-
-Questions, heckling and "have you tried X" are all welcome 😄

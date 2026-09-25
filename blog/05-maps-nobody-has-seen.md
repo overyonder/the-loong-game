@@ -44,5 +44,3 @@ That frees up our time for the part that actually decides games: the strategy an
 ## Next up
 
 That's enough tooling to start improving a bot with evidence. The next stage turns to strategic ideas, starting with the portal blind spot this post found.
-
-Questions, heckling and "have you tried X" are all welcome 😄

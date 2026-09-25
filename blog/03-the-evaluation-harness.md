@@ -50,5 +50,3 @@ The two flood-fill bots finished four wins apart, even though they make exactly 
 ## Next up
 
 Statistics: turning a pile of wins and losses into a clear answer on whether a change made the bot better.
-
-Questions, heckling and "have you tried X" are all welcome 😄

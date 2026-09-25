@@ -134,5 +134,3 @@ I already have most of these working in some form, so the tools posts will walk 
 ## Next up
 
 Choosing a language, which settles how much of the CPU budget is left for thinking.
-
-Questions, heckling and "have you tried X" are all welcome 😄

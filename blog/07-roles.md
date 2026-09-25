@@ -85,5 +85,3 @@ The replays showed one more problem. Head-on collisions kill teammates too, and 
 ## Next up
 
 The roles give the bot a way to act differently in different situations, and sonar gives it a way to share what it knows. Next is feeding: when it's safe to go for a pearl, and which role should.
-
-Questions, heckling and "have you tried X" are all welcome 😄
