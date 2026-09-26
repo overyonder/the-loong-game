@@ -1,7 +1,5 @@
 # Maps nobody has seen
 
-<!-- draft: a51bc86640, stage: Building our tooling -->
-
 The organisers have said that every Sprint, Qualifier and Grand Final map will be brand new. That's a problem for anyone who only tests on the 13 maps bundled with the toolkit. A bot can quietly come to depend on something those maps happen to have in common, and look strong right up until the tournament puts it on a map without it. We can't test on the tournament maps, because nobody has seen them. What we can do is make lots of new maps that look like the real thing and test on those.
 
 That's the map generator from the wishlist. It comes before the offline Elo ladder, because the ladder will want to rate bots on these maps too. This post builds it, and then uses it straight away to find a blind spot in the flood-fill bot that the bundled maps had been hiding.

@@ -11,11 +11,13 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 2 | [The choice](02-the-choice.md) | Understanding the problem | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim and Odin. |
 | 3 | [The evaluation harness](03-the-evaluation-harness.md) | Building our tooling | A harness that plays every pairing on every map from both sides, runs games side by side, and keeps crashes apart from losses. |
 | 4 | [Better, worse or undecided](04-better-worse-or-undecided.md) | Building our tooling | A paired verdict that says whether a change made the bot better, weighs each game by how much the change ran, and counts every loss to a weak bot. |
+| 5 | [Maps nobody has seen](05-maps-nobody-has-seen.md) | Building our tooling | Generating plausible unseen maps, and the portal blind spot they find in the flood-fill bot. |
+| 6 | [A ladder of our own](06-a-ladder-of-our-own.md) | Building our tooling | Rating every saved version against every other, and checking the pool for rock-paper-scissors circles. |
 | 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, and the first strategy bot. |
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes, each dragon working out its own role by sonar, and the bugs the replays found. |
 | 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it: what worked, what didn't, and every version on one ladder. |
 
-Next up: maps nobody has seen.
+Next up: everyone else's games.
 
 ## Stages
 

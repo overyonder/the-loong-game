@@ -1,7 +1,5 @@
 # A ladder of our own
 
-<!-- draft: 0bc5a03d5f, stage: Building our tooling -->
-
 The [verdict tool](04-better-worse-or-undecided.md) answers one question at a time: is this candidate better than that baseline? That's the right question when deciding whether to keep a change. But by now we have several bots, and the snapshot section of that post explained why it isn't enough to beat only the version before. A candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline Elo ladder from the wishlist.
 
 ## What a rating means
