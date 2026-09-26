@@ -1,7 +1,5 @@
 # The shape of the problem
 
-<!-- draft: fcc4c7b128, stage: Grand strategy -->
-
 With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. The short version is that this game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises an agent's decisions, and picks one for our first strategy bot.
 
 ## Not a problem to grind
