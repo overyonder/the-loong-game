@@ -62,7 +62,16 @@ draw_board_edges :: proc(export: ^Debug_View_Export, geometry: Board_Geometry) {
 		end :=
 			start +
 			(edge.side == 0 ? rl.Vector2{geometry.cell_size, 0} : rl.Vector2{0, geometry.cell_size})
-		rl.DrawLineEx(start, end, thickness, edge.kelp ? COLOR_KELP : COLOR_PORTAL)
+		if edge.kelp {
+			draw_round_stroke(start, end, thickness, COLOR_KELP)
+		} else {
+			// Reference portals use a 3px dash/3px gap at 24px cells.
+			for dash in 0 ..< 4 {
+				a := start + (end - start) * (f32(dash) / 4)
+				b := start + (end - start) * ((f32(dash) + 0.5) / 4)
+				rl.DrawLineEx(a, b, thickness, COLOR_PORTAL)
+			}
+		}
 		if !edge.kelp && geometry.cell_size >= 14 {
 			label := fmt.ctprintf("%d", edge.portal)
 			draw_text(
@@ -143,12 +152,12 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 		if viewer.overlays.grid {rl.DrawRectangleLinesEx(cell_rectangle(geometry, cell), 1, COLOR_GRID)}
 	}
 	if found && viewer.overlays.coverage {
-		for cell in turn.diagnostic.owned_cells {rl.DrawRectangleRec(cell_rectangle(geometry, cell), rl.Color{80, 150, 110, 65})}
+		for cell in turn.diagnostic.owned_cells {rl.DrawRectangleRec(cell_rectangle(geometry, cell), rl.Color{127, 176, 105, 16})}
 	}
 	if found && viewer.overlays.search {
 		for node in turn.diagnostic.search {
 			if node.cell < 0 || node.cell >= export.width * export.height {continue}
-			color := rl.Color{80, 140, 220, 60}
+			color := rl.Color{139, 169, 158, 14}
 			rl.DrawRectangleRec(cell_rectangle(geometry, node.cell), color)
 			if geometry.cell_size >= 28 {
 				r := cell_rectangle(geometry, node.cell)
@@ -157,7 +166,7 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 					i32(r.x + 2),
 					i32(r.y + 2),
 					12,
-					MUTED_TEXT_COLOR,
+					BOARD_TEXT,
 				)
 			}
 		}
@@ -166,27 +175,12 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 	if viewer.overlays.timers {
 		for timer in board.timers {
 			center := cell_center(geometry, timer.cell)
-			draw_text_with_backdrop(fmt.ctprintf("%d", timer.remaining), center, 14, COLOR_PEARL)
-		}
-	}
-	for dragon in board.dragons {
-		for cell, segment in dragon.body {
-			center := cell_center(geometry, cell)
-			rl.DrawCircleV(
-				center,
-				geometry.cell_size * (segment == 0 ? 0.43 : 0.30),
-				segment == 0 ? TEAM_HEAD_COLORS[dragon.team] : TEAM_BODY_COLORS[dragon.team],
-			)
-			if dragon.id ==
-			   viewer.selected_dragon {rl.DrawCircleLinesV(center, geometry.cell_size * 0.46, COLOR_SELECTED)}
-		}
-		if len(dragon.body) > 0 && viewer.overlays.dragon_ids {
-			center := cell_center(geometry, dragon.body[0])
-			draw_text_with_backdrop(
-				fmt.ctprintf("%d", dragon.id),
-				{center.x - 6, center.y - 9},
-				18,
-				BACKGROUND,
+			draw_text(
+				fmt.ctprintf("%d", timer.remaining),
+				i32(center.x + geometry.cell_size * 0.16),
+				i32(center.y + geometry.cell_size * 0.12),
+				12,
+				rl.Fade(COLOR_PEARL, 0.75),
 			)
 		}
 	}
@@ -204,22 +198,33 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 			)
 		}
 		if viewer.overlays.strategy_labels && turn.report_present {
-			draw_text_with_backdrop(
-				fmt.ctprintf(
-					"%s / %s%s",
-					turn.regime,
-					turn.role,
-					turn.reliable ? "" : " UNRELIABLE",
-				),
-				cell_center(geometry, turn.head),
-				18,
-				COLOR_SELECTED,
+			label := fmt.ctprintf(
+				"%s / %s%s",
+				turn.regime,
+				turn.role,
+				turn.reliable ? "" : " UNRELIABLE",
 			)
+			position :=
+				cell_center(geometry, turn.head) +
+				rl.Vector2{geometry.cell_size * 0.6, geometry.cell_size * 0.5}
+			position.x = min(
+				position.x,
+				geometry.origin.x +
+				f32(geometry.width) * geometry.cell_size -
+				f32(measure_text(label, 14)) -
+				4,
+			)
+			if position.y + 16 * font_scale >
+			   geometry.origin.y + f32(geometry.height) * geometry.cell_size {
+				position.y = cell_center(geometry, turn.head).y - geometry.cell_size * 0.8
+			}
+			draw_text_with_backdrop(label, position, 14, COLOR_SELECTED)
 		}
+
 		if viewer.overlays.path {
 			for cell, index in turn.diagnostic.path {
 				if index >
-				   0 {draw_cell_link(geometry, turn.diagnostic.path[index - 1], cell, COLOR_SELECTED, 3)}
+				   0 {draw_cell_link(geometry, turn.diagnostic.path[index - 1], cell, rl.Fade(COLOR_SELECTED, 0.65), 2)}
 			}
 		}
 		if viewer.overlays.coverage &&
@@ -246,6 +251,8 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 			rl.DrawLineEx({r.x, r.y}, {r.x + r.width, r.y + r.height}, 3, COLOR_DEATH)
 		}
 	}
+	draw_dragon_bodies(viewer, board, geometry)
+
 	for highlight in viewer.highlights {
 		if highlight.kind ==
 		   "cell" {rl.DrawRectangleLinesEx(cell_rectangle(geometry, highlight.id), 4, COLOR_SELECTED)}
@@ -294,7 +301,7 @@ draw_cell_link :: proc(g: Board_Geometry, first, second: i32, color: rl.Color, t
 }
 
 draw_ping_ray :: proc(g: Board_Geometry, ping: Export_Ping) {
-	color := ping.reflected ? COLOR_SELECTED : rl.Color{130, 195, 255, 210}
+	color := ping.reflected ? COLOR_SELECTED : rl.Color{155, 189, 181, 125}
 	cell := ping.origin
 	direction: i32 = 0
 	if ping.direction == "east" {direction = 1}
@@ -306,7 +313,7 @@ draw_ping_ray :: proc(g: Board_Geometry, ping: Export_Ping) {
 		next :=
 			((cell / g.width + offsets[direction][1] + g.height) % g.height) * g.width +
 			(cell % g.width + offsets[direction][0] + g.width) % g.width
-		draw_cell_link(g, cell, next, color, 2)
+		draw_cell_link(g, cell, next, color, 1)
 		cell = next
 		if cell == ping.end {break}
 	}
@@ -329,4 +336,71 @@ select_dragon_at_cell :: proc(viewer: ^Viewer_State, frame: i32, cell: i32) {
 		}
 	}
 	viewer.selected_dragon = -1
+}
+
+// Composite the connected strokes once, like SVG group opacity .85. Drawing
+// translucent segments independently would brighten every round joint.
+dragon_body_layer: rl.RenderTexture2D
+
+draw_round_stroke :: proc(a, b: rl.Vector2, width: f32, color: rl.Color) {
+	rl.DrawLineEx(a, b, width, color)
+	rl.DrawCircleV(a, width / 2, color)
+	rl.DrawCircleV(b, width / 2, color)
+}
+
+draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_Geometry) {
+	width, height := rl.GetScreenWidth(), rl.GetScreenHeight()
+	if dragon_body_layer.texture.width != width || dragon_body_layer.texture.height != height {
+		if dragon_body_layer.id != 0 {rl.UnloadRenderTexture(dragon_body_layer)}
+		dragon_body_layer = rl.LoadRenderTexture(width, height)
+	}
+	rl.BeginTextureMode(dragon_body_layer)
+	rl.ClearBackground(rl.BLANK)
+	for dragon in board.dragons {
+		color := TEAM_BODY_COLORS[dragon.team]
+		for cell, index in dragon.body {
+			rl.DrawCircleV(cell_center(g, cell), g.cell_size * 0.25, color)
+			if index == 0 {continue}
+			previous := dragon.body[index - 1]
+			dx := abs(previous % g.width - cell % g.width)
+			dy := abs(previous / g.width - cell / g.width)
+			// Keep caps at portal discontinuities; wrap links stop at the board seam.
+			if dx + dy == 1 || (dy == 0 && dx == g.width - 1) || (dx == 0 && dy == g.height - 1) {
+				draw_cell_link(g, previous, cell, color, g.cell_size * 0.5)
+			}
+		}
+	}
+	rl.EndTextureMode()
+	rl.DrawTextureRec(
+		dragon_body_layer.texture,
+		{0, 0, f32(width), -f32(height)},
+		{0, 0},
+		rl.Fade(rl.WHITE, 0.85),
+	)
+	for dragon in board.dragons {
+		if len(dragon.body) == 0 {continue}
+		center := cell_center(g, dragon.body[0])
+		rl.DrawCircleV(center, g.cell_size * 0.36, TEAM_HEAD_COLORS[dragon.team])
+		if dragon.id == viewer.selected_dragon {
+			rl.DrawRing(
+				center,
+				g.cell_size * 0.62 - max(1, g.cell_size * 0.0625),
+				g.cell_size * 0.62 + max(1, g.cell_size * 0.0625),
+				0,
+				360,
+				64,
+				TEAM_HEAD_COLORS[1],
+			)
+		}
+		if viewer.overlays.dragon_ids {
+			label := fmt.ctprintf("%d", dragon.id)
+			draw_text(
+				label,
+				i32(center.x) - measure_text(label, 13) / 2,
+				i32(center.y - 7 * font_scale),
+				13,
+				COLOR_CELL,
+			)
+		}
+	}
 }

@@ -8,7 +8,7 @@ The seventh tool on the wishlist answers that question: a debug viewer that show
 
 ## From replay to viewer
 
-The viewer owns replay decoding as well as display. Its [board library](../src/viewer/board.py) reconstructs observations, and the inline export recipe in [just/inspection.just](../just/inspection.just) writes JSON for Odin: the map's kelp and portal edges, the true board before every round, and one record for every dragon turn. A turn looks like this:
+The viewer owns replay decoding as well as display. Its [board library](../replays/viewer/board.py) reconstructs observations, and the inline export recipe in [just/inspection.just](../just/inspection.just) writes JSON for Odin: the map's kelp and portal edges, the true board before every round, and one record for every dragon turn. A turn looks like this:
 
 ```json
 {"dragon": 0, "team": 0, "round": 129, "head": 199, "length": 86,
@@ -53,7 +53,7 @@ The first viewer accumulated each dragon's visible tiles and faded them after th
 
 The current public viewer shows recorded observations and labels that limitation. Recovering a bot's internal state requires its exact build and knowledge of its state format. The private viewer can re-run identified builds over recorded observations and report action mismatches and state-check results; that recovery code and the private bot models are not part of this public release. Even a matching re-run is evidence about the reconstruction, not a memory dump from the original game.
 
-The current source is in [src/viewer/](../src/viewer/main.odin). From `examples/tooling`, `just viewer REPLAY --round 130 --dragon 0` builds the Odin display and opens the selected turn. `just viewer REPLAY --no-display --export game.json` exports the observation data without opening a window. The code excerpt above describes the original version-one loader; the current export format is version three.
+The current source is in [replays/viewer/](../replays/viewer/main.odin). From `examples/tooling`, `just viewer REPLAY --round 130 --dragon 0` builds the Odin display and opens the selected turn. `just viewer REPLAY --no-display --export game.json` exports the observation data without opening a window. The code excerpt above describes the original version-one loader; the current export format is version four.
 
 ## Why chasing pearls kills
 

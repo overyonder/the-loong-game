@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_OUTPUT = ROOT / "maps" / "generated"
+DEFAULT_OUTPUT = ROOT / "evaluation/maps" / "generated"
 
 # An edge is ("N", x, y), the north side of tile (x, y), or ("W", x, y), its west
 # side. The south and east borders are the wrapped north and west borders.

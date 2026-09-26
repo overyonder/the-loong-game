@@ -31,4 +31,3 @@ _match log timeout +command:
                 pass
             process.wait()
     print(json.dumps([code, timed_out]))
-

@@ -5,7 +5,7 @@ decode *args:
     import argparse
     from pathlib import Path
 
-    from src.viewer.inspection import inspect_replays
+    from replays.viewer.inspection import inspect_replays
 
     parser = argparse.ArgumentParser(prog="decode")
     parser.add_argument("replays", nargs="+", type=Path)
@@ -32,7 +32,7 @@ sample-replays *args:
     import math
     from pathlib import Path
 
-    from src.replays.collection import collect_public_replays
+    from replays.collection import collect_public_replays
 
     parser = argparse.ArgumentParser(prog="sample-replays")
     parser.add_argument("--count", type=int, default=5)
@@ -72,8 +72,8 @@ _viewer-export *args:
     import json
     from pathlib import Path
 
-    from src.viewer.board import board_export
-    from src.viewer.replay import read_replay
+    from replays.viewer.board import board_export
+    from replays.viewer.replay import read_replay
 
     parser = argparse.ArgumentParser(prog="viewer")
     parser.add_argument("replay", type=Path)
@@ -122,7 +122,7 @@ _viewer-export *args:
 [group("Build")]
 viewer-build:
     mkdir -p ../../build/bin
-    odin build ../../src/viewer -vet -strict-style -warnings-as-errors -debug -out:../../build/bin/viewer
+    odin build ../../replays/viewer -vet -strict-style -warnings-as-errors -debug -out:../../build/bin/viewer
 
 [group("Inspection")]
 viewer *args:

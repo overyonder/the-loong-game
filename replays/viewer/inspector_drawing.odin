@@ -29,7 +29,7 @@ inspector_paragraph :: proc(
 	cursor.y += 27 * font_scale
 	if kind != "" {
 		r := rl.Rectangle{cursor.x, start, width, cursor.y - start}
-		if highlighted(viewer, kind, id) {rl.DrawRectangleLinesEx(r, 2, COLOR_SELECTED)}
+		if highlighted(viewer, kind, id) {rl.DrawRectangleLinesEx(r, 2, UI_ACCENT)}
 		if rl.IsMouseButtonPressed(.LEFT) &&
 		   rl.CheckCollisionPointRec(rl.GetMousePosition(), viewer.inspector_area) &&
 		   rl.CheckCollisionPointRec(rl.GetMousePosition(), r) {toggle_highlight(viewer, kind, id)}
@@ -70,8 +70,7 @@ draw_memory_map :: proc(
 		}
 	}
 	for item in viewer.highlights {
-		if item.kind ==
-		   "cell" {rl.DrawRectangleLinesEx(cell_rectangle(g, item.id), 2, COLOR_SELECTED)}
+		if item.kind == "cell" {rl.DrawRectangleLinesEx(cell_rectangle(g, item.id), 2, UI_ACCENT)}
 	}
 	if rl.IsMouseButtonPressed(.LEFT) &&
 	   rl.CheckCollisionPointRec(rl.GetMousePosition(), viewer.inspector_area) &&
@@ -138,7 +137,7 @@ draw_dragon_inspector :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: 
 			&cursor,
 			width,
 			fmt.tprintf("Regime %s / role %s / target %d", turn.regime, turn.role, turn.target),
-			COLOR_SELECTED,
+			UI_ACCENT,
 			"role",
 			turn.dragon,
 		)
@@ -202,7 +201,7 @@ draw_dragon_inspector :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: 
 				viewer.selected_cell % viewer.game.export.width,
 				viewer.selected_cell / viewer.game.export.width,
 			),
-			COLOR_SELECTED,
+			UI_ACCENT,
 		)
 		known := false
 		directions := "NESW"
@@ -334,7 +333,7 @@ draw_dragon_inspector :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: 
 				ping.reflected ? " REFLECTED" : "",
 				ping.value,
 			),
-			COLOR_SELECTED,
+			UI_ACCENT,
 			"ping",
 			ping.id,
 		)

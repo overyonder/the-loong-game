@@ -1,4 +1,4 @@
-// The viewer's display. src/viewer/recovery.py chooses the game, identifies the
+// The viewer's display. replays/viewer/recovery.py chooses the game, identifies the
 // build that played it, re-runs that build and writes the export this opens:
 //
 //   just viewer latest-loss
@@ -71,6 +71,7 @@ main :: proc() {
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT, .VSYNC_HINT, .WINDOW_HIGHDPI})
 	rl.InitWindow(1600, 960, "Loong viewer")
 	defer rl.CloseWindow()
+	defer if dragon_body_layer.id != 0 {rl.UnloadRenderTexture(dragon_body_layer)}
 	rl.SetExitKey(.KEY_NULL)
 	rl.SetTargetFPS(30)
 

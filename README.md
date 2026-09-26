@@ -14,9 +14,9 @@ algorithms and adapters to the organiser's toolkit.
 | Paired verdict | `just verdict` | `harness/verdict.py` |
 | Map generation | `just mapgen` | `harness/mapgen.py` |
 | Local ladder | `just ladder` | `harness/ladder.py` |
-| Replay sampling | `just sample-replays` | `src/replays/collection.py` |
-| Replay inspection | `just decode` | `src/viewer` |
-| Graphical and headless viewer | `just viewer` | `src/viewer` |
+| Replay sampling | `just sample-replays` | `replays/collection.py` |
+| Replay inspection | `just decode` | `replays/viewer` |
+| Graphical and headless viewer | `just viewer` | `replays/viewer` |
 | Profiling | `just profile`, `just native`, `just native-profile` | `examples/performance/justfile` |
 
 `unseen-maps` runs map generation followed by two evaluations; `ladder-all`

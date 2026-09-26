@@ -18,22 +18,30 @@ initialize_typography :: proc() {
 	)
 	rl.SetTextureFilter(viewer_font.texture, .BILINEAR)
 	rl.GuiSetFont(viewer_font)
-	rl.GuiSetStyle(
-		.DEFAULT,
-		i32(rl.GuiControlProperty.TEXT_COLOR_NORMAL),
-		transmute(i32)u32(0xebdbb2ff),
-	)
-	rl.GuiSetStyle(.DEFAULT, i32(rl.GuiControlProperty.BASE_COLOR_NORMAL), i32(0x1d3027ff))
-	rl.GuiSetStyle(
-		.DEFAULT,
-		i32(rl.GuiControlProperty.BORDER_COLOR_NORMAL),
-		transmute(i32)u32(0x928374ff),
-	)
-	rl.GuiSetStyle(
-		.DEFAULT,
-		i32(rl.GuiControlProperty.TEXT_COLOR_FOCUSED),
-		transmute(i32)u32(0xe8c872ff),
-	)
+	// Paper controls, forest ink, warm focus: no raygui default blue states.
+	properties := [9]rl.GuiControlProperty {
+		.TEXT_COLOR_NORMAL,
+		.BASE_COLOR_NORMAL,
+		.BORDER_COLOR_NORMAL,
+		.TEXT_COLOR_FOCUSED,
+		.BASE_COLOR_FOCUSED,
+		.BORDER_COLOR_FOCUSED,
+		.TEXT_COLOR_PRESSED,
+		.BASE_COLOR_PRESSED,
+		.BORDER_COLOR_PRESSED,
+	}
+	colors := [9]u32 {
+		0x20251fff,
+		0xede5d5ff,
+		0x9caa96ff,
+		0x20251fff,
+		0xe4d8bfff,
+		0x775319ff,
+		0xf3ecdfff,
+		0x1d3027ff,
+		0x1d3027ff,
+	}
+	for property, index in properties {rl.GuiSetStyle(.DEFAULT, i32(property), i32(colors[index]))}
 	rl.GuiSetStyle(.DEFAULT, i32(rl.GuiDefaultProperty.TEXT_SIZE), 18)
 }
 draw_text :: proc(text: cstring, x, y, size: i32, color: rl.Color) {

@@ -34,7 +34,7 @@ def get(self, path: str) -> bytes:
             raise SystemExit(f"{path}: HTTP {error.code}, stopping")
 ```
 
-The current command, `just sample-replays --count 5 --output public-replays`, uses the shared [collection library](../src/replays/collection.py). It makes requests serially, uses a two-second interval by default, respects robots.txt and backs off on throttling and transient server failures. It records downloads in a SQLite manifest and puts replay files under `public-replays/replays/`, so a later run can resume without downloading them again. The screenshot below predates that directory layout.
+The current command, `just sample-replays --count 5 --output public-replays`, uses the shared [collection library](../replays/collection.py). It makes requests serially, uses a two-second interval by default, respects robots.txt and backs off on throttling and transient server failures. It records downloads in a SQLite manifest and puts replay files under `public-replays/replays/`, so a later run can resume without downloading them again. The screenshot below predates that directory layout.
 
 ## A first sample
 
