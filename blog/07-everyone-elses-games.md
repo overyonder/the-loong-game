@@ -1,7 +1,5 @@
 # Everyone else's games
 
-<!-- draft: adfdbf9da4, stage: Building our tooling -->
-
 Every test so far has pitted our bots against our own bots. But the opponents that matter are the other teams, and every game on the public ladder can be downloaded and watched. That makes the ladder's history the best record we have of what strong bots actually do. This post builds the fifth tool on the wishlist, a sampler that downloads a useful sample of those replays, and it's built around one rule above all: the site belongs to the organisers, and fetching from it mustn't add any noticeable load.
 
 ## Where the replays live

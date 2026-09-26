@@ -13,11 +13,13 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 4 | [Better, worse or undecided](04-better-worse-or-undecided.md) | Building our tooling | A paired verdict that says whether a change made the bot better, weighs each game by how much the change ran, and counts every loss to a weak bot. |
 | 5 | [Maps nobody has seen](05-maps-nobody-has-seen.md) | Building our tooling | Generating plausible unseen maps, and the portal blind spot they find in the flood-fill bot. |
 | 6 | [A ladder of our own](06-a-ladder-of-our-own.md) | Building our tooling | Rating every saved version against every other, and checking the pool for rock-paper-scissors circles. |
+| 7 | [Everyone else's games](07-everyone-elses-games.md) | Building our tooling | A polite sampler that downloads the top public replays without loading the organisers' site. |
+| 8 | [Reading a replay](08-reading-a-replay.md) | Building our tooling | Decoding the packed replay format, rebuilding each game turn by turn, and counting how dragons die. |
 | 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, and the first strategy bot. |
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes, each dragon working out its own role by sonar, and the bugs the replays found. |
 | 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it: what worked, what didn't, and every version on one ladder. |
 
-Next up: everyone else's games.
+Next up: through one dragon's eyes.
 
 ## Stages
 

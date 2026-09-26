@@ -1,7 +1,5 @@
 # Reading a replay
 
-<!-- draft: 6f5e08517f, stage: Building our tooling -->
-
 In the [wishlist](01-the-wishlist.md) we opened a replay in a hex viewer and could read the bot names, some scraps of the map, and nothing else. Now that the [sampler](07-everyone-elses-games.md) can fetch other teams' games, that's the next thing to fix. This post builds the sixth tool, a decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment. That last part is the one the debug viewer in the next post depends on.
 
 ## What the bytes are
