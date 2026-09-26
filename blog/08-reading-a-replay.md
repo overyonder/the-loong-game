@@ -32,7 +32,7 @@ get parentBody()  { return $.getList(0, e._ParentBody, this) }
 get childBody()   { return $.getList(1, e._ChildBody, this) }
 ```
 
-Two 32-bit IDs at bytes 0 and 4, two 16-bit enums at 8 and 10, and two list pointers. Writing that down in Cap'n Proto's schema language gives the same layout, and doing it for every class gives the whole format, in [replays/format.capnp](../replays/format.capnp). Nothing in it is guessed from byte patterns. The part that matters most is the event list, a union of every kind of event the engine records:
+Two 32-bit IDs at bytes 0 and 4, two 16-bit enums at 8 and 10, and two list pointers. Writing that down in Cap'n Proto's schema language gives the same layout, and doing it for every class gives the whole format, in [src/viewer/replay.capnp](../src/viewer/replay.capnp). Nothing in it is guessed from byte patterns. The part that matters most is the event list, a union of every kind of event the engine records:
 
 ```capnp
 struct Event {
@@ -47,7 +47,7 @@ struct Event {
 }
 ```
 
-With a schema, the [pycapnp](https://github.com/capnproto/pycapnp) library does the reading, packing included. The decoder, [replays/decode.py](../replays/decode.py), then counts what's inside. Here's a top-rated game from the sample:
+With a schema, the [pycapnp](https://github.com/capnproto/pycapnp) library does the reading, packing included. The decoder, [src/viewer/replay.py](../src/viewer/replay.py), then counts what's inside. Here's a top-rated game from the sample:
 
 ![A terminal running just decode on a public replay: team A vs team B on a 32×32 map, format 2, team A wins after 403 rounds by elimination. It holds 19,512 turnStart and dragonAction events, 19,183 dragonUpdate, 14,473 sonarPing, 1,516 pearlCountdown, 1,291 tileChange, 404 roundStart, 209 dragonSplit and 184 dragonDeath events.](images/replay-decode.png)
 
@@ -91,7 +91,7 @@ def window(self, identifier: int) -> list[tuple[int, int]]:
             for dy in range(-3, 4) for dx in range(-3, 4)]
 ```
 
-A small renderer, [replays/render.py](../replays/render.py), draws any round as a board and can dim everything outside one dragon's window. Here's round 238 of the same public game, from a three-segment dragon in the middle of the map:
+The [Odin viewer](../src/viewer/main.odin) can save its display as a PNG with `just viewer REPLAY --round 238 --dragon 0 --image board.png`. It uses the same renderer as the interactive window, so image output needs a working display and OpenGL context, including when that display runs headlessly. The SVG below was made with the earlier renderer: it shows round 238 of the same public game, from a three-segment dragon in the middle of the map.
 
 ![Round 238 of a public ladder game on a 32×32 map. Everything is dimmed except a 7×7 square around one dragon's head, which holds a few dragons and pearls, part of a room of kelp walls, and several portal edges.](images/replay-window.svg)
 

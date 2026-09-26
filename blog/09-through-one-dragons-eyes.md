@@ -8,7 +8,7 @@ The seventh tool on the wishlist answers that question: a debug viewer that show
 
 ## From replay to viewer
 
-The decoder already rebuilds the board and knows what each dragon could see, so the viewer doesn't need to understand replays at all. A short exporter, [replays/export.py](../replays/export.py), writes out everything it needs as JSON: the map's kelp and portal edges, the true board before every round, and one record for every dragon turn. A turn looks like this:
+The viewer owns replay decoding as well as display. Its [board library](../src/viewer/board.py) reconstructs observations, and the inline export recipe in [just/inspection.just](../just/inspection.just) writes JSON for Odin: the map's kelp and portal edges, the true board before every round, and one record for every dragon turn. A turn looks like this:
 
 ```json
 {"dragon": 0, "team": 0, "round": 129, "head": 199, "length": 86,
@@ -49,22 +49,11 @@ Every string, slice and map in the game ends up in that one arena, including tho
 
 ## What a dragon remembers
 
-To show a dragon's memory, the viewer assumes the best case: that the dragon remembers the last thing it saw in every tile. Our bots don't actually remember anything between turns, so this is an upper bound on what any bot could have known, which is the useful comparison. If a dragon walks into a trap it could have seen coming, the memory view shows it.
+The first viewer accumulated each dragon's visible tiles and faded them after they left its window. That was an estimate of what a bot *could* remember, not a record of what its program retained. The screenshots below show that early view. Their side panels must not be read as recovered bot memory.
 
-```odin
-for index in turns {
-	turn := game.turns[index]
-	if turn.round >= frame do break
-	latest = index
-	for character, offset in turn.window {
-		viewer.memory[window_cell(game, turn.head, offset)] = content_of(character)
-	}
-}
-```
+The current public viewer shows recorded observations and labels that limitation. Recovering a bot's internal state requires its exact build and knowledge of its state format. The private viewer can re-run identified builds over recorded observations and report action mismatches and state-check results; that recovery code and the private bot models are not part of this public release. Even a matching re-run is evidence about the reconstruction, not a memory dump from the original game.
 
-A dragon that split off from another starts with an empty memory, because it's a new process with nothing but its own first window. The viewer gets that right for free, since its turns only begin when it does.
-
-The source is in [viewer/](../viewer/main.odin), about 460 lines across five files, and `just viewer` builds it and opens a replay. Space plays and pauses, the arrow keys step through rounds and change speed, clicking a dragon or pressing Tab selects one, and F cycles the fog between showing everything, fading what the dragon only remembers, and hiding all but its current window.
+The current source is in [src/viewer/](../src/viewer/main.odin). From `examples/tooling`, `just viewer REPLAY --round 130 --dragon 0` builds the Odin display and opens the selected turn. `just viewer REPLAY --no-display --export game.json` exports the observation data without opening a window. The code excerpt above describes the original version-one loader; the current export format is version three.
 
 ## Why chasing pearls kills
 

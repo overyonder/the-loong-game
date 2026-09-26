@@ -103,6 +103,14 @@ The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it con
 
 Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody has tuned it. The hottest parts of a serious bot, like the inner loop of its search, still need hand-optimised C, and hand-written WebAssembly would go further if the judge accepted it. Nim is for writing and changing strategies quickly, and C is for the parts where every point counts.
 
+### The examples and the competition bot
+
+The examples in this series keep that Nim strategy and C helper arrangement.
+The private competition runtime also developed a separate, hand-written C
+policy. Its strategy and results aren't interchangeable with these examples.
+The measurements here compare the supplied example programs; they don't show
+that a whole strategy needs to be rewritten in C.
+
 ### Odin for tools
 
 Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](01-the-wishlist.md) is written in [Odin](https://odin-lang.org). Partly that's because it's good to try new things. Mostly it's because Odin is *very* good at graphics programming, for three reasons that matter to a tool like this.

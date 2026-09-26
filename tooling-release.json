@@ -1,0 +1,135 @@
+{
+  "format_version": 1,
+  "source_repository": "overyonder/the-loong-game-private",
+  "source_base_revision": "8a204745137286538ca0bbbb6d1b713a63591e29",
+  "policy": "Shared files are exact content snapshots; content hashes identify the working-tree source, including uncommitted consolidation changes. Do not evolve public copies independently.",
+  "files": [
+    {
+      "source": "src/viewer/replay.py",
+      "path": "src/viewer/replay.py",
+      "sha256": "8fe9c6839bf5d8a07c6fc3f8f978ec8d7dc40a6514d95c2c35b6e56c761f226d"
+    },
+    {
+      "source": "src/viewer/replay.capnp",
+      "path": "src/viewer/replay.capnp",
+      "sha256": "1a33f9285b3561fd97e8183d11b47004801046b4474d0a3a4fae430dbb2c6200"
+    },
+    {
+      "source": "src/viewer/reconstruction.py",
+      "path": "src/viewer/reconstruction.py",
+      "sha256": "a441e18b1dbeccb72b7a0a8a58c846456e328902cc81551b0a0ff02f95948ab2"
+    },
+    {
+      "source": "src/viewer/observations.py",
+      "path": "src/viewer/observations.py",
+      "sha256": "aca6f41a887aeec04bd0dda89fc2a0496d104a70d9eb1bd3f5b8f4cbcaa81a90"
+    },
+    {
+      "source": "src/viewer/board.py",
+      "path": "src/viewer/board.py",
+      "sha256": "51eb070d9847a0a7c1d18491aaa19b55ca44d19e5307e5b9e4aeb04959910551"
+    },
+    {
+      "source": "src/viewer/inspection.py",
+      "path": "src/viewer/inspection.py",
+      "sha256": "8c649b9b90bef2e8cfea596f37fb54dd70fcefdb162ee1f8a89ebec8991b494b"
+    },
+    {
+      "source": "src/viewer/board_drawing.odin",
+      "path": "src/viewer/board_drawing.odin",
+      "sha256": "7f5fffb0cb9341674fe57c5fa8cd104b6f96867d97598fffb86aeea227a6b654"
+    },
+    {
+      "source": "src/viewer/controls.odin",
+      "path": "src/viewer/controls.odin",
+      "sha256": "0e8c195904781ba64b1637c8959158bbe3fc72d4ae364e43c604f78d9cdad767"
+    },
+    {
+      "source": "src/viewer/game_loading.odin",
+      "path": "src/viewer/game_loading.odin",
+      "sha256": "55a2f1fcf6c900d3a1f90b50e2c5a3ddf229c2f394e97b582d9f9cd7d32d2a8a"
+    },
+    {
+      "source": "src/viewer/inspector_drawing.odin",
+      "path": "src/viewer/inspector_drawing.odin",
+      "sha256": "0e545969608f8ef675c6aa773c865fd12c619ec8138068796a166f2dd70f1c10"
+    },
+    {
+      "source": "src/viewer/main.odin",
+      "path": "src/viewer/main.odin",
+      "sha256": "be41e1135c788f4f1c636b47eeb5fa23098a75e947b91c8621601743df223743"
+    },
+    {
+      "source": "src/viewer/palette.odin",
+      "path": "src/viewer/palette.odin",
+      "sha256": "c4c93c3868a6ee7020f10d0ca0368ef68c8c919fb6cdade3106330f967a711bb"
+    },
+    {
+      "source": "src/viewer/types.odin",
+      "path": "src/viewer/types.odin",
+      "sha256": "5fe29ca155a645e28b91aa21a2c150592d592a5b9679d235bb3211586b180e33"
+    },
+    {
+      "source": "src/replays/collection.py",
+      "path": "src/replays/collection.py",
+      "sha256": "2dcd312f22ac420aa0eeed993d0afad8a3ab256475565cc5f09f141fcc9290d1"
+    },
+    {
+      "source": "just/match.just",
+      "path": "just/match.just",
+      "sha256": "d4d592c3a76f84e178223fccdb0d38b10c555f347963cd163a6d63c7fac47507"
+    },
+    {
+      "source": "evaluation/mapgen.py",
+      "path": "harness/mapgen.py",
+      "sha256": "6e1405c4f0686fb425c0cd579fe76f1a19d3028bcdc7f381b5e0b8f1dd1809f0"
+    },
+    {
+      "source": "just/checks.just",
+      "path": "just/checks.just",
+      "sha256": "8fc1001d8ac9fb301364626667cf2adca5dccbc81cffc75489ede40a6df9d8e5"
+    },
+    {
+      "source": "src/viewer/annotations.odin",
+      "path": "src/viewer/annotations.odin",
+      "sha256": "1411cfb9794f9a6932f7a9ea35cf5fdd6bfdb2a61b03f9db48e6106cca0f98cc"
+    },
+    {
+      "source": "src/viewer/typography.odin",
+      "path": "src/viewer/typography.odin",
+      "sha256": "50bf40acae46945ad15db1bc76ab3a75b5ae62f2fcb28d56ea7f80ba1eede94e"
+    },
+    {
+      "source": "src/viewer/fonts/DejaVuSans.ttf",
+      "path": "src/viewer/fonts/DejaVuSans.ttf",
+      "sha256": "58568c88a01b80dfc056daca3eeafd434a0380df1a48dda53f0de0d716109bbd"
+    },
+    {
+      "source": "src/viewer/fonts/LICENSE",
+      "path": "src/viewer/fonts/LICENSE",
+      "sha256": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93"
+    }
+  ],
+  "historical_evaluation": {
+    "source_repository": "overyonder/the-loong-game",
+    "source_revision": "1d64dd495d84e2b940f5f0c61f97a3e1f7369759",
+    "policy": "Frozen article-era algorithms retain historical seed and statistical policies. Their CLI entrypoints move to Just; recorded article results are not rerun claims.",
+    "files": [
+      {
+        "path": "harness/round_robin.py",
+        "original_sha256": "74ce7925676b673e66061ee139727fbc04844ed9517e70e8a8576e0d877f7b2d",
+        "sha256": "414537fc0776e9ada9ee7a6babce47a2141d1140b86c98b7847e3e4a0737219a"
+      },
+      {
+        "path": "harness/verdict.py",
+        "original_sha256": "4ee16855944bf3aa80381dbac99cbd3cfeee954f7401dd2a6f5b75a8a24a7d52",
+        "sha256": "f49e04ac68d86f7d99513f4a30ffa7d1f8d5eadc95ad33a93e3369ed25e417b3"
+      },
+      {
+        "path": "harness/ladder.py",
+        "original_sha256": "4010690f8be505a32d9debf26fc9c4e894d6d706518e2a0d462f760b22a4e0f8",
+        "sha256": "5967825e97c08c685b1947ff4a6e6032b78176ac907122804b2b68716e05ece3"
+      }
+    ]
+  }
+}

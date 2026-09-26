@@ -14,7 +14,7 @@ The sampler starts from the top of the rating-sorted listing, because the best b
 
 ## Being a good guest
 
-The part that needs care is how the sampler talks to the site, so all of its requests go through one small class:
+The part that needs care is how the sampler talks to the site. This was the original request loop:
 
 ```python
 def get(self, path: str) -> bytes:
@@ -36,9 +36,7 @@ def get(self, path: str) -> bytes:
             raise SystemExit(f"{path}: HTTP {error.code}, stopping")
 ```
 
-It makes one request at a time and waits at least two seconds between them, so it's never busier than a person clicking through the site. Before anything else it reads the site's robots.txt and follows it, including any crawl delay it asks for. If the site answers 429, meaning too many requests, or any 5xx error, the sampler doubles its pause, waits at least as long as the server's `Retry-After` header says, and stays slower for the rest of the run. Any other error stops it outright rather than pressing on. Every request also carries a User-Agent naming the sampler and linking to this series, so if the organisers ever want it to behave differently, they know who to ask.
-
-The sampler also keeps a small manifest of the games it has downloaded. Running it again carries on from where it stopped and never fetches the same replay twice.
+The current command, `just sample-replays --count 5 --output public-replays`, uses the shared [collection library](../src/replays/collection.py). It makes requests serially, uses a two-second interval by default, respects robots.txt and backs off on throttling and transient server failures. It records downloads in a SQLite manifest and puts replay files under `public-replays/replays/`, so a later run can resume without downloading them again. The screenshot below predates that directory layout.
 
 ## A first sample
 

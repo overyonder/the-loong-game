@@ -49,7 +49,7 @@ template profile(part: Part, body: untyped): untyped =
   spent[part] += clockNanoseconds() - started
 ```
 
-The turn loop wraps each of its steps in `profile`, and at the end of every turn logs the totals and resets them. Because the output fee is only charged when the turn ends, each log line reports the previous turn's output. The profiled copy of The choice's Nim bot is in [examples/performance/profiled-bot](../examples/performance/profiled-bot/strategy.nim), and a [short script](../examples/performance/summarise.py) takes the median of every part over a whole game:
+The turn loop wraps each of its steps in `profile`, and at the end of every turn logs the totals and resets them. Because the output fee is only charged when the turn ends, each log line reports the previous turn's output. The profiled copy of The choice's Nim bot is in [examples/performance/profiled-bot](../examples/performance/profiled-bot/strategy.nim), and an [inline Just recipe](../examples/performance/justfile) takes the median of every part over a whole game:
 
 ![A terminal running just profile default, which builds the profiled Nim bot and plays one game on the default map. Over 1,144 turns the medians are: Input 329,448 points, ReadWindow 18,444, ChooseMove 48,657, Output 3,038,645, 5 flood fills, and 3,445,130 points for the whole turn.](images/profile-points.png)
 

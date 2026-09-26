@@ -8,7 +8,7 @@ In the wishlist post, a short fish loop played every bundled map from both sides
 
 The answer is that we're going to be doing this for weeks. Every idea we try for the bot needs testing, and not just against one opponent but against a whole pool of bots, including our own older versions. Running a loop by hand each time and reading results off the terminal gets old fast, and it's easy to lose track of what was run against what. What we really want is to hand over a list of bots, walk away, and come back to a complete record of every game that we can trust and look back through later.
 
-The harness does that. It's a single Python file, [harness/round_robin.py](../harness/round_robin.py), and under the hood it still runs the official `unswbc run` for every game. That matters, because it means every result is exactly what the organisers' own tools would report. We're only automating the tedious part.
+The harness does that. `just round-robin` owns the command workflow, with reusable evaluation code in [harness/round_robin.py](../harness/round_robin.py). Under the hood it still runs the official `unswbc run` for every game. That matters, because it means every result is exactly what the organisers' own tools would report. We're only automating the tedious part.
 
 ## Playing every pairing
 

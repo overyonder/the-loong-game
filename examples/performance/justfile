@@ -1,4 +1,6 @@
 # Recipes from the profiling and performance posts. Run `just setup` in ../tooling first.
+import "../../just/checks.just"
+python := env("LOONG_PYTHON", "python3")
 tooling := "../tooling"
 
 # Copy the toolkit's helper into a Nim bot here and compile it to C.
@@ -11,13 +13,13 @@ nim-bot name:
 profile map="arena":
     just nim-bot profiled-bot
     unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/{{map}}.map profiled-bot {{tooling}}/starter-c \
-        | python3 summarise.py
+        | just _profile-report
 
 # Every room-counting kernel on the same windows, in CPU points.
 bench map="arena":
     just nim-bot bench-bot
     unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/{{map}}.map bench-bot {{tooling}}/starter-c \
-        | python3 summarise.py
+        | just _profile-report
 
 # The same kernels natively, on windows recorded from real games, under perf.
 native kernel="components":
@@ -41,7 +43,7 @@ native-profile kernel="queue":
 bench-maps:
     just nim-bot bench-bot
     for map in arena default Colosseum trophy big_empty stronghold; do unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/$map.map bench-bot {{tooling}}/starter-c | grep "LOG bench"; done > bench-six-maps.log
-    python3 summarise.py < bench-six-maps.log
+    just _profile-report < bench-six-maps.log
     python3 ../../tools/kernel_chart.py bench-six-maps.log ../../blog/images/room-kernels.svg
 
 # Compile the Rake mask kernel to C for the bench bot. Needs rakec from Rake's wasm-simd128 branch.
@@ -56,3 +58,24 @@ machine:
     clang -O2 -I machine-bot native/machine.c machine-bot/experiments.c -o native/machine
     native/machine > machine-native.log
     cat machine-judge.log machine-native.log
+
+# Profiling output adapter, shared by all point-benchmark recipes.
+[private]
+_profile-report:
+    #!/usr/bin/env -S {{quote(python)}}
+    import re
+    import statistics
+    import sys
+
+    values = {}
+    turns = 0
+    for line in sys.stdin:
+        if "LOG profile" not in line and "LOG bench" not in line:
+            continue
+        turns += 1
+        for name, value in re.findall(r"(\w[\w-]*)=(\d+)", line):
+            values.setdefault(name, []).append(int(value))
+    width = max(map(len, values), default=0)
+    for name, numbers in values.items():
+        print(f"{name:<{width}}  {statistics.median(numbers):>12,.0f}")
+    print(f"{turns} turns")

@@ -1,6 +1,4 @@
-"""Generate plausible symmetric maps, for testing a bot on maps it has never seen.
-
-    python3 -m harness.mapgen --count 20 --seed 2026 --output maps/generated
+"""Generate plausible symmetric maps for held-out evaluation.
 
 The generator follows the official map-file format and the conventions of the
 maps seen on the public ladder: `SYMMETRY y` mirrors x, `SYMMETRY x` mirrors y,
@@ -8,11 +6,13 @@ maps seen on the public ladder: `SYMMETRY y` mirrors x, `SYMMETRY x` mirrors y,
 their geometry is symmetric but pearl countdowns are not shared.
 """
 
-import argparse
 import random
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_OUTPUT = ROOT / "maps" / "generated"
 
 # An edge is ("N", x, y), the north side of tile (x, y), or ("W", x, y), its west
 # side. The south and east borders are the wrapped north and west borders.
@@ -112,7 +112,7 @@ def destination_after_move(
     portal_id = layout.portals[edge]
     partner = next(e for e, i in layout.portals.items() if i == portal_id and e != edge)
     # Crossing a portal leaves through the partner edge in the same direction.
-    side, x, y = partner
+    _side, x, y = partner
     if direction == "N":
         return (x, (y - 1) % layout.height)
     if direction == "S":
@@ -230,12 +230,19 @@ def add_kelp_maze(layout: GeneratedMap, generator: random.Random) -> None:
             stack.pop()
             continue
         d, nx, ny = generator.choice(options)
-        wall = {"E": ("E", cx, cy), "S": ("S", cx, cy), "W": ("E", nx, ny), "N": ("S", nx, ny)}[d]
+        wall = {
+            "E": ("E", cx, cy),
+            "S": ("S", cx, cy),
+            "W": ("E", nx, ny),
+            "N": ("S", nx, ny),
+        }[d]
         walls.discard(wall)
         seen.add((nx, ny))
         stack.append((nx, ny))
     # Open some extra walls so the maze has loops, as ladder mazes do.
-    for wall in generator.sample(sorted(walls), len(walls) // generator.choice([4, 6, 10])):
+    for wall in generator.sample(
+        sorted(walls), len(walls) // generator.choice([4, 6, 10])
+    ):
         walls.discard(wall)
     for kind, cx, cy in walls:
         for offset in range(cell):
@@ -434,7 +441,9 @@ def assign_structured_food(
         # A handful of scattered, slow spawns; the game turns on starting length.
         for tile in generator.sample(tiles, min(len(tiles), generator.randint(0, 6))):
             spawn = generator.choice(SPAWN_RANGES_LATE + [(1, 2559)])
-            layout.spawn_ranges[tile] = layout.spawn_ranges[mirror_tile(layout, tile)] = spawn
+            layout.spawn_ranges[tile] = layout.spawn_ranges[
+                mirror_tile(layout, tile)
+            ] = spawn
         return
     across = layout.symmetry == "x"
     size = layout.height if across else layout.width
@@ -459,7 +468,9 @@ def assign_structured_food(
     # Occasional late surprises anywhere.
     late = generator.choice(SPAWN_RANGES_LATE)
     for tile in generator.sample(tiles, min(len(tiles), generator.randint(0, 8))):
-        layout.spawn_ranges[tile] = layout.spawn_ranges[mirror_tile(layout, tile)] = late
+        layout.spawn_ranges[tile] = layout.spawn_ranges[mirror_tile(layout, tile)] = (
+            late
+        )
 
 
 def starting_lengths(
@@ -469,7 +480,8 @@ def starting_lengths(
     kind = generator.choices(["equal", "flagship", "mixed"], weights=[50, 35, 15])[0]
     if kind == "mixed":
         return sorted(
-            (generator.choice([3, 5, 7, 8, 12, 16]) for _ in range(per_team)), reverse=True
+            (generator.choice([3, 5, 7, 8, 12, 16]) for _ in range(per_team)),
+            reverse=True,
         )
     base = generator.choice([3, 3, 4, 4, 5, 6])
     if kind == "equal":
@@ -524,9 +536,7 @@ def generate_map(generator: random.Random, name: str) -> GeneratedMap:
         lengths = starting_lengths(generator, per_team, len(playable) // 2)
         if not place_dragons(layout, generator, playable, len(lengths), lengths):
             continue
-        assign_spawn_ranges(
-            layout, generator, playable, generator.choice(FOOD_LAYOUTS)
-        )
+        assign_spawn_ranges(layout, generator, playable, generator.choice(FOOD_LAYOUTS))
         return layout
 
 
@@ -552,27 +562,3 @@ def serialise_map(layout: GeneratedMap) -> str:
         lines.append(f"DRAGON {team} {len(body)} {coordinates}")
     lines.append("END")
     return "\n".join(lines) + "\n"
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--count", type=int, default=20)
-    parser.add_argument("--seed", type=int, default=2026)
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
-    generator = random.Random(args.seed)
-    args.output.mkdir(parents=True, exist_ok=True)
-    for number in range(1, args.count + 1):
-        layout = generate_map(generator, f"Generated {args.seed}-{number:02d}")
-        path = args.output / f"gen_{args.seed}_{number:02d}.map"
-        path.write_text(serialise_map(layout))
-        print(
-            f"{path}: "
-            f"{layout.width}x{layout.height} symmetry={layout.symmetry} "
-            f"kelp={len(layout.kelp)} portal_edges={len(layout.portals)} "
-            f"dragons={len(layout.dragons)}"
-        )
-
-
-if __name__ == "__main__":
-    main()

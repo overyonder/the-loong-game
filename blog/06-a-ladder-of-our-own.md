@@ -30,7 +30,7 @@ def fit_ratings(bots: list[str], scores: dict[tuple[str, str], float], iteration
 
 Each pass nudges every bot's strength towards the value that would make its expected score match the points it actually scored, and after enough passes nothing moves. A draw counts as half a win for each side. The `0.5` and the extra `1 / (strength + 1)` add one imaginary draw against an average bot. Without it, a bot that won every game would have no finite rating, because no strength would ever be high enough. The last line puts the ratings on the familiar Elo scale, with the average bot at 1500.
 
-The tool is [harness/ladder.py](../harness/ladder.py). It schedules the round robin through the same harness as before, then fits the ratings and prints them next to the head-to-head results.
+The command is `just ladder`, with the rating model in [harness/ladder.py](../harness/ladder.py). It schedules the round robin through the same harness as before, then fits the ratings and prints them next to the head-to-head results.
 
 ## The first ladder
 
@@ -49,6 +49,8 @@ The pearl-chasing bot sits about 140 points below them, which predicts that it w
 The head-to-head table is there for a reason besides checking the ratings. A single number per bot assumes the pool is ordered, that if A beats B and B beats C, then A beats C. The rock-paper-scissors diagram showed how that can fail. When it does, the table shows it plainly: a lower-rated bot will have a winning record against one above it, and the ratings will be squeezed together to average over the circle.
 
 There's no such circle here. The only upset is between the two starters, where starter-c won 34–32 despite rating 32 points lower, and a two-game margin between two random walkers is a coin toss. Every other bot has a winning record against every bot rated below it. That's reassuring, but it's also a small pool of simple bots. The check matters more as the pool fills with versions of our own bot that differ in subtler ways, and from now on every saved version can join the ladder and be rated against all of them.
+
+This public fixture retains the fitted rating model used for these measurements. The private running ladder now uses streaming Elo; its ratings are not interchangeable with the historical values here. The release boundary is recorded in [the tooling manifest](../tooling-release.json).
 
 ## Next up
 

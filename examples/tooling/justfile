@@ -1,9 +1,15 @@
-# Recipes from the tooling posts. Run `just setup` once, then any recipe.
+import "../../just/checks.just"
+# Article workflows. Just owns commands; imported Python modules are libraries.
+set positional-arguments
 export PYTHONPATH := justfile_directory() / ".." / ".."
-# The replay tools need pycapnp; point LOONG_PYTHON at a Python that has it.
-python := env_var_or_default("LOONG_PYTHON", "python3")
+python := env("LOONG_PYTHON", "python3")
+import '../../just/evaluation.just'
+import '../../just/inspection.just'
+import '../../just/match.just'
 
-# Starter bots, the flood-fill bots from "The choice", and the toolkit's helper files.
+default:
+    @just --list
+
 setup:
     unswbc maps
     unswbc init c starter-c
@@ -14,94 +20,52 @@ setup:
     cp starter-c/helper.c starter-c/helper.h room-pearls/
     cp starter-py/helper.py room-py/
 
-# Four bots, every map, both sides, two seeds each.
-round-robin:
-    python3 -m harness.round_robin --bots starter-c starter-py room-c room-py \
-        --maps maps/*.map --seeds 2 --output results/round-robin
-
-# Is the candidate better than the baseline it changes? Name the changed behaviour to weigh games by it.
-verdict candidate baseline *behaviour:
-    python3 -m harness.verdict --candidate {{candidate}} --baseline {{baseline}} \
-        {{ if behaviour == "" { "" } else { "--behaviour " + behaviour } }} \
-        --maps maps/*.map --seeds 4 --output results/{{candidate}}-vs-{{baseline}}
-
-# The same pairing on the bundled maps and on 20 generated ones.
-unseen-maps:
-    python3 -m harness.mapgen --count 20 --seed 2026 --output maps-generated
-    python3 -m harness.round_robin --bots room-c starter-c \
-        --maps maps/*.map --seeds 2 --output results/bundled-maps
-    python3 -m harness.round_robin --bots room-c starter-c \
-        --maps maps-generated/*.map --seeds 2 --output results/generated-maps
-
-# Build the first strategy bot from "The shape of the problem" and test it against the flood-fill bot.
 first-bot:
     rm -rf first-bot && cp -r ../first-bot first-bot
     cp starter-c/helper.c starter-c/helper.h first-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" first-bot/
     nim c first-bot/strategy.nim
-    python3 -m harness.verdict --candidate first-bot --baseline room-c \
+    just verdict --candidate first-bot --baseline room-c \
         --maps maps/*.map maps-generated/*.map --seeds 4 --output results/first-bot
 
-# Build the roles bot from "Roles" and test it against the first bot.
 roles:
     rm -rf roles-bot && cp -r ../roles-bot roles-bot
     cp starter-c/helper.c starter-c/helper.h roles-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" roles-bot/
     nim c roles-bot/strategy.nim
-    python3 -m harness.verdict --candidate roles-bot --baseline first-bot \
+    just verdict --candidate roles-bot --baseline first-bot \
         --maps maps/*.map maps-generated/*.map --seeds 2 --output results/roles
 
-# Build the tactics bot from "Tactics" and test it against the roles bot.
 tactics:
     rm -rf tactics-bot && cp -r ../tactics-bot tactics-bot
     cp starter-c/helper.c starter-c/helper.h tactics-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" tactics-bot/
     nim c tactics-bot/strategy.nim
-    python3 -m harness.verdict --candidate tactics-bot --baseline roles-bot --behaviour Coil Forage \
+    just verdict --candidate tactics-bot --baseline roles-bot --behaviour Coil Forage \
         --maps maps/*.map maps-generated/*.map --seeds 4 --output results/tactics
 
-# Copy one of the Nim example bots next to the toolkit's helper and compile it to C.
 nim-bot name:
     rm -rf {{name}} && cp -r ../{{name}} {{name}}
     cp starter-c/helper.c starter-c/helper.h {{name}}/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" {{name}}/
     nim c {{name}}/strategy.nim
 
-# The Nim flood-fill bot from "The choice", built next to the others.
 room-nim:
     rm -rf room-nim && cp -r ../the-choice/nim room-nim
     cp starter-c/helper.c starter-c/helper.h room-nim/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" room-nim/
     nim c room-nim/strategy.nim
 
-# Rate every bot we have so far against every other, on the bundled and generated maps.
-ladder: room-nim
-    python3 -m harness.ladder --bots starter-c starter-py room-c room-py room-nim room-pearls \
-        --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder
-
-# The ladder again at the end of the tactics stage, with the strategy bots.
 ladder-all:
     just nim-bot first-bot
     just nim-bot roles-bot
     just nim-bot tactics-bot
-    python3 -m harness.ladder --bots starter-c room-c room-pearls first-bot roles-bot tactics-bot \
+    just ladder --bots starter-c room-c room-pearls first-bot roles-bot tactics-bot \
         --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder-all
 
-# Download a few of the highest-rated public replays, gently, into public-replays/.
-sample-replays count="5":
-    @{{python}} -m replays.sample --count {{count}} --output public-replays
-
-# What's inside a replay: the players, the result, and every kind of event it records.
-decode +replays:
-    @{{python}} -m replays.decode {{replays}}
-
-# How the flood-fill bot and its pearl-chasing version died, across their ladder games.
-deaths:
-    @{{python}} -m replays.decode --deaths results/ladder/replays/*room-c-vs-room-pearls* \
-        results/ladder/replays/*room-pearls-vs-room-c*
-
-# Build the debug viewer and open a replay in it, optionally at a round and a dragon.
-viewer replay round="0" dragon="-1":
-    @{{python}} -m replays.export {{replay}} --output /tmp/loong-viewer.json
-    odin build ../../viewer -out:../../build/loong-viewer
-    ../../build/loong-viewer /tmp/loong-viewer.json {{round}} {{dragon}}
+unseen-maps:
+    just mapgen --count 20 --seed 2026 --output maps-generated
+    just round-robin --bots room-c starter-c \
+        --maps maps/*.map --seeds 2 --output results/bundled-maps
+    just round-robin --bots room-c starter-c \
+        --maps maps-generated/*.map --seeds 2 --output results/generated-maps

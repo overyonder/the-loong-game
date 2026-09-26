@@ -53,7 +53,16 @@ def generate_map(generator: random.Random, name: str) -> GeneratedMap:
         return layout
 ```
 
-It's also seeded, so `--seed 2026` gives the same 20 maps every time, and anyone can reproduce these results:
+Run the generator from `examples/tooling`:
+
+```sh
+just mapgen --count 20 --seed 2026 --output maps-generated
+```
+
+The seed reproduces the same maps with the same generator version. The current
+source is a frozen copy of the private generator, identified in
+[the release manifest](../tooling-release.json). The figures below retain the
+article's original experiment; they haven't been regenerated with that snapshot:
 
 ![Twenty generated maps, drawn as boards with their kelp, portals and starting dragons. They range from a narrow 10×8 map to 64×64, with open maps, mazes and walled rooms.](images/generated-maps.svg)
 

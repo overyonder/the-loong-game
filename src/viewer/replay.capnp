@@ -1,12 +1,9 @@
 @0xbeefbeefdead1234;
-# The replay format, written out from the Cap'n Proto classes generated inside the
-# official replay viewer (replay-viewer.vsix, installed by `unswbc vscode`). Field
-# numbers follow those classes; nothing here is guessed from byte offsets.
-
+# Field order reconstructed from the generated classes in unswbc 1.0.1's
+# replay-viewer.vsix. Keep this schema tied to that artifact, not guessed offsets.
 enum Team { a @0; b @1; }
 enum Direction { north @0; east @1; south @2; west @3; }
 struct Point { x @0 :Int32; y @1 :Int32; }
-
 struct PlayerAction { union { move @0 :List(Direction); split @1 :Int32; suicide @2 :Void; } }
 struct RoundStart { round @0 :Int32; }
 struct TurnStart { id @0 :Int32; }
@@ -26,7 +23,6 @@ struct SonarPing {
   union { noHit @5 :Void; hitId @6 :Int32; }
   value64 @7 :UInt64; hitKind @8 :UInt16;
 }
-
 struct Event {
   union {
     roundStart @0 :RoundStart; turnStart @1 :TurnStart;
@@ -37,12 +33,10 @@ struct Event {
     dragonSplit @10 :DragonSplit; dragonDeath @11 :DragonDeath; sonarPing @12 :SonarPing;
   }
 }
-
 struct TeamStanding { dragonCount @0 :Int32; longestDragon @1 :Int32; totalLength @2 :Int32; }
 struct GameResult {
   terminated @0 :Bool; endReason @1 :UInt16;
   union { noWinner @2 :Void; winner @3 :Team; }
   teamA @4 :TeamStanding; teamB @5 :TeamStanding;
 }
-
 struct Replay { map @0 :Text; botA @1 :Text; botB @2 :Text; events @3 :List(Event); result @4 :GameResult; formatVersion @5 :UInt32; }
