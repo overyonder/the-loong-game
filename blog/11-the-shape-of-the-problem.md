@@ -1,96 +1,83 @@
 # The shape of the problem
 
-With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. The short version is that this game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises an agent's decisions, and picks one for our first strategy bot.
+> **Editor's note, 28 September 2026.** This post has been rewritten to be shorter and to match how our bots are built now. The example bots were restructured into a repertoire of behaviour modules. They play exactly the same games as before, so the results stand.
+
+With the tools in place, the series turns to strategy. First it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. The short answer is that this game rewards bots that are well organised and easy to change, far more than raw compute or generated code.
 
 ## Not a problem to grind
 
-When a game has a fixed simulator and a clear score, it's tempting to throw compute at it: generate thousands of candidate bots, play them against each other on a GPU for a week, and keep whatever wins. That works when the thing you're optimising against holds still. In Battlecode, very little does, for four reasons.
+With a fixed simulator and a clear score, it's tempting to generate thousands of candidate bots and keep whatever wins. That works when the target holds still, and here almost nothing does. Teams upload new bots twelve times an hour. Every tournament map will be new. The rules changed on 25 September, when matches started seeding pearls randomly and more than 20 teams' hardcoded pearl schedules stopped working overnight. And each dragon sees only a 7×7 window, with sonar as its only link to its team.
 
-- **The opponents change.** Every team on the ladder can upload a new bot twelve times an hour. A bot trained to beat this week's field is tuned for opponents that won't exist at the tournament.
-- **The maps change.** Every Sprint, Qualifier and Grand Final map will be new. The [map generator post](05-maps-nobody-has-seen.md) showed how a bot that looks solid on the bundled maps can have a blind spot the moment the boards change.
-- **The rules change.** Until 25 September every match on a map used the same pearl schedule, and more than 20 teams hardcoded those schedules. Toolkit 1.1.0 and the judge now seed each match randomly, and all of that tuning stopped working overnight.
-- **Each dragon sees very little.** A dragon sees a 7×7 window, can't see through portals, and shares nothing with its teammates except sonar. Much of the state that matters is hidden.
+I learned this the expensive way. Early on I tuned a bot's decision weights with an evolutionary optimiser against a fixed set of opponents on two maps. The five best bots it produced each won only 1 to 3 of 11 games against a bot that moves at random. They had learned to beat their training opponents, and little else.
 
-I learned this the expensive way. Early on I tuned a bot's decision weights with an evolutionary optimiser, playing each candidate against a fixed set of opponents on two maps. The five best bots it produced were then each played against a bot that moves at random, and each won only 1 to 3 of its 11 games. They had learned to beat the opponents they trained against, and not much else.
+Handing the game to an AI model has the opposite problem. It produces a decent bot quickly, but every team has the same models, and the ladder fills with bots that look alike and mostly beat each other at random.
 
-## Not a problem to hand to a model
+So the first real strategic choice is the bot's architecture: how its decisions are organised, so that when a dragon does something stupid we can see why, fix that one behaviour, and prove with the [verdict](04-better-worse-or-undecided.md) that the fix helped. In the terms of Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)*, this environment is partially observable, multi-agent in two directions at once, and unknown, with a hard compute budget on every decision. All of that favours behaviour we can inspect and adjust.
 
-The opposite temptation is to describe the game to an AI model and ask it for a bot. That can produce a decent bot quickly. But every team has the same models, and the ladder will be full of bots written that way. They'll look similar and play similarly, and they'll mostly beat each other at random. The teams at the top will be the ones doing something the obvious bot doesn't: noticing what the others do, exploiting a rule the others missed, or building a bot that holds up on maps and opponents it hasn't met.
+## A menu of architectures
 
-## Adaptive problems need structure
-
-Put together, this is an adaptive, adversarial problem. The opponents, the maps and even the rules shift, and each agent acts on partial information. Problems like that reward bots that can be understood and changed quickly. When a dragon does something stupid, we need to see why, fix that one behaviour, and prove with the [verdict tool](04-better-worse-or-undecided.md) that the fix helped, without breaking everything else.
-
-That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
-
-There's a standard way to think about this. Chapter 2 of Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* describes environments by a handful of properties and shows how each one changes what a good agent looks like. A few of them describe Battlecode especially well.
-
-It's *partially observable*: a dragon only sees its 7×7 window, so it has to act on an incomplete picture and remember what it can. It's *multi-agent*, and in two ways at once, competing against the other team while cooperating with its own dragons, which can't share memory. And it's *unknown* in the book's sense: the maps and opponents we'll face at the tournament aren't the ones we can test against now. On top of all that, every decision has a hard compute budget. Each of those properties pushes towards bots whose behaviour we can inspect and adjust, rather than ones tuned blindly for the conditions we happen to see today.
-
-## A menu of control architectures
-
-Game AI has settled on a handful of ways to organise an agent's decisions. This list isn't exhaustive, and real bots often mix them. For a fuller survey, the free chapter *[Behavior Selection Algorithms: An Overview](http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter04_Behavior_Selection_Algorithms.pdf)* from *Game AI Pro* covers most of them with examples.
+Game AI has settled on a handful of ways to organise an agent's decisions, and real bots often mix them. The free *Game AI Pro* chapter *[Behavior Selection Algorithms](http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter04_Behavior_Selection_Algorithms.pdf)* covers most of them with examples.
 
 | Architecture | How it decides | Strengths | Weaknesses |
 | --- | --- | --- | --- |
-| **Finite-state machine** | The agent is in one state, such as feeding or fleeing, and fixed transitions move it between states. | Simple, cheap and easy to trace. | Transitions multiply as states are added. |
-| **Hierarchical state machine** | States contain sub-states, and shared transitions live on the parent. | Scales to more behaviours and keeps related logic together. | Still hand-authored, and a state change can hide a mistake. |
-| **Behaviour tree** | A tree of priorities and sequences is re-evaluated from the root each turn. | Modular and reactive. Branches are reusable. | Priorities are fixed in the tree's shape, and deep trees get hard to read. |
-| **State tree** | Hierarchical states whose selection works like a behaviour tree, as in Unreal Engine's StateTree. | Combines a state machine's memory with a tree's reactive selection. | Newer, with fewer published patterns. |
-| **Utility system** | Every option gets a score, and the best one wins. | Handles trade-offs smoothly and degrades gracefully. | Scores need tuning, and odd choices are hard to explain. |
-| **Goal-oriented planning (GOAP)** | A planner searches for a sequence of actions that reaches a goal. | Finds novel combinations of actions. | Planning costs compute every time the world changes. |
-| **Hierarchical task network (HTN)** | Tasks break down into subtasks using authored methods. | Plans with the designer's knowledge built in. | The methods take a lot of authoring. |
-| **Search** | Minimax or Monte Carlo tree search looks ahead over possible moves. | Strong when the model of the game is good and the budget allows. | Hidden information and many agents make the tree huge. |
-| **Learned policy** | A trained model maps what the agent sees to an action. | Can find patterns nobody wrote down. | Needs a stable environment and lots of data. |
+| **State machine** | The agent is in one state, and transitions move it between states. Hierarchical versions nest states inside states. | Simple, cheap and easy to trace. | Transitions multiply as states are added. |
+| **Behaviour tree** | A tree of priorities and sequences, re-evaluated from the root each turn. | Modular and reactive. | Priorities are fixed in the tree's shape. |
+| **Utility system** | Every option gets a score, and the best one wins. | Handles trade-offs smoothly. | Scores need tuning, and odd choices can be hard to explain. |
+| **Subsumption** | Layers of reactive control, where higher layers override lower ones. | Several behaviours act at once, and reflexes win. | Hard to plan with. |
+| **Belief, desire, intention** | Desires compete, and the chosen one becomes an intention held until it's done or impossible. | Commitment, so the agent doesn't dither. | Deciding when to drop an intention is subtle. |
+| **Goal-oriented planning** | A planner searches for actions that reach a goal. | Finds new combinations of actions. | Replanning costs compute whenever the world changes. |
+| **Hierarchical task network** | Tasks break down into subtasks by authored methods. | Plans with the designer's knowledge built in. | The methods take a lot of authoring. |
+| **Search** | Minimax or Monte Carlo tree search looks ahead over moves. | Strong with a good model and budget. | Hidden information and many agents make the tree huge. |
+| **Learned policy** | A trained model maps what the agent sees to an action. | Finds patterns nobody wrote down. | Needs a stable environment and lots of data. |
 
-## What we're building
+We don't have to pick one and live with it. The trick is to write the bot so that the architecture can be swapped.
 
-Everything above points the same way. The dragon has to decide from its own limited view, and we have to be able to find and fix bad behaviour quickly as the game and the opponents change. So our first strategy bot is a small **hierarchical state machine with scored moves inside each state**:
+## A repertoire, not a bot
 
-![The first bot's structure. Each turn, the dragon reads its 7×7 window. A safety layer removes moves into kelp, portals, bodies and tiles next to an enemy head. A mode is then chosen from what's visible: Roam when nothing threatens, Evade when an enemy head is within two tiles. The chosen mode's behaviour scores the remaining moves, and the best one is sent.](images/first-bot-architecture.svg)
+I keep a reference layout that sorts code by what kind of thing it is, the way a textbook would. Here is the whole of that repertoire. Most files start as pseudocode notes on a technique, and a dot marks the ones a bot has needed enough to implement:
 
-- **A safety layer** that no mode can overrule. It removes any move into kelp, a dragon's body, or a portal. Vision doesn't reach through portals, so a portal is only taken when there's nothing else. It also avoids tiles next to an enemy head, because dragons move in turn and a head-to-head collision kills both.
-- **Modes**, chosen fresh each turn from what the dragon can see. The first version has two. It **roams** when nothing threatens it, keeping the most room, as the flood-fill bot did. It **evades** when an enemy head is within two tiles, trading a little room for distance.
-- **Scores inside each mode**, so each mode can weigh its own trade-offs without adding more states.
+![Every file in my reference repertoire, in four folders. data_structures holds sixteen structures from array to tree. decision_architectures holds ten, from behaviour_tree to utility_ai. techniques is sorted by family: caching, constraints, control, dynamic_programming, evaluation, game_theory, inference, learning, optimisation, planning, sampling, search and sorting. games/loong holds agent, htn, utility and world, and a behaviours folder with escape, explore, forage and pursue_enemy. Dots mark the thirteen implemented modules: the behaviour tree, decision context, hierarchical state machine and utility AI, the hierarchical task network planner, and everything in games/loong.](images/kieran-repertoire.svg)
 
-Each part stays small enough to read, and each new behaviour arrives as a new mode or a change to one score. The verdict tool can test every change on its own.
+The categories set what may depend on what. Data structures, architectures and techniques are generic over their context and action types, and know nothing about this game. Only `games/loong/` does: it holds the world model, movement, the turn loop, one adapter per architecture, and one module per behaviour.
 
-## Inside the code
+A behaviour module owns everything about one behaviour: when it's eligible, what it's worth and how it's carried out. It offers itself to each architecture through a thin factory. A bot is then assembly only, a short list of behaviours handed to an architecture. Here are two of my reference bots, built from the same four behaviours:
 
-The bot is written in Nim, as [The choice](02-the-choice.md) planned, and compiled to C for the judge. All of it lives in one file, [examples/first-bot/strategy.nim](../examples/first-bot/strategy.nim), and the file is laid out the same way as the diagram. Here's the whole file as an editor minimap, with each part boxed in the colour it has in the diagram:
+![Two strategy files. k_utility/strategy.nim imports the utility adapter and four behaviours, explore, forage, pursue_enemy and escape, and runs utility.run with each behaviour's utilityBehaviour factory, a score or weight for each, and a switching margin of 2. k_HTN/strategy.nim imports the HTN adapter and the same four behaviours, and runs htn.run with each behaviour's htnMethod factory, escape as an interrupt when trapped, and at most 256 expansions.](images/composition-assembly.png)
 
-![A code map of the first bot's strategy.nim, drawn as an editor minimap with coloured boxes. After the folded C helper bindings, the largest block reads the window and flood-fills it. Below it are a short safety layer, the Roam and Evade behaviours as two small procs, the state machine with a Roam socket and an Evade socket inside it, and the turn loop at the end.](images/first-bot-code-map.svg)
+Nothing in either file knows how a behaviour works, and nothing in a behaviour knows which architecture will pick it. Our competition bot is built the same way on our own repertoire. Its main line selects behaviours by utility, with a margin that keeps a dragon on its current task until something clearly better turns up. Alongside it, experimental bots assemble the same behaviours under goal-oriented planning, subsumption, and belief, desire and intention. Each behaviour carries a factory for every architecture that uses it:
 
-Most of the file is the same work the flood-fill bot did: reading the 7×7 window and counting how much room each move leaves. The parts that make it a state machine are short, and that's deliberate. Each one is small enough to read in a few seconds, which is what makes a bad decision quick to track down.
+![Our escape behaviour, escape.nim, with boxes over each part. whenTrapped is its eligibility: fewer safe single steps than a minimum. execute is its execution: move away from the nearest enemy head, sprinting. Then one factory per architecture: utilityBehaviour builds a utility definition from the eligibility, a fixed score and the execution; subsumptionLayer builds a layer that takes over the whole intent; bdiDesire builds a desire that interrupts the current intention and resumes it once safe; and goapGoal and goapAction build a survival goal and an escape step for the planner.](images/composition-behaviour.png)
 
-The state machine is the frame the behaviours plug into. `chooseMode` decides which state the dragon is in this turn, and `score` has one socket for each mode: a branch of the `case` that hands the move over to that mode's behaviour.
+This is what keeps the bot loosely coupled and cheap to experiment with. Changing a bot means editing a list. Trying a new architecture means writing one generic module, one adapter, and a factory in each behaviour it needs, and every existing behaviour is then available to it. Two more rules keep the pieces honest. Hard constraints, such as illegal or fatal moves, are filtered out before anything is scored, so no behaviour's enthusiasm can outweigh a wall. And each behaviour judges moves by its own objective, instead of one global weighted sum where a role only changes the weights.
 
-![The state machine in strategy.nim, lines 118 to 131. The Mode type lists Roam and Evade. chooseMode returns Evade when an enemy head is within two tiles, and Roam otherwise. score takes the first step of a move and, in a case statement on the mode, hands it to w.roam in the Roam socket or w.evade in the Evade socket.](images/first-bot-code-frame.png)
+## The first strategy bot
 
-Each behaviour is a proc that takes a candidate first move and returns how good it is. Roam only asks how much room the move leaves, which is exactly what the flood-fill bot did:
+Our first example bot is built the same way, on a small repertoire in [examples/repertoire](../examples/repertoire/games/loong/hsm.nim). Its architecture is a hierarchical state machine, entered from the root every turn: the first behaviour whose guard holds takes the turn.
 
-![The roam behaviour, lines 106 to 108: it returns w.room(first).](images/first-bot-code-roam.png)
+![The first bot's structure. Each turn the dragon reads its 7×7 window. A state machine enters the first behaviour whose guard holds: Evade, when an enemy head is within two tiles, with the objective room plus four times the gap to the head; or Roam, with no guard and the objective room left. Movement first drops steps into kelp, bodies, portals and tiles next to an enemy head, then takes the best remaining step by the behaviour's objective.](images/first-bot-architecture.svg)
 
-Evade starts from the same room score and adds four points for every tile between the move and the nearest enemy head, so it will give up a little room to get away:
+The whole bot is its assembly:
 
-![The evade behaviour, lines 110 to 114: it finds the smallest distance from the move to any enemy head, starting from the window size, and returns w.room(first) plus four times that gap.](images/first-bot-code-evade.png)
+![examples/first-bot/strategy.nim: it imports the hsm adapter and the evade and roam behaviours, and runs hsm.run with a root holding evade.hsmState(within = 2) and roam.hsmState().](images/first-bot-strategy.png)
 
-Adding a new behaviour later means writing one more proc like these, adding its mode, and plugging it into a new socket. Nothing else in the file has to change. And whichever behaviour is in charge, it only chooses among the moves the safety layer lets through, unless there's no safe move left at all:
+Each behaviour is one short module. Evade keeps room and opens the gap to the nearest enemy head, and its factory adds the guard that decides when it applies:
 
-![The safety layer, lines 93 to 102. nextToEnemyHead checks whether a tile is within one tile of any enemy head. safeMoves keeps each first move that is open, not into a body, and not next to an enemy head.](images/first-bot-code-safety.png)
+![examples/repertoire/games/loong/behaviours/evade.nim. Its objective returns the room a step leaves plus four times the gap from the step to the nearest enemy head. Its hsmState factory builds a state named Evade that applies when an enemy head is within the given distance of ours, and acts by taking the best step under that objective.](images/first-bot-evade.png)
+
+Neither behaviour can pick a fatal step, because movement filters those out first. Steps into kelp, bodies and portals go, and so do tiles next to an enemy head, since dragons move in turn and a head-on collision kills both. Vision doesn't reach through portals, so a portal is only taken when nothing else is left:
+
+![examples/repertoire/games/loong/movement.nim. safeSteps keeps the first steps that are open and, unless allowed, not next to an enemy head. best takes the safe steps, falls back to steps within an enemy head's reach, then to an unseen portal, then to the current facing, and otherwise returns the step the behaviour's objective scores highest.](images/first-bot-movement.png)
 
 ## The first result
 
-To see whether the structure pays off, we'll test the first bot in place of the flood-fill bot from The choice, on the 13 bundled maps and the 20 generated ones from the map generator post. The first bot doesn't name its behaviours yet, so every changed game counts in full:
+We test the first bot in place of the flood-fill bot from [The choice](02-the-choice.md), on the 13 bundled maps and the 20 generated ones, over four seeds:
 
 ![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict on four seeds. Of 264 paired games, first-bot gained 77, dropped 50 and left 137 unchanged. Random signs do this well about 3% of the time. Against the weak bots it lost 5 games that room-c won, all listed, and won 51 that room-c lost. The verdict is better.](images/first-bot-verdict.png)
 
-On two seeds per map and side, the result was undecided: the first bot gained 38 changed games and dropped 23, which random signs match about one time in eleven. The verdict estimated that about 130 changed games would settle it, so the run above doubles the seeds. Over four seeds, 137 of the 264 paired games came out the same, and of the rest the first bot gained 77 and dropped 50. Random signs do that well about 3% of the time, so this is a real improvement, if not a large one. It also beat the starters more often: of the games where the two versions' results against a starter differed, the first bot won 51 and lost 5.
+Of the 264 paired games, 137 came out the same. Of the rest, the first bot gained 77 and dropped 50, which random signs match about 3% of the time, so this is a real improvement, if not a large one. Against the starters it won 51 games the flood-fill bot lost, and lost 5.
 
-Where the gain comes from is interesting. On the bundled maps the two bots are level, 21 changed games gained and 25 dropped. Almost all of the improvement is on the generated maps, where the first bot gained 56 and dropped 25. The replays show why. In the games on those maps, the first bot's dragons ran into their own bodies 23 times, against 74 times for the flood-fill bot. That's the portal blind spot from the [map generator post](05-maps-nobody-has-seen.md), closed by the safety layer refusing to step through portals it can't see past.
-
-It's a modest start, but it's measurably better, and now each new behaviour has an obvious place to go.
+Almost all of the gain is on the generated maps: 56 gained and 25 dropped there, against 21 and 25 on the bundled maps. The replays show why. On those maps the first bot's dragons ran into their own bodies 23 times, against 74 for the flood-fill bot. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), closed by movement refusing to step through portals it can't see past.
 
 ## Next up
 
-From here the series adds behaviour one piece at a time, starting with [roles](12-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.
+[Roles](12-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.

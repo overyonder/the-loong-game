@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1052 1135" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">The reference repertoire</title><desc id="d">Every file in the reference repertoire, in four folders: data_structures, decision_architectures, techniques sorted by family, and games/loong. Dots mark the thirteen implemented modules; the rest are pseudocode notes waiting for a bot to need them.</desc>
+<rect width="1052" height="1135" fill="#ede5d5"/>
+<text x="312" y="44" font-size="11" fill="#66675e" text-anchor="middle" transform="rotate(-30 312 44)">implemented</text>
+<text x="20" y="70" font-size="13" font-weight="bold" fill="#a8801a">data_structures/</text>
+<text x="36" y="89" font-size="13" font-weight="normal" fill="#20251f">array.nim</text>
+<text x="36" y="108" font-size="13" font-weight="normal" fill="#20251f">binary_heap.nim</text>
+<text x="36" y="127" font-size="13" font-weight="normal" fill="#20251f">bitset.nim</text>
+<text x="36" y="146" font-size="13" font-weight="normal" fill="#20251f">disjoint_set.nim</text>
+<text x="36" y="165" font-size="13" font-weight="normal" fill="#20251f">dynamic_array.nim</text>
+<text x="36" y="184" font-size="13" font-weight="normal" fill="#20251f">fifo_queue.nim</text>
+<text x="36" y="203" font-size="13" font-weight="normal" fill="#20251f">graph.nim</text>
+<text x="36" y="222" font-size="13" font-weight="normal" fill="#20251f">grid.nim</text>
+<text x="36" y="241" font-size="13" font-weight="normal" fill="#20251f">hash_map.nim</text>
+<text x="36" y="260" font-size="13" font-weight="normal" fill="#20251f">hash_set.nim</text>
+<text x="36" y="279" font-size="13" font-weight="normal" fill="#20251f">linked_list.nim</text>
+<text x="36" y="298" font-size="13" font-weight="normal" fill="#20251f">priority_queue.nim</text>
+<text x="36" y="317" font-size="13" font-weight="normal" fill="#20251f">ring_buffer.nim</text>
+<text x="36" y="336" font-size="13" font-weight="normal" fill="#20251f">spatial_hash.nim</text>
+<text x="36" y="355" font-size="13" font-weight="normal" fill="#20251f">stack.nim</text>
+<text x="36" y="374" font-size="13" font-weight="normal" fill="#20251f">tree.nim</text>
+<text x="20" y="393" font-size="13" font-weight="bold" fill="#a8801a">decision_architectures/</text>
+<text x="36" y="412" font-size="13" font-weight="normal" fill="#20251f">behaviour_tree.nim</text>
+<circle cx="312" cy="408" r="5" fill="#2f7f79"/>
+<text x="36" y="431" font-size="13" font-weight="normal" fill="#20251f">belief_desire_intention.nim</text>
+<text x="36" y="450" font-size="13" font-weight="normal" fill="#20251f">decision_context.nim</text>
+<circle cx="312" cy="446" r="5" fill="#2f7f79"/>
+<text x="36" y="469" font-size="13" font-weight="normal" fill="#20251f">finite_state_machine.nim</text>
+<text x="36" y="488" font-size="13" font-weight="normal" fill="#20251f">hierarchical_state_machine.nim</text>
+<circle cx="312" cy="484" r="5" fill="#2f7f79"/>
+<text x="36" y="507" font-size="13" font-weight="normal" fill="#20251f">priority_rules.nim</text>
+<text x="36" y="526" font-size="13" font-weight="normal" fill="#20251f">production_rules.nim</text>
+<text x="36" y="545" font-size="13" font-weight="normal" fill="#20251f">scripted_sequence.nim</text>
+<text x="36" y="564" font-size="13" font-weight="normal" fill="#20251f">subsumption.nim</text>
+<text x="36" y="583" font-size="13" font-weight="normal" fill="#20251f">utility_ai.nim</text>
+<circle cx="312" cy="579" r="5" fill="#2f7f79"/>
+<text x="656" y="44" font-size="11" fill="#66675e" text-anchor="middle" transform="rotate(-30 656 44)">implemented</text>
+<text x="364" y="70" font-size="13" font-weight="bold" fill="#a8801a">techniques/</text>
+<text x="380" y="89" font-size="13" font-weight="bold" fill="#3f6e8c">caching/</text>
+<text x="396" y="108" font-size="13" font-weight="normal" fill="#20251f">memoisation.nim</text>
+<text x="380" y="127" font-size="13" font-weight="bold" fill="#3f6e8c">constraints/</text>
+<text x="396" y="146" font-size="13" font-weight="normal" fill="#20251f">backtracking.nim</text>
+<text x="396" y="165" font-size="13" font-weight="normal" fill="#20251f">constraint_filtering.nim</text>
+<text x="380" y="184" font-size="13" font-weight="bold" fill="#3f6e8c">control/</text>
+<text x="396" y="203" font-size="13" font-weight="normal" fill="#20251f">model_predictive_control.nim</text>
+<text x="396" y="222" font-size="13" font-weight="normal" fill="#20251f">pid.nim</text>
+<text x="396" y="241" font-size="13" font-weight="normal" fill="#20251f">weighted_vector_blending.nim</text>
+<text x="380" y="260" font-size="13" font-weight="bold" fill="#3f6e8c">dynamic_programming/</text>
+<text x="396" y="279" font-size="13" font-weight="normal" fill="#20251f">policy_iteration.nim</text>
+<text x="396" y="298" font-size="13" font-weight="normal" fill="#20251f">value_iteration.nim</text>
+<text x="380" y="317" font-size="13" font-weight="bold" fill="#3f6e8c">evaluation/</text>
+<text x="396" y="336" font-size="13" font-weight="normal" fill="#20251f">lexicographic_order.nim</text>
+<text x="396" y="355" font-size="13" font-weight="normal" fill="#20251f">weighted_sum.nim</text>
+<text x="380" y="374" font-size="13" font-weight="bold" fill="#3f6e8c">game_theory/</text>
+<text x="396" y="393" font-size="13" font-weight="normal" fill="#20251f">best_response.nim</text>
+<text x="396" y="412" font-size="13" font-weight="normal" fill="#20251f">regret_matching.nim</text>
+<text x="396" y="431" font-size="13" font-weight="normal" fill="#20251f">zero_sum_linear_program.nim</text>
+<text x="380" y="450" font-size="13" font-weight="bold" fill="#3f6e8c">inference/</text>
+<text x="396" y="469" font-size="13" font-weight="normal" fill="#20251f">bayesian_filter.nim</text>
+<text x="396" y="488" font-size="13" font-weight="normal" fill="#20251f">fuzzy_logic.nim</text>
+<text x="396" y="507" font-size="13" font-weight="normal" fill="#20251f">particle_filter.nim</text>
+<text x="380" y="526" font-size="13" font-weight="bold" fill="#3f6e8c">learning/</text>
+<text x="396" y="545" font-size="13" font-weight="normal" fill="#20251f">behaviour_cloning.nim</text>
+<text x="396" y="564" font-size="13" font-weight="normal" fill="#20251f">q_learning.nim</text>
+<text x="396" y="583" font-size="13" font-weight="normal" fill="#20251f">reinforce.nim</text>
+<text x="396" y="602" font-size="13" font-weight="normal" fill="#20251f">upper_confidence_bound.nim</text>
+<text x="380" y="621" font-size="13" font-weight="bold" fill="#3f6e8c">optimisation/</text>
+<text x="396" y="640" font-size="13" font-weight="normal" fill="#20251f">evolutionary_search.nim</text>
+<text x="396" y="659" font-size="13" font-weight="normal" fill="#20251f">gradient_descent.nim</text>
+<text x="396" y="678" font-size="13" font-weight="normal" fill="#20251f">hill_climbing.nim</text>
+<text x="396" y="697" font-size="13" font-weight="normal" fill="#20251f">simulated_annealing.nim</text>
+<text x="380" y="716" font-size="13" font-weight="bold" fill="#3f6e8c">planning/</text>
+<text x="396" y="735" font-size="13" font-weight="normal" fill="#20251f">goal_oriented_action_planning.nim</text>
+<text x="396" y="754" font-size="13" font-weight="normal" fill="#20251f">hierarchical_task_network.nim</text>
+<circle cx="656" cy="750" r="5" fill="#2f7f79"/>
+<text x="396" y="773" font-size="13" font-weight="normal" fill="#20251f">partial_order_planning.nim</text>
+<text x="380" y="792" font-size="13" font-weight="bold" fill="#3f6e8c">sampling/</text>
+<text x="396" y="811" font-size="13" font-weight="normal" fill="#20251f">monte_carlo_estimation.nim</text>
+<text x="396" y="830" font-size="13" font-weight="normal" fill="#20251f">weighted_sampling.nim</text>
+<text x="380" y="849" font-size="13" font-weight="bold" fill="#3f6e8c">search/</text>
+<text x="396" y="868" font-size="13" font-weight="normal" fill="#20251f">a_star.nim</text>
+<text x="396" y="887" font-size="13" font-weight="normal" fill="#20251f">alpha_beta.nim</text>
+<text x="396" y="906" font-size="13" font-weight="normal" fill="#20251f">beam_search.nim</text>
+<text x="396" y="925" font-size="13" font-weight="normal" fill="#20251f">breadth_first_search.nim</text>
+<text x="396" y="944" font-size="13" font-weight="normal" fill="#20251f">depth_first_search.nim</text>
+<text x="396" y="963" font-size="13" font-weight="normal" fill="#20251f">dijkstra.nim</text>
+<text x="396" y="982" font-size="13" font-weight="normal" fill="#20251f">expectimax.nim</text>
+<text x="396" y="1001" font-size="13" font-weight="normal" fill="#20251f">greedy_best_first.nim</text>
+<text x="396" y="1020" font-size="13" font-weight="normal" fill="#20251f">iterative_deepening.nim</text>
+<text x="396" y="1039" font-size="13" font-weight="normal" fill="#20251f">minimax.nim</text>
+<text x="396" y="1058" font-size="13" font-weight="normal" fill="#20251f">monte_carlo_tree_search.nim</text>
+<text x="380" y="1077" font-size="13" font-weight="bold" fill="#3f6e8c">sorting/</text>
+<text x="396" y="1096" font-size="13" font-weight="normal" fill="#20251f">merge_sort.nim</text>
+<text x="1000" y="44" font-size="11" fill="#66675e" text-anchor="middle" transform="rotate(-30 1000 44)">implemented</text>
+<text x="708" y="70" font-size="13" font-weight="bold" fill="#a8801a">games/</text>
+<text x="724" y="89" font-size="13" font-weight="bold" fill="#3f6e8c">loong/</text>
+<text x="740" y="108" font-size="13" font-weight="bold" fill="#3f6e8c">behaviours/</text>
+<text x="756" y="127" font-size="13" font-weight="normal" fill="#20251f">escape.nim</text>
+<circle cx="1000" cy="123" r="5" fill="#2f7f79"/>
+<text x="756" y="146" font-size="13" font-weight="normal" fill="#20251f">explore.nim</text>
+<circle cx="1000" cy="142" r="5" fill="#2f7f79"/>
+<text x="756" y="165" font-size="13" font-weight="normal" fill="#20251f">forage.nim</text>
+<circle cx="1000" cy="161" r="5" fill="#2f7f79"/>
+<text x="756" y="184" font-size="13" font-weight="normal" fill="#20251f">pursue_enemy.nim</text>
+<circle cx="1000" cy="180" r="5" fill="#2f7f79"/>
+<text x="740" y="203" font-size="13" font-weight="normal" fill="#20251f">agent.nim</text>
+<circle cx="1000" cy="199" r="5" fill="#2f7f79"/>
+<text x="740" y="222" font-size="13" font-weight="normal" fill="#20251f">htn.nim</text>
+<circle cx="1000" cy="218" r="5" fill="#2f7f79"/>
+<text x="740" y="241" font-size="13" font-weight="normal" fill="#20251f">utility.nim</text>
+<circle cx="1000" cy="237" r="5" fill="#2f7f79"/>
+<text x="740" y="260" font-size="13" font-weight="normal" fill="#20251f">world.nim</text>
+<circle cx="1000" cy="256" r="5" fill="#2f7f79"/>
+</svg>

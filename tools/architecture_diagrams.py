@@ -72,74 +72,75 @@ def first_bot():
     body = [
         card(235, 20, 250, 62, "Read the 7×7 window", ["bodies, kelp, portals, enemy heads"], "window"),
         arrow(360, 82, 360, 108),
-        card(160, 110, 400, 84, "Safety layer", ["drops moves into kelp, bodies and portals,", "and tiles next to an enemy head"], "safety"),
-        arrow(360, 194, 360, 220),
-        card(235, 222, 250, 62, "Choose a mode", ["enemy head within two tiles?"], "frame"),
-        f'<path d="M300 284 L180 330" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
-        f'<path d="M420 284 L540 330" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
-        text(222, 307, "no", 12, MUTED), text(498, 307, "yes", 12, MUTED),
-        card(60, 332, 240, 84, "Roam", ["score = room left", "after two moves"], "roam", filled=True),
-        card(420, 332, 240, 84, "Evade", ["score = room left", "+ 4 × gap to the nearest head"], "evade", filled=True),
-        f'<path d="M180 416 L300 448" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
-        f'<path d="M540 416 L420 448" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
-        card(235, 450, 250, 56, "Send the best safe move", [], "frame"),
+        card(160, 110, 400, 62, "State machine", ["enter the first behaviour whose guard holds"], "frame"),
+        f'<path d="M300 172 L180 218" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
+        f'<path d="M420 172 L540 218" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
+        card(420, 220, 240, 84, "Evade", ["guard: enemy head within 2", "objective: room + 4 × gap"], "evade", filled=True),
+        card(60, 220, 240, 84, "Roam", ["guard: none", "objective: room left"], "roam", filled=True),
+        f'<path d="M180 304 L300 336" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
+        f'<path d="M540 304 L420 336" stroke="{MUTED}" stroke-width="1.6" fill="none" marker-end="url(#a)"/>',
+        card(160, 338, 400, 84, "Movement: hard constraints first", ["drop steps into kelp, bodies, portals", "and tiles next to an enemy head"], "safety"),
+        arrow(360, 422, 360, 448),
+        card(185, 450, 350, 56, "Best remaining step by the objective", [], "frame"),
     ]
     return svg(720, 520, "The first bot's structure",
-               "Each turn the dragon reads its 7 by 7 window. A safety layer removes moves into kelp, portals, bodies"
-               " and tiles next to an enemy head. A mode is chosen from what is visible: Roam when nothing threatens,"
-               " Evade when an enemy head is within two tiles. The mode's behaviour scores the remaining moves and the"
-               " best one is sent.", body)
+               "Each turn the dragon reads its 7 by 7 window. A state machine enters the first behaviour whose guard"
+               " holds: Evade when an enemy head is within two tiles, otherwise Roam. Movement drops steps into kelp,"
+               " bodies, portals and tiles next to an enemy head, then takes the remaining step the behaviour's"
+               " objective scores highest.", body)
 
 
 def roles_bot():
     body = [
-        card(40, 20, 280, 58, "Read sonar", ["longest teammate heard"], "sonar"),
+        card(40, 20, 280, 58, "Listen", ["longest teammate heard"], "sonar"),
         card(400, 20, 280, 58, "Read the 7×7 window", ["bodies, kelp, portals, enemy heads"], "window"),
         arrow(180, 78, 300, 106), arrow(540, 78, 420, 106),
-        card(230, 108, 260, 58, "Pick a role", ["from length and the longest heard"], "frame"),
+        card(200, 108, 320, 58, "State machine: a role", ["from length and the longest heard"], "frame"),
         arrow(300, 166, 130, 204), arrow(360, 166, 360, 204), arrow(420, 166, 590, 204),
-        role_card(20, 206, 220, "Champion", [("roam", "Roam"), ("evade", "Evade"), ("split", "Split")]),
-        role_card(250, 206, 220, "Worker", [("roam", "Roam"), ("evade", "Evade")]),
-        role_card(480, 206, 220, "Kamikaze", [("roam", "Roam"), ("hunt", "Hunt")]),
-        arrow(130, 280, 280, 306), arrow(360, 280, 360, 306), arrow(590, 280, 440, 306),
-        card(170, 308, 380, 80, "Safety layer", ["no kelp, bodies or unseen portals; a hunting", "kamikaze alone may step next to an enemy head"], "safety"),
-        arrow(360, 388, 360, 414),
-        card(200, 416, 320, 58, "Score moves", ["with the chosen mode's behaviour"], "frame"),
-        arrow(300, 474, 200, 500), arrow(420, 474, 520, 500),
-        card(60, 502, 280, 58, "Move, or split", ["the best move, or a champion's split"], "frame"),
-        card(380, 502, 280, 58, "Announce", ["team tag, ID, role and length"], "sonar"),
+        role_card(20, 206, 220, "Champion", [("split", "Split"), ("evade", "Evade"), ("roam", "Roam")]),
+        role_card(250, 206, 220, "Kamikaze", [("hunt", "Hunt"), ("roam", "Roam")]),
+        role_card(480, 206, 220, "Worker", [("evade", "Evade"), ("roam", "Roam")]),
+        text(360, 302, "then the first behaviour whose guard holds; Split and Hunt's strike act as reflexes", 12, MUTED),
+        arrow(360, 310, 360, 330),
+        card(170, 332, 380, 80, "Movement: hard constraints first", ["no kelp, bodies or unseen portals; only Hunt", "may step next to an enemy head"], "safety"),
+        arrow(360, 412, 360, 438),
+        card(185, 440, 350, 56, "Best remaining step by the objective", [], "frame"),
+        arrow(300, 496, 200, 522), arrow(420, 496, 520, 522),
+        card(60, 524, 280, 58, "Move, or split", ["the step, or a champion's split"], "frame"),
+        card(380, 524, 280, 58, "Announce", ["team tag, ID, role and length"], "sonar"),
     ]
-    return svg(720, 576, "The roles bot's structure",
-               "Each turn the dragon reads its sonar and its window, then picks a role. The role limits its modes: the"
-               " champion roams, evades and splits off kamikazes, a worker roams or evades, and a kamikaze roams or"
-               " hunts. The safety layer removes deadly moves, the chosen mode's behaviour scores the rest, the best"
-               " move is sent or the champion splits, and the dragon announces itself on sonar.", body)
+    return svg(720, 598, "The roles bot's structure",
+               "Each turn the dragon listens to sonar and reads its window. The state machine enters a role from its"
+               " length and the longest teammate heard, then the first behaviour that role holds whose guard passes:"
+               " the champion splits, evades or roams, a kamikaze hunts or roams, and a worker evades or roams. Movement"
+               " drops deadly steps and takes the best by the behaviour's objective, and the dragon announces itself.", body)
 
 
 def tactics_bot():
     body = [
-        card(40, 20, 280, 58, "Read sonar", ["longest teammate and where it is"], "sonar"),
+        card(40, 20, 280, 58, "Listen", ["longest teammate and where it is"], "sonar"),
         card(400, 20, 280, 58, "Read the 7×7 window", ["bodies, pearls, the champion's body"], "window"),
         arrow(180, 78, 300, 106), arrow(540, 78, 420, 106),
-        card(230, 108, 260, 58, "Pick a role", ["from length and the longest heard"], "frame"),
+        card(200, 108, 320, 58, "State machine: a role", ["from length and the longest heard"], "frame"),
         arrow(300, 166, 130, 204), arrow(360, 166, 360, 204), arrow(420, 166, 590, 204),
-        role_card(10, 206, 250, "Champion", [("evade", "Evade"), ("coil", "Coil"), ("roam", "Roam"), ("split", "Split")]),
-        role_card(270, 206, 180, "Feeder", [("evade", "Evade"), ("forage", "Forage")]),
-        role_card(460, 206, 250, "Kamikaze", [("roam", "Roam"), ("hunt", "Hunt")]),
-        chip(166, 290, "deliver", "Deliver")[0],
-        text(240, 305, "a feeder's sacrifice, switched off: it made the bot worse", 12, MUTED, "start"),
+        role_card(10, 206, 280, "Champion", [("split", "Split"), ("evade", "Evade"), ("coil", "Coil"), ("roam", "Roam")]),
+        role_card(300, 206, 170, "Kamikaze", [("hunt", "Hunt"), ("roam", "Roam")]),
+        role_card(480, 206, 230, "Feeder", [("evade", "Evade"), ("forage", "Forage")]),
+        chip(484, 288, "deliver", "Deliver")[0],
+        text(556, 303, "left out: it made the bot worse", 12, MUTED, "start"),
         arrow(360, 314, 360, 330),
-        card(170, 332, 380, 80, "Safety layer", ["no kelp, bodies or unseen portals; a hunting", "kamikaze alone may step next to an enemy head"], "safety"),
+        card(170, 332, 380, 80, "Movement: hard constraints first", ["no kelp, bodies or unseen portals; only Hunt", "may step next to an enemy head"], "safety"),
         arrow(360, 412, 360, 438),
-        card(200, 440, 320, 58, "Score moves", ["with the chosen mode's behaviour"], "frame"),
-        arrow(300, 498, 200, 524), arrow(420, 498, 520, 524),
-        card(60, 526, 280, 58, "Move, or split", ["the best move, or a champion's split"], "frame"),
-        card(380, 526, 280, 58, "Announce", ["team tag, ID, role, length and position"], "sonar"),
+        card(185, 440, 350, 56, "Best remaining step by the objective", [], "frame"),
+        arrow(300, 496, 200, 522), arrow(420, 496, 520, 522),
+        card(60, 524, 280, 58, "Move, or split", ["the step, or a champion's split"], "frame"),
+        card(380, 524, 280, 58, "Announce", ["team tag, ID, role, length and position"], "sonar"),
     ]
-    return svg(720, 600, "The tactics bot's structure",
-               "The roles bot's structure with new behaviours. The champion evades, coils when nothing threatens it,"
-               " roams and splits. A feeder evades or forages, with its Deliver mode switched off because it made the"
-               " bot worse. A kamikaze roams or hunts. Sonar messages now carry each dragon's head position.", body)
+    return svg(720, 598, "The tactics bot's structure",
+               "The roles bot's structure with new behaviours. The champion splits, evades, coils when no enemy head is"
+               " within three tiles, or roams. A feeder evades or forages; the Deliver behaviour, a feeder's sacrifice,"
+               " is left out of the assembly because it made the bot worse. A kamikaze hunts or roams. Sonar messages"
+               " now carry each dragon's head position.", body)
 
 
 if __name__ == "__main__":
