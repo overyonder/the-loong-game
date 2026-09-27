@@ -1,6 +1,6 @@
 # Reading a replay
 
-> **Editor's note, 28 September 2026.** This post has been rewritten to be shorter and to quote the decoder's current reconstruction code.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to quote the decoder's current reconstruction code.
 
 In the [wishlist](01-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](07-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 

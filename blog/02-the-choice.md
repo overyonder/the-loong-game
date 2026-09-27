@@ -1,6 +1,6 @@
 # The choice
 
-> **Editor's note, 28 September 2026.** This post has been edited to be shorter, and to say how our competition bot uses these languages now.
+> **Editor's note, 28 September 2026.** I've edited this post to be shorter, to say how our competition bot uses these languages now, and to add Zig, the language of the judge we later wrote.
 
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
 
@@ -61,9 +61,9 @@ So the choice looks simple. Python is quick to write and slow to run. C and C++ 
 
 ![Three ways to write a bot for the judge. Python is quick to write, but the strategy costs 450 times as much as in C. C and C++ are fast, going through the same clang to the same WebAssembly, but verbose while ideas change. Nim reads like Python and compiles to C, which the judge accepts.](images/language-options.svg)
 
-## Two less familiar languages
+## Three less familiar languages
 
-This series will do a fair amount of its work in two languages a lot of folks have never heard of.
+This series will do a fair amount of its work in three languages a lot of folks have never heard of.
 
 ### Nim for strategies
 
@@ -125,6 +125,22 @@ virtual.arena_destroy(&arena)    // one call frees the lot
 The viewer loads each game into an arena like this and throws the whole arena away when you open the next one.
 
 The second reason is libraries. Odin's `vendor` collection, maintained alongside the compiler, covers windowing, the major graphics APIs, raylib, stb and miniaudio, so the viewer's raylib is one `import "vendor:raylib"` away with no package manager. The third is that it holds up in demanding products: [JangaFX](https://jangafx.com) builds EmberGen and LiquiGen, its real-time fire and fluid simulators, in Odin.
+
+### Zig for the judge
+
+The third language came later, when we wrote [our own judge](16-the-machine-inside-the-judge.md) to play the toolkit's games faster. A judge is glue between C APIs: it hosts the organisers' engine and every dragon's bot inside wasmtime, a WebAssembly runtime whose API is C. [Zig](https://ziglang.org) is very good at exactly that kind of program.
+
+The first reason is that Zig reads C headers directly. There's no binding generator and no wrapper library to keep in step with wasmtime's releases. The judge imports the whole C API in three lines, and every wasmtime function and type is then available as if it were written in Zig:
+
+```zig
+pub const c = @cImport({
+    @cInclude("wasmtime.h");
+});
+```
+
+The second is that Zig has no runtime and no hidden allocations. Every function that allocates takes an allocator explicitly, much like Odin's context but passed by hand, so it's always visible where a turn's memory comes from and when it's freed. For a host that feeds every turn of every dragon through wasmtime, that makes the cost of each turn easy to see.
+
+The third is the build. Zig's build system is written in Zig, and the judge's `build.zig` links wasmtime statically in a few lines, so the result is one binary with nothing to install beside it. The whole host comes to about 2,100 lines.
 
 ## Next up
 

@@ -1,5 +1,7 @@
 # The machine inside the judge
 
+> **Editor's note, 28 September 2026.** I've added figures to this post, linked the judge's source, and moved the reasons for writing it in Zig to [The choice](02-the-choice.md).
+
 We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
 This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API, and [harness.py](../harness/zig_judge/harness.py) plays batches of games from Python, metering each bot on the way.
@@ -71,7 +73,7 @@ So the race is impossible by construction. There's no window to close with a loc
 
 ![Threads in the official sandbox, fibres in ours. In the official sandbox, a driver thread notes parks and feeds turns to dragon threads blocked in fd_read, and a new child's thread is already running, so it can reach its first read between the park count and the feed and be taken as done. In our judge, one thread per game holds the driver, the engine and every dragon, and a dragon's fibre pauses mid read and runs only when the driver resumes it, so no bot runs between noting the count and feeding a turn.](images/threads-fibres.svg)
 
-Zig suits this. wasmtime's C API exposes the async calls directly, and Zig calls C headers without a binding layer, so the host is about 2,100 lines with no runtime of its own. A batch runs one game per thread, with every bot in a game sharing that game's thread.
+The judge is written in Zig, for reasons [The choice](02-the-choice.md) goes into: it reads wasmtime's C headers directly, has no runtime of its own, and builds to a single binary. A batch runs one game per thread, with every bot in a game sharing that game's thread.
 
 ## Same games
 

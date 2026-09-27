@@ -1,6 +1,6 @@
 # Through one dragon's eyes
 
-> **Editor's note, 28 September 2026.** This post has been rewritten to be shorter and to quote the viewer's current loader.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to quote the viewer's current loader.
 
 When a dragon does something stupid, the official visualiser shows the whole board. But the dragon only saw the 7×7 square around its head, and a move that looks absurd from above can look sensible from inside that square. So the debugging question is never "what was on the board?" but "what could this dragon see?" The seventh tool answers it: a debug viewer that shows a game through one dragon's eyes, written in [Odin](https://odin-lang.org) for the reasons in [The choice](02-the-choice.md) and built on the [decoder](08-reading-a-replay.md).
 

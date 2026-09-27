@@ -1,6 +1,6 @@
 # Where the points go
 
-> **Editor's note, 28 September 2026.** This post has been rewritten to be shorter.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter.
 
 [The choice](02-the-choice.md) measured what a whole turn costs in each language, which was enough to pick one. It can't say what the points are spent on, and once a bot searches properly, every point spent elsewhere is search depth it doesn't get. The last tool on the wishlist splits a turn's cost into its parts, then follows the expensive part down to individual instructions.
 
