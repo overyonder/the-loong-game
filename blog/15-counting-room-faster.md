@@ -4,7 +4,7 @@
 
 Every bot in this series counts how much room a move leaves, and [where the points go](10-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, one step at a time, from the Nim the first bot used down to vector instructions.
 
-A benchmark bot plays the first bot's moves. On every turn it runs each version of the room count on the same window, checks that they all agree, and logs what each cost with the judge's own clock. Over 1,477 turns on six maps, every version agreed every time:
+To compare versions fairly, I wrote a benchmark bot that plays the first bot's moves and, on every turn, runs each version of the room count on the same window. It checks that they all agree, then logs what each one cost using the judge's own clock, so the numbers are exact CPU points rather than estimates. Over 1,477 turns on six maps, every version agreed on every turn:
 
 ![CPU points to count the room behind all four first moves, median of 1,477 turns on six maps, log scale. Nim with a seq queue and a set: 116,218. Nim with fixed arrays: 59,871. C with fixed arrays: 59,645. C with bitboards: 10,810. C with one flood fill per region: 9,230. SIMD with two flood fills at once: 11,249. A hand-written WebAssembly step: 9,422. SIMD for building the bitboards: 1,745.](images/room-kernels.svg)
 
@@ -24,7 +24,7 @@ queue_1.len = 1; queue_1.p = (tySequence__qwqHTkRvwhrRyENtudHQ7g_Content*) newSe
 eqdestroy___fgengrtl_u327(queue_1);
 ```
 
-The `set` has already become one 64-bit word, which is as cheap as a visited set gets. The `seq` is the cost: every flood fill allocates its queue on the heap, grows it through `add` and frees it at the end. A fixed array on the stack, still in Nim, halves the cost to about 60,000 points, and the same code written by hand in C costs almost exactly the same.
+Two things stand out. The `set` has already become a single 64-bit word with one bit per tile, which is about as cheap as a visited set can be. The `seq` is where the cost is. Every flood fill allocates its queue on the heap with `newSeqPayload`, calls `add` for every tile it reaches, which checks the capacity and grows the queue as it fills, and frees it all at the end. Swapping the `seq` for a fixed array on the stack, still in Nim, halves the cost to about 60,000 points. Writing the same thing by hand in C costs almost exactly the same, because at that point Nim and C are producing the same program.
 
 ## Bitboards
 
@@ -52,7 +52,7 @@ static uint64_t FloodFill(WindowBits const* bits, uint64_t reach, uint64_t allow
 
 Each pass costs about twenty instructions however many tiles it adds, and one `popcnt` counts the result. That brings the count to about 10,800 points. Flooding once per connected region instead of once per follow-up move takes it to about 9,200, because two follow-ups either reach the same tiles or none in common.
 
-Two ideas didn't help. Writing the growth step as inline WebAssembly cost about 9,400 points, since Clang already emits that loop about as tightly as a person can. Flooding two regions at once in one 128-bit vector cost about 11,200, because packing and unpacking the pair cost more than it saved.
+I tried two more ideas at this point, and neither helped. The judge only accepts C, but C can contain inline assembly, so I wrote the growth step by hand in WebAssembly. It cost about 9,400 points, a little more than the plain C, because Clang already emits that loop about as tightly as a person can, which is worth knowing before spending an afternoon on assembly. Then, since a 128-bit vector holds two bitboards, I tried flooding two regions side by side. That cost about 11,200, because the pair runs until the slower flood finishes, and packing and unpacking them cost more than it saved.
 
 ## SIMD where the work is
 

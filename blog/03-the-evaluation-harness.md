@@ -1,16 +1,18 @@
 # The evaluation harness
 
-> **Editor's note, 28 September 2026.** This post has been rewritten to be shorter and to describe the harness as it's now released: a frozen copy of the round robin runner we use for our own bots, in place of the simpler one this post first described.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the harness as it's now released: a frozen copy of the round robin runner we use for our own bots, in place of the simpler one this post first described.
 
-The [wishlist](01-the-wishlist.md) ended with eight tools, and most of them lean on the first: the statistics need results to judge, the map generator needs something playing on its maps, and the ladder rates versions from games they've already played. So we start with the tool that produces games.
+The [wishlist](01-the-wishlist.md) ended with eight tools, and most of them lean on the first one. The statistics need results to judge, the map generator needs something playing on its maps, and the ladder rates versions from games they've already played. So we start with the tool that produces games.
 
-In the wishlist post a short fish loop played every bundled map from both sides. That works once. But every idea we try for weeks needs testing against a whole pool of bots, including our own older versions, and we want to hand over a list of bots, walk away, and come back to a complete record we can trust. That's the harness: `just round-robin`, with the runner in [harness/tournament.py](../harness/tournament.py). Every game still runs through the official `unswbc run`, so each result is exactly what the organisers' tools would report.
+The fish loop from the wishlist post worked, but we're going to be testing ideas for weeks, each against a whole pool of bots including our own older versions. Running a loop by hand every time and reading results off the terminal gets old fast. What I want is to hand over a list of bots, walk away, and come back to a complete record of every game that I can trust and look back through later. That's the harness: `just round-robin`, with the runner in [harness/tournament.py](../harness/tournament.py). Under the hood it still calls the official `unswbc run` for every game, so every result is exactly what the organisers' tools would report. We're only automating the tedious part.
 
 ## Every pairing, both sides, the same seeds
 
-Give the harness bots, maps and a number of seeds, and it plays every pair of bots on every map, from both sides, once per seed. Both sides matter because dragons move one at a time in ID order, so one team always moves first even on a symmetric map.
+You give the harness a list of bots, a list of maps and a number of seeds, and it plays every pair of bots against each other on every map, from both sides, once for each seed. Four bots on the 13 bundled maps with two seeds each already comes to 312 games.
 
-Each seed decides where pearls appear and how both bots' random choices fall. The harness derives them from the map's name and an index, so every pairing and both side orders meet the same pearls, and running the schedule again replays exactly the same games:
+Playing both sides matters because the two sides aren't quite equal, even on a symmetric map. Dragons take their turns one at a time in ID order, so one team's dragons always move first, and a bot that always started on that side could look stronger than it is.
+
+The seeds matter for the reason we saw in the wishlist post: each seed decides where pearls appear and how both bots' random choices fall. The harness works each seed out from the map's name and an index, so every pairing and both side orders meet exactly the same pearls, and running the same schedule again replays exactly the same games. That means a surprising result can always be looked at again. The whole schedule fits in one comprehension:
 
 ```python
 schedule = [
@@ -35,11 +37,11 @@ schedule = [
 ]
 ```
 
-With no seeds asked for, games run unseeded and outside the judge's sandbox, which is quick for a smoke test. `--sandbox` plays them in the judge's sandbox, priced in CPU points, and a seeded sandbox game always plays out the same way. So the harness caches each one, keyed by the content of both bots, the map, the seed and the toolkit version, and reuses the result until one of them changes.
+If you don't ask for seeds, the games run unseeded and outside the judge's sandbox, which is quick for a smoke test. With `--sandbox`, they run in the judge's own sandbox and are priced in CPU points, and a seeded sandbox game always plays out the same way. So the harness keeps each finished one in a cache, keyed by the contents of both bots, the map, the seed and the toolkit version, and reuses the result until one of those changes. Rerunning a big comparison after changing one bot only replays the games that bot is in.
 
-## Games side by side
+## Running games side by side
 
-A game takes anywhere from a second to several minutes, but games don't depend on each other, so the harness plays as many at once as you have cores. Each bot is compiled once before the games start. The one real risk is a game that hangs, and `unswbc run` starts a separate process for every dragon, so stopping only the main process would leave its dragons running. Each game starts in its own process group, and the whole group is killed when it finishes or runs out of time:
+A game takes anywhere from a second to several minutes, but games don't depend on each other, so the harness compiles each bot once and then plays as many games at once as you have cores. The one real risk is a bot that hangs, because in a long run that one bad game mustn't take the rest down with it. The catch is that `unswbc run` isn't a single process. It starts a separate process for every dragon, so if we only stopped the main process when a game hung, its dragons would be left running in the background, slowly eating the machine over a long run. So each game starts in its own process group, and when it finishes or runs past its time limit, the harness kills the whole group at once:
 
 ```python
 process = subprocess.Popen(sys.argv[3:], stdout=output, stderr=subprocess.STDOUT,
@@ -57,11 +59,13 @@ finally:
     process.wait()
 ```
 
-Games run through a small wrapper around the toolkit that closes a race in its sandbox, one that can kill a freshly split dragon on its first turn. [The machine inside the judge](16-the-machine-inside-the-judge.md) explains it.
+Games also go through a small wrapper around the toolkit that closes a race in its sandbox, which could otherwise kill a freshly split dragon on its first turn. We found that one the hard way, and [the machine inside the judge](16-the-machine-inside-the-judge.md) tells the story.
 
-## Errors aren't losses
+## Keeping errors separate from losses
 
-A game that goes wrong mustn't count as a loss. If a change made our bot crash on one map in ten and crashes counted as losses, its win rate would dip slightly and we'd shrug at a slightly bad idea, when it's really a fixable bug. So the harness reads each game's result from its log, and anything that isn't a clean win, loss or draw goes in a separate errors column, checked in order of how badly the game went wrong:
+There's one more thing the harness has to get right, and it's easy to miss: when a game goes wrong, it mustn't be recorded as a loss. Imagine a change that makes our bot crash on one map in ten. If crashes counted as losses, the win rate would dip a little and we'd probably conclude the change was a slightly bad idea. In fact it's a bug, and a very fixable one, and hiding it inside the win rate throws that information away.
+
+So the harness reads each game's result from its log, and anything that isn't a clean win, loss or draw goes into a separate errors column. The check runs in order of how badly the game went wrong:
 
 ```python
 if timed_out:
@@ -74,19 +78,17 @@ elif outcome is None:
     error = "No engine result found"
 ```
 
-A bot failure is a dragon that ran out of time, exited, hit a fuel, trap or memory limit, or died with no valid action. A game that finished without writing its replay is an error too. Every game keeps its full log and replay, so an error leads straight to the game that caused it.
+A bot failure is a dragon that ran out of time, exited, hit a fuel, trap or memory limit, or died with no valid action, and a game that finished without writing its replay counts as an error too. Every game keeps its full log and replay, so when an error does turn up, we can go straight to the game and see what happened.
 
 ## A first run
 
-We'll use the four bots we already have: the C and Python starters, and the flood-fill bot from [The choice](02-the-choice.md) in C and in Python. From `examples/tooling`, two seeds on each of the 13 bundled maps in the sandbox come to 312 games:
+To try it out, let's use the four bots we already have: the C and Python starters, and the flood-fill bot from [The choice](02-the-choice.md) in C and in Python. From `examples/tooling`, two seeds on each bundled map in the sandbox comes to those 312 games:
 
 ![A terminal running just round-robin --sandbox --seeds 2, filtered to its results table. room-c and room-py each won 126 games and lost 30, with Elo 1774 and 1767. starter-c won 31 and lost 125, and starter-py won 29 and lost 127. No game had an error.](images/harness-round-robin.png)
 
-The run took just under five minutes on 16 cores, for games that add up to half an hour of CPU time played one after another. Both flood-fill bots beat both starters comfortably, and no game ended in an error.
+Spread across 16 cores, the run took just under five minutes, for games that add up to about half an hour of CPU time. The results look the way we'd hope: both flood-fill bots beat both starters comfortably, and not a single game ended in an error. Everything lands in a folder under `results/round-robin/`, with a `results.json`, a `summary.md` linking every game, and one log and replay per game.
 
-The two flood-fill bots make exactly the same move in every position, and because every pairing meets the same seeds, they finish with exactly the same record: 126 wins and 30 losses each, and 26 wins each in their games against each other. Their Elo still differs by 7 points. That column is a running rating, updated one game at a time in the order the games were played, so the order alone moved it. A single table can't say whether a gap like that means anything, and that's the job of the next tool.
-
-The run writes `results.json` and a `summary.md` linking every game's log and replay into a folder under `results/round-robin/`.
+There's one detail in that table worth pausing on. The two flood-fill bots make exactly the same move in every position, and because every pairing meets the same seeds, they finish with exactly the same record, 126 wins and 30 losses, with 26 wins each in their games against each other. Yet their Elo differs by 7 points. That column is a running rating, updated one game at a time in the order the games were played, so the order alone moved it. A table like this can't tell us whether a gap means anything, and that's the problem the next tool solves.
 
 ## Next up
 
