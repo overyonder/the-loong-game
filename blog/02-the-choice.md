@@ -94,7 +94,7 @@ The Nim bot makes exactly the same moves as the C and Python bots, so it slots s
 
 Nim written the way you'd write Python lands almost exactly where C does. Its strategy costs about 69,000 points a turn, 1.6 times the C version and about 280 times cheaper than Python. The remaining gap is the growable list, which Nim allocates on the heap for every flood fill where the C uses a fixed array on the stack, and a fixed array in Nim brings it level with C. How Nim manages memory is configurable too:
 
-```ini nim.cfg
+```nim nim.cfg
 mm = arc    # reference counting: memory is freed as soon as its last reference goes
 # mm = orc  # the Nim 2 default: ARC plus a collector for data that points back at itself
 ```
