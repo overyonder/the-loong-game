@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 760" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 840" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">Our tools around the bot</title>
 <desc id="d">The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right. Our wishlist tools are on the left, with the ones built so far drawn solid: Evaluation harness, Map generator, Statistics.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
-<rect width="800" height="760" fill="#ede5d5"/>
+<rect width="800" height="840" fill="#ede5d5"/>
 <text x="20" y="34" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Our tools</text>
 <text x="580" y="34" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Official toolkit</text>
 <text x="400.0" y="34" font-size="15" fill="#20251f" text-anchor="middle" font-weight="bold">Where our time goes</text>
@@ -82,7 +82,13 @@
 <rect x="170" y="684" width="40" height="17" rx="8" fill="#7a4f8a"/>
 <text x="190.0" y="696.5" font-size="10.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">perf</text>
 <path d="M220 667 H266" stroke="#66675e" stroke-width="1.5" stroke-dasharray="5 4"/>
-<path d="M266 93 V667" stroke="#66675e" stroke-width="1.5"/>
+<rect x="20" y="716" width="200" height="66" rx="6" fill="#ede5d5" stroke="#b9ad99" stroke-dasharray="5 4"/>
+<text x="32" y="738" font-size="14" fill="#66675e" text-anchor="start" font-weight="normal">Zig judge</text>
+<text x="32" y="760" font-size="11.5" fill="#66675e" text-anchor="start" font-weight="normal">the same games, four times faster</text>
+<rect x="177" y="766" width="33" height="17" rx="8" fill="#b8672a"/>
+<text x="193.5" y="778.5" font-size="10.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">Zig</text>
+<path d="M220 749 H266" stroke="#66675e" stroke-width="1.5" stroke-dasharray="5 4"/>
+<path d="M266 93 V749" stroke="#66675e" stroke-width="1.5"/>
 <path d="M266 185 L296 185" stroke="#66675e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 <rect x="580" y="60" width="200" height="56" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
 <text x="592" y="82" font-size="13.5" fill="#20251f" text-anchor="start" font-weight="bold">unswbc init</text>
@@ -110,8 +116,8 @@
 <path d="M580 488 H534" stroke="#66675e" stroke-width="1.5"/>
 <path d="M534 88 V488" stroke="#66675e" stroke-width="1.5"/>
 <path d="M534 185 L504 185" stroke="#66675e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
-<rect x="20" y="718" width="22" height="14" rx="3" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
-<text x="50" y="730" font-size="12" fill="#66675e" text-anchor="start" font-weight="normal">built so far</text>
-<rect x="150" y="718" width="22" height="14" rx="3" fill="#ede5d5" stroke="#b9ad99" stroke-dasharray="4 3"/>
-<text x="180" y="730" font-size="12" fill="#66675e" text-anchor="start" font-weight="normal">still on the wishlist</text>
+<rect x="20" y="798" width="22" height="14" rx="3" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.8"/>
+<text x="50" y="810" font-size="12" fill="#66675e" text-anchor="start" font-weight="normal">built so far</text>
+<rect x="150" y="798" width="22" height="14" rx="3" fill="#ede5d5" stroke="#b9ad99" stroke-dasharray="4 3"/>
+<text x="180" y="810" font-size="12" fill="#66675e" text-anchor="start" font-weight="normal">still on the wishlist</text>
 </svg>

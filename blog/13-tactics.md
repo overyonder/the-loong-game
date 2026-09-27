@@ -90,9 +90,16 @@ Those failures are exactly what a head-to-head test between two versions of our 
 
 ## Every version on one ladder
 
-Each verdict in the last three posts compared a new version with the one before it. The [ladder](06-a-ladder-of-our-own.md) can check that the chain of improvements adds up and that nothing went round in a circle. Here are the saved versions from the flood-fill bot onwards, with the rejected pearl chaser and the C starter for reference:
+Each verdict in the last three posts compared a new version with the one before it. The [ladder](06-a-ladder-of-our-own.md) can check that the chain of improvements adds up and that nothing went round in a circle. Here are the saved versions from the flood-fill bot onwards, with the rejected pearl chaser and the C starter for reference, over 990 games on the same 33 maps. Each head-to-head column is the points the row's bot scored against that bot, out of 66:
 
-![A terminal running just ladder-all, which rates six bots from 990 games with no errors. tactics-bot 1791, roles-bot 1739, first-bot 1547, room-c 1485, room-pearls 1377, starter-c 1060. tactics-bot scored 34.5 of 66 against roles-bot and 57 against first-bot. first-bot scored 39.5 against room-c.](images/ladder-all.png)
+| Bot | Rating | Won | Drawn | Lost | vs tactics-bot | vs roles-bot | vs first-bot | vs room-c | vs room-pearls | vs starter-c |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| tactics-bot | 1791 | 265 | 16 | 49 | | 34.5 | 57 | 60 | 55.5 | 66 |
+| roles-bot | 1739 | 247 | 16 | 67 | 31.5 | | 51 | 51 | 55.5 | 66 |
+| first-bot | 1547 | 170 | 17 | 143 | 9 | 15 | | 39.5 | 49 | 66 |
+| room-c | 1485 | 145 | 16 | 169 | 6 | 15 | 26.5 | | 44.5 | 61 |
+| room-pearls | 1377 | 106 | 9 | 215 | 10.5 | 10.5 | 17 | 21.5 | | 51 |
+| starter-c | 1060 | 20 | 0 | 310 | 0 | 0 | 0 | 5 | 15 | |
 
 The ratings line up in the order the versions were saved, and every version has a winning record against every version before it, so the verdicts weren't going round in a circle. The gaps also say something the verdicts couldn't. The roles bot's jump over the first bot, nearly 200 points, is the biggest step among the strategy bots, while the tactics bot's lead over the roles bot is real but small, 34.5 games to 31.5, which fits a change that matters in some games and not others.
 

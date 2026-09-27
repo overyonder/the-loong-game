@@ -53,9 +53,13 @@ The two bots make exactly the same move on every turn. I checked by playing each
 
 The Python bot's median turn costs 23.8 million points, and its slowest 1% cost more than 55 million. The C bot's median turn costs 3.0 million, and most of that isn't the strategy. A C bot that only repeats its last move costs 2.9 million a turn, almost all of it the write to stdout that sends each move. Taking each language's idle cost away, the strategy itself costs about 43,000 points in C and 19.7 million in Python, roughly 450 times as much.
 
+![CPU points per turn for the strategy alone, with each language's idle cost removed, on a log scale: C 43,000 points and Python 19,700,000 points.](images/strategy-cost.svg)
+
 This is a small search, and a stronger bot will want to look much further ahead. That's where the gap starts to bite. At 450 times the cost, a search that takes C 220,000 points a turn, a tiny fraction of its budget, would use up Python's entire 100 million. C++ goes through the same clang to the same WebAssembly, so it lands where C does.
 
 So the choice looks simple. Python is quick to write and slow to run. C and C++ are fast, but verbose and unforgiving while you're still trying ideas.
+
+![Three ways to write a bot for the judge. Python is quick to write, but the strategy costs 450 times as much as in C. C and C++ are fast, going through the same clang to the same WebAssembly, but verbose while ideas change. Nim reads like Python and compiles to C, which the judge accepts.](images/language-options.svg)
 
 ## Two less familiar languages
 
@@ -100,6 +104,8 @@ ARC frees each object the moment nothing refers to it, so no garbage collector p
 Nim's [standard library](https://nim-lang.org/docs/lib.html) is another reason it suits competitions. It has the collections and algorithms you'd otherwise spend precious time writing, from hash tables and priority queues to sorting and binary search, and [ARC](https://nim-lang.org/docs/mm.html) lets us use them without a tracing garbage collector. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, with none of the build-time date or time macros the judge rejects.
 
 Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody tuned it, and the hottest parts of a serious bot, like the inner loop of a search, still want hand-optimised C. So the split is Nim for strategy, which we write and change constantly, and C for the kernels where every point counts. Our competition bot is built exactly this way.
+
+![How a Nim bot reaches the judge. strategy.nim, the strategy in Nim, goes through nim c with compileOnly for wasm32, which writes C into gen/. Hand-written hot kernels in kernels.c join it. The judge's clang compiles every .c file to WebAssembly, and bot.wasm is metered and run for each dragon, each turn.](images/nim-build.svg)
 
 ### Odin for tools
 

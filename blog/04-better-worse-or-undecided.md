@@ -10,6 +10,8 @@ The idea underneath is the reasoning you'd use to judge any result by eye. Suppo
 
 The numbers make this concrete. Out of 100 games, an even match sees one side win 60 or more only about 3% of the time, so a 60–40 result is strong evidence. But one side wins 55 or more about 18% of the time, so 55–45 could easily be luck. The verdict uses the usual cut-off: if coin flips would do this well less than 5% of the time, the candidate is better, and if they'd do this badly less than 5% of the time, it's worse.
 
+![How often coin flips win at least this many of 100 games, as bars from 40 to 70 wins. At least 55 wins happens 18% of the time, which could easily be luck, and at least 60 wins 3% of the time, which is strong evidence.](images/coin-flips.svg)
+
 The hard part is deciding which games to count, and that's where most of the tool's design goes.
 
 ## Comparing like with like
@@ -51,6 +53,8 @@ It's the coin-flip question again, asked of the changes themselves. With every w
 
 Testing a change against the bot it came from has a blind spot: it never shows how the bot does against bots unlike itself. So the candidate and the baseline both also play the two starter bots, on the same maps, sides and seeds, and those games are paired too.
 
+![The games a verdict plays. The candidate plays the baseline, starter-c and starter-py on every map, side and seed, and the baseline plays the same opponents from the candidate's seat. The head-to-head games are paired game by game and judged by weighted sign flips. The games against weak bots are paired too, and a candidate that loses more of them is never called better.](images/verdict-games.svg)
+
 The standard here is different. A decent bot should beat a bot that walks at random every single time, so a loss to one can't be put down to bad luck. It should be about as likely as a mouse beating a lion. A candidate that loses more of these games than the baseline did is never called better, and the verdict lists every game the candidate lost to a weak bot that the baseline won, because each one is a bug to find whatever the verdict says.
 
 It also compares game length, pair by pair. A win in 40 rounds and a win in 400 aren't the same result, so it reports the median rounds to win for each version and flags any win much shorter than the rest, since a very short game is sometimes a fluke worth looking at before trusting it.
@@ -59,9 +63,30 @@ It also compares game length, pair by pair. A win in 40 rounds and a win in 400 
 
 Before trusting a new tool with a real question, it's worth giving it some questions where we already know the answer. Each run below plays the 13 bundled maps from both sides on four seeds.
 
-The first check should be easy: the flood-fill bot from [The choice](02-the-choice.md) in place of the C starter, which just wanders about at random. The flood-fill bot ought to come out clearly better, and it does. Of 104 paired games, 46 came out the same, and of the rest it gained 56 and dropped 2. Even so, it lost 2 games to the Python starter that the C starter had won, which is a reminder that a bot that only counts room can still walk into trouble.
+The first check should be easy: the flood-fill bot from [The choice](02-the-choice.md) in place of the C starter, which just wanders about at random. The flood-fill bot ought to come out clearly better, and it does. Of 104 paired games, 46 came out the same, and of the rest it gained 56 and dropped 2. Even so, it lost 2 games to the Python starter that the C starter had won, which is a reminder that a bot that only counts room can still walk into trouble. One pair also had an error, a Python starter that failed to launch on a busy machine, so it doesn't count either way:
+
+```text
+$ just verdict --candidate room-c --baseline starter-c
+room-c in place of starter-c: 104 paired games, 56 gained, 2 dropped, 46 unchanged
+chance random signs do this well: 0.0000   this badly: 1.0000
+weak bots (starter-py): 2 games lost that starter-c won, 35 won that it lost (chance this badly: 1.0000)
+  lost: room-c vs starter-py on autarky seed 722775847
+  lost: starter-py vs room-c on Colosseum seed 4061594858
+rounds to win: room-c 191, starter-c 143.0; paired wins 25 faster, 35 slower
+1 pairs had an error and don't count
+verdict: better
+```
 
 The second check is the more important one. The C and Python versions of the flood-fill bot make exactly the same move in every position, so neither can be better than the other, and a trustworthy tool has to say so. With pairing, the answer is exact rather than statistical: all 104 paired games were identical, against the weak bots too, and the verdict was undecided. A tool that found a difference here would be finding it in pure noise.
+
+```text
+$ just verdict --candidate room-py --baseline room-c
+room-py in place of room-c: 104 paired games, 0 gained, 0 dropped, 104 unchanged
+chance random signs do this well: 1.0000   this badly: 1.0000
+weak bots (starter-c, starter-py): 0 games lost that room-c won, 0 won that it lost (chance this badly: 1.0000)
+rounds to win: room-py 203, room-c 203; paired wins 0 faster, 0 slower
+verdict: undecided
+```
 
 ## A real question
 
@@ -73,7 +98,9 @@ The candidate, `room-pearls`, keeps the flood fill and adds one rule: when sever
 
 Head to head, the pearl chaser comes out worse. Of the 104 paired games, 50 came out the same, and of the rest it won 18 that the flood-fill bot lost and lost 36 that the flood-fill bot won. Weighted by how much the pearl rule ran, random signs would do that badly only 2.3% of the time.
 
-The weak bots make it much starker. Against the two starters, the pearl chaser lost 51 games that the flood-fill bot won and won back only 3. Chasing food makes the bot beatable by bots that don't try at all, which is exactly the kind of failure a head-to-head test between two versions of the same bot can miss. It does win faster when it wins, a median of 163 rounds against 203, which fits: a bot that eats more grows faster. Working out why it keeps dying is a job for the debug viewer later in this stage.
+The weak bots make it much starker. Against the two starters, the pearl chaser lost 51 games that the flood-fill bot won and won back only 3. Chasing food makes the bot beatable by bots that don't try at all, which is exactly the kind of failure a head-to-head test between two versions of the same bot can miss.
+
+![Games against the two starters whose result changed when room-pearls took room-c's place: room-pearls lost 51 that room-c won, and won 3 that room-c lost.](images/pearls-weak-bots.svg) It does win faster when it wins, a median of 163 rounds against 203, which fits: a bot that eats more grows faster. Working out why it keeps dying is a job for the debug viewer later in this stage.
 
 ## Keeping the versions that win
 

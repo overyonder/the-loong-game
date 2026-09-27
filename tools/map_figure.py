@@ -66,9 +66,11 @@ def board(path):
 
 
 def sheet(title, paths):
-    rows = (len(paths) + COLUMNS - 1) // COLUMNS
-    width = COLUMNS * (SLOT_WIDTH + GAP) + GAP
-    height = 56 + rows * (SLOT_HEIGHT + GAP)
+    # A single map gets one large slot; a set gets a grid of small ones.
+    columns, slot_width, slot_height = (1, 520, 470) if len(paths) == 1 else (COLUMNS, SLOT_WIDTH, SLOT_HEIGHT)
+    rows = (len(paths) + columns - 1) // columns
+    width = columns * (slot_width + GAP) + GAP
+    height = 56 + rows * (slot_height + GAP)
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-labelledby="t"'
              ' font-family="Helvetica, Arial, sans-serif">',
              f'<title id="t">{html.escape(title)}</title>',
@@ -76,13 +78,13 @@ def sheet(title, paths):
              f'<text x="{GAP}" y="36" font-size="20" font-weight="bold" fill="{LABEL}">{html.escape(title)}</text>']
     for index, path in enumerate(paths):
         name, columns, rows_, w, h, drawing = board(path)
-        x0 = GAP + (index % COLUMNS) * (SLOT_WIDTH + GAP)
-        y0 = 56 + (index // COLUMNS) * (SLOT_HEIGHT + GAP)
-        scale = min(SLOT_WIDTH / w, (SLOT_HEIGHT - 24) / h)
-        dx = x0 + (SLOT_WIDTH - w * scale) / 2
+        x0 = GAP + (index % columns) * (slot_width + GAP)
+        y0 = 56 + (index // columns) * (slot_height + GAP)
+        scale = min(slot_width / w, (slot_height - 24) / h)
+        dx = x0 + (slot_width - w * scale) / 2
         parts.append(f'<svg x="{dx:.1f}" y="{y0}" width="{w * scale:.1f}" height="{h * scale:.1f}" viewBox="0 0 {w} {h}">'
                      f'{drawing}</svg>')
-        parts.append(f'<text x="{x0 + SLOT_WIDTH / 2}" y="{y0 + SLOT_HEIGHT - 6}" font-size="12" fill="{LABEL}"'
+        parts.append(f'<text x="{x0 + slot_width / 2}" y="{y0 + slot_height - 6}" font-size="12" fill="{LABEL}"'
                      f' text-anchor="middle">{html.escape(name)}, {columns}×{rows_}</text>')
     parts.append("</svg>")
     return "\n".join(parts) + "\n"

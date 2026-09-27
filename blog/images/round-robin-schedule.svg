@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 300" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">A round robin schedule on one map</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="990" height="300" fill="#ede5d5"/>
+<text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">One map, two seeds: the same seeds for every pairing and both sides</text>
+<rect x="250" y="46" width="340" height="30" rx="6" fill="#263d31"/>
+<text x="420" y="66" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">seed crc32(&quot;arena.map:0&quot;)</text>
+<rect x="610" y="46" width="340" height="30" rx="6" fill="#263d31"/>
+<text x="780" y="66" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">seed crc32(&quot;arena.map:1&quot;)</text>
+<text x="230" y="112" font-size="13.5" fill="#20251f" text-anchor="end" font-weight="normal">room-c (A)  vs  starter-c (B)</text>
+<rect x="250" y="92" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="420" y="113" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<rect x="610" y="92" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="780" y="113" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<text x="230" y="154" font-size="13.5" fill="#20251f" text-anchor="end" font-weight="normal">starter-c (A)  vs  room-c (B)</text>
+<rect x="250" y="134" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="420" y="155" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<rect x="610" y="134" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="780" y="155" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<text x="230" y="196" font-size="13.5" fill="#20251f" text-anchor="end" font-weight="normal">room-c (A)  vs  room-py (B)</text>
+<rect x="250" y="176" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="420" y="197" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<rect x="610" y="176" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="780" y="197" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<text x="230" y="238" font-size="13.5" fill="#20251f" text-anchor="end" font-weight="normal">room-py (A)  vs  room-c (B)</text>
+<rect x="250" y="218" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="420" y="239" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<rect x="610" y="218" width="340" height="32" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="780" y="239" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">same pearls, same random numbers</text>
+<text x="20" y="280" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">…then the same again on every other map. Rerunning the schedule replays exactly the same games.</text>
+</svg>

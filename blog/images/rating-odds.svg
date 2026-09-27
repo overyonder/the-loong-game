@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 350" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Chance the stronger bot wins, by rating gap</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="960" height="350" fill="#ede5d5"/>
+<text x="20" y="30" font-size="16" fill="#20251f" text-anchor="start" font-weight="bold">Chance the stronger bot wins, by rating gap</text>
+<path d="M90 50V290H910" stroke="#b9ad99" fill="none"/>
+<polyline points="90.0,290.0 100.2,283.1 110.5,276.2 120.8,269.3 131.0,262.5 141.2,255.7 151.5,249.0 161.8,242.3 172.0,235.7 182.2,229.2 192.5,222.8 202.8,216.5 213.0,210.3 223.2,204.2 233.5,198.2 243.8,192.4 254.0,186.7 264.2,181.1 274.5,175.7 284.8,170.4 295.0,165.3 305.2,160.4 315.5,155.5 325.8,150.9 336.0,146.4 346.2,142.0 356.5,137.8 366.8,133.7 377.0,129.8 387.2,126.1 397.5,122.5 407.8,119.0 418.0,115.7 428.2,112.5 438.5,109.4 448.8,106.5 459.0,103.7 469.2,101.0 479.5,98.4 489.8,96.0 500.0,93.6 510.2,91.4 520.5,89.3 530.8,87.3 541.0,85.3 551.2,83.5 561.5,81.7 571.8,80.1 582.0,78.5 592.2,77.0 602.5,75.6 612.8,74.2 623.0,72.9 633.2,71.7 643.5,70.5 653.8,69.4 664.0,68.4 674.2,67.4 684.5,66.4 694.8,65.6 705.0,64.7 715.2,63.9 725.5,63.2 735.8,62.4 746.0,61.8 756.2,61.1 766.5,60.5 776.8,59.9 787.0,59.4 797.2,58.9 807.5,58.4 817.8,57.9 828.0,57.5 838.2,57.1 848.5,56.7 858.8,56.3 869.0,56.0 879.2,55.6 889.5,55.3 899.8,55.0 910.0,54.8" fill="none" stroke="#263d31" stroke-width="3"/>
+<circle cx="90.0" cy="290.0" r="5" fill="#b53b13"/>
+<text x="98.0" y="280.0" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">even, 50%</text>
+<circle cx="295.0" cy="165.3" r="5" fill="#b53b13"/>
+<text x="303.0" y="155.32147520898025" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">about 3 to 1, 76%</text>
+<circle cx="500.0" cy="93.6" r="5" fill="#b53b13"/>
+<text x="508.0" y="83.63636363636365" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">10 to 1, 91%</text>
+<circle cx="910.0" cy="54.8" r="5" fill="#b53b13"/>
+<text x="902.0" y="44.75247524752476" font-size="13" fill="#b53b13" text-anchor="end" font-weight="bold">100 to 1, 99%</text>
+<text x="90.0" y="310" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">0</text>
+<text x="295.0" y="310" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">200</text>
+<text x="500.0" y="310" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">400</text>
+<text x="705.0" y="310" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">600</text>
+<text x="910.0" y="310" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">800</text>
+<text x="80" y="294.0" font-size="12.5" fill="#66675e" text-anchor="end" font-weight="normal">50%</text>
+<text x="80" y="174.0" font-size="12.5" fill="#66675e" text-anchor="end" font-weight="normal">75%</text>
+<text x="80" y="54.0" font-size="12.5" fill="#66675e" text-anchor="end" font-weight="normal">100%</text>
+<text x="500.0" y="334" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">rating gap, points</text>
+</svg>

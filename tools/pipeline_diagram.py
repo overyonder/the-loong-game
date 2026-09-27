@@ -12,7 +12,7 @@ import sys
 
 PAPER, CARD, INK, MUTED, RULE = "#ede5d5", "#f6f1e7", "#20251f", "#66675e", "#b9ad99"
 SIGNAL, FOREST = "#b53b13", "#263d31"
-LANGUAGE_COLOURS = {"Python": "#3f6e8c", "Odin": "#2f7f79", "Nim": "#a8801a", "C": "#5b5e57", "perf": "#7a4f8a"}
+LANGUAGE_COLOURS = {"Python": "#3f6e8c", "Odin": "#2f7f79", "Nim": "#a8801a", "C": "#5b5e57", "perf": "#7a4f8a", "Zig": "#b8672a"}
 
 BUILT = {"Evaluation harness", "Statistics", "Map generator"}
 OUR_TOOLS = [  # name, language, what it does for us
@@ -24,6 +24,7 @@ OUR_TOOLS = [  # name, language, what it does for us
     ("Replay decoder", "Python", "game state, turn by turn"),
     ("Debug viewer", "Odin", "one dragon's eyes and memory"),
     ("Profiling", "perf", "where the points go"),
+    ("Zig judge", "Zig", "the same games, four times faster"),
 ]
 OFFICIAL_TOOLS = [
     ("unswbc init", "starter bots in C, C++, Python"),
@@ -35,7 +36,7 @@ OFFICIAL_TOOLS = [
 ]
 FROZEN_VERSIONS = ["v3", "v2", "v1"]
 
-WIDTH, HEIGHT = 800, 760
+WIDTH, HEIGHT = 800, 840
 LEFT_X, CENTRE_X, RIGHT_X = 20, 300, 580
 CARD_WIDTH, CENTRE_WIDTH = 200, 200
 
@@ -129,7 +130,7 @@ def main():
         parts.append(our_tool_card(y, name, language, purpose))
         dash = "" if name in BUILT else ' stroke-dasharray="5 4"'
         parts.append(f'<path d="M{LEFT_X + CARD_WIDTH} {y + 33} H{left_spine_x}" stroke="{MUTED}" stroke-width="1.5"{dash}/>')
-    parts.append(f'<path d="M{left_spine_x} {60 + 33} V{60 + 7 * 82 + 33}" stroke="{MUTED}" stroke-width="1.5"/>')
+    parts.append(f'<path d="M{left_spine_x} {60 + 33} V{60 + (len(OUR_TOOLS) - 1) * 82 + 33}" stroke="{MUTED}" stroke-width="1.5"/>')
     parts.append(arrow(left_spine_x, spine_join_y, CENTRE_X - 4, spine_join_y))
     for index, (name, purpose) in enumerate(OFFICIAL_TOOLS):
         y = 60 + index * 80
