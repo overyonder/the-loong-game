@@ -64,8 +64,12 @@ ladder-all:
     just nim-bot first-bot
     just nim-bot roles-bot
     just nim-bot tactics-bot
+    # Ten rounds play every pair of six bots from both sides, so ten per map
+    # meets every pairing on every map.
     just ladder --bots starter-c room-c room-pearls first-bot roles-bot tactics-bot \
-        --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder-all
+        --maps maps/*.map maps-generated/*.map \
+        --rounds $((10 * $(ls maps/*.map maps-generated/*.map | wc -l))) \
+        --output results/ladder-all
 
 # Compare generated and bundled maps through the same harness.
 unseen-maps first="room-c" second="starter-c" count="20" seed="2026":

@@ -47,7 +47,15 @@ game. Add `--sandbox` to play in the judge's sandbox and `--seeds N` for
 seeded, repeatable games. Seeded sandbox games are cached in `build/game-cache`
 and reused while the bots, map and toolkit are unchanged. `just bot-build`
 builds a bot once into the toolkit's own caches, as the round robin does before
-it plays. `just verdict` and `just ladder` run their games through the round robin.
+it plays. An existing `--output` is resumed, playing again only the games that
+did not complete. `just verdict` runs its games through the round robin.
+
+`just ladder` plays rounds in which each bot plays at most one game, from
+frozen copies of the bots and maps, so an interrupted ladder continues with
+`--resume`. After each round it fits Bradley–Terry ratings to every game so
+far, with `harness/rating.py`, and writes `results.json`, `ratings.csv` and
+`summary.md`, which holds the ratings and the head-to-head table. The round
+robin reports ratings from the same fit.
 
 `article-bots` fetches the bundled maps, creates the starter bots and puts the
 flood-fill bots from the posts in place. `first-bot`, `roles`, `tactics`,
@@ -67,7 +75,7 @@ run these public copies. Run `just check-recipes` in both
 example directories to check their inline Python. The release manifest,
 [tooling-release.json](tooling-release.json), records the source and hash of each
 shared file. Replay decoding, reconstruction, sampling, map generation, the round
-robin, the Zig judge and Odin display are frozen copies of their canonical private
+robin, the ladder, the Zig judge and Odin display are frozen copies of their canonical private
 sources. Public export shows observations; private bot-state recovery and
 competitive models are not included. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
 it requires a display and OpenGL context. A headless Wayland or compatible X11
@@ -75,8 +83,6 @@ server can provide that context. `--no-display --export board.json` exports data
 without a graphics context. Changes to shared code originate in the canonical source and are
 released here together with refreshed hashes.
 
-The verdict and ladder statistics retain the article-era experiments: in
-particular, this ladder fits Bradley–Terry ratings, while the private running
-ladder uses streaming Elo. Their historical provenance is recorded in the
-manifest. Screenshots and measurements in the posts describe the recorded
-experiments and have not been rerun.
+The verdict statistics retain the article-era experiment, and their historical
+provenance is recorded in the manifest. Screenshots and measurements in the
+posts describe the recorded experiments and have not been rerun.

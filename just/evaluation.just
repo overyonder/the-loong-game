@@ -15,7 +15,10 @@ round-robin *args:
     from harness.tournament import (
         __doc__,
         discover_bots,
+        forget_game,
+        game_id,
         read_outcome,
+        reusable_games,
         run_game,
         save_results,
     )
@@ -41,7 +44,10 @@ round-robin *args:
             "--dry-run", action="store_true", help="Print the schedule without running"
         )
         parser.add_argument(
-            "--output", type=Path, help="Final result directory; must not exist"
+            "--output",
+            type=Path,
+            help="Final result directory; an existing one is resumed, playing again "
+            "only the games that did not complete",
         )
         parser.add_argument(
             "--timeout", type=float, default=600, help="Seconds per match (default: 600)"
@@ -110,9 +116,20 @@ round-robin *args:
         directory = args.output or Path("results/round-robin") / datetime.now(UTC).strftime(
             "%Y%m%dT%H%M%S%fZ"
         )
-        if directory.exists():
+        resumed = (directory / "results.json").is_file()
+        if directory.exists() and not resumed:
             parser.error(f"Result directory already exists: {directory}")
-        directory.mkdir(parents=True)
+        directory.mkdir(parents=True, exist_ok=resumed)
+        # A resumed set keeps its completed games and plays the rest again.
+        kept = reusable_games(directory)
+        keys = [
+            game_id({"A": a, "B": b, "map": str(m), "seed": s}) for m, a, b, s in schedule
+        ]
+        pending = [
+            (index, game)
+            for index, (game, key) in enumerate(zip(schedule, keys, strict=True), 1)
+            if key not in kept
+        ]
         report = {
             "workers": args.workers,
             "created_at": datetime.now(UTC).isoformat(),
@@ -120,7 +137,7 @@ round-robin *args:
             "status": "running",
             "bots": bots,
             "scheduled_games": len(schedule),
-            "games": [],
+            "games": [kept[key] for key in keys if key in kept],
         }
         save_results(directory, report)
         prepare_bots([Path(name) for name in bots], args.workers, sandbox=args.sandbox)
@@ -130,6 +147,7 @@ round-robin *args:
             stem = f"{index:03d}-{Path(team_a).name}-vs-{Path(team_b).name}-{map_path.stem}"
             log_path = directory / f"{stem}.log"
             replay_path = directory / f"{stem}.replay"
+            forget_game(directory, log_path.name)
             command = [
                 *toolkit.toolkit_match_command(),
                 "run",
@@ -162,7 +180,7 @@ round-robin *args:
 
         try:
             with ThreadPoolExecutor(max_workers=args.workers) as executor:
-                for result in executor.map(play, enumerate(schedule, 1)):
+                for result in executor.map(play, pending):
                     report["games"].append(result)
                     save_results(directory, report)
                     print(
@@ -433,25 +451,20 @@ verdict *args:
 
     main()
 
-# Rate a pool of bots against each other from one round robin.
+# Rate a pool of bots on a resumable, frozen offline ladder.
 [group("Evaluation")]
 ladder *args:
     #!/usr/bin/env -S {{quote(python)}}
     import argparse
-    import json
-    import os
     import subprocess
     from pathlib import Path
 
-    from harness.ladder import __doc__, fit_ratings, head_to_head
+    from harness.ladder import __doc__, run
+    from harness.parallel import cpu_workers
 
 
-    def main() -> None:
-        parser = argparse.ArgumentParser(
-            prog="ladder",
-            description=__doc__,
-            formatter_class=argparse.RawDescriptionHelpFormatter,
-        )
+    def main():
+        parser = argparse.ArgumentParser(prog="ladder", description=__doc__)
         parser.add_argument(
             "--bots",
             nargs="+",
@@ -463,89 +476,33 @@ ladder *args:
                 "room-nim",
                 "room-pearls",
             ],
+            help="Bot directories",
         )
         parser.add_argument(
             "--maps",
             nargs="+",
             default=[str(path) for path in sorted(Path("maps").glob("*.map"))],
         )
-        parser.add_argument(
-            "--seeds", type=int, default=1, help="games per map and side for each pairing"
-        )
-        parser.add_argument("--workers", type=int, default=os.cpu_count())
-        parser.add_argument("--timeout", type=float, default=600)
         parser.add_argument("--output", type=Path, default=Path("results/ladder"))
-        arguments = parser.parse_args()
-        if not arguments.maps:
+        parser.add_argument("--rounds", type=int, default=100)
+        parser.add_argument("--workers", type=int, default=cpu_workers())
+        parser.add_argument("--resume", action="store_true")
+        args = parser.parse_args()
+        if args.rounds < 1 or args.workers < 1:
+            parser.error("rounds and workers must be positive")
+        maps = [Path(path) for path in args.maps]
+        if not maps:
             parser.error("No maps found; run just article-bots first or pass --maps")
-
-        results = arguments.output / "results.json"
-        # An earlier run is refitted without playing it again.
-        if arguments.output.exists() and not results.is_file():
-            parser.error(f"{arguments.output} holds no round-robin results")
-        if not results.is_file():
-            if "room-nim" in arguments.bots:
-                subprocess.run(["just", "room-nim"], check=True)
-            subprocess.run(
-                [
-                    "just",
-                    "round-robin",
-                    "--bots",
-                    *arguments.bots,
-                    "--sandbox",
-                    "--maps",
-                    *arguments.maps,
-                    "--seeds",
-                    str(arguments.seeds),
-                    "--workers",
-                    str(arguments.workers),
-                    "--timeout",
-                    str(arguments.timeout),
-                    "--output",
-                    str(arguments.output),
-                ],
-                stdout=subprocess.DEVNULL,
-                check=False,
-            )
-        games = json.loads(results.read_text())["games"]
-
-        scores = head_to_head(arguments.bots, games)
-        ratings = fit_ratings(arguments.bots, scores)
-        ranked = sorted(arguments.bots, key=lambda bot: -ratings[bot])
-        (arguments.output / "ratings.json").write_text(
-            json.dumps(
-                {
-                    "ratings": ratings,
-                    "head_to_head": {
-                        f"{a} vs {b}": score for (a, b), score in scores.items()
-                    },
-                },
-                indent=2,
-            )
-            + "\n"
-        )
-
-        width = max(len(bot) for bot in ranked) + 2
-        print(
-            f"{'bot':<{width}}{'rating':>7}   "
-            + "".join(f"{bot[:11]:>12}" for bot in ranked)
-        )
-        for bot in ranked:
-            cells = []
-            for other in ranked:
-                if other == bot:
-                    cells.append(f"{'·':>12}")
-                else:
-                    played = scores[bot, other] + scores[other, bot]
-                    cells.append(f"{scores[bot, other]:>6g}/{played:<5g}")
-            print(f"{bot:<{width}}{ratings[bot]:>7.0f}   " + "".join(cells))
-        errors = sum(1 for game in games if game["status"] == "error")
-        print(
-            f"{len(games)} games, {errors} errors, {sum(game['seconds'] for game in games) / 60:.1f} minutes of games"
-        )
+        if len({path.name for path in maps}) != len(maps) or not all(
+            path.is_file() for path in maps
+        ):
+            parser.error("Maps must be existing files with distinct names")
+        if "room-nim" in args.bots and not args.resume:
+            subprocess.run(["just", "room-nim"], check=True)
+        run(args.output, args.bots, maps, args.rounds, args.workers, args.resume)
 
 
-    main()
+    raise SystemExit(main())
 
 # Generate plausible symmetric maps for held-out evaluation.
 [group("Evaluation")]

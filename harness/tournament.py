@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 
 from harness import toolkit
-from harness.elo import rate_games
+from harness.rating import fit_ratings
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULT_PATTERN = re.compile(
@@ -114,8 +114,9 @@ def run_game(command: list[str], log_path: Path, timeout: float) -> tuple[int, b
 
     Several threads or processes may ask for the same match at once, for example two
     tournaments sharing a pairing. A lock per match makes the others wait for the first
-    and then read its result instead of playing it again. Only matches that finished
-    normally are cached, so timeouts and toolkit failures are always retried.
+    and then read its result instead of playing it again. Only completed matches are
+    cached (`read_outcome`), so timeouts, toolkit failures and bot execution
+    failures are always played again.
     """
     key = game_key(command)
     if key is None:
@@ -132,6 +133,7 @@ def run_game(command: list[str], log_path: Path, timeout: float) -> tuple[int, b
             if (
                 previous_log.is_file()
                 and cached.get("log_sha256") == _result_hash(previous_log)
+                and read_outcome(previous_log, 0, False)["status"] == "completed"
                 and (
                     not replay_path
                     or previous_replay is not None
@@ -151,7 +153,7 @@ def run_game(command: list[str], log_path: Path, timeout: float) -> tuple[int, b
                     )
                 return 0, False
         returncode, timed_out = play_match(command, log_path, timeout)
-        if timed_out or returncode:
+        if read_outcome(log_path, returncode, timed_out)["status"] != "completed":
             return returncode, timed_out
         entry.write_text(
             json.dumps(
@@ -211,6 +213,36 @@ def read_outcome(log_path: Path, returncode: int, timed_out: bool) -> dict:
     }
 
 
+def game_id(game: dict) -> tuple:
+    """A scheduled game's identity within a result set: sides, map and seed."""
+    return game["A"], game["B"], Path(game["map"]).name, game.get("seed")
+
+
+def reusable_games(directory: Path) -> dict[tuple, dict]:
+    """A result set's completed games by `game_id`, the ones a resume keeps.
+
+    Errored games are left out, so a resumed set plays them again rather than
+    judging on them, and so does every game a run never reached.
+    """
+    path = directory / "results.json"
+    if not path.is_file():
+        return {}
+    games = json.loads(path.read_text())["games"]
+    return {game_id(game): game for game in games if game["status"] == "completed"}
+
+
+def settled(directory: Path) -> bool:
+    """Whether a result set finished with every game completed, so it can be reused."""
+    path = directory / "results.json"
+    return path.is_file() and json.loads(path.read_text())["status"] == "completed"
+
+
+def forget_game(directory: Path, log: str) -> None:
+    """Delete a game's evidence and what was derived from it before it is replayed."""
+    for path in directory.glob(f"{Path(log).stem}.*"):
+        path.unlink()
+
+
 def save_results(directory: Path, report: dict) -> str:
     standings = {
         name: {
@@ -236,9 +268,9 @@ def save_results(directory: Path, report: dict) -> str:
                 row["points"] += 1
             else:
                 row["losses"] += 1
-    ratings = rate_games(report["bots"], report["games"])
+    ratings = fit_ratings(list(report["bots"]), report["games"])
     for name, row in standings.items():
-        row["elo"] = ratings[name]
+        row["rating"] = ratings[name]
     report["standings"] = sorted(
         standings.values(), key=lambda row: (-row["points"], row["bot"])
     )
@@ -251,15 +283,17 @@ def save_results(directory: Path, report: dict) -> str:
         "",
         "Each pair plays both sides on each map. Win = 1 point; draw = 0.5.",
         "Execution failures are unscored and count as errors for both participants.",
+        "Ratings are a Bradley–Terry fit to every game, on the Elo scale: "
+        "400 points is ten-to-one odds, and the pool averages 1500.",
         "",
-        "| Bot | W | D | L | Errors | Points | Elo |",
+        "| Bot | W | D | L | Errors | Points | Rating |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in report["standings"]:
         lines.append(
             f"| {row['bot']} | {row['wins']} | {row['draws']} | "
             f"{row['losses']} | {row['errors']} | {row['points']:g} | "
-            f"{row['elo']:.1f} |"
+            f"{row['rating']:.1f} |"
         )
     lines += ["", "## Games", ""]
     for game in report["games"]:

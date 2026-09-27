@@ -178,9 +178,9 @@
     {
       "source": "evaluation/tournament.py",
       "path": "harness/tournament.py",
-      "sha256": "072df0cbcce2dcfd1a4c205ccebfac06f6f4bd77a7baafe6e11f3e3b12a456c5",
-      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "c8049d3d60833a5d468052d1845ce1f770f1b24d98ee665faf40bc44995bc337"
+      "sha256": "8e43d9e9adf796f6a984a6af6fff8ae2a085e8a092fcb80a9b858ff696c6d14e",
+      "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
+      "source_sha256": "02e98573aab485c519c55fd9f8b9ce9bb0d81977ea05ea8a0f10fc39909ee591"
     },
     {
       "source": "evaluation/parallel.py",
@@ -190,9 +190,16 @@
       "source_sha256": "2533030adb8dcb69917b61a85b686c556c86911953730711b7c3c4bd955f6e00"
     },
     {
-      "source": "evaluation/elo.py",
-      "path": "harness/elo.py",
-      "sha256": "475f8c2f37fbe3a75335f986bddcc550a21a86b6a411013cb6f75ed59450659d"
+      "source": "evaluation/rating.py",
+      "path": "harness/rating.py",
+      "sha256": "a090a5da19e2cc2f1031023803a3b6bbe6a8947b0ffb75d3b54078f1fb23cf86"
+    },
+    {
+      "source": "evaluation/ladder.py",
+      "path": "harness/ladder.py",
+      "sha256": "7d543216daacff07b760ca5aa8666793fcfdf1ebf8c769c7113fd248f5ae2f01",
+      "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
+      "source_sha256": "acc8b31769c40f670ba1eec194e7697843634abb963a303b8773c9e98025f50f"
     },
     {
       "source": "evaluation/toolkit.py",
@@ -204,14 +211,14 @@
     {
       "source": "commands/evaluation.just",
       "path": "just/evaluation.just",
-      "sha256": "80824f9ad2daefa6f62784ffba6bc75fde5e4dfb6e9b8708356e5dbfa5e99019",
-      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "fd005f091d67221052ce36061af889ca2a5fcf7e6b6c0ba489d3d5975c71f903"
+      "sha256": "b01aa5e92e4af552d4d55da88f497821e627d375e79896790a160e95d6bc9813",
+      "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
+      "source_sha256": "5f5dce3d1a4d7d406978cd29041595a043ab20391b10917e4aef832a62969491"
     },
     {
       "source": "commands/inspection.just",
       "path": "just/inspection.just",
-      "sha256": "f14e47bbb0e3adf95c10f43494e3539067469719759eee859e2a538dbfed0c5c",
+      "sha256": "f58d21e1dccc5ba132468b109cf08a72bb2ee9f83ab9f870ecad8452fb915416",
       "source_revision": "2e00232962ba35eeb7cc2ab0810b2c36900d7f36",
       "source_sha256": "af0349e5a4ccfc770b06159c8cf815ba5c952e137dbf49fbb33b40fd5b0016b2"
     }
@@ -225,11 +232,6 @@
         "path": "harness/verdict.py",
         "original_sha256": "4ee16855944bf3aa80381dbac99cbd3cfeee954f7401dd2a6f5b75a8a24a7d52",
         "sha256": "504c099fca1302528c721886e37070242f684b0165042687b3a4486cc9acbe73"
-      },
-      {
-        "path": "harness/ladder.py",
-        "original_sha256": "4010690f8be505a32d9debf26fc9c4e894d6d706518e2a0d462f760b22a4e0f8",
-        "sha256": "eb913a46be5b710ef0706717b7a2ef107f627669e8bc6704020f0fae35fc46fb"
       }
     ]
   }

@@ -20,7 +20,7 @@ deaths *replays:
     #!/usr/bin/env bash
     set -euo pipefail
     if [[ "$#" == 0 ]]; then
-        set -- results/ladder/*-room-c-vs-room-pearls-*.replay results/ladder/*-room-pearls-vs-room-c-*.replay
+        set -- results/ladder/games/*-room-c-vs-room-pearls.replay results/ladder/games/*-room-pearls-vs-room-c.replay
     fi
     just decode --deaths "$@"
 
