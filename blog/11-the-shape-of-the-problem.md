@@ -84,9 +84,17 @@ To see whether the structure pays off, we test the first bot in place of the flo
 
 ![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict on four seeds. Of 264 paired games, first-bot gained 77, dropped 50 and left 137 unchanged. Random signs do this well about 3% of the time. Against the weak bots it lost 5 games that room-c won, all listed, and won 51 that room-c lost. The verdict is better.](images/first-bot-verdict.png)
 
-Of the 264 paired games, 137 came out the same, and of the rest the first bot gained 77 and dropped 50. Random signs do that well about 3% of the time, so it's a real improvement, if not a large one, and it also beat the starters more often, winning 51 games the flood-fill bot lost and losing 5.
+It's a real improvement, if not a large one, and the first bot also beats the starters more often than the flood-fill bot did.
 
-Where the gain comes from is interesting. On the bundled maps the two bots are level, 21 changed games gained and 25 dropped, and almost all of the improvement is on the generated maps, where the first bot gained 56 and dropped 25. The replays show why: on those maps its dragons ran into their own bodies 23 times, against 74 for the flood-fill bot. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), closed by movement refusing to step through portals it can't see past.
+Where the gain comes from is interesting. Splitting the changed games by map set, the two bots are level on the bundled maps, and almost all of the improvement is on the generated ones:
+
+![The first bot's changed games against the flood-fill bot, by map set. Bundled maps: 21 gained and 25 dropped. Generated maps: 56 gained and 25 dropped.](images/first-bot-gains.svg)
+
+The replays show why. On the generated maps, far fewer of the first bot's dragons ran into their own bodies:
+
+![Dragons that hit their own body on the generated maps: 74 for the flood-fill bot and 23 for the first bot.](images/first-bot-self-hits.svg)
+
+That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), closed by movement refusing to step through portals it can't see past.
 
 It's a modest start, but it's measurably better, and every new behaviour now has an obvious place to go.
 

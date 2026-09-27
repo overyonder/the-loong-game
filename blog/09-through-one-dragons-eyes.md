@@ -40,17 +40,21 @@ A replay records what a dragon saw and did, but not why. A bot can say why throu
 
 Back to the question from the last post: why do the pearl chaser's dragons hit walls and themselves about three times as often as the plain flood-fill bot's? Here's one in the viewer, on the 16×16 Colosseum map, just before it dies:
 
-![The debug viewer at round 130 of room-pearls against room-c on Colosseum. Dragon 0 of room-pearls is 86 segments long and fills most of the board. Only a 7×7 square around its head is lit. Below the head is a portal edge.](images/viewer-long-dragon-portal.png)
+![The debug viewer at round 130 of room-pearls against room-c on Colosseum. Dragon 0 of room-pearls is 87 segments long and winds across most of the board. A yellow outline marks its 7×7 window, and a portal edge, drawn dashed, runs just beside its head. The inspector reports the dragon's length and action, MOVE S, and notes that the bot's memory is unavailable because its build can't be identified.](images/viewer-long-dragon-portal.png)
 
-The dragon is 86 segments long on a board of 256 tiles, so most of its body is somewhere its 49-tile window can't see. Its next move went south through the portal edge under its head and landed on its own body on the far side. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), made far more likely by a body filling a third of the board.
+The dragon is 87 segments long on a board of 256 tiles, so most of its body is somewhere its 49-tile window can't see. Its next move went south through the portal edge under its head and landed on its own body on the far side. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), made far more likely by a body filling a third of the board.
 
 The next one has no portals to blame. The big_empty map has no kelp and no portals, and this dragon had grown to 122 segments:
 
-![The debug viewer at round 337 of room-pearls against room-c on big_empty, a 64×64 map with no kelp or portals. Dragon 4 of room-pearls is 122 segments long. Its head is wound into a tight knot of its own body, and its 7×7 window shows almost nothing but its own segments.](images/viewer-long-dragon.png)
+![The debug viewer at round 337 of room-pearls against room-c on big_empty, a 64×64 map with no kelp or portals. Dragon 4 of room-pearls is 122 segments long and sprawls across the top half of the board. Its head, in the yellow 7×7 outline, is wound into a tight knot of its own body.](images/viewer-long-dragon.png)
 
 Its head is wound into a knot of its own body, and almost everything in its window is itself. The flood fill only counts room inside the window, so it has almost nothing to choose between moves with, and the next move ran into its own body.
 
-Across all 66 games the numbers agree. Chasing pearls works, in that dragons get long: the pearl chaser's longest dragon reached a median of 33.5 segments per game, against 13.5 for the flood-fill bot. But its dragons that hit themselves had a median length of 32, against 13.5, and 17 of those 51 were longer than 49 segments, too long to fit in their own window. The flood fill was designed for a short dragon, and chasing pearls takes that assumption away. A bot that grows long needs to know where its own body is outside its window, which is a job for strategy.
+Across all 66 games the numbers agree. Chasing pearls works, in that dragons get long, and the ones that die on their own bodies are long too:
+
+![Median dragon lengths across the 66 games. The longest dragon per game: 13.5 segments for room-c and 33.5 for room-pearls. Dragons that hit themselves: 13.5 for room-c and 32 for room-pearls.](images/pearl-lengths.svg)
+
+A third of the pearl chaser's self-hits were dragons longer than 49 segments, too long to fit in their own window. The flood fill was designed for a short dragon, and chasing pearls takes that assumption away. A bot that grows long needs to know where its own body is outside its window, which is a job for strategy.
 
 ## Next up
 

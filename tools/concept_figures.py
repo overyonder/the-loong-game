@@ -55,7 +55,7 @@ def arrow(points, colour=MUTED, dashed=False):
 def bars(title, rows, unit, width=1000, log=True, note=None):
     """Horizontal bars, one per (label, value, colour) row, on a log or linear scale."""
     import math
-    left, right, top, gap = 300, 150, 60, 44
+    left, right, top, gap = 380, 150, 60, 44
     top_value = max(value for _, value, _ in rows)
     bottom = min(value for _, value, _ in rows)
     lo = 10 ** math.floor(math.log10(bottom)) if log else 0
@@ -434,7 +434,65 @@ def fleet_run():
     return svg(1010, 272, "The fleet: standing resources and one run's pieces", parts)
 
 
+def unseen_losses():
+    return bars("How the flood-fill bot's 6 losses on generated maps began", [
+        ("hit itself through a portal", 3, SIGNAL), ("hit another dragon", 2, FOREST), ("hit a wall", 1, FOREST)],
+        "games", log=False)
+
+
+def strategy_cost_nim():
+    return bars("CPU points per turn for the strategy alone, idle cost removed", [
+        ("C", 43_000, FOREST), ("Nim, written like Python", 69_000, "#a8801a"), ("Python", 19_700_000, SIGNAL)],
+        "points", note="Log scale. The same flood-fill strategy in each language, making the same moves.")
+
+
+def death_causes():
+    rows = []
+    for cause, flood, pearl in (("hit a wall", 11, 31), ("hit itself", 16, 51), ("hit another body", 25, 17), ("lost head-on", 22, 20)):
+        rows += [(f"{cause}: room-c", flood, FOREST), (f"{cause}: room-pearls", pearl, SIGNAL)]
+    return bars("How each bot's dragons died across their 66 games", rows, "dragons", log=False)
+
+
+def pearl_lengths():
+    return bars("Dragon lengths across the 66 games, in segments", [
+        ("longest dragon per game: room-c", 13.5, FOREST), ("longest dragon per game: room-pearls", 33.5, SIGNAL),
+        ("dragons that hit themselves: room-c", 13.5, FOREST), ("dragons that hit themselves: room-pearls", 32, SIGNAL)],
+        "median", log=False)
+
+
+def first_bot_gains():
+    return bars("The first bot's changed games against the flood-fill bot, by map set", [
+        ("bundled maps: gained", 21, FOREST), ("bundled maps: dropped", 25, SIGNAL),
+        ("generated maps: gained", 56, FOREST), ("generated maps: dropped", 25, SIGNAL)], "games", log=False)
+
+
+def first_bot_self_hits():
+    return bars("Dragons that hit their own body on the generated maps", [
+        ("flood-fill bot", 74, SIGNAL), ("first bot", 23, FOREST)], "dragons", log=False)
+
+
+def friendly_fire():
+    return bars("Head-on collisions in the version that split at length 10", [
+        ("between two of our own dragons", 382, SIGNAL), ("with an enemy dragon", 78, FOREST)], "collisions", log=False)
+
+
+def judge_cpu():
+    return bars("CPU time for one game, seconds", [
+        ("Probe bot, Default: toolkit", 4.08, RULE), ("Probe bot, Default: our judge", 2.03, FOREST),
+        ("Older bot, Arena: toolkit", 4.18, RULE), ("Older bot, Arena: our judge", 2.19, FOREST),
+        ("Older bot, Default: toolkit", 125.96, RULE), ("Older bot, Default: our judge", 29.44, FOREST)],
+        "s", width=1010, note="Log scale. Host user and system time, the same runs as the wall times above.")
+
+
 FIGURES = {
+    "death-causes": death_causes,
+    "pearl-lengths": pearl_lengths,
+    "first-bot-gains": first_bot_gains,
+    "first-bot-self-hits": first_bot_self_hits,
+    "friendly-fire": friendly_fire,
+    "judge-cpu": judge_cpu,
+    "strategy-cost-nim": strategy_cost_nim,
+    "unseen-losses": unseen_losses,
     "fleet-run": fleet_run,
     "coil-forage-result": coil_forage_result,
     "sonar-position-message": sonar_position_message,

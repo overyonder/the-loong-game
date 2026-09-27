@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 228" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">CPU points per turn for the strategy alone, idle cost removed</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="228" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">CPU points per turn for the strategy alone, idle cost removed</text>
+<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">C</text>
+<rect x="380" y="60" width="90.4" height="26" rx="4" fill="#263d31"/>
+<text x="480.37281115772527" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">43,000 points</text>
+<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Nim, written like Python</text>
+<rect x="380" y="104" width="119.7" height="26" rx="4" fill="#a8801a"/>
+<text x="509.67312626114375" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">69,000 points</text>
+<text x="368" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Python</text>
+<rect x="380" y="148" width="470.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">19,700,000 points</text>
+<text x="20" y="214" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Log scale. The same flood-fill strategy in each language, making the same moves.</text>
+</svg>

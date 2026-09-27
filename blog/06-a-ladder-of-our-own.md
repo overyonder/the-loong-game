@@ -60,7 +60,7 @@ At this point in the series we have six bots: the two starters, the flood-fill b
 | starter-py | 1307 | 76 | 3 | 251 | 7 | 10.5 | 10.5 | 17.5 | | 32 |
 | starter-c | 1275 | 65 | 1 | 264 | 5 | 5 | 6.5 | 15 | 34 | |
 
-The three flood-fill bots finish within 17 points of each other, and their games against each other split exactly 33–33. That's what it should look like, because they make the same move in every position. The small gaps between them come from their games against the other three bots, which the harness of the time seeded separately for each pairing, so they fell slightly differently. A gap that small is noise, and the head-to-head columns show it.
+The three flood-fill bots finish almost level, and their games against each other split exactly evenly. That's what it should look like, because they make the same move in every position. The small gaps between them come from their games against the other three bots, which the harness of the time seeded separately for each pairing, so they fell slightly differently. A gap that small is noise, and the head-to-head columns show it.
 
 The pearl-chasing bot sits about 140 points below them, which predicts that it wins roughly three games in ten against them, and it did. The verdict already rejected it with a single comparison, and the ladder agrees with a much broader one. The two starters trail everything and are nearly level with each other.
 

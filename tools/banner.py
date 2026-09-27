@@ -2,6 +2,7 @@
 
     python3 tools/banner.py sonar blog/images/banner-sonar.svg
     python3 tools/banner.py machine blog/images/banner-the-machine-inside-the-judge.svg
+    python3 tools/banner.py cloud blog/images/banner-games-in-the-cloud.svg
 
 Both use the map banners' board: a 24-pixel grid, kelp in green, pearls in yellow, our dragons
 in orange and the enemy's in white. The sonar banner adds dashed rays, and the machine banner
@@ -158,8 +159,39 @@ def machine():
     return parts
 
 
+def cloud():
+    """Two regions of worker instances, each a small board with a dragon on it, fed by one queue of games."""
+    rng = random.Random(21)
+    parts = board()
+    blocked = set()
+    shapes = []
+    for room_column in (3, 36):
+        shapes.append(kelp_room(room_column, 4, 21, 31, "east" if room_column == 3 else "west"))
+        for row in range(3):
+            for column in range(3):
+                x0, y0 = room_column + 1 + column * 7, 6 + row * 10
+                shapes.append(f"M{x0 * CELL} {y0 * CELL}h{5 * CELL}v{7 * CELL}h{-5 * CELL}z")
+                start = (x0 + rng.randrange(1, 4), y0 + rng.randrange(1, 6))
+                body = [start]
+                for _ in range(rng.randrange(2, 5)):
+                    options = [(body[-1][0] + dx, body[-1][1] + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+                    options = [cell for cell in options if x0 <= cell[0] < x0 + 5 and y0 <= cell[1] < y0 + 7 and cell not in body]
+                    if not options:
+                        break
+                    body.append(rng.choice(options))
+                parts.append(dragon(body, OURS if (row + column) % 3 else THEIRS))
+                blocked.update(body)
+    parts.insert(3, f'<path d="{"".join(shapes)}" stroke="{KELP}" stroke-width="2.5" fill="none"/>')
+    # The queue: one pearl per game, down the middle between the regions.
+    for row in range(5, 35):
+        x, y = centre(29 + row % 2, row)
+        parts.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="4" fill="{PEARL}"/>')
+    parts += pearls(rng, 30, blocked | {(column, row) for column in range(3, 58) for row in range(4, 36)})
+    return parts
+
+
 def main():
-    parts = {"sonar": sonar, "machine": machine}[sys.argv[1]]()
+    parts = {"sonar": sonar, "machine": machine, "cloud": cloud}[sys.argv[1]]()
     parts.append("</svg>")
     with open(sys.argv[2], "w") as output:
         output.write("\n".join(parts) + "\n")

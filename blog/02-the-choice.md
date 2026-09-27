@@ -51,7 +51,7 @@ The two bots make exactly the same move on every turn. I checked by playing each
 
 ![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-c-python.svg)
 
-The Python bot's median turn costs 23.8 million points, and its slowest 1% cost more than 55 million. The C bot's median turn costs 3.0 million, and most of that isn't the strategy. A C bot that only repeats its last move costs 2.9 million a turn, almost all of it the write to stdout that sends each move. Taking each language's idle cost away, the strategy itself costs about 43,000 points in C and 19.7 million in Python, roughly 450 times as much.
+Python costs far more per turn, and most of what C spends isn't the strategy at all. A C bot that only repeats its last move costs almost as much, because nearly all of it is the single write to stdout that sends each move. Taking each language's idle bot away leaves just the strategy, and that's where the difference really shows:
 
 ![CPU points per turn for the strategy alone, with each language's idle cost removed, on a log scale: C 43,000 points and Python 19,700,000 points.](images/strategy-cost.svg)
 
@@ -92,7 +92,11 @@ The Nim bot makes exactly the same moves as the C and Python bots, so it slots s
 
 ![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Nim compiled to C: 3.0 million median, 3.1 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-by-language.svg)
 
-Nim written the way you'd write Python lands almost exactly where C does. Its strategy costs about 69,000 points a turn, 1.6 times the C version and about 280 times cheaper than Python. The remaining gap is the growable list, which Nim allocates on the heap for every flood fill where the C uses a fixed array on the stack, and a fixed array in Nim brings it level with C. How Nim manages memory is configurable too:
+Nim written the way you'd write Python lands almost exactly where C does, and taking the idle cost away again shows how close the strategies are:
+
+![CPU points per turn for the strategy alone, with each language's idle cost removed, on a log scale: C 43,000 points, Nim written like Python 69,000 points, and Python 19,700,000 points.](images/strategy-cost-nim.svg)
+
+The remaining gap to C is the growable list, which Nim allocates on the heap for every flood fill where the C uses a fixed array on the stack, and a fixed array in Nim brings it level with C. How Nim manages memory is configurable too:
 
 ```nim nim.cfg
 mm = arc    # reference counting: memory is freed as soon as its last reference goes

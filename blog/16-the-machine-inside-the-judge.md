@@ -81,17 +81,15 @@ A faster judge is only useful if it plays the same games. A probe bot, written t
 
 ## Four times faster
 
-Timed one game at a time on a Ryzen 7 5800X3D, with the same bot, map, seed, engine and replay output for both hosts:
-
-| Game | Dragon turns | Official toolkit | Our judge | Speedup |
-| --- | ---: | ---: | ---: | ---: |
-| Probe bot, Default | 6,662 | 3.16 s | 0.83 s | 3.8× |
-| Older bot of ours, Arena | 1,961 | 3.14 s | 0.81 s | 3.9× |
-| Older bot of ours, Default | 29,670 | 124.9 s | 28.2 s | 4.4× |
-
-Each time is the median of three runs, including startup, compiling the WebAssembly and writing the replay. All twelve paired games, warm-ups included, produced identical replays. CPU time fell by about half in the short games and by three quarters in the long one, and peak memory fell from 467 MiB to 294 MiB in the long game.
+Timed one game at a time on a Ryzen 7 5800X3D, with the same bot, map, seed, engine and replay output for both hosts, the Zig judge is about four times faster end to end in every game we timed:
 
 ![End-to-end wall time for one game, in seconds on a log scale. Probe bot on Default: 3.16 with the toolkit and 0.83 with our judge. Older bot on Arena: 3.14 and 0.81. Older bot on Default: 124.9 and 28.2. Median of three runs each on a Ryzen 7 5800X3D, with identical replays from both hosts.](images/judge-speed.svg)
+
+Each time is the median of three runs, including startup, compiling the WebAssembly and writing the replay, and all twelve paired games, warm-ups included, produced identical replays. The host also does far less work for the same games:
+
+![CPU time for one game in seconds, on a log scale. Probe bot on Default: 4.08 with the toolkit and 2.03 with our judge. Older bot on Arena: 4.18 and 2.19. Older bot on Default: 125.96 and 29.44.](images/judge-cpu.svg)
+
+Peak memory in the long game fell from 467 MiB to 294 MiB.
 
 The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. These timings don't separate the two.
 

@@ -95,7 +95,11 @@ The decoder can already answer questions across many games. The [verdict post](0
 
 ![A terminal running just deaths over 66 replays. room-c's dragons hit a wall 11 times, hit themselves 16 times, hit another body 25 times and lost 22 head-on collisions. room-pearls hit a wall 31 times, hit itself 51 times, hit another body 17 times and lost 20 head-on collisions. Neither had a turn with no valid action.](images/replay-deaths.png)
 
-The pearl chaser hits walls nearly three times as often and itself more than three times as often. That says what goes wrong but not why, and for that we need the view from inside the game.
+Drawn side by side, the difference is plain:
+
+![How each bot's dragons died across their 66 games. room-c: 11 hit a wall, 16 hit themselves, 25 hit another body and 22 lost head-on. room-pearls: 31 hit a wall, 51 hit themselves, 17 hit another body and 20 lost head-on.](images/death-causes.svg)
+
+The pearl chaser's dragons run into walls and into themselves far more often. That says what goes wrong but not why, and for that we need the view from inside the game.
 
 ## Next up
 

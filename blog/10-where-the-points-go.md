@@ -53,11 +53,13 @@ The turn loop wraps each step in `profile` and logs the totals at the end of eve
 
 ## What the profile says
 
-The bot's thinking, the move choice with its flood fills, costs about 49,000 points, under 2% of the turn. The biggest item is output: 3.04 million points, the 2.5 million write fee plus 4,000 for each of about 135 bytes. Only 15 of those bytes are the move and `ENDTURN`. The rest is the profiler's own log line, which costs more than the code it measures, so a profiling build is for reading, never for submitting.
-
-The second surprise is input. A turn's input is under a kilobyte, about 6,000 points to read, but the starter helper spends another 320,000 turning that text into numbers. Parsing costs six times as much as the strategy.
+The bot's thinking, the move choice with its flood fills, is a tiny slice of the turn, and almost everything else is overhead:
 
 ![Median CPU points per turn for the profiled bot, by part, on a log scale: Output 3,038,645, Input 329,448, ChooseMove 48,657 and ReadWindow 18,444. Output is the 2.5 million write fee plus 4,000 points a byte, and the profiler's own log line.](images/turn-cost.svg)
+
+Output is the 2.5 million write fee plus 4,000 points for each of about 135 bytes, and only 15 of those bytes are the move and `ENDTURN`. The rest is the profiler's own log line, which costs more than the code it measures, so a profiling build is for reading, never for submitting.
+
+The second surprise is input. A turn's input is under a kilobyte, which costs about 6,000 points to read, and nearly all the rest of that bar is the starter helper turning the text into numbers. Parsing costs more than the strategy.
 
 So a whole turn costs about 3.4 million points, and 96 million go unused. That budget is for thinking, and the part of the thinking that grows when a bot looks further ahead is the flood fill. Two moves deeper means sixteen times as many.
 
@@ -72,6 +74,30 @@ Each window is repeated 2,000 times, so per window that's about 24,800 instructi
 ![A terminal running just native-profile. perf report shows 99% of the time in RoomsQueue, 96% of it in the inlined CountReachableTiles. perf annotate lists the instructions that take more than 2% of the samples: a mix of add, lea, sub and test instructions, and several conditional jumps, the hottest at 7.1%.](images/native-profile.png)
 
 No single instruction stands out. The cost is spread across the arithmetic that turns a tile number back into a row and column, and the jumps that test whether each step stays in the window and whether a tile was seen before. The shape of the code, one tile at a time with a test at every step, is the cost. Since the judge counts instructions, the way to make the flood fill cheaper is fewer, bigger steps, and that's where the performance stage starts.
+
+## Other tools
+
+Beyond the eight tools on the wishlist, the screenshots in these posts lean on a set of everyday command-line tools that replace older Unix ones. If you want the same setup, these are the ones that appear most:
+
+| Tool | In place of | What it does here |
+| --- | --- | --- |
+| [fish](https://fishshell.com) | bash, zsh | The shell, with a readable scripting syntax and suggestions as you type |
+| [just](https://just.systems) | make, as a command runner | Runs every tool in the series as a named recipe from a `justfile` |
+| [Nix](https://nixos.org) | installing tools globally | `nix shell nixpkgs#tool` runs any tool without installing it |
+| [kitty](https://sw.kovidgoyal.net/kitty/) | a default terminal | The terminal in every capture, fast and scriptable |
+| [bat](https://github.com/sharkdp/bat) | cat | Prints files with syntax highlighting and line numbers |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg`) | grep | Searches files and output, fast and with sensible defaults |
+| [fd](https://github.com/sharkdp/fd) | find | Finds files by name with a simple syntax |
+| [eza](https://github.com/eza-community/eza) | ls | Lists files and trees with colour and icons |
+| [glow](https://github.com/charmbracelet/glow) | reading raw Markdown | Renders Markdown in the terminal, so result tables print with proper borders |
+| [hexyl](https://github.com/sharkdp/hexyl) | xxd, hexdump | Shows binary files in coloured hex, as in the wishlist's replay dump |
+| [zoxide](https://github.com/ajeetdsouza/zoxide) (`z`) | cd | Jumps to directories you use often by a fragment of their name |
+| [zellij](https://zellij.dev) | tmux | Splits the terminal into panes that survive a lost connection |
+| [btop](https://github.com/aristocratos/btop) | top | Shows CPU, memory and processes while a batch of games runs |
+| [dust](https://github.com/bootandy/dust) | du | Shows what's using disk space, as replays pile up |
+| [duf](https://github.com/muesli/duf) | df | Shows free space on each disk at a glance |
+
+[Modern Unix](https://github.com/ibraheemdev/modern-unix) keeps a longer list of these alternatives, with screenshots.
 
 ## Next up
 

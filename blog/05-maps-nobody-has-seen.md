@@ -50,11 +50,13 @@ The seed makes it reproducible, so `just mapgen --count 20 --seed 2026 --output 
 
 To see whether the new maps tell us anything, we'll play the same matchup twice, the flood-fill bot from [The choice](02-the-choice.md) against the C starter, first on the bundled maps and then on the generated ones. If the generated maps were just more of the same, both runs should look alike. `just unseen-maps` generates the maps and plays both, two seeds per map and side, in the sandbox:
 
-![A terminal running just unseen-maps, filtered to its two results tables. On the bundled maps, room-c won 52 games and lost none against starter-c. On the generated maps, room-c won 74 and lost 6.](images/unseen-maps.png)
+![A terminal reading the two round robins' results through rg and glow, drawn as tables. On the bundled maps, room-c won all 52 games against starter-c. On the generated maps, room-c won 74 and lost 6.](images/unseen-maps.png)
 
-The first pair of rows is the bundled maps and the second the generated ones, and they don't look alike. The flood-fill bot won all 52 of its games on the bundled maps, but lost 6 of its 80 on the generated ones. That's already worth knowing, since it means the bundled maps flatter this bot, but the more useful part is what the losses looked like.
+They don't look alike. On maps it has never seen, the flood-fill bot starts losing to a bot that moves at random, which already tells us the bundled maps flatter it. The more useful part is how those losses began:
 
-Half of those losses came down to a dragon running into its own body, which is strange, because the flood fill is supposed to make that impossible: it never moves onto a tile holding a segment, ours included. The replays showed what was going on. In all three of those deaths, the fatal move went through a portal. The flood fill treats a portal like any other open edge, as if the dragon would just step onto the tile next door, but a portal carries it to its partner edge, which can be anywhere on the map. Sometimes that's right where the dragon's own body is. Nine of the bundled maps have portals too, and the bot rarely lost on them, so we'd never have spotted this without the new maps. Teaching the bot how portals work is the first job for the strategy posts.
+![How the flood-fill bot's 6 losses on generated maps began: 3 with a dragon hitting itself through a portal, 2 hitting another dragon, and 1 hitting a wall.](images/unseen-losses.svg)
+
+A dragon running into its own body is strange, because the flood fill is supposed to make that impossible: it never moves onto a tile holding a segment, ours included. The replays showed what was going on. The flood fill treats a portal like any other open edge, as if the dragon would just step onto the tile next door, but a portal carries it to its partner edge, which can be anywhere on the map. Sometimes that's right where the dragon's own body is. Nine of the bundled maps have portals too, and the bot rarely lost on them, so we'd never have spotted this without the new maps. Teaching the bot how portals work is the first job for the strategy posts.
 
 ## Where the tools fit
 

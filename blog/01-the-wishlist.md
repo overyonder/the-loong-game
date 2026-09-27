@@ -20,7 +20,7 @@ We can get more games easily enough. Each run picks a random seed, which decides
 
 ## Every map, both sides
 
-If one game isn't enough, the natural thing is to play lots. Maps matter too, since a bot can be strong on one layout and hopeless on another, and so does which side you start on. So the obvious next move is a loop that plays every one of the 13 bundled maps, with each bot taking each side:
+If one game isn't enough, the natural thing is to play lots. Maps matter too, since a bot can be strong on one layout and hopeless on another, and so does which side you start on. So the obvious next move is a loop that plays every one of the 13 bundled maps, with each bot taking each side. My shell is [fish](https://fishshell.com), which has a friendlier scripting syntax than bash, so the loop is a few lines of fish, shown here with [bat](https://github.com/sharkdp/bat), a `cat` with syntax highlighting:
 
 ![A terminal showing loop.fish in bat, then time fish loop.fish printing 26 results, one per map and side, in 175.8 seconds.](images/unswbc-loop.png)
 

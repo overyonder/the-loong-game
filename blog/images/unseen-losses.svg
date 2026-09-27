@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 204" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">How the flood-fill bot&#x27;s 6 losses on generated maps began</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="204" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">How the flood-fill bot&#x27;s 6 losses on generated maps began</text>
+<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit itself through a portal</text>
+<rect x="380" y="60" width="470.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">3 games</text>
+<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit another dragon</text>
+<rect x="380" y="104" width="313.3" height="26" rx="4" fill="#263d31"/>
+<text x="703.3333333333333" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">2 games</text>
+<text x="368" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit a wall</text>
+<rect x="380" y="148" width="156.7" height="26" rx="4" fill="#263d31"/>
+<text x="546.6666666666666" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">1 games</text>
+</svg>

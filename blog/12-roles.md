@@ -66,7 +66,7 @@ If kamikazes are rare because short dragons are rare, the answer is to make shor
 
 The child is a new dragon running a fresh copy of the program, with no memory. Nothing tells it to be a kamikaze. It hears the champion announce length 10, sees that it's only three segments long, and picks the role itself.
 
-With splitting, the roles bot beat the first bot convincingly, gaining 39 changed games and dropping 4. But that mixes two changes, since there are more dragons now and the new ones hunt. To separate them, I tried a version that split in exactly the same way but made its children ordinary workers. That also beat the first bot, 35 to 8, so having more dragons helps on its own. Playing the two versions directly against each other, weighting each game by the turns spent as a kamikaze, the one with kamikazes gained 30 and dropped 12. So splitting and the kamikaze role each earn their place.
+With splitting, the roles bot beat the first bot convincingly, as the chart above shows. But that mixes two changes, since there are more dragons now and the new ones hunt. To separate them, I tried a version that split in exactly the same way but made its children ordinary workers. That also beat the first bot, so having more dragons helps on its own. Playing the two versions directly against each other, weighting each game by the turns spent as a kamikaze, the one with kamikazes gained 30 and dropped 12. So splitting and the kamikaze role each earn their place.
 
 ## A bug in the replay
 
@@ -82,7 +82,9 @@ The fix is to put the sender's ID in each message and ignore our own, which is t
 
 ## Friendly fire
 
-The replays showed one more problem. Head-on collisions kill teammates as well as enemies, but movement only keeps clear of enemy heads, and once splitting fills the board with our own dragons, they start running into each other. The version that split at length 10 had 382 head-on collisions between two of our own dragons, against 78 with the enemy.
+The replays showed one more problem. Head-on collisions kill teammates as well as enemies, but movement only keeps clear of enemy heads, and once splitting fills the board with our own dragons, they start running into each other. In the version that split at length 10, most head-on collisions were between two of our own dragons:
+
+![Head-on collisions in the version that split at length 10: 382 between two of our own dragons, and 78 with an enemy dragon.](images/friendly-fire.svg)
 
 The obvious fix is to give friendly heads the same berth as enemy ones. Surprisingly, that came out undecided and leaned the wrong way: it gained 19 changed games, dropped 29, and lost 5 games to the weak bots that the version without it won. Finding out why will need a closer look at the games themselves.
 

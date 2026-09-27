@@ -60,7 +60,7 @@ Here's a champion from one of the test games, nine segments packed into a three-
 
 ![A game on Colosseum at round 76. Our champion, nine segments long, is coiled into a tight three-by-three square at the edge of the board.](images/champion-coil.svg)
 
-On its own, coiling didn't clearly change the result against the roles bot: of the games that changed, the coiling bot gained 31 and dropped 25, weighted by how much of each game the champion spent coiled. That isn't surprising, since a champion that stays put only pays off if something brings it food, and that's the other half of the idea.
+On its own, coiling didn't clearly change the result against the roles bot, weighted by how much of each game the champion spent coiled. That isn't surprising, since a champion that stays put only pays off if something brings it food, and that's the other half of the idea.
 
 ## Feeding the champion
 
@@ -80,11 +80,11 @@ Here's how each version did against the roles bot, weighted by the turns its new
 
 ![Each tactic against the roles bot, as the share of changed games it gained. Coil only: 31 gained and 25 dropped of 132 paired games, undecided. Coil, forage and sacrifice: 24–42, worse. Forage and sacrifice, no coil: 16–40, worse. Sacrifice without foraging: 25–39, worse. Sacrifice only near the champion's head: 24–41, worse. Forage, no coil: 32–21, undecided. Coil and forage, four seeds: 80–45 of 264, undecided.](images/tactics-experiments.svg)
 
-Every version with the sacrifice in it came out worse. Testing the pieces separately again, feeders that only foraged were fine, so the damage came from the sacrifice itself. My first guess was that feeders were dying against the champion's tail, far from its head, so the champion never came back for the pearls. So one version only sacrificed when the champion's head was within two tiles, and that made no difference: 24 changed games gained and 41 dropped, against 25 and 39 without the restriction.
+Every version with the sacrifice in it came out worse. Testing the pieces separately again, feeders that only foraged were fine, so the damage came from the sacrifice itself. My first guess was that feeders were dying against the champion's tail, far from its head, so the champion never came back for the pearls. So one version only sacrificed when the champion's head was within two tiles, and as the chart shows, that made no difference.
 
 Whatever the number one team is doing, it's more careful than this. Perhaps their feeders only sacrifice when the champion is short of food, or perhaps the champion positions itself to collect. It's a good open question, and I'd love to hear from anyone who cracks it.
 
-What came closest to working was putting together the two pieces that hadn't hurt: a coiling champion with feeders that forage but never sacrifice. Each was undecided on its own. Together, on four seeds, they gained 80 changed games against the roles bot and dropped 45, and random signs do that well less than half a percent of the time.
+What came closest to working was putting together the two pieces that hadn't hurt: a coiling champion with feeders that forage but never sacrifice. Each was undecided on its own. Together, on four seeds, they did clearly better than the roles bot. Random signs do that well less than half a percent of the time.
 
 ![Coiling with foraging against the roles bot on four seeds: of the games that changed, the tactics bot gained 80 and dropped 45.](images/coil-forage-result.svg)
 
@@ -111,7 +111,7 @@ Each verdict in the last three posts compared a new version with the one before 
 | room-pearls | 1377 | 106 | 9 | 215 | 10.5 | 10.5 | 17 | 21.5 | | 51 |
 | starter-c | 1060 | 20 | 0 | 310 | 0 | 0 | 0 | 5 | 15 | |
 
-The ratings line up in the order the versions were saved, and every version has a winning record against every version before it, so the verdicts weren't going round in a circle. The gaps also say something the verdicts couldn't. The roles bot's jump over the first bot, nearly 200 points, is the biggest step among the strategy bots, while the tactics bot's lead over the roles bot is real but small, 34.5 games to 31.5, which fits a change that matters in some games and not others.
+The ratings line up in the order the versions were saved, and every version has a winning record against every version before it, so the verdicts weren't going round in a circle. The gaps also say something the verdicts couldn't. The roles bot's jump over the first bot is the biggest step among the strategy bots, while the tactics bot's lead over the roles bot is real but small, which fits a change that matters in some games and not others.
 
 ## Next up
 

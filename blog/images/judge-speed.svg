@@ -3,23 +3,23 @@
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
 <rect width="1010" height="360" fill="#ede5d5"/>
 <text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">End-to-end wall time for one game, seconds</text>
-<text x="288" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Probe bot, Default: toolkit</text>
-<rect x="300" y="60" width="271.2" height="26" rx="4" fill="#b9ad99"/>
-<text x="581.211959383987" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">3.16 s</text>
-<text x="288" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Probe bot, Default: our judge</text>
-<rect x="300" y="104" width="166.2" height="26" rx="4" fill="#263d31"/>
-<text x="476.21132044759884" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.83 s</text>
-<text x="288" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Arena: toolkit</text>
-<rect x="300" y="148" width="270.7" height="26" rx="4" fill="#b9ad99"/>
-<text x="580.7132892050267" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">3.14 s</text>
-<text x="288" y="211" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Arena: our judge</text>
-<rect x="300" y="192" width="164.3" height="26" rx="4" fill="#263d31"/>
-<text x="474.2956086618316" y="211" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.81 s</text>
-<text x="288" y="255" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Default: toolkit</text>
-<rect x="300" y="236" width="560.0" height="26" rx="4" fill="#b9ad99"/>
+<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Probe bot, Default: toolkit</text>
+<rect x="380" y="60" width="232.5" height="26" rx="4" fill="#b9ad99"/>
+<text x="622.4673937577032" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">3.16 s</text>
+<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Probe bot, Default: our judge</text>
+<rect x="380" y="104" width="142.5" height="26" rx="4" fill="#263d31"/>
+<text x="532.4668460979418" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.83 s</text>
+<text x="368" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Arena: toolkit</text>
+<rect x="380" y="148" width="232.0" height="26" rx="4" fill="#b9ad99"/>
+<text x="622.0399621757372" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">3.14 s</text>
+<text x="368" y="211" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Arena: our judge</text>
+<rect x="380" y="192" width="140.8" height="26" rx="4" fill="#263d31"/>
+<text x="530.824807424427" y="211" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.81 s</text>
+<text x="368" y="255" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Default: toolkit</text>
+<rect x="380" y="236" width="480.0" height="26" rx="4" fill="#b9ad99"/>
 <text x="870.0" y="255" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">124.9 s</text>
-<text x="288" y="299" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Default: our judge</text>
-<rect x="300" y="280" width="443.1" height="26" rx="4" fill="#263d31"/>
-<text x="753.1170137745681" y="299" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">28.2 s</text>
+<text x="368" y="299" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Older bot, Default: our judge</text>
+<rect x="380" y="280" width="379.8" height="26" rx="4" fill="#263d31"/>
+<text x="769.8145832353441" y="299" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">28.2 s</text>
 <text x="20" y="346" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Log scale. Median of three runs each, on a Ryzen 7 5800X3D, with identical replays from both hosts.</text>
 </svg>
