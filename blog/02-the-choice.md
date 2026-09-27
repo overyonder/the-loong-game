@@ -99,6 +99,8 @@ mm = arc    # reference counting: memory is freed as soon as its last reference 
 
 ARC counts references and frees each object the moment nothing refers to it any more, so there's no garbage collector pausing to scan memory in the middle of a turn. ORC adds a collector for reference cycles, such as two objects that point at each other. Our bot never builds cycles, so plain ARC does the job without the collector's overhead.
 
+Nim's [standard library](https://nim-lang.org/docs/lib.html) is another reason it's so well suited to hackathons and programming competitions. It includes the collections and algorithms you'd otherwise spend precious time writing yourself, from hash tables and priority queues to sorting and binary search. For hackathon projects, JSON parsing and HTTP clients are included too. It rivals Go for the convenience of having so much available out of the box, while [ARC](https://nim-lang.org/docs/mm.html) lets us use those conveniences without a tracing garbage collector's memory scans.
+
 The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it contains none of the build-time date or time macros the judge rejects.
 
 Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody has tuned it. The hottest parts of a serious bot, like the inner loop of its search, still need hand-optimised C, and hand-written WebAssembly would go further if the judge accepted it. Nim is for writing and changing strategies quickly, and C is for the parts where every point counts.
