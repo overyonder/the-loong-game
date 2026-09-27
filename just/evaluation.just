@@ -458,3 +458,12 @@ mapgen *args:
         output = args.output / f"gen_{args.seed}_{number:02d}.map"
         output.write_text(serialise_map(layout))
         print(output)
+
+# Experimental Zig engine host; the organiser's toolkit remains the default.
+[group("Build")]
+zig-judge-build:
+    zig build --build-file ../../harness/zig_judge/build.zig --cache-dir "$PWD/../../build/zig-cache" --global-cache-dir "$PWD/../../build/zig-global-cache" --prefix "$PWD/../../build/zig-judge" -Doptimize=ReleaseFast
+
+[group("Evaluation")]
+zig-judge +args:
+    ../../build/zig-judge/bin/loong-judge {{args}}

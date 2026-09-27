@@ -108,6 +108,68 @@
       "source": "replays/viewer/fonts/LICENSE",
       "path": "replays/viewer/fonts/LICENSE",
       "sha256": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93"
+    },
+    {
+      "source": "evaluation/zig_judge/build.zig",
+      "path": "harness/zig_judge/build.zig",
+      "sha256": "8be66d7a307d919222ecf8a0ffdaacfb7a4e5cb4ff842b8c816c72cfa51cf7d1"
+    },
+    {
+      "source": "evaluation/zig_judge/build.zig.zon",
+      "path": "harness/zig_judge/build.zig.zon",
+      "sha256": "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4"
+    },
+    {
+      "source": "evaluation/zig_judge/harness.py",
+      "path": "harness/zig_judge/harness.py",
+      "sha256": "647ddb6084c683c169febeb3b72fe3ec1d72402bd261b48caa0c8856a4d5d19a",
+      "source_revision": "9d3fddecca7addb93934dba0eac494610459c190",
+      "source_sha256": "f5f113b92b97a05cc5a42f593440588545212dacb2b79830f079dca35d873bdd"
+    },
+    {
+      "source": "evaluation/zig_judge/src/batch.zig",
+      "path": "harness/zig_judge/src/batch.zig",
+      "sha256": "3b5527e12d0f0e1713e51f26d952a21bb23612b80eb30c3f6a39794ba7909f0e"
+    },
+    {
+      "source": "evaluation/zig_judge/src/bot.zig",
+      "path": "harness/zig_judge/src/bot.zig",
+      "sha256": "50ecfe5e0e4ea3e1d491ff317bc02d65cf0a79f8d73a594da38387561572bddc"
+    },
+    {
+      "source": "evaluation/zig_judge/src/engine.zig",
+      "path": "harness/zig_judge/src/engine.zig",
+      "sha256": "ccef587cd74ebd5864737f9dcafeb319d01077ecd76069eece40af1c159f5b7b"
+    },
+    {
+      "source": "evaluation/zig_judge/src/framer.zig",
+      "path": "harness/zig_judge/src/framer.zig",
+      "sha256": "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab"
+    },
+    {
+      "source": "evaluation/zig_judge/src/game.zig",
+      "path": "harness/zig_judge/src/game.zig",
+      "sha256": "3634f1f7b07cdfe3fbce5756d940f74eddb0a2577c150e11c9971ce4ff92b272"
+    },
+    {
+      "source": "evaluation/zig_judge/src/inspection.zig",
+      "path": "harness/zig_judge/src/inspection.zig",
+      "sha256": "2fadece99d16381c97a70c42e6d4fc5fa1d86c287f7951c22ec9dad6728a1577"
+    },
+    {
+      "source": "evaluation/zig_judge/src/main.zig",
+      "path": "harness/zig_judge/src/main.zig",
+      "sha256": "05087bff3c651a6517807733ccc1fcfb6772a0a0100831b4f56a9589dfa2a82a"
+    },
+    {
+      "source": "evaluation/zig_judge/src/sync.zig",
+      "path": "harness/zig_judge/src/sync.zig",
+      "sha256": "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da"
+    },
+    {
+      "source": "evaluation/zig_judge/src/wasmtime.zig",
+      "path": "harness/zig_judge/src/wasmtime.zig",
+      "sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900"
     }
   ],
   "historical_evaluation": {

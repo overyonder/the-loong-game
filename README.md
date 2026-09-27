@@ -18,6 +18,28 @@ algorithms and adapters to the organiser's toolkit.
 | Replay inspection | `just decode` | `replays/viewer` |
 | Graphical and headless viewer | `just viewer` | `replays/viewer` |
 | Profiling | `just profile`, `just native`, `just native-profile` | `examples/performance/justfile` |
+| Zig judge | `just zig-judge-build`, `just zig-judge` | `harness/zig_judge` |
+
+The Zig judge plays seeded sandbox games with the organiser's engine. Building it
+needs Zig 0.16 and the wasmtime C API, named by `WASMTIME_INCLUDE` and
+`WASMTIME_LIB`. With Nix:
+
+```sh
+export WASMTIME_INCLUDE=$(nix build --no-link --print-out-paths nixpkgs#wasmtime.dev)/include
+export WASMTIME_LIB=$(nix build --no-link --print-out-paths nixpkgs#wasmtime.lib)/lib
+cd examples/tooling
+nix shell nixpkgs#zig nixpkgs#just -c just zig-judge-build
+```
+
+After the build, play one game from `examples/tooling`. `--a` and `--b` take
+metered modules:
+
+```sh
+just zig-judge --engine <toolkit site-packages>/unswbc/unswbc_engine.wasm --map maps/default.map --a A.wasm --b B.wasm --seed 1
+```
+
+The simpler route is `harness/zig_judge/harness.py`, which meters bots itself and
+plays batches from Python.
 
 `unseen-maps` runs map generation followed by two evaluations; `ladder-all`
 builds the article bots before running the ladder; `deaths` summarizes decoded
