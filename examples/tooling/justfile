@@ -22,6 +22,7 @@ setup:
 
 first-bot:
     rm -rf first-bot && cp -r ../first-bot first-bot
+    rm -rf repertoire && cp -r ../repertoire repertoire
     cp starter-c/helper.c starter-c/helper.h first-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" first-bot/
     nim c first-bot/strategy.nim
@@ -30,6 +31,7 @@ first-bot:
 
 roles:
     rm -rf roles-bot && cp -r ../roles-bot roles-bot
+    rm -rf repertoire && cp -r ../repertoire repertoire
     cp starter-c/helper.c starter-c/helper.h roles-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" roles-bot/
     nim c roles-bot/strategy.nim
@@ -38,6 +40,7 @@ roles:
 
 tactics:
     rm -rf tactics-bot && cp -r ../tactics-bot tactics-bot
+    rm -rf repertoire && cp -r ../repertoire repertoire
     cp starter-c/helper.c starter-c/helper.h tactics-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" tactics-bot/
     nim c tactics-bot/strategy.nim
@@ -46,6 +49,7 @@ tactics:
 
 nim-bot name:
     rm -rf {{name}} && cp -r ../{{name}} {{name}}
+    rm -rf repertoire && cp -r ../repertoire repertoire
     cp starter-c/helper.c starter-c/helper.h {{name}}/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" {{name}}/
     nim c {{name}}/strategy.nim
