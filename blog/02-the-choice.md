@@ -1,5 +1,7 @@
 # The choice
 
+> **Editor's note, 28 September 2026.** This post has been edited to be shorter, and to say how our competition bot uses these languages now.
+
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
 
 ## One strategy, two languages
@@ -86,38 +88,22 @@ The Nim bot makes exactly the same moves as the C and Python bots, so it slots s
 
 ![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Nim compiled to C: 3.0 million median, 3.1 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-by-language.svg)
 
-So Nim written the way you'd write Python lands almost exactly where C does. Its strategy costs about 69,000 points a turn, which is 1.6 times the C version but about 280 times cheaper than Python.
-
-That remaining gap to C comes from the growable list. Nim allocates it on the heap for every flood fill, where the C uses a fixed array on the stack. Switching the Nim version to a fixed array brings it level with the C, to within a few hundred points.
-
-How Nim manages that memory is configurable too. The `mm` setting picks the strategy:
+Nim written the way you'd write Python lands almost exactly where C does. Its strategy costs about 69,000 points a turn, 1.6 times the C version and about 280 times cheaper than Python. The remaining gap is the growable list, which Nim allocates on the heap for every flood fill where the C uses a fixed array on the stack, and a fixed array in Nim brings it level with C. How Nim manages memory is configurable too:
 
 ```ini nim.cfg
 mm = arc    # reference counting: memory is freed as soon as its last reference goes
 # mm = orc  # the Nim 2 default: ARC plus a collector for data that points back at itself
 ```
 
-ARC counts references and frees each object the moment nothing refers to it any more, so there's no garbage collector pausing to scan memory in the middle of a turn. ORC adds a collector for reference cycles, such as two objects that point at each other. Our bot never builds cycles, so plain ARC does the job without the collector's overhead.
+ARC frees each object the moment nothing refers to it, so no garbage collector pauses to scan memory mid-turn. ORC adds a collector for reference cycles, which our bots never build.
 
-Nim's [standard library](https://nim-lang.org/docs/lib.html) is another reason it's so well suited to hackathons and programming competitions. It includes the collections and algorithms you'd otherwise spend precious time writing yourself, from hash tables and priority queues to sorting and binary search. For hackathon projects, JSON parsing and HTTP clients are included too. It rivals Go for the convenience of having so much available out of the box, while [ARC](https://nim-lang.org/docs/mm.html) lets us use those conveniences without a tracing garbage collector's memory scans.
+Nim's [standard library](https://nim-lang.org/docs/lib.html) is another reason it suits competitions. It has the collections and algorithms you'd otherwise spend precious time writing, from hash tables and priority queues to sorting and binary search, and [ARC](https://nim-lang.org/docs/mm.html) lets us use them without a tracing garbage collector. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, with none of the build-time date or time macros the judge rejects.
 
-The whole bot is about 72 KB of C, well inside the 4 MB upload limit, and it contains none of the build-time date or time macros the judge rejects.
-
-Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody has tuned it. The hottest parts of a serious bot, like the inner loop of its search, still need hand-optimised C, and hand-written WebAssembly would go further if the judge accepted it. Nim is for writing and changing strategies quickly, and C is for the parts where every point counts.
-
-### The examples and the competition bot
-
-The examples in this series keep that Nim strategy and C helper arrangement.
-The private competition runtime also developed a separate, hand-written C
-policy. Its strategy and results aren't interchangeable with these examples.
-The measurements here compare the supplied example programs; they don't show
-that a whole strategy needs to be rewritten in C.
+Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody tuned it, and the hottest parts of a serious bot, like the inner loop of a search, still want hand-optimised C. So the split is Nim for strategy, which we write and change constantly, and C for the kernels where every point counts. Our competition bot is built exactly this way.
 
 ### Odin for tools
 
-Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](01-the-wishlist.md) is written in [Odin](https://odin-lang.org). Partly that's because it's good to try new things. Mostly it's because Odin is *very* good at graphics programming, for three reasons that matter to a tool like this.
-
-The first is memory. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs and slowdowns. Odin passes an implicit `context` into every procedure, and the context carries the allocator. Set it once, and everything called after that, including library code, allocates from wherever you chose:
+Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](01-the-wishlist.md) is written in [Odin](https://odin-lang.org), which is *very* good at graphics programming. The first reason is memory. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs. Odin passes an implicit `context` into every procedure, carrying the allocator, so setting it once makes everything called afterwards, library code included, allocate from wherever you chose:
 
 ```odin
 arena: virtual.Arena
@@ -130,13 +116,9 @@ tiles := make([]Tile, 64 * 64)   // this too, and anything the procedures we cal
 virtual.arena_destroy(&arena)    // one call frees the lot
 ```
 
-The viewer loads each game into an arena like this and throws the whole arena away when you open the next one. The same pattern would suit a high-performance harness too: give each game its own arena, and use the context's temporary allocator for scratch work that only lasts a turn.
+The viewer loads each game into an arena like this and throws the whole arena away when you open the next one.
 
-The second is libraries. Odin ships a `vendor` collection of bindings that the Odin team maintains alongside the compiler. It covers most of what graphics work needs: windowing and input through SDL and GLFW, the OpenGL, Vulkan, DirectX and WebGPU graphics APIs, raylib for quick 2D and 3D drawing, stb for images and fonts, and miniaudio for sound. The viewer uses raylib, and it's one `import "vendor:raylib"` away with no package manager involved.
-
-The third is proof that it holds up in real products. [JangaFX](https://jangafx.com) builds its real-time simulation tools in Odin, including EmberGen for volumetric fire and smoke and LiquiGen for liquids. Both are featured on Odin's own [showcase](https://odin-lang.org/showcase/). Those are demanding, commercial graphics applications.
-
-If some of those terms are unfamiliar, don't worry. We'll get to them properly later in the series.
+The second reason is libraries. Odin's `vendor` collection, maintained alongside the compiler, covers windowing, the major graphics APIs, raylib, stb and miniaudio, so the viewer's raylib is one `import "vendor:raylib"` away with no package manager. The third is that it holds up in demanding products: [JangaFX](https://jangafx.com) builds EmberGen and LiquiGen, its real-time fire and fluid simulators, in Odin.
 
 ## Next up
 
