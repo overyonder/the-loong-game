@@ -1,7 +1,5 @@
 # Games in the cloud
 
-<!-- draft: 4c19a7e2d5, stage: Building our tooling -->
-
 The [harness](03-the-evaluation-harness.md) plays games side by side on every core of one machine, and for a while that was enough. Then the questions got bigger. A single comparison of two versions of our bot across 120 maps, both sides, several seeds and a handful of opponents runs to thousands of games, and a batch of candidates multiplies that again. My desktop could grind through it overnight, but it's also the machine several of us work on, and every hour spent waiting for games is an hour an idea sits untested.
 
 So big batches now go to a fleet of cloud machines, and this post explains how it's built. The short version is that a handful of long-lived AWS resources are declared in OpenTofu, everything a run needs is created by the launcher when the run starts, and every run is built to end on its own, even if everything watching it dies.

@@ -21,6 +21,7 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes as parent states over shared behaviours, each dragon working out its own role by sonar, and the bugs the replays found. |
 | 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it: what worked, what didn't, and every version on one ladder. |
 | 16 | [The machine inside the judge](16-the-machine-inside-the-judge.md) | Performance | A judge written in Zig that plays the toolkit's games four times faster, why running bots as fibres rules out a race that kills freshly split dragons, and the machine the meter presents to a bot. |
+| 17 | [Games in the cloud](17-games-in-the-cloud.md) | Building our tooling | Running big batches of games on AWS Spot workers, the standing resources declared in OpenTofu, and how every run ends on its own. |
 
 Next up: sonar.
 
