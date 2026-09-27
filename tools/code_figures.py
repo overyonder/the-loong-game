@@ -325,7 +325,7 @@ def trees():
     if kieran.is_dir():
         implemented = {(kieran / match).resolve() for match in
                        re.findall(r"^\s*- \[x\] \[[^\]]+\]\(([^)]+)\)", (kieran / "implementation-checklist.md").read_text(), re.M)}
-        figures.append(("kieran-repertoire", draw_tree(
+        figures.append(("kieran-repertoire-wide", draw_tree(
             "The reference repertoire",
             "Every file in the reference repertoire, in four folders: data_structures, decision_architectures,"
             " techniques sorted by family, and games/loong. Dots mark the thirteen implemented modules; the rest are"
