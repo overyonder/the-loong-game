@@ -2,7 +2,7 @@
 
 We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
-This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot.
+This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API, and [harness.py](../harness/zig_judge/harness.py) plays batches of games from Python, metering each bot on the way.
 
 ## What a judge does
 
