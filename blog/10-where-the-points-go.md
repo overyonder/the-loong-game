@@ -1,7 +1,5 @@
 # Where the points go
 
-<!-- draft: 08d1698293, stage: Building our tooling -->
-
 [The choice](02-the-choice.md) measured how many CPU points a whole turn costs in each language. That was enough to pick a language, but it can't tell us what the points are spent on, and once a bot starts searching properly, every point spent on something else is search depth it doesn't get. The last tool on the wishlist is a profiler: something that splits a turn's cost into its parts, and then follows the expensive part down to the individual instructions.
 
 ## The price list
