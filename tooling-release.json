@@ -75,19 +75,23 @@
       "sha256": "2dcd312f22ac420aa0eeed993d0afad8a3ab256475565cc5f09f141fcc9290d1"
     },
     {
-      "source": "just/match.just",
+      "source": "commands/match.just",
       "path": "just/match.just",
       "sha256": "5323368d475e9a531ae2738dcd855f0df01f3de17cae58bdccecac99129b3123"
     },
     {
       "source": "evaluation/mapgen.py",
       "path": "harness/mapgen.py",
-      "sha256": "b650a5ee5e13e75fa90e00383632c72bac39a60bd38bdc4a85267df21be0a40b"
+      "sha256": "746f7ada103ac5f88df230bb5186a4e7b5611129d5219bc412d510ab240075a2",
+      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
+      "source_sha256": "42c81783d9d2e0c7226bd296cc1321563afda10fdd2bdcaf48d70c905d00e334"
     },
     {
-      "source": "just/checks.just",
+      "source": "commands/checks.just",
       "path": "just/checks.just",
-      "sha256": "8fc1001d8ac9fb301364626667cf2adca5dccbc81cffc75489ede40a6df9d8e5"
+      "sha256": "8fc1001d8ac9fb301364626667cf2adca5dccbc81cffc75489ede40a6df9d8e5",
+      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
+      "source_sha256": "96be26fca053555e8175f87f61b6bbe9c9e15f95d4ae35c0b9195c06e2049284"
     },
     {
       "source": "replays/viewer/annotations.odin",
@@ -170,27 +174,62 @@
       "source": "evaluation/zig_judge/src/wasmtime.zig",
       "path": "harness/zig_judge/src/wasmtime.zig",
       "sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900"
+    },
+    {
+      "source": "evaluation/tournament.py",
+      "path": "harness/tournament.py",
+      "sha256": "072df0cbcce2dcfd1a4c205ccebfac06f6f4bd77a7baafe6e11f3e3b12a456c5",
+      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
+      "source_sha256": "c8049d3d60833a5d468052d1845ce1f770f1b24d98ee665faf40bc44995bc337"
+    },
+    {
+      "source": "evaluation/parallel.py",
+      "path": "harness/parallel.py",
+      "sha256": "638c1861f81637b487dc799a9916e2f3474abea0e05b40aabc8ae0a31e59e505",
+      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
+      "source_sha256": "2533030adb8dcb69917b61a85b686c556c86911953730711b7c3c4bd955f6e00"
+    },
+    {
+      "source": "evaluation/elo.py",
+      "path": "harness/elo.py",
+      "sha256": "475f8c2f37fbe3a75335f986bddcc550a21a86b6a411013cb6f75ed59450659d"
+    },
+    {
+      "source": "evaluation/toolkit.py",
+      "path": "harness/toolkit.py",
+      "sha256": "8e2f35d796d2161c34d643c81475f96bae559b6112d2545d8a3f534e97df8ecf",
+      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
+      "source_sha256": "0f1f45c6b0c9ba65d3585720a0d483984b5ca5d62a8640d8472b1d19b46a8678"
+    },
+    {
+      "source": "commands/evaluation.just",
+      "path": "just/evaluation.just",
+      "sha256": "80824f9ad2daefa6f62784ffba6bc75fde5e4dfb6e9b8708356e5dbfa5e99019",
+      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
+      "source_sha256": "fd005f091d67221052ce36061af889ca2a5fcf7e6b6c0ba489d3d5975c71f903"
+    },
+    {
+      "source": "commands/inspection.just",
+      "path": "just/inspection.just",
+      "sha256": "f14e47bbb0e3adf95c10f43494e3539067469719759eee859e2a538dbfed0c5c",
+      "source_revision": "2e00232962ba35eeb7cc2ab0810b2c36900d7f36",
+      "source_sha256": "af0349e5a4ccfc770b06159c8cf815ba5c952e137dbf49fbb33b40fd5b0016b2"
     }
   ],
   "historical_evaluation": {
     "source_repository": "overyonder/the-loong-game",
     "source_revision": "1d64dd495d84e2b940f5f0c61f97a3e1f7369759",
-    "policy": "Frozen article-era algorithms retain historical seed and statistical policies. Their CLI entrypoints move to Just; recorded article results are not rerun claims.",
+    "policy": "Frozen article-era statistics retain their historical models and play their games through the released round robin; recorded article results are not rerun claims.",
     "files": [
-      {
-        "path": "harness/round_robin.py",
-        "original_sha256": "74ce7925676b673e66061ee139727fbc04844ed9517e70e8a8576e0d877f7b2d",
-        "sha256": "414537fc0776e9ada9ee7a6babce47a2141d1140b86c98b7847e3e4a0737219a"
-      },
       {
         "path": "harness/verdict.py",
         "original_sha256": "4ee16855944bf3aa80381dbac99cbd3cfeee954f7401dd2a6f5b75a8a24a7d52",
-        "sha256": "f49e04ac68d86f7d99513f4a30ffa7d1f8d5eadc95ad33a93e3369ed25e417b3"
+        "sha256": "504c099fca1302528c721886e37070242f684b0165042687b3a4486cc9acbe73"
       },
       {
         "path": "harness/ladder.py",
         "original_sha256": "4010690f8be505a32d9debf26fc9c4e894d6d706518e2a0d462f760b22a4e0f8",
-        "sha256": "5967825e97c08c685b1947ff4a6e6032b78176ac907122804b2b68716e05ece3"
+        "sha256": "eb913a46be5b710ef0706717b7a2ef107f627669e8bc6704020f0fae35fc46fb"
       }
     ]
   }

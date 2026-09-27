@@ -3,7 +3,7 @@
     just ladder --bots starter-c room-c first-bot --maps maps/*.map \\
         --seeds 1 --output results/ladder
 
-Every pair plays on every map from both sides, through the round-robin harness.
+Every pair plays on every map from both sides, through `just round-robin`.
 The ratings are then fitted to all the games at once (a Bradley-Terry model),
 so they don't depend on the order the games were played in. They're printed on
 the Elo scale: 400 points is ten-to-one odds. Draws count as half a win each way,
@@ -20,14 +20,14 @@ def head_to_head(bots: list[str], games: list) -> dict[tuple[str, str], float]:
     """Points each bot scored against each other bot: 1 for a win, 1/2 for a draw."""
     scores = {(a, b): 0.0 for a in bots for b in bots if a != b}
     for game in games:
-        if game.error:
+        if game["status"] == "error":
             continue
-        a, b = game.team_a_bot, game.team_b_bot
-        if game.winner is None:
+        a, b = game["A"], game["B"]
+        if game["winner_side"] is None:
             scores[a, b] += 0.5
             scores[b, a] += 0.5
         else:
-            winner, loser = (a, b) if game.winner == "A" else (b, a)
+            winner, loser = (a, b) if game["winner_side"] == "A" else (b, a)
             scores[winner, loser] += 1
     return scores
 

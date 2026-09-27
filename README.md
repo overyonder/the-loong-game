@@ -10,7 +10,7 @@ algorithms and adapters to the organiser's toolkit.
 
 | Article capability | Command | Domain owner |
 | --- | --- | --- |
-| Round robin | `just round-robin` | `harness/round_robin.py` |
+| Round robin | `just round-robin` | `harness/tournament.py` |
 | Paired verdict | `just verdict` | `harness/verdict.py` |
 | Map generation | `just mapgen` | `harness/mapgen.py` |
 | Local ladder | `just ladder` | `harness/ladder.py` |
@@ -41,29 +41,42 @@ just zig-judge --engine <toolkit site-packages>/unswbc/unswbc_engine.wasm --map 
 The simpler route is `harness/zig_judge/harness.py`, which meters bots itself and
 plays batches from Python.
 
-`unseen-maps` runs map generation followed by two evaluations; `ladder-all`
-builds the article bots before running the ladder; `deaths` summarizes decoded
-events. These recipes are workflows over the owners above. Recipes marked
+`just round-robin` plays every pair of bots on every map from both sides, in
+parallel, and writes `results.json` and `summary.md` with a log and replay per
+game. Add `--sandbox` to play in the judge's sandbox and `--seeds N` for
+seeded, repeatable games. Seeded sandbox games are cached in `build/game-cache`
+and reused while the bots, map and toolkit are unchanged. `just bot-build`
+builds a bot once into the toolkit's own caches, as the round robin does before
+it plays. `just verdict` and `just ladder` run their games through the round robin.
+
+`article-bots` fetches the bundled maps, creates the starter bots and puts the
+flood-fill bots from the posts in place. `first-bot`, `roles`, `tactics`,
+`nim-bot` and `room-nim` build the article bots from Nim, and the first three
+then judge them with `just verdict`. `unseen-maps` runs map generation followed
+by two evaluations; `ladder-all` builds the article bots before running the
+ladder; `deaths` summarizes decoded events. These recipes are workflows over
+the owners above. Recipes marked
 `[private]`, such as `_match` and `_profile-report`, are internal helpers.
 Use `just COMMAND --help` for tools with option parsers and `just --show COMMAND`
 for positional build and profiling recipes.
 
-Profiling runs from `examples/performance`. Run `just check-recipes` in both
+Profiling runs from `examples/performance`, whose justfile is the home of the
+performance posts' recipes (`profile`, `bench`, `bench-maps`, `native`,
+`native-profile`, `fast`, `rake` and `machine`). The private profiling commands
+run these public copies. Run `just check-recipes` in both
 example directories to check their inline Python. The release manifest,
 [tooling-release.json](tooling-release.json), records the source and hash of each
-shared file. Replay decoding, reconstruction, sampling, map generation and Odin
-display are frozen copies of their canonical private sources. Public export
-shows observations; private bot-state recovery and competitive models are not
-included. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
+shared file. Replay decoding, reconstruction, sampling, map generation, the round
+robin, the Zig judge and Odin display are frozen copies of their canonical private
+sources. Public export shows observations; private bot-state recovery and
+competitive models are not included. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
 it requires a display and OpenGL context. A headless Wayland or compatible X11
 server can provide that context. `--no-display --export board.json` exports data
 without a graphics context. Changes to shared code originate in the canonical source and are
 released here together with refreshed hashes.
 
-The three evaluation libraries retain the article-era experiments: in
+The verdict and ladder statistics retain the article-era experiments: in
 particular, this ladder fits Bradley–Terry ratings, while the private running
-ladder uses streaming Elo. Their separate historical provenance is recorded in
-the manifest. They are fixtures for reproducing these articles, not independent
-implementations of the current private evaluation system. Screenshots and
-measurements in the posts describe the recorded experiments and have not been
-rerun as part of the command cleanup.
+ladder uses streaming Elo. Their historical provenance is recorded in the
+manifest. Screenshots and measurements in the posts describe the recorded
+experiments and have not been rerun.

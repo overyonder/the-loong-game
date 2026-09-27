@@ -1,29 +1,33 @@
+# Run the pinned Battlecode CLI and retain each game's evidence.
 [group("Evaluation")]
 round-robin *args:
     #!/usr/bin/env -S {{quote(python)}}
     import argparse
-    import json
-    import os
-    import subprocess
-    from dataclasses import asdict
+    import itertools
+    import time
+    import zlib
+    from concurrent.futures import ThreadPoolExecutor
+    from datetime import UTC, datetime
     from pathlib import Path
 
-    from harness.round_robin import (
+    from harness import toolkit
+    from harness.parallel import cpu_workers, match_verbosity, prepare_bots
+    from harness.tournament import (
         __doc__,
-        run_games_in_parallel,
-        schedule_round_robin,
-        summarise_standings,
+        discover_bots,
+        read_outcome,
+        run_game,
+        save_results,
     )
 
 
-    def main() -> None:
-        parser = argparse.ArgumentParser(
-            prog="round-robin",
-            description=__doc__,
-            formatter_class=argparse.RawDescriptionHelpFormatter,
-        )
+    def main() -> int:
+        parser = argparse.ArgumentParser(prog="round-robin", description=__doc__)
         parser.add_argument(
-            "--bots", nargs="+", default=["starter-c", "starter-py", "room-c", "room-py"]
+            "--bots",
+            nargs="+",
+            default=["starter-c", "starter-py", "room-c", "room-py"],
+            help="Bot directories",
         )
         parser.add_argument(
             "--maps",
@@ -31,54 +35,161 @@ round-robin *args:
             default=[str(path) for path in sorted(Path("maps").glob("*.map"))],
         )
         parser.add_argument(
-            "--seeds", type=int, default=2, help="games per map and side for each pairing"
+            "--sandbox", action="store_true", help="Play in the judge's sandbox"
         )
-        parser.add_argument("--base-seed", default="loong")
-        parser.add_argument("--workers", type=int, default=os.cpu_count())
         parser.add_argument(
-            "--timeout", type=float, default=600, help="seconds before a game is killed"
+            "--dry-run", action="store_true", help="Print the schedule without running"
         )
-        parser.add_argument("--output", type=Path, default=Path("results/round-robin"))
-        arguments = parser.parse_args()
-        if not arguments.maps:
-            parser.error("No maps found; run just setup first or pass --maps")
-
-        schedule = schedule_round_robin(
-            arguments.bots, arguments.maps, arguments.seeds, arguments.base_seed
+        parser.add_argument(
+            "--output", type=Path, help="Final result directory; must not exist"
         )
-        subprocess.run(
-            [
-                "just",
-                "_prepare-bots",
-                min(arguments.maps, key=lambda path: Path(path).stat().st_size),
-                *arguments.bots,
-            ],
-            check=True,
+        parser.add_argument(
+            "--timeout", type=float, default=600, help="Seconds per match (default: 600)"
         )
-        games = run_games_in_parallel(
-            schedule, arguments.output, arguments.workers, arguments.timeout
+        parser.add_argument("--workers", type=int, default=cpu_workers())
+        parser.add_argument(
+            "--seeds",
+            type=int,
+            default=0,
+            help="Seeded games per map and side; 0 leaves seeding random",
         )
-        standings = summarise_standings(arguments.bots, games)
-        (arguments.output / "games.json").write_text(
-            json.dumps([asdict(game) for game in games], indent=2) + "\n"
+        parser.add_argument(
+            "--seed-start", type=int, default=0, help="Index of the first seed per map"
         )
-        print(f"{'bot':<16}{'wins':>6}{'draws':>7}{'losses':>8}{'errors':>8}")
-        for row in standings:
-            print(
-                f"{row['bot']:<16}{row['wins']:>6}{row['draws']:>7}{row['losses']:>8}{row['errors']:>8}"
+        args = parser.parse_args()
+        selected = args.bots
+        # Naming one bot twice plays it against itself once per map and seed.
+        self_play = len(selected) == 2 and selected[0] == selected[1]
+        if not self_play and (len(set(selected)) != len(selected) or len(selected) < 2):
+            parser.error(
+                "Select at least two distinct bots, or one bot twice for self-play"
             )
-        print(
-            f"{len(games)} games, {sum(game.seconds for game in games) / 60:.1f} minutes of games"
+        try:
+            bots = discover_bots(list(dict.fromkeys(selected)))
+        except ValueError as error:
+            parser.error(str(error))
+        if args.workers < 1:
+            parser.error("workers must be positive")
+        if args.timeout <= 0:
+            parser.error("--timeout must be positive")
+        if not args.maps:
+            parser.error("No maps found; run just article-bots first or pass --maps")
+        maps = [Path(path).resolve() for path in args.maps]
+        if len(set(maps)) != len(maps) or any(not path.is_file() for path in maps):
+            parser.error("Maps must be distinct existing files")
+        # Seeds depend only on the map and its index, so every pairing and both
+        # sides meet the same pearl schedules and results stay reproducible.
+        schedule = [
+            (map_path, team_a, team_b, seed)
+            for map_path in maps
+            for seed in (
+                [
+                    zlib.crc32(f"{map_path.name}:{i}".encode())
+                    for i in range(args.seed_start, args.seed_start + args.seeds)
+                ]
+                or [None]
+            )
+            for team_a, team_b in (
+                [(selected[0], selected[0])]
+                if self_play
+                else [
+                    pair
+                    for left, right in itertools.combinations(bots, 2)
+                    for pair in ((left, right), (right, left))
+                ]
+            )
+        ]
+        for index, (map_path, team_a, team_b, seed) in enumerate(schedule, 1):
+            seeded = "" if seed is None else f" seed {seed}"
+            print(
+                f"{index}: {team_a} (A) vs {team_b} (B) on {map_path.name}{seeded}",
+                flush=True,
+            )
+        if args.dry_run:
+            return 0
+        directory = args.output or Path("results/round-robin") / datetime.now(UTC).strftime(
+            "%Y%m%dT%H%M%S%fZ"
         )
-        for game in games:
-            if game.error:
-                print(
-                    f"error: {game.team_a_bot} vs {game.team_b_bot} on {game.map_path} seed {game.seed}: {game.error}"
-                )
+        if directory.exists():
+            parser.error(f"Result directory already exists: {directory}")
+        directory.mkdir(parents=True)
+        report = {
+            "workers": args.workers,
+            "created_at": datetime.now(UTC).isoformat(),
+            "mode": "sandbox" if args.sandbox else "local (10-second turn limit)",
+            "status": "running",
+            "bots": bots,
+            "scheduled_games": len(schedule),
+            "games": [],
+        }
+        save_results(directory, report)
+        prepare_bots([Path(name) for name in bots], args.workers, sandbox=args.sandbox)
+
+        def play(item):
+            index, (map_path, team_a, team_b, seed) = item
+            stem = f"{index:03d}-{Path(team_a).name}-vs-{Path(team_b).name}-{map_path.stem}"
+            log_path = directory / f"{stem}.log"
+            replay_path = directory / f"{stem}.replay"
+            command = [
+                *toolkit.toolkit_match_command(),
+                "run",
+                *match_verbosity(),
+                "-o",
+                str(replay_path),
+            ]
+            if args.sandbox:
+                command.append("--sandbox")
+            if seed is not None:
+                command += ["--seed", str(seed)]
+            # The toolkit names each team by its argument, so pass the bot directory.
+            command += [str(map_path), team_a, team_b]
+            started = time.monotonic()
+            returncode, timed_out = run_game(command, log_path, args.timeout)
+            outcome = read_outcome(log_path, returncode, timed_out)
+            if not replay_path.is_file() and outcome["status"] == "completed":
+                outcome.update(status="error", error="Replay was not written")
+            return {
+                "A": team_a,
+                "B": team_b,
+                "map": str(map_path),
+                "seed": seed,
+                "command": command,
+                "log": log_path.name,
+                "replay": replay_path.name if replay_path.is_file() else None,
+                "seconds": round(time.monotonic() - started, 3),
+                **outcome,
+            }
+
+        try:
+            with ThreadPoolExecutor(max_workers=args.workers) as executor:
+                for result in executor.map(play, enumerate(schedule, 1)):
+                    report["games"].append(result)
+                    save_results(directory, report)
+                    print(
+                        f"[{len(report['games'])}/{len(schedule)}] "
+                        f"{result['A']} vs {result['B']}: {result['status']}",
+                        flush=True,
+                    )
+        except KeyboardInterrupt:
+            report["status"] = "interrupted"
+            save_results(directory, report)
+            print(f"Interrupted; completed results saved in {directory}")
+            return 130
+        except (OSError, ValueError, KeyError) as error:
+            report["status"] = "error"
+            report["error"] = str(error)
+            save_results(directory, report)
+            raise
+        failed = any(game["status"] == "error" for game in report["games"])
+        report["status"] = "completed_with_errors" if failed else "completed"
+        print(save_results(directory, report))
+        print(f"Results: {directory}")
+        return int(failed)
 
 
-    main()
+    raise SystemExit(main())
 
+# Decide whether a candidate bot is better than the baseline it changes.
 [group("Evaluation")]
 verdict *args:
     #!/usr/bin/env -S {{quote(python)}}
@@ -87,15 +198,13 @@ verdict *args:
     import os
     import statistics
     import subprocess
-    from dataclasses import asdict
+    from datetime import UTC, datetime
     from pathlib import Path
 
-    from harness.round_robin import ScheduledGame, run_games_in_parallel
     from harness.verdict import (
         __doc__,
         activation,
         changed_games_needed,
-        paired_seed,
         score,
         sign_flip_p_values,
     )
@@ -122,85 +231,99 @@ verdict *args:
             default=[str(path) for path in sorted(Path("maps").glob("*.map"))],
         )
         parser.add_argument("--seeds", type=int, default=4, help="games per map and side")
-        parser.add_argument("--base-seed", default="loong")
         parser.add_argument("--significance", type=float, default=0.05)
         parser.add_argument("--workers", type=int, default=os.cpu_count())
         parser.add_argument("--timeout", type=float, default=600)
-        parser.add_argument("--output", type=Path, default=Path("results/verdict"))
+        parser.add_argument("--output", type=Path)
         arguments = parser.parse_args()
         if not arguments.maps:
-            parser.error("No maps found; run just setup first or pass --maps")
+            parser.error("No maps found; run just article-bots first or pass --maps")
         candidate, baseline = arguments.candidate, arguments.baseline
+        output = arguments.output or Path("results/verdict") / datetime.now(UTC).strftime(
+            "%Y%m%dT%H%M%SZ"
+        )
+        if output.exists():
+            parser.error(f"Result directory already exists: {output}")
         # A bot never counts as a weak opponent of itself: its games are already head to head.
         arguments.weak = [bot for bot in arguments.weak if bot not in (candidate, baseline)]
+        opponents = [baseline, *arguments.weak]
 
-        # For each map, repeat and opponent: the candidate's game from each side, and the baseline's.
-        fixtures = [
-            (map_path, repeat, opponent, side)
-            for map_path in arguments.maps
-            for repeat in range(arguments.seeds)
-            for opponent in [baseline, *arguments.weak]
-            for side in "AB"
-        ]
-        schedule, index = [], {}
-        for map_path, repeat, opponent, side in fixtures:
-            seed = paired_seed(arguments.base_seed, map_path, repeat)
-            for bot in (candidate, baseline):
-                teams = (bot, opponent) if side == "A" else (opponent, bot)
-                key = (*teams, map_path, seed)
-                if key not in index:  # the baseline's self-play game serves both sides
-                    index[key] = len(schedule)
-                    schedule.append(ScheduledGame(*teams, map_path, seed))
-        subprocess.run(
-            [
-                "just",
-                "_prepare-bots",
-                arguments.maps[0],
-                *sorted({candidate, baseline, *arguments.weak}),
-            ],
-            check=True,
+        # Each bot plays each opponent in its own round robin on the same seeded maps.
+        # The baseline's self-play game against itself serves both sides.
+        games = {}
+        for bot in (candidate, baseline):
+            for opponent in opponents:
+                directory = output / f"{Path(bot).name}-vs-{Path(opponent).name}"
+                completed = subprocess.run(
+                    [
+                        "just",
+                        "round-robin",
+                        "--bots",
+                        bot,
+                        opponent,
+                        "--sandbox",
+                        "--maps",
+                        *arguments.maps,
+                        "--seeds",
+                        str(arguments.seeds),
+                        "--workers",
+                        str(arguments.workers),
+                        "--timeout",
+                        str(arguments.timeout),
+                        "--output",
+                        str(directory),
+                    ],
+                    stdout=subprocess.DEVNULL,
+                    env={
+                        **os.environ,
+                        "LOONG_VERBOSE_MATCHES": "1" if arguments.behaviour else "0",
+                    },
+                    check=False,
+                )
+                results = directory / "results.json"
+                if not results.is_file():
+                    raise SystemExit(completed.returncode or 1)
+                for played in json.loads(results.read_text())["games"]:
+                    played["log"] = str(directory / played["log"])
+                    for side, mine in (("A", played["A"]), ("B", played["B"])):
+                        if mine == bot:
+                            games[bot, opponent, side, played["map"], played["seed"]] = (
+                                played
+                            )
+
+        fixtures = sorted(
+            {(o, side, m, s) for (_, o, side, m, s) in games if o in opponents}
         )
-        games = run_games_in_parallel(
-            schedule, arguments.output, arguments.workers, arguments.timeout, verbose=True
-        )
-
-        def game(bot, opponent, side, map_path, repeat):
-            teams = (bot, opponent) if side == "A" else (opponent, bot)
-            return games[
-                index[
-                    (*teams, map_path, paired_seed(arguments.base_seed, map_path, repeat))
-                ]
-            ]
-
         head_to_head, weak_drops, weak_gains, errors = [], [], 0, 0
         faster = slower = 0
         candidate_win_rounds, baseline_win_rounds = [], []
-        for map_path, repeat, opponent, side in fixtures:
-            mine, theirs = (
-                game(candidate, opponent, side, map_path, repeat),
-                game(baseline, opponent, side, map_path, repeat),
-            )
+        for opponent, side, map_path, seed in fixtures:
+            mine = games.get((candidate, opponent, side, map_path, seed))
+            theirs = games.get((baseline, opponent, side, map_path, seed))
+            if mine is None or theirs is None:
+                errors += 1
+                continue
             my_score, their_score = score(mine, side), score(theirs, side)
             if my_score is None or their_score is None:
                 errors += 1
                 continue
             if my_score == 1 == their_score:
-                faster += mine.rounds < theirs.rounds
-                slower += mine.rounds > theirs.rounds
+                faster += mine["rounds"] < theirs["rounds"]
+                slower += mine["rounds"] > theirs["rounds"]
             if my_score == 1:
-                candidate_win_rounds.append((mine.rounds, mine))
+                candidate_win_rounds.append((mine["rounds"], mine))
             if their_score == 1:
-                baseline_win_rounds.append(theirs.rounds)
+                baseline_win_rounds.append(theirs["rounds"])
             if opponent == baseline:
                 weight = (
-                    activation(mine, side, arguments.behaviour)
+                    activation(Path(mine["log"]), side, arguments.behaviour)
                     if arguments.behaviour
                     else 1.0
                 )
                 head_to_head.append(
                     {
                         "map": map_path,
-                        "repeat": repeat,
+                        "seed": seed,
                         "side": side,
                         "change": my_score - their_score,
                         "weight": weight,
@@ -244,7 +367,7 @@ verdict *args:
             "weighted_total": sum(weighted),
             "p_better": p_better,
             "p_worse": p_worse,
-            "weak_drops": [asdict(played) for played in weak_drops],
+            "weak_drops": weak_drops,
             "weak_gains": weak_gains,
             "faster_wins": faster,
             "slower_wins": slower,
@@ -258,13 +381,10 @@ verdict *args:
             "changed_games_needed": changed_games_needed(
                 gained, dropped, arguments.significance
             ),
-            "short_win_outliers": [asdict(played) for _, played in outliers],
+            "short_win_outliers": [played for _, played in outliers],
             "pairs_detail": head_to_head,
         }
-        (arguments.output / "verdict.json").write_text(json.dumps(result, indent=2) + "\n")
-        (arguments.output / "games.json").write_text(
-            json.dumps([asdict(played) for played in games], indent=2) + "\n"
-        )
+        (output / "verdict.json").write_text(json.dumps(result, indent=2) + "\n")
 
         weighting = (
             f", weighted by {' / '.join(arguments.behaviour)} activation"
@@ -284,7 +404,7 @@ verdict *args:
         )
         for played in weak_drops[:5]:
             print(
-                f"  lost: {played.team_a_bot} vs {played.team_b_bot} on {Path(played.map_path).stem} seed {played.seed}"
+                f"  lost: {played['A']} vs {played['B']} on {Path(played['map']).stem} seed {played['seed']}"
             )
         if len(weak_drops) > 5:
             print(f"  ... and {len(weak_drops) - 5} more, all listed in verdict.json")
@@ -295,7 +415,7 @@ verdict *args:
         )
         for _, played in outliers:
             print(
-                f"  unusually short win: {played.rounds} rounds on {Path(played.map_path).stem} seed {played.seed}"
+                f"  unusually short win: {played['rounds']} rounds on {Path(played['map']).stem} seed {played['seed']}"
             )
         if errors:
             print(f"{errors} pairs had an error and don't count")
@@ -308,10 +428,12 @@ verdict *args:
                 else ""
             )
         )
+        print(f"Results: {output}")
 
 
     main()
 
+# Rate a pool of bots against each other from one round robin.
 [group("Evaluation")]
 ladder *args:
     #!/usr/bin/env -S {{quote(python)}}
@@ -319,11 +441,9 @@ ladder *args:
     import json
     import os
     import subprocess
-    from dataclasses import asdict
     from pathlib import Path
 
     from harness.ladder import __doc__, fit_ratings, head_to_head
-    from harness.round_robin import run_games_in_parallel, schedule_round_robin
 
 
     def main() -> None:
@@ -352,41 +472,42 @@ ladder *args:
         parser.add_argument(
             "--seeds", type=int, default=1, help="games per map and side for each pairing"
         )
-        parser.add_argument("--base-seed", default="loong")
         parser.add_argument("--workers", type=int, default=os.cpu_count())
         parser.add_argument("--timeout", type=float, default=600)
         parser.add_argument("--output", type=Path, default=Path("results/ladder"))
         arguments = parser.parse_args()
         if not arguments.maps:
-            parser.error("No maps found; run just setup first or pass --maps")
+            parser.error("No maps found; run just article-bots first or pass --maps")
 
-        if "room-nim" in arguments.bots:
-            subprocess.run(["just", "room-nim"], check=True)
-        games_file = arguments.output / "games.json"
-        if games_file.exists():
-            # Refit an earlier run without playing it again.
-            from harness.round_robin import PlayedGame
-
-            games = [PlayedGame(**game) for game in json.loads(games_file.read_text())]
-        else:
-            schedule = schedule_round_robin(
-                arguments.bots, arguments.maps, arguments.seeds, arguments.base_seed
-            )
+        results = arguments.output / "results.json"
+        # An earlier run is refitted without playing it again.
+        if arguments.output.exists() and not results.is_file():
+            parser.error(f"{arguments.output} holds no round-robin results")
+        if not results.is_file():
+            if "room-nim" in arguments.bots:
+                subprocess.run(["just", "room-nim"], check=True)
             subprocess.run(
                 [
                     "just",
-                    "_prepare-bots",
-                    min(arguments.maps, key=lambda path: Path(path).stat().st_size),
+                    "round-robin",
+                    "--bots",
                     *arguments.bots,
+                    "--sandbox",
+                    "--maps",
+                    *arguments.maps,
+                    "--seeds",
+                    str(arguments.seeds),
+                    "--workers",
+                    str(arguments.workers),
+                    "--timeout",
+                    str(arguments.timeout),
+                    "--output",
+                    str(arguments.output),
                 ],
-                check=True,
+                stdout=subprocess.DEVNULL,
+                check=False,
             )
-            games = run_games_in_parallel(
-                schedule, arguments.output, arguments.workers, arguments.timeout
-            )
-            games_file.write_text(
-                json.dumps([asdict(game) for game in games], indent=2) + "\n"
-            )
+        games = json.loads(results.read_text())["games"]
 
         scores = head_to_head(arguments.bots, games)
         ratings = fit_ratings(arguments.bots, scores)
@@ -418,25 +539,15 @@ ladder *args:
                     played = scores[bot, other] + scores[other, bot]
                     cells.append(f"{scores[bot, other]:>6g}/{played:<5g}")
             print(f"{bot:<{width}}{ratings[bot]:>7.0f}   " + "".join(cells))
-        errors = sum(1 for game in games if game.error)
+        errors = sum(1 for game in games if game["status"] == "error")
         print(
-            f"{len(games)} games, {errors} errors, {sum(game.seconds for game in games) / 60:.1f} minutes of games"
+            f"{len(games)} games, {errors} errors, {sum(game['seconds'] for game in games) / 60:.1f} minutes of games"
         )
 
 
     main()
 
-# The organiser owns compilation; prepare caches before parallel games.
-[private]
-_prepare-bots map +bots:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    map="$1"
-    shift
-    for bot in "$@"; do
-        unswbc run --sandbox --no-replay --seed 0x0 "$map" "$bot" "$bot" >/dev/null
-    done
-
+# Generate plausible symmetric maps for held-out evaluation.
 [group("Evaluation")]
 mapgen *args:
     #!/usr/bin/env -S {{quote(python)}}
@@ -444,20 +555,65 @@ mapgen *args:
     import random
     from pathlib import Path
 
-    from harness.mapgen import generate_map, serialise_map
+    from harness.mapgen import (
+        DEFAULT_OUTPUT,
+        ROOT,
+        __doc__,
+        generate_map,
+        serialise_map,
+    )
 
-    parser = argparse.ArgumentParser(prog="mapgen")
-    parser.add_argument("--count", type=int, default=20)
-    parser.add_argument("--seed", type=int, default=2026)
-    parser.add_argument("--output", type=Path, default=Path("maps-generated"))
-    args = parser.parse_args()
-    generator = random.Random(args.seed)
-    args.output.mkdir(parents=True, exist_ok=True)
-    for number in range(1, args.count + 1):
-        layout = generate_map(generator, f"Generated {args.seed}-{number:02d}")
-        output = args.output / f"gen_{args.seed}_{number:02d}.map"
-        output.write_text(serialise_map(layout))
-        print(output)
+
+    def main() -> None:
+        parser = argparse.ArgumentParser(prog="mapgen", description=__doc__)
+        parser.add_argument("--count", type=int, default=20)
+        parser.add_argument("--seed", type=int, default=2026)
+        parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+        args = parser.parse_args()
+        generator = random.Random(args.seed)
+        args.output.mkdir(parents=True, exist_ok=True)
+        for number in range(1, args.count + 1):
+            layout = generate_map(generator, f"Generated {args.seed}-{number:02d}")
+            path = args.output / f"gen_{args.seed}_{number:02d}.map"
+            path.write_text(serialise_map(layout))
+            print(
+                f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}: "
+                f"{layout.width}x{layout.height} symmetry={layout.symmetry} "
+                f"kelp={len(layout.kelp)} portal_edges={len(layout.portals)} "
+                f"dragons={len(layout.dragons)}"
+            )
+
+
+    raise SystemExit(main())
+
+# Build a bot once with the organiser's compilers, into the toolkit's own caches.
+[group("Build")]
+bot-build source mode="judge":
+    #!/usr/bin/env -S {{quote(python)}}
+    import sys
+    from pathlib import Path
+
+    from harness import toolkit
+
+
+    def main() -> None:
+        sandbox = toolkit.sandbox_module()
+        from unswbc import clangtool
+        from unswbc.project import Project
+
+        source, mode = Path(sys.argv[1]).resolve(), sys.argv[2]
+        if mode not in ("judge", "native"):
+            raise SystemExit("Mode must be judge or native")
+        if mode == "native" or (source / "main.py").is_file():
+            # Local games and Python bots run the organiser's project build.
+            print(Project.from_dir(source).compile())
+        else:
+            wasm = clangtool.build(source)
+            sandbox.compile_once(sandbox._metered(wasm))
+            print(wasm)
+
+
+    main()
 
 # Experimental Zig engine host; the organiser's toolkit remains the default.
 [group("Build")]

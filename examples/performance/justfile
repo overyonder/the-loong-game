@@ -1,4 +1,4 @@
-# Recipes from the profiling and performance posts. Run `just setup` in ../tooling first.
+# Recipes from the profiling and performance posts. Run `just article-bots` in ../tooling first.
 import "../../just/checks.just"
 python := env("LOONG_PYTHON", "python3")
 tooling := "../tooling"

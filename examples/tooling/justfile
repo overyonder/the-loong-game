@@ -10,7 +10,7 @@ import '../../just/match.just'
 default:
     @just --list
 
-setup:
+article-bots:
     unswbc maps
     unswbc init c starter-c
     unswbc init python starter-py
@@ -27,7 +27,7 @@ first-bot:
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" first-bot/
     nim c first-bot/strategy.nim
     just verdict --candidate first-bot --baseline room-c \
-        --maps maps/*.map maps-generated/*.map --seeds 4 --output results/first-bot
+        --maps maps/*.map maps-generated/*.map --seeds 4
 
 roles:
     rm -rf roles-bot && cp -r ../roles-bot roles-bot
@@ -36,7 +36,7 @@ roles:
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" roles-bot/
     nim c roles-bot/strategy.nim
     just verdict --candidate roles-bot --baseline first-bot \
-        --maps maps/*.map maps-generated/*.map --seeds 2 --output results/roles
+        --maps maps/*.map maps-generated/*.map --seeds 2
 
 tactics:
     rm -rf tactics-bot && cp -r ../tactics-bot tactics-bot
@@ -45,7 +45,7 @@ tactics:
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" tactics-bot/
     nim c tactics-bot/strategy.nim
     just verdict --candidate tactics-bot --baseline roles-bot --behaviour Coil Forage \
-        --maps maps/*.map maps-generated/*.map --seeds 4 --output results/tactics
+        --maps maps/*.map maps-generated/*.map --seeds 4
 
 nim-bot name:
     rm -rf {{name}} && cp -r ../{{name}} {{name}}
@@ -67,9 +67,13 @@ ladder-all:
     just ladder --bots starter-c room-c room-pearls first-bot roles-bot tactics-bot \
         --maps maps/*.map maps-generated/*.map --seeds 1 --output results/ladder-all
 
-unseen-maps:
-    just mapgen --count 20 --seed 2026 --output maps-generated
-    just round-robin --bots room-c starter-c \
-        --maps maps/*.map --seeds 2 --output results/bundled-maps
-    just round-robin --bots room-c starter-c \
-        --maps maps-generated/*.map --seeds 2 --output results/generated-maps
+# Compare generated and bundled maps through the same harness.
+unseen-maps first="room-c" second="starter-c" count="20" seed="2026":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p results
+    directory=$(mktemp -d "$PWD/results/unseen-maps.XXXXXXXX")
+    just mapgen --count "$3" --seed "$4" --output "$directory/maps"
+    just round-robin --bots "$1" "$2" --maps maps/*.map --sandbox --seeds 2 --output "$directory/bundled"
+    just round-robin --bots "$1" "$2" --maps "$directory"/maps/*.map --sandbox --seeds 2 --output "$directory/generated"
+    printf 'Comparison results: %s\n' "$directory"

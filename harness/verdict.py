@@ -3,6 +3,9 @@
     just verdict --candidate tactics-coil --baseline roles-bot --behaviour Coil \\
         --maps maps/*.map --seeds 4 --output results/coil
 
+Every game is played through `just round-robin`, whose seeds depend only on the map
+and seed index, so games on the same map and seed meet the same pearls.
+
 Every game is paired. The candidate plays the baseline on each map, side and seed, and the
 same game is played with the baseline in the candidate's seat. Seeded games are
 deterministic, so where the change never fires the two games are identical and cancel out.
@@ -16,13 +19,10 @@ back isn't better, however it does head to head, and one that loses significantl
 Every such loss is listed. Wins are compared by length too.
 """
 
-import hashlib
 import random
 import re
 import statistics
 from pathlib import Path
-
-from harness.round_robin import PlayedGame
 
 # A dragon's turn in `unswbc run -v`: its stdout, up to the next line the toolkit writes.
 TURN = re.compile(
@@ -32,25 +32,17 @@ TURN = re.compile(
 INDICATOR = re.compile(r"^INDICATOR (.*)$", re.MULTILINE)
 
 
-def paired_seed(base_seed: str, map_path: str, repeat: int) -> str:
-    """The same seed for every game on one map and repeat, whichever bots play it."""
-    return (
-        "0x"
-        + hashlib.sha256(f"{base_seed}/{map_path}/{repeat}".encode()).digest()[:8].hex()
-    )
-
-
-def score(game: PlayedGame, side: str) -> float | None:
-    if game.error:
+def score(game: dict, side: str) -> float | None:
+    if game["status"] == "error":
         return None
-    return 0.5 if game.winner is None else float(game.winner == side)
+    return 0.5 if game["winner_side"] is None else float(game["winner_side"] == side)
 
 
-def activation(game: PlayedGame, side: str, behaviours: list[str]) -> float:
+def activation(log_path: Path, side: str, behaviours: list[str]) -> float:
     """Share of the side's dragon-turns whose indicator names one of the behaviours."""
     turns = [
         " ".join(INDICATOR.findall(match["output"]))
-        for match in TURN.finditer(Path(game.log_path).read_text(errors="replace"))
+        for match in TURN.finditer(log_path.read_text(errors="replace"))
         if match["team"] == side
     ]
     if not turns:
