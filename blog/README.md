@@ -20,6 +20,7 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, and the first strategy bot. |
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes, each dragon working out its own role by sonar, and the bugs the replays found. |
 | 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it: what worked, what didn't, and every version on one ladder. |
+| 16 | [The machine inside the judge](16-the-machine-inside-the-judge.md) | Performance | A judge written in Zig that plays the toolkit's games four times faster, why running bots as fibres rules out a race that kills freshly split dragons, and the machine the meter presents to a bot. |
 
 Next up: sonar.
 

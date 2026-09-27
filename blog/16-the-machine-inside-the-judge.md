@@ -1,7 +1,5 @@
 # The machine inside the judge
 
-<!-- draft: 8b7f25069f, stage: Performance -->
-
 We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
 This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot.
