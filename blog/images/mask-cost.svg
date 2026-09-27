@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 160" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Where the 9,200-point room count spent its points</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="160" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Where the 9,200-point room count spent its points</text>
+<text x="288" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">building the bitboards</text>
+<rect x="300" y="60" width="550.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">7,800 points</text>
+<text x="288" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">flood fills and counting</text>
+<rect x="300" y="104" width="98.7" height="26" rx="4" fill="#263d31"/>
+<text x="408.71794871794873" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">1,400 points</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 390" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Echo counts are totals over all rays</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="990" height="390" fill="#ede5d5"/>
+<text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Two different neighbourhoods, the same echo counts</text>
+<rect x="20" y="50" width="360" height="280" fill="#1d3027" rx="4"/>
+<path d="M60 50v280M100 50v280M140 50v280M180 50v280M220 50v280M260 50v280M300 50v280M340 50v280M20 90h360M20 130h360M20 170h360M20 210h360M20 250h360M20 290h360" stroke="rgba(243,236,223,.08)"/>
+<circle cx="200.0" cy="190.0" r="14.399999999999999" fill="#ff7a3d"/>
+<circle cx="320.0" cy="190.0" r="14.399999999999999" fill="#f3ecdf"/>
+<path d="M180 50h40" stroke="#7fb069" stroke-width="5"/>
+<path d="M200.0 190.0L304.0 190.0" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
+<path d="M200.0 190.0L200.0 86.0" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
+<text x="20" y="350" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">echoes: kelp 1, enemy head 1</text>
+<rect x="520" y="50" width="360" height="280" fill="#1d3027" rx="4"/>
+<path d="M560 50v280M600 50v280M640 50v280M680 50v280M720 50v280M760 50v280M800 50v280M840 50v280M520 90h360M520 130h360M520 170h360M520 210h360M520 250h360M520 290h360" stroke="rgba(243,236,223,.08)"/>
+<circle cx="700.0" cy="190.0" r="14.399999999999999" fill="#ff7a3d"/>
+<circle cx="580.0" cy="190.0" r="14.399999999999999" fill="#f3ecdf"/>
+<path d="M680 290h40" stroke="#7fb069" stroke-width="5"/>
+<path d="M700.0 190.0L596.0 190.0" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
+<path d="M700.0 190.0L700.0 294.0" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
+<text x="520" y="350" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">echoes: kelp 1, enemy head 1</text>
+<text x="20" y="374" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">The counts are totals over all of a dragon&#x27;s rays, so they say what is out there, not which way.</text>
+</svg>

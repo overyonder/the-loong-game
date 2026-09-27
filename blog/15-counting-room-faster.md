@@ -4,7 +4,7 @@
 
 Every bot in this series counts how much room a move leaves, and [where the points go](10-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, one step at a time, from the Nim the first bot used down to vector instructions.
 
-To compare versions fairly, I wrote a benchmark bot that plays the first bot's moves and, on every turn, runs each version of the room count on the same window. It checks that they all agree, then logs what each one cost using the judge's own clock, so the numbers are exact CPU points rather than estimates. Over 1,477 turns on six maps, every version agreed on every turn:
+To compare versions fairly, I wrote a benchmark bot that plays the first bot's moves and, on every turn, runs each version of the room count on the same window. It checks that they all agree, then logs what each one cost using the judge's own clock, so the numbers are exact CPU points. Over 1,477 turns on six maps, every version agreed on every turn:
 
 ![CPU points to count the room behind all four first moves, median of 1,477 turns on six maps, log scale. Nim with a seq queue and a set: 116,218. Nim with fixed arrays: 59,871. C with fixed arrays: 59,645. C with bitboards: 10,810. C with one flood fill per region: 9,230. SIMD with two flood fills at once: 11,249. A hand-written WebAssembly step: 9,422. SIMD for building the bitboards: 1,745.](images/room-kernels.svg)
 
@@ -57,6 +57,8 @@ I tried two more ideas at this point, and neither helped. The judge only accepts
 ## SIMD where the work is
 
 Timing the parts of the 9,200-point version showed that about 7,800 points went on building the bitboards: 49 tiles with four sides each, turned into five masks one bit at a time. The flood fills were already cheap.
+
+![Where the 9,200-point room count spent its points: about 7,800 on building the bitboards, and about 1,400 on the flood fills and counting.](images/mask-cost.svg)
 
 Building masks is what vector instructions are good at. The window arrives as bytes, one per tile and side, each 0 or 1. `i8x16.bitmask` gathers one bit from each of 16 bytes in a single instruction, and byte shuffles first pull out every fourth byte, since the sides are stored four to a tile:
 

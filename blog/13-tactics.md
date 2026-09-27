@@ -4,6 +4,8 @@
 
 The last two posts were about strategy, which is deciding what each dragon is for. Giving one dragon the job of staying long for round 500 and another the job of hunting enemy heads is a strategic choice. Tactics is the other half: once a dragon knows its job, doing that job precisely and efficiently. The question changes from "who should be the champion?" to "given I'm the champion right now, how do I do it well?" Two bots with the same strategy can play very differently depending on how well each carries it out.
 
+![Strategy decides the job and tactics does it. Strategy asks what each dragon is for, such as who should be the champion. Tactics asks how a dragon does its job well, such as how to be the champion well.](images/strategy-tactics.svg)
+
 ## A note on secret sauce
 
 I'm competing in this tournament too, so I can't walk through every idea I'm working on without handing it to everyone else. What I can share are the questions that shaped my own thinking, none of which have obvious answers:
@@ -12,7 +14,13 @@ I'm competing in this tournament too, so I can't walk through every idea I'm wor
 - How much of your 100 million points a turn do you actually use, and what would the rest buy?
 - What does your bot do differently when it's winning than when it's losing?
 
-It's also worth reading how winners of other Battlecode competitions thought about the problem, because the thinking carries over even where the games differ. The MIT 2025 champions, Just Woke Up, [built their units around explicit state machines](https://battlecode.org/assets/files/postmortem-2025-just-woke-up.pdf) with compact, typed messages, and compared every version across many maps. The MIT 2026 runners-up, Generalized Stroke's Theorem, [put more weight on watching replays](https://battlecode.org/assets/files/postmortem-2026-generalized-strokes-theorem.pdf) than on shaving instructions. And the Cambridge 2026 novice champion, Austen Wayne, [explains how his bot remembered what it had seen](https://github.com/AustenWayne/battlecode-bot/blob/main/Cambridge_Battlecode_Postmortem.pdf) and planned routes over that memory, and is candid that he spent too long on his economy.
+It's also worth reading how winners of other Battlecode competitions thought about the problem, because the thinking carries over even where the games differ:
+
+| Team | Result | What their write-up is good on |
+| --- | --- | --- |
+| Just Woke Up | MIT 2025 champions | [Units built around explicit state machines](https://battlecode.org/assets/files/postmortem-2025-just-woke-up.pdf), compact typed messages, and every version compared across many maps |
+| Generalized Stroke's Theorem | MIT 2026 runners-up | [Watching replays](https://battlecode.org/assets/files/postmortem-2026-generalized-strokes-theorem.pdf) and experimenting with the big picture, ahead of shaving instructions |
+| Austen Wayne | Cambridge 2026 novice champion | [Remembering what the bot had seen](https://github.com/AustenWayne/battlecode-bot/blob/main/Cambridge_Battlecode_Postmortem.pdf) and planning routes over that memory, and candid that he spent too long on his economy |
 
 ## A question from Discord
 
@@ -26,7 +34,7 @@ That's two tactics working together. The champion curls up tight against its own
 
 Let's try building both. Each one fits into the roles bot as new behaviour modules, so nothing else changes. The champion gains Coil, and the workers become feeders, with Forage for finding food and an optional Deliver for the sacrifice:
 
-![The tactics bot's structure. The state machine enters a role: Champion with Split, Evade, Coil and Roam; Kamikaze with Hunt and Roam; Feeder with Evade and Forage. Deliver, a feeder's sacrifice, is left out because it made the bot worse. Movement drops deadly steps and takes the best by the behaviour's objective. The dragon moves or splits and announces its team tag, ID, role, length and position.](images/tactics-architecture.svg)
+![The tactics bot's structure. The state machine enters a role: Champion with Split, Evade, Coil and Roam. Kamikaze with Hunt and Roam. Feeder with Evade and Forage. Deliver, a feeder's sacrifice, is left out because it made the bot worse. Movement drops deadly steps and takes the best by the behaviour's objective. The dragon moves or splits and announces its team tag, ID, role, length and position.](images/tactics-architecture.svg)
 
 The assembly is the roles bot's with two lines changed, and `indicate = 2` makes each dragon's indicator show its behaviour as well as its role:
 
@@ -40,7 +48,7 @@ Across the three example bots, most of the repertoire is shared, and each new bo
 
 The reason to coil is that a long dragon stretched across the board is an easy target. Every segment is somewhere an enemy can cut in, and the further it roams, the more of them it meets. Curled into a tight knot, most of its body is out of reach, and it stays in one place, which matters if teammates are going to bring it food. So a champion with no enemy head within three tiles coils.
 
-Getting a dragon to curl up turns out to need only one simple preference: it should like moving onto tiles that touch its own body. A dragon that keeps choosing to hug itself naturally winds into a spiral:
+Getting a dragon to curl up needs only one simple preference: it should like moving onto tiles that touch its own body. A dragon that keeps choosing to hug itself naturally winds into a spiral:
 
 ![How the coil scores a move. A champion is curled into a U, with two of its possible moves. Moving into the gap inside the curl touches two of its own segments and scores highest. Moving out of the curl touches none. Touching its own body only counts while the move still leaves at least 10 tiles of room.](images/coil-scoring.svg)
 
@@ -77,6 +85,8 @@ Every version with the sacrifice in it came out worse. Testing the pieces separa
 Whatever the number one team is doing, it's more careful than this. Perhaps their feeders only sacrifice when the champion is short of food, or perhaps the champion positions itself to collect. It's a good open question, and I'd love to hear from anyone who cracks it.
 
 What came closest to working was putting together the two pieces that hadn't hurt: a coiling champion with feeders that forage but never sacrifice. Each was undecided on its own. Together, on four seeds, they gained 80 changed games against the roles bot and dropped 45, and random signs do that well less than half a percent of the time.
+
+![Coiling with foraging against the roles bot on four seeds: of the games that changed, the tactics bot gained 80 and dropped 45.](images/coil-forage-result.svg)
 
 ## What the weak bots found
 

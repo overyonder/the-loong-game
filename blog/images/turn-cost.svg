@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 272" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Median CPU points per turn for the profiled bot, by part</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="272" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Median CPU points per turn for the profiled bot, by part</text>
+<text x="248" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Output</text>
+<rect x="260" y="60" width="590.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">3,038,645 points</text>
+<text x="248" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Input</text>
+<rect x="260" y="104" width="360.7" height="26" rx="4" fill="#263d31"/>
+<text x="630.6966137656717" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">329,448 points</text>
+<text x="248" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">ChooseMove</text>
+<rect x="260" y="148" width="163.3" height="26" rx="4" fill="#263d31"/>
+<text x="433.2976257613159" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">48,657 points</text>
+<text x="248" y="211" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">ReadWindow</text>
+<rect x="260" y="192" width="63.2" height="26" rx="4" fill="#263d31"/>
+<text x="333.1795153611103" y="211" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">18,444 points</text>
+<text x="20" y="258" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Log scale. Output is the 2.5 million write fee plus 4,000 points a byte, and the profiler&#x27;s own log line.</text>
+</svg>

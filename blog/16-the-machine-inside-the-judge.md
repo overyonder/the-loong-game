@@ -8,6 +8,8 @@ This post explains that design, the bug it rules out, and what the machine under
 
 The rules aren't in the judge. The organisers ship the game engine as a WebAssembly module, `unswbc_engine.wasm`, which owns every rule and writes the replay. The judge hosts it, along with one WebAssembly instance for every dragon. Each turn it gives a dragon its view as text on stdin, runs the bot until the bot finishes its reply with `ENDTURN`, and charges the CPU points the bot spent along the way.
 
+![What a judge does. The game engine, unswbc_engine.wasm, owns every rule and writes the replay, and talks to the judge through bot_spawn, bot_reply and log. The judge hosts the engine, feeds each dragon its turn, meters CPU points and reads the reply. Each dragon is its own bot.wasm instance, reading its view on stdin and replying on stdout.](images/judge-parts.svg)
+
 The online judge runs bots in Wasmer. The toolkit reproduces it in wasmtime, with a metering pass that inserts the same point counting into each bot's module. Our judge uses that same metering pass and the same engine module. Only the host around them is new.
 
 ## The race in the official sandbox
@@ -67,6 +69,8 @@ pub fn write(self: *Instance, data: []const u8) !bool {
 
 So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread.
 
+![Threads in the official sandbox, fibres in ours. In the official sandbox, a driver thread notes parks and feeds turns to dragon threads blocked in fd_read, and a new child's thread is already running, so it can reach its first read between the park count and the feed and be taken as done. In our judge, one thread per game holds the driver, the engine and every dragon, and a dragon's fibre pauses mid read and runs only when the driver resumes it, so no bot runs between noting the count and feeding a turn.](images/threads-fibres.svg)
+
 Zig suits this. wasmtime's C API exposes the async calls directly, and Zig calls C headers without a binding layer, so the host is about 2,100 lines with no runtime of its own. A batch runs one game per thread, with every bot in a game sharing that game's thread.
 
 ## Same games
@@ -84,6 +88,8 @@ Timed one game at a time on a Ryzen 7 5800X3D, with the same bot, map, seed, eng
 | Older bot of ours, Default | 29,670 | 124.9 s | 28.2 s | 4.4× |
 
 Each time is the median of three runs, including startup, compiling the WebAssembly and writing the replay. All twelve paired games, warm-ups included, produced identical replays. CPU time fell by about half in the short games and by three quarters in the long one, and peak memory fell from 467 MiB to 294 MiB in the long game.
+
+![End-to-end wall time for one game, in seconds on a log scale. Probe bot on Default: 3.16 with the toolkit and 0.83 with our judge. Older bot on Arena: 3.14 and 0.81. Older bot on Default: 124.9 and 28.2. Median of three runs each on a Ryzen 7 5800X3D, with identical replays from both hosts.](images/judge-speed.svg)
 
 The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. These timings don't separate the two.
 

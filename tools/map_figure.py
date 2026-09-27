@@ -66,8 +66,9 @@ def board(path):
 
 
 def sheet(title, paths):
-    # A single map gets one large slot; a set gets a grid of small ones.
-    columns, slot_width, slot_height = (1, 520, 470) if len(paths) == 1 else (COLUMNS, SLOT_WIDTH, SLOT_HEIGHT)
+
+    # One or two maps get large slots side by side; a set gets a grid of small ones.
+    columns, slot_width, slot_height = (len(paths), 480, 440) if len(paths) <= 2 else (COLUMNS, SLOT_WIDTH, SLOT_HEIGHT)
     rows = (len(paths) + columns - 1) // columns
     width = columns * (slot_width + GAP) + GAP
     height = 56 + rows * (slot_height + GAP)

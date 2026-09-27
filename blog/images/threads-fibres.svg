@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 280" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Threads in the official sandbox, fibres in ours</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="990" height="280" fill="#ede5d5"/>
+<text x="20" y="30" font-size="16" fill="#20251f" text-anchor="start" font-weight="bold">The official sandbox</text>
+<text x="530" y="30" font-size="16" fill="#20251f" text-anchor="start" font-weight="bold">Our judge</text>
+<rect x="20" y="50" width="200" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="75" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Driver thread</text><text x="34" y="96" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">notes parks, feeds turn</text>
+<rect x="270" y="50" width="200" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="284" y="75" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Dragon thread</text><text x="284" y="96" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">blocks in fd_read</text>
+<rect x="270" y="140" width="200" height="70" rx="8" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.6"/><text x="284" y="165" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">New child&#x27;s thread</text><text x="284" y="186" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">already running</text>
+<path d="M220 85 L268 85" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M220 100 L268 170" fill="none" stroke="#b53b13" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#s)"/>
+<text x="20" y="240" font-size="12.5" fill="#b53b13" text-anchor="start" font-weight="normal">A fresh sandbox can reach its first read between</text>
+<text x="20" y="258" font-size="12.5" fill="#b53b13" text-anchor="start" font-weight="normal">the park count and the feed, and is taken as done.</text>
+<rect x="530" y="50" width="440" height="70" rx="8" fill="#263d31" stroke="#b9ad99" stroke-width="1.6"/><text x="544" y="75" font-size="15" fill="#ede5d5" text-anchor="start" font-weight="bold">One thread per game</text><text x="544" y="96" font-size="12.5" fill="#d9d2c3" text-anchor="start" font-weight="normal">the driver, the engine and every dragon</text>
+<rect x="530" y="140" width="210" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="544" y="165" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Dragon fibre</text><text x="544" y="186" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">paused mid fd_read</text>
+<rect x="760" y="140" width="210" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="774" y="165" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Child fibre</text><text x="774" y="186" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">runs only when resumed</text>
+<path d="M640 120 L640 138" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M860 120 L860 138" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="530" y="240" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">A blocked read pauses the fibre. Only the driver resumes it,</text>
+<text x="530" y="258" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">so no bot runs between noting the count and feeding a turn.</text>
+</svg>

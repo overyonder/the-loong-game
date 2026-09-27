@@ -55,7 +55,7 @@ def arrow(points, colour=MUTED, dashed=False):
 def bars(title, rows, unit, width=1000, log=True, note=None):
     """Horizontal bars, one per (label, value, colour) row, on a log or linear scale."""
     import math
-    left, right, top, gap = 260, 150, 60, 44
+    left, right, top, gap = 300, 150, 60, 44
     top_value = max(value for _, value, _ in rows)
     bottom = min(value for _, value, _ in rows)
     lo = 10 ** math.floor(math.log10(bottom)) if log else 0
@@ -68,7 +68,8 @@ def bars(title, rows, unit, width=1000, log=True, note=None):
         length = max(4, span * scale(value))
         parts.append(text(left - 12, y + 19, label, 14, INK, "end"))
         parts.append(f'<rect x="{left}" y="{y}" width="{length:.1f}" height="26" rx="4" fill="{colour}"/>')
-        parts.append(text(left + length + 10, y + 19, f"{value:,.0f} {unit}", 13.5, MUTED))
+        shown = f"{value:,.0f}" if value >= 1000 else f"{value:g}"
+        parts.append(text(left + length + 10, y + 19, f"{shown} {unit}", 13.5, MUTED))
     height = top + len(rows) * gap + (36 if note else 12)
     if note:
         parts.append(text(20, height - 14, note, 12.5, MUTED))
@@ -237,7 +238,200 @@ def pearls_weak_bots():
         "games", log=False)
 
 
+def replay_requests():
+    parts = [
+        card(20, 20, 220, 100, "Battles page", ["/battles?sort=rating", "25 series a page,", "highest rated first"]),
+        card(290, 20, 220, 100, "Series page", ["one per series", "lists its games"]),
+        card(560, 20, 220, 100, "Replay API", ["/api/matches/<game>/replay", "redirects to storage"]),
+        card(830, 20, 160, 100, "Replay file", ["packed binary,", "gzipped"], dark=True),
+        arrow([(240, 70), (288, 70)]), arrow([(510, 70), (558, 70)]), arrow([(780, 70), (828, 70)]),
+        text(20, 150, "One replay costs three requests, and the first two are shared by every game in a series. Every request waits its turn.", 13, MUTED),
+    ]
+    return svg(1010, 170, "The requests behind one replay", parts)
+
+
+def turn_cost():
+    return bars("Median CPU points per turn for the profiled bot, by part", [
+        ("Output", 3_038_645, SIGNAL), ("Input", 329_448, FOREST), ("ChooseMove", 48_657, FOREST),
+        ("ReadWindow", 18_444, FOREST)], "points", note="Log scale. Output is the 2.5 million write fee plus 4,000 points a byte, and the profiler's own log line.")
+
+
+def moving_targets():
+    parts = [
+        card(20, 20, 235, 110, "Opponents change", ["teams upload new bots", "twelve times an hour"]),
+        card(270, 20, 235, 110, "Maps change", ["every tournament map", "is unseen"]),
+        card(520, 20, 235, 110, "Rules change", ["random pearl seeding broke", "20 teams' hardcoded", "schedules overnight"]),
+        card(770, 20, 220, 110, "Views are partial", ["a 7×7 window, and", "sonar for the rest"]),
+    ]
+    return svg(1010, 150, "Why a bot tuned to today's ladder doesn't last", parts)
+
+
+def two_rules():
+    parts = [
+        card(20, 20, 470, 110, "Round 500", ["If neither team is wiped out, the longest living", "dragon wins. So our longest dragon should grow", "and stay out of trouble."], dark=True),
+        card(530, 20, 460, 110, "A head-on collision", ["When two heads meet, both dragons die, however", "long each was. A two-segment dragon has almost", "nothing to lose."], accent=SIGNAL),
+    ]
+    return svg(1010, 150, "Two rules that pull dragons in opposite directions", parts)
+
+
+def strategy_tactics():
+    parts = [
+        card(20, 20, 470, 96, "Strategy", ["What is each dragon for?", "\"Who should be the champion?\""]),
+        card(530, 20, 460, 96, "Tactics", ["How does a dragon do its job well?", "\"I'm the champion, so how do I do it well?\""], dark=True),
+        arrow([(490, 68), (528, 68)]),
+    ]
+    return svg(1010, 136, "Strategy decides the job, tactics does it", parts)
+
+
+def grid_board(x0, y0, columns, rows, cell, items):
+    """A small board: items are (kind, column, row[, label]) with kind in kelp-h, kelp-v, ours, theirs, mate."""
+    colours = {"ours": HOT, "theirs": "#f3ecdf", "mate": "#e0a36a"}
+    parts = [f'<rect x="{x0}" y="{y0}" width="{columns * cell}" height="{rows * cell}" fill="#1d3027" rx="4"/>']
+    grid = "".join(f"M{x0 + c * cell} {y0}v{rows * cell}" for c in range(1, columns))
+    grid += "".join(f"M{x0} {y0 + r * cell}h{columns * cell}" for r in range(1, rows))
+    parts.append(f'<path d="{grid}" stroke="rgba(243,236,223,.08)"/>')
+    for item in items:
+        kind, c, r = item[:3]
+        cx, cy = x0 + c * cell + cell / 2, y0 + r * cell + cell / 2
+        if kind == "kelp-h":
+            parts.append(f'<path d="M{x0 + c * cell} {y0 + r * cell}h{cell}" stroke="#7fb069" stroke-width="5"/>')
+        elif kind == "kelp-v":
+            parts.append(f'<path d="M{x0 + c * cell} {y0 + r * cell}v{cell}" stroke="#7fb069" stroke-width="5"/>')
+        else:
+            parts.append(f'<circle cx="{cx}" cy="{cy}" r="{cell * 0.36}" fill="{colours[kind]}"/>')
+        if len(item) > 3:
+            parts.append(text(cx, cy + cell * 0.95, item[3], 11.5, "#f3ecdf", "middle"))
+    return parts
+
+
+def ray(x0, y0, cell, c1, r1, c2, r2, colour=SIGNAL):
+    ax, ay = x0 + c1 * cell + cell / 2, y0 + r1 * cell + cell / 2
+    bx, by = x0 + c2 * cell + cell / 2, y0 + r2 * cell + cell / 2
+    return (f'<path d="M{ax} {ay}L{bx} {by}" stroke="{colour}" stroke-width="2.5" stroke-dasharray="7 5"'
+            f' marker-end="url(#s)"/>')
+
+
+def bitfield(title, fields):
+    """A 64-bit word as labelled fields of (bits, label, colour), most significant first."""
+    left, top, width = 20, 50, 970
+    parts = [text(20, 30, title, 16, INK, weight="bold")]
+    x, bit = left, 64
+    for bits, label, colour in fields:
+        w = width * bits / 64
+        parts.append(f'<rect x="{x:.1f}" y="{top}" width="{w - 3:.1f}" height="52" rx="5" fill="{colour}"/>')
+        parts.append(text(x + w / 2, top + 24, label, 13.5, PAPER, "middle", "bold"))
+        parts.append(text(x + w / 2, top + 42, f"{bits} bits", 11.5, "#e9e1d0", "middle"))
+        parts.append(text(x + 2, top + 72, bit - 1, 11, MUTED))
+        x += w
+        bit -= bits
+    parts.append(text(left + width - 4, top + 72, 0, 11, MUTED, "end"))
+    return svg(1010, 140, title, parts)
+
+
+def sonar_position_message():
+    return bitfield("The tactics bot's sonar message", [
+        (16, "team tag LO", FOREST), (16, "sender ID", "#3f6e8c"), (4, "role", "#7a4f8a"),
+        (12, "length", "#a8801a"), (8, "head x", SIGNAL), (8, "head y", SIGNAL)])
+
+
+def who_hears():
+    cell, parts = 44, [text(20, 30, "A ray stops at the first body it meets, and the message carries no sender", 15, INK, weight="bold")]
+    parts += grid_board(20, 50, 10, 3, cell, [("ours", 1, 1, "sender"), ("theirs", 5, 1, "enemy hears it"), ("mate", 8, 1, "teammate")])
+    parts.append(ray(20, 50, cell, 1, 1, 4.5, 1))
+    parts += grid_board(520, 50, 10, 3, cell, [("theirs", 1, 1, "enemy, sending LO…"), ("mate", 6, 1, "our dragon")])
+    parts.append(ray(520, 50, cell, 1, 1, 5.5, 1))
+    parts.append(text(20, 208, "Decoding: an enemy in the way reads what we send.", 13, MUTED))
+    parts.append(text(520, 208, "Misinformation: nothing stops a message in our format.", 13, MUTED))
+    return svg(990, 226, "Who hears a sonar message", parts)
+
+
+def echo_totals():
+    cell, parts = 40, [text(20, 30, "Two different neighbourhoods, the same echo counts", 15, INK, weight="bold")]
+    for index, flip in enumerate((False, True)):
+        x0 = 20 + index * 500
+        head = (4, 3)
+        enemy = (1, 3) if flip else (7, 3)
+        kelp = ("kelp-h", 4, 6) if flip else ("kelp-h", 4, 0)
+        parts += grid_board(x0, 50, 9, 7, cell, [("ours", *head), ("theirs", *enemy), kelp])
+        parts.append(ray(x0, 50, cell, 4, 3, enemy[0] + (0.4 if flip else -0.4), 3))
+        parts.append(ray(x0, 50, cell, 4, 3, 4, 5.6 if flip else 0.4))
+        parts.append(text(x0, 350, "echoes: kelp 1, enemy head 1", 13, SIGNAL, weight="bold"))
+    parts.append(text(20, 374, "The counts are totals over all of a dragon's rays, so they say what is out there, not which way.", 13, MUTED))
+    return svg(990, 390, "Echo counts are totals over all rays", parts)
+
+
+def sonar_poker():
+    cell, parts = 44, [text(20, 30, "Poker over sonar: two single dragons, one line of sight", 15, INK, weight="bold")]
+    parts += grid_board(20, 50, 12, 3, cell, [("ours", 1, 1, "jester"), ("theirs", 10, 1, "opponent")])
+    parts.append(ray(20, 50, cell, 1.3, 0.9, 9.6, 0.9))
+    parts.append(ray(20, 50, cell, 9.7, 1.1, 1.4, 1.1, colour=FOREST))
+    parts.append(text(20, 214, "Commit to a card without showing it, catch cheating, and tell your opponent from an eavesdropper.", 13, MUTED))
+    return svg(990, 232, "Poker over sonar", parts)
+
+
+def mask_cost():
+    return bars("Where the 9,200-point room count spent its points", [
+        ("building the bitboards", 7_800, SIGNAL), ("flood fills and counting", 1_400, FOREST)], "points", log=False)
+
+
+def judge_parts():
+    parts = [
+        card(20, 20, 250, 150, "Game engine", ["unswbc_engine.wasm", "owns every rule", "writes the replay"], dark=True),
+        card(370, 20, 250, 150, "The judge", ["hosts the engine", "feeds each dragon its turn", "meters CPU points", "reads the reply"]),
+        card(720, 20, 270, 70, "Dragon 0: bot.wasm", ["its view on stdin, a reply on stdout"]),
+        card(720, 100, 270, 70, "Dragon 1: bot.wasm", ["…one instance per dragon"]),
+        arrow([(270, 95), (368, 95)]), arrow([(368, 110), (272, 110)]),
+        arrow([(620, 55), (718, 55)]), arrow([(620, 135), (718, 135)]),
+        text(320, 135, "bot_spawn,", 11.5, MUTED, "middle"), text(320, 150, "bot_reply, log", 11.5, MUTED, "middle"),
+    ]
+    return svg(1010, 190, "What a judge does", parts)
+
+
+def threads_fibres():
+    parts = [text(20, 30, "The official sandbox", 16, INK, weight="bold"), text(530, 30, "Our judge", 16, INK, weight="bold")]
+    parts += [card(20, 50, 200, 70, "Driver thread", ["notes parks, feeds turn"]),
+              card(270, 50, 200, 70, "Dragon thread", ["blocks in fd_read"]),
+              card(270, 140, 200, 70, "New child's thread", ["already running"], accent=SIGNAL),
+              arrow([(220, 85), (268, 85)]), arrow([(220, 100), (268, 170)], colour=SIGNAL),
+              text(20, 240, "A fresh sandbox can reach its first read between", 12.5, SIGNAL),
+              text(20, 258, "the park count and the feed, and is taken as done.", 12.5, SIGNAL)]
+    parts += [card(530, 50, 440, 70, "One thread per game", ["the driver, the engine and every dragon"], dark=True),
+              card(530, 140, 210, 70, "Dragon fibre", ["paused mid fd_read"]),
+              card(760, 140, 210, 70, "Child fibre", ["runs only when resumed"]),
+              arrow([(640, 120), (640, 138)]), arrow([(860, 120), (860, 138)]),
+              text(530, 240, "A blocked read pauses the fibre. Only the driver resumes it,", 12.5, MUTED),
+              text(530, 258, "so no bot runs between noting the count and feeding a turn.", 12.5, MUTED)]
+    return svg(990, 280, "Threads in the official sandbox, fibres in ours", parts)
+
+
+def judge_speed():
+    return bars("End-to-end wall time for one game, seconds", [
+        ("Probe bot, Default: toolkit", 3.16, RULE), ("Probe bot, Default: our judge", 0.83, FOREST),
+        ("Older bot, Arena: toolkit", 3.14, RULE), ("Older bot, Arena: our judge", 0.81, FOREST),
+        ("Older bot, Default: toolkit", 124.9, RULE), ("Older bot, Default: our judge", 28.2, FOREST)],
+        "s", width=1010, note="Log scale. Median of three runs each, on a Ryzen 7 5800X3D, with identical replays from both hosts.")
+
+
+def coil_forage_result():
+    return bars("Coil and forage against the roles bot, changed games on four seeds", [
+        ("gained", 80, FOREST), ("dropped", 45, SIGNAL)], "games", log=False)
+
+
 FIGURES = {
+    "coil-forage-result": coil_forage_result,
+    "sonar-position-message": sonar_position_message,
+    "who-hears": who_hears,
+    "echo-totals": echo_totals,
+    "sonar-poker": sonar_poker,
+    "mask-cost": mask_cost,
+    "judge-parts": judge_parts,
+    "threads-fibres": threads_fibres,
+    "judge-speed": judge_speed,
+    "replay-requests": replay_requests,
+    "turn-cost": turn_cost,
+    "moving-targets": moving_targets,
+    "two-rules": two_rules,
+    "strategy-tactics": strategy_tactics,
     "pearls-weak-bots": pearls_weak_bots,
     "rating-odds": rating_odds,
     "coin-flips": coin_flips,

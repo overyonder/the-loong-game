@@ -6,11 +6,9 @@ The [first strategy bot](11-the-shape-of-the-problem.md) treats every dragon the
 
 ## Why dragons need different jobs
 
-Two of the game's rules pull our dragons in opposite directions, and that's what makes roles worth having.
+Two of the game's rules pull our dragons in opposite directions, and that's what makes roles worth having. If neither team is wiped out, the winner at round 500 is the team with the longest living dragon, so whichever of our dragons is longest carries the whole team's result. And when two heads meet, both dragons die, however long each of them was:
 
-The first is how the game ends. If neither team is wiped out, the winner at round 500 is the team with the longest living dragon. So whichever of our dragons is longest is carrying the whole team's result, and it should spend the game growing and staying out of trouble.
-
-The second is what happens in a head-on collision. When two heads meet, both dragons die, however long each of them was. A long dragon has a lot to lose from that, and a dragon with two or three segments has very little.
+![Two rules that pull dragons in opposite directions. At round 500, if neither team is wiped out, the longest living dragon wins, so our longest dragon should grow and stay out of trouble. In a head-on collision both dragons die, however long each was, so a two-segment dragon has almost nothing to lose.](images/two-rules.svg)
 
 So a long dragon should avoid enemy heads and a short one should seek them out, and the plan is three roles:
 
@@ -26,7 +24,7 @@ Every dragon runs the same program as a separate process with its own memory, an
 
 The role doesn't replace the first bot's state machine. It adds a layer on top: each role is a parent state with a guard, and its children are the behaviours that role is allowed to use. The champion also gets a reflex, a check that runs before its children and can take the turn for itself, which we'll need further down:
 
-![The roles bot's structure. Each turn the dragon listens to sonar and reads its window. The state machine enters a role from its length and the longest teammate heard: Champion with Split, Evade and Roam; Kamikaze with Hunt and Roam; Worker with Evade and Roam. Then the first behaviour whose guard holds; Split and Hunt's strike act as reflexes. Movement drops deadly steps, only Hunt may step next to an enemy head, and the best remaining step by the objective is taken. The dragon moves or splits, then announces its team tag, ID, role and length.](images/roles-architecture.svg)
+![The roles bot's structure. Each turn the dragon listens to sonar and reads its window. The state machine enters a role from its length and the longest teammate heard: Champion with Split, Evade and Roam. Kamikaze with Hunt and Roam. Worker with Evade and Roam. Then the first behaviour whose guard holds. Split and Hunt's strike act as reflexes. Movement drops deadly steps, only Hunt may step next to an enemy head, and the best remaining step by the objective is taken. The dragon moves or splits, then announces its team tag, ID, role and length.](images/roles-architecture.svg)
 
 Because behaviours are modules, the roles bot is still just an assembly. The same `evade` and `roam` modules the first bot used now appear under more than one role, alongside a new `hunt` behaviour for kamikazes and the sonar protocol:
 

@@ -14,7 +14,7 @@ So this post tries to answer that one question using only the official toolkit a
 
 That's one game, and it tells us who won it. It also saves a replay we can watch in the [visualiser](https://game.battlecode.au/visualiser), and prints how many CPU points each team spent, which we'll come back to at the end. One game obviously isn't statistically significant, though, and working out how many games it does take is part of what this post is about.
 
-We can get more games easily enough. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as, so running the same match again gives a genuinely different game. Passing a seed back with `--seed` replays one exactly, which will be handy for debugging:
+We can get more games easily enough. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as, so running the same match again gives a different game. Passing a seed back with `--seed` replays one exactly, which will be handy for debugging:
 
 ![Running the same match again without a seed gets seed 0x5007de0a57fc374d and a different 75-round game. Running it with --seed 0xf80f04670677fc31 repeats the first game exactly: the same three deaths and team A winning after 60 rounds.](images/unswbc-seed.png)
 
@@ -102,7 +102,7 @@ The seventh item is a **debug viewer**.
 
 Last, back to that first game's CPU points. Each dragon gets a budget of 100 million points per turn, and a smart bot will want to spend as much of it as possible thinking. The summary tells us how much was spent, but not what it was spent on.
 
-The C starter spends 3.0 million points a turn just walking randomly, which seemed like a lot. My first guess was the log line it writes every turn, so I deleted it, and that saved about 0.1 million. It turns out most of the rest is the single write to stdout that every turn needs to send its move, which costs 2.5 million on its own. That's useful to know, but it took a guess and an experiment to find out. Once our bot is running a real search, every wasted point is search depth it doesn't get, and we'll want a profiler to show us where the points go directly.
+The C starter spends 3.0 million points a turn just walking randomly, which seemed like a lot. My first guess was the log line it writes every turn, so I deleted it, and that saved about 0.1 million. Most of the rest is the single write to stdout that every turn needs to send its move, which costs 2.5 million on its own. That's useful to know, but it took a guess and an experiment to find out. Once our bot is running a real search, every wasted point is search depth it doesn't get, and we'll want a profiler to show us where the points go directly.
 
 The last item is **profiling**.
 

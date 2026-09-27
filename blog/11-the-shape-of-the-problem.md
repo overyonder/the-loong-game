@@ -8,6 +8,8 @@ With the tools in place, the series turns to strategy. Before writing any, it's 
 
 When a game has a fixed simulator and a clear score, it's tempting to throw compute at it: generate thousands of candidate bots, play them against each other for a week, and keep whatever wins. That works when the thing you're optimising against holds still, and in Battlecode very little does. Every team can upload a new bot twelve times an hour, so a bot trained on this week's field is tuned for opponents that won't exist at the tournament. Every tournament map will be new. Even the rules move: until 25 September every match on a map used the same pearl schedule, more than 20 teams had hardcoded those schedules, and when the toolkit started seeding matches randomly all of that tuning stopped working overnight.
 
+![Why a bot tuned to today's ladder doesn't last. Opponents change, with teams uploading new bots twelve times an hour. Maps change, with every tournament map unseen. Rules change, as random pearl seeding broke 20 teams' hardcoded schedules overnight. And views are partial: a 7×7 window, with sonar for the rest.](images/moving-targets.svg)
+
 I learned this the expensive way. Early on I tuned a bot's decision weights with an evolutionary optimiser, playing each candidate against a fixed set of opponents on two maps. The five best bots it produced then each played a bot that moves at random, and each won only 1 to 3 of its 11 games. They'd learned to beat the opponents they trained against, and not much else.
 
 The opposite temptation is to describe the game to an AI model and ask for a bot. That can produce a decent bot quickly, but every team has the same models, so the ladder fills with bots that look alike, play alike and mostly beat each other at random. The teams at the top will be the ones doing something the obvious bot doesn't.
@@ -15,6 +17,8 @@ The opposite temptation is to describe the game to an AI model and ask for a bot
 ## Adaptive problems need structure
 
 Put together, this is an adaptive, adversarial problem, played on partial information. Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* has a good vocabulary for it. It's *partially observable*, since a dragon only sees its 7×7 window. It's *multi-agent* in two directions at once, competing with the other team while cooperating with teammates it can't share memory with. And it's *unknown* in the book's sense, because the maps and opponents we'll face at the tournament aren't the ones we can test against now.
+
+![The same round of a public ladder game twice. On the left, the whole board. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
 
 Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see why, fix that one behaviour, and prove with the [verdict](04-better-worse-or-undecided.md) that the fix helped without breaking anything else. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
 
@@ -52,7 +56,7 @@ Nothing in either file knows how a behaviour works, and nothing in a behaviour k
 
 Our competition bot is built the same way on our own repertoire. Its main line chooses behaviours by utility, with a margin that keeps a dragon on its current task until something clearly better turns up. Alongside it, experimental bots assemble the same behaviours under goal-oriented planning, subsumption, and belief, desire and intention, so we can compare architectures on the same footing. Here's what that looks like from the side of one behaviour, our escape, which carries a factory for every architecture that uses it:
 
-![Our escape behaviour, escape.nim, with boxes over each part. whenTrapped is its eligibility: fewer safe single steps than a minimum. execute is its execution: move away from the nearest enemy head, sprinting. Then one factory per architecture: utilityBehaviour builds a utility definition from the eligibility, a fixed score and the execution; subsumptionLayer builds a layer that takes over the whole intent; bdiDesire builds a desire that interrupts the current intention and resumes it once safe; and goapGoal and goapAction build a survival goal and an escape step for the planner.](images/composition-behaviour.png)
+![Our escape behaviour, escape.nim, with boxes over each part. whenTrapped is its eligibility: fewer safe single steps than a minimum. execute is its execution: move away from the nearest enemy head, sprinting. Then one factory per architecture: utilityBehaviour builds a utility definition from the eligibility, a fixed score and the execution. SubsumptionLayer builds a layer that takes over the whole intent. BdiDesire builds a desire that interrupts the current intention and resumes it once safe. And goapGoal and goapAction build a survival goal and an escape step for the planner.](images/composition-behaviour.png)
 
 Two more rules keep the pieces honest. Hard constraints, like illegal or fatal moves, are filtered out before anything is scored, so no behaviour's enthusiasm can outweigh a wall. And each behaviour judges moves by its own objective. The alternative, one big weighted score where a dragon's role only changes the weights, is exactly the kind of bot that's hard to explain when it goes wrong.
 
@@ -60,7 +64,7 @@ Two more rules keep the pieces honest. Hard constraints, like illegal or fatal m
 
 The example bots in this series are built the same way, on a small public repertoire in [examples/repertoire](../examples/repertoire/games/loong/hsm.nim). The first one uses a hierarchical state machine, entered from the root every turn, so the first behaviour whose guard holds takes the turn:
 
-![The first bot's structure. Each turn the dragon reads its 7×7 window. A state machine enters the first behaviour whose guard holds: Evade, when an enemy head is within two tiles, with the objective room plus four times the gap to the head; or Roam, with no guard and the objective room left. Movement first drops steps into kelp, bodies, portals and tiles next to an enemy head, then takes the best remaining step by the behaviour's objective.](images/first-bot-architecture.svg)
+![The first bot's structure. Each turn the dragon reads its 7×7 window. A state machine enters the first behaviour whose guard holds: Evade, when an enemy head is within two tiles, with the objective room plus four times the gap to the head. Or Roam, with no guard and the objective room left. Movement first drops steps into kelp, bodies, portals and tiles next to an enemy head, then takes the best remaining step by the behaviour's objective.](images/first-bot-architecture.svg)
 
 The whole bot is its assembly, two behaviours handed to the state machine:
 

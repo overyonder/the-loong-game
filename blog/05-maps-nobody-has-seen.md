@@ -10,6 +10,8 @@ The generator, `just mapgen`, writes maps in the official format. The hard part 
 
 Size and shape come first. Ladder maps range from cramped boards where dragons are always bumping into each other up to 64 by 64, where they may barely meet, and some are square while others are long and narrow. A bot that only ever plays medium-sized square maps picks up habits that fall apart at either extreme.
 
+![The smallest and largest of the generated maps side by side: a 10 by 8 board with two long dragons and a few portal edges, and a 64 by 64 board with scattered kelp rooms and walls, a divide across the middle, and small dragons far apart.](images/map-sizes.svg)
+
 Every map is also symmetric, mirrored or rotated so both teams start in equivalent positions, which keeps the games fair. The generator never places anything on its own: every piece of kelp goes in together with its mirror image.
 
 ```python

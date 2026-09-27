@@ -10,6 +10,8 @@ The toolkit can make replays of our own games, but it can't fetch anyone else's,
 
 The [Battles page](https://game.battlecode.au/battles) lists every ladder series, 25 to a page, and adding `?sort=rating` puts the highest-rated series first. Each series has its own page listing its games, and each game's replay is one more request: the site's own viewer loads it from `/api/matches/<game>/replay`, which redirects to the file in storage. So one replay takes a request for the listing, one for the series page and one for the file, and the first two are shared by every game in the series. The sampler starts from the top of the rating-sorted listing, because the best bots are the ones most worth studying, and works down until it has as many replays as we asked for.
 
+![The requests behind one replay. The Battles page, sorted by rating with 25 series a page, leads to a series page listing its games, which leads to the replay API, which redirects to the packed, gzipped replay file. The first two requests are shared by every game in a series, and every request waits its turn.](images/replay-requests.svg)
+
 ## Being a good guest
 
 The part that needs care is how the sampler talks to the site. Every request goes through one small client in [replays/collection.py](../replays/collection.py). It checks robots.txt first, makes one request at a time, waits at least two seconds between requests by default, and only follows redirects over HTTPS. The interesting part is what happens when the site pushes back. If it answers with a 429, meaning slow down, or a server error, the client doubles its interval up to a minute, honours any `Retry-After` the site sends, and gives up entirely after six rejections in a row:

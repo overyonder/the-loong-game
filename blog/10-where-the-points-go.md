@@ -57,6 +57,8 @@ The bot's thinking, the move choice with its flood fills, costs about 49,000 poi
 
 The second surprise is input. A turn's input is under a kilobyte, about 6,000 points to read, but the starter helper spends another 320,000 turning that text into numbers. Parsing costs six times as much as the strategy.
 
+![Median CPU points per turn for the profiled bot, by part, on a log scale: Output 3,038,645, Input 329,448, ChooseMove 48,657 and ReadWindow 18,444. Output is the 2.5 million write fee plus 4,000 points a byte, and the profiler's own log line.](images/turn-cost.svg)
+
 So a whole turn costs about 3.4 million points, and 96 million go unused. That budget is for thinking, and the part of the thinking that grows when a bot looks further ahead is the flood fill. Two moves deeper means sixteen times as many.
 
 ## Down to the instructions

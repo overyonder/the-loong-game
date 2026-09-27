@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 232" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Poker over sonar</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="990" height="232" fill="#ede5d5"/>
+<text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Poker over sonar: two single dragons, one line of sight</text>
+<rect x="20" y="50" width="528" height="132" fill="#1d3027" rx="4"/>
+<path d="M64 50v132M108 50v132M152 50v132M196 50v132M240 50v132M284 50v132M328 50v132M372 50v132M416 50v132M460 50v132M504 50v132M20 94h528M20 138h528" stroke="rgba(243,236,223,.08)"/>
+<circle cx="86.0" cy="116.0" r="15.84" fill="#ff7a3d"/>
+<text x="86.0" y="157.8" font-size="11.5" fill="#f3ecdf" text-anchor="middle" font-weight="normal">jester</text>
+<circle cx="482.0" cy="116.0" r="15.84" fill="#f3ecdf"/>
+<text x="482.0" y="157.8" font-size="11.5" fill="#f3ecdf" text-anchor="middle" font-weight="normal">opponent</text>
+<path d="M99.2 111.6L464.4 111.6" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
+<path d="M468.79999999999995 120.4L103.6 120.4" stroke="#263d31" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
+<text x="20" y="214" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">Commit to a card without showing it, catch cheating, and tell your opponent from an eavesdropper.</text>
+</svg>

@@ -19,7 +19,7 @@ I'm Kieran Hannigan, and I run [over|yonder](https://over-yonder.tech), a perfor
 
 Will this win you the tournament? Probably not on its own. The top teams will turn up with advanced strategies and plenty of tooling, and most teams won't have either. The point is to raise the tide a little: share the tools, techniques and mistakes so more teams can give the top of the ladder a proper game. Everything's open source, and each post links to the code and results behind it.
 
-![The series in five stages: understanding the problem, with the tournament, the wishlist and the language; building our tooling, with the harness, statistics, maps, ladder, replays, viewer and profiling; grand strategy, with the architecture and roles; tactical ideas and espionage, with tactics and sonar; and performance, with faster kernels and our own judge.](images/series-stages.svg)
+![The series in five stages: understanding the problem, with the tournament, the wishlist and the language. Building our tooling, with the harness, statistics, maps, ladder, replays, viewer and profiling. Grand strategy, with the architecture and roles. Tactical ideas and espionage, with tactics and sonar. Performance, with faster kernels and our own judge.](images/series-stages.svg)
 
 And if I lose, will I retire as a performance engineer? No. I've got a get out of jail free card: the online judge only accepts C, C++ and Python source, so nobody gets to submit micro-optimised WASM kernels. We'll still dig into that later :)
 
