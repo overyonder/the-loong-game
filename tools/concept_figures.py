@@ -417,7 +417,25 @@ def coil_forage_result():
         ("gained", 80, FOREST), ("dropped", 45, SIGNAL)], "games", log=False)
 
 
+def fleet_run():
+    parts = [
+        text(20, 30, "Standing resources, declared in OpenTofu", 14, INK, weight="bold"),
+        text(540, 30, "Made for each run by the launcher, then gone", 14, INK, weight="bold"),
+        card(20, 44, 230, 92, "Buckets", ["run bundles and results,", "expired after 14 days,", "public access blocked"]),
+        card(270, 44, 230, 92, "Fleet user", ["launches, tags and", "terminates tagged Spot", "workers, runs queues"]),
+        card(20, 150, 480, 76, "Worker role", ["read the run's bundle, write results, lease jobs from its queue"]),
+        card(540, 44, 200, 92, "Launcher", ["packs workers into the", "vCPU allowance, checks", "quota and the $50 ledger"], dark=True),
+        card(780, 44, 210, 92, "One queue per run", ["one message per game,", "leased and acknowledged"]),
+        card(540, 150, 450, 76, "Spot workers in Hyderabad and Mumbai", ["pull games as cores free up, upload each result, shut down at the deadline"]),
+        arrow([(740, 90), (778, 90)]), arrow([(885, 136), (885, 148)]), arrow([(640, 136), (640, 148)]),
+        arrow([(500, 188), (538, 188)], dashed=True),
+        text(20, 256, "A reaper on a system timer, outside every agent, terminates any worker past its deadline and costs runs whose launcher died.", 13, MUTED),
+    ]
+    return svg(1010, 272, "The fleet: standing resources and one run's pieces", parts)
+
+
 FIGURES = {
+    "fleet-run": fleet_run,
     "coil-forage-result": coil_forage_result,
     "sonar-position-message": sonar_position_message,
     "who-hears": who_hears,
