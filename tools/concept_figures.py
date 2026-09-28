@@ -484,7 +484,57 @@ def judge_cpu():
         "s", width=1010, note="Log scale. Host user and system time, the same runs as the wall times above.")
 
 
+def verdict_games_needed():
+    return bars("Games needed to detect a better bot, at α 0.05 and 80% power", [
+        ("true win rate 70%, about +150 Elo", 36, FOREST), ("65%, about +110 Elo", 66, FOREST),
+        ("60%, about +70 Elo", 150, SIGNAL), ("55%, about +35 Elo", 600, FOREST)], "games", log=False)
+
+
+def peeking():
+    return bars("How often two equal bots look different, if you stop at the first p below 0.05", [
+        ("one test at the planned size", 5, FOREST), ("checking after every game, up to 20", 9.9, SIGNAL),
+        ("…up to 50 games", 15.8, SIGNAL), ("…up to 150 games", 22.7, SIGNAL), ("…up to 600 games", 31.0, SIGNAL)],
+        "% of runs", log=False)
+
+
+def sprt_walk():
+    import math
+    left, top, width, height = 90, 60, 820, 300
+    upper, lower = math.log(0.8 / 0.05), math.log(0.2 / 0.95)
+    lo, hi = -2.0, 3.2
+    y = lambda v: top + height * (hi - v) / (hi - lo)
+    x = lambda n: left + width * n / 18
+    parts = [text(20, 30, "The test after each straight win, until it crosses the upper boundary", 16, INK, weight="bold")]
+    parts.append(f'<path d="M{left} {top}V{top + height}" stroke="{RULE}"/>')
+    parts.append(f'<path d="M{left} {y(0)}H{left + width}" stroke="{RULE}" stroke-dasharray="3 4"/>')
+    for value, label in ((upper, "better: ln(0.8/0.05) = 2.77"), (lower, "no material difference: ln(0.2/0.95) = −1.56")):
+        parts.append(f'<path d="M{left} {y(value):.1f}H{left + width}" stroke="{SIGNAL}" stroke-width="2"/>')
+        parts.append(text(left + 10, y(value) - 8, label, 13, SIGNAL, "start", "bold"))
+    for step, wins_needed, colour, label in ((math.log(0.6 / 0.5), 16, FOREST, "designed for +70 Elo: decided after 16 wins"),
+                                            (math.log(0.7034 / 0.5), 9, "#3f6e8c", "designed for +150 Elo: decided after 9 wins")):
+        points, value = [(x(0), y(0))], 0.0
+        for n in range(1, wins_needed + 1):
+            points.append((x(n - 1), y(value + step)))
+            value += step
+            points.append((x(n), y(value)))
+        parts.append(f'<polyline points="{" ".join(f"{a:.1f},{b:.1f}" for a, b in points)}" fill="none" stroke="{colour}" stroke-width="3"/>')
+        parts.append(f'<circle cx="{x(wins_needed):.1f}" cy="{y(value):.1f}" r="5" fill="{colour}"/>')
+        legend_y = y(-0.55) + (0 if wins_needed == 16 else 22)
+        parts.append(f'<path d="M{x(9.5):.1f} {legend_y - 4:.1f}h28" stroke="{colour}" stroke-width="3"/>')
+        parts.append(text(x(9.5) + 36, legend_y, label, 12.5, colour, weight="bold"))
+    parts.append(f'<circle cx="{x(5):.1f}" cy="{y(5 * math.log(0.6 / 0.5)):.1f}" r="5" fill="none" stroke="{SIGNAL}" stroke-width="2"/>')
+    parts.append(text(x(5) + 8, y(5 * math.log(0.6 / 0.5)) + 16, "a naive sign test would stop here, at 5 wins", 12, SIGNAL))
+    for n in range(0, 19, 2):
+        parts.append(text(x(n), top + height + 20, n, 12, MUTED, "middle"))
+    parts.append(text(left + width / 2, top + height + 42, "straight wins", 12.5, MUTED, "middle"))
+    parts.append(text(left - 10, y(0) + 4, "0", 12, MUTED, "end"))
+    return svg(960, 420, "A sequential test after each straight win", parts)
+
+
 FIGURES = {
+    "verdict-games-needed": verdict_games_needed,
+    "peeking": peeking,
+    "sprt-walk": sprt_walk,
     "death-causes": death_causes,
     "pearl-lengths": pearl_lengths,
     "first-bot-gains": first_bot_gains,
