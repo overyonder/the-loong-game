@@ -59,6 +59,13 @@ round-robin *args:
         parser.add_argument(
             "--seed-start", type=int, default=0, help="Index of the first seed per map"
         )
+        parser.add_argument(
+            "--engine",
+            choices=["judge", "toolkit"],
+            default="judge",
+            help="Play sandboxed games between compiled bots in the Zig judge (default) "
+            "or all through the toolkit; Python bots always play through the toolkit",
+        )
         args = parser.parse_args()
         selected = args.bots
         # Naming one bot twice plays it against itself once per map and seed.
@@ -131,6 +138,7 @@ round-robin *args:
             "workers": args.workers,
             "created_at": datetime.now(UTC).isoformat(),
             "mode": "sandbox" if args.sandbox else "local (10-second turn limit)",
+            "engine": args.engine,
             "status": "running",
             "bots": bots,
             "scheduled_games": len(schedule),
@@ -152,6 +160,7 @@ round-robin *args:
                 team_b,
                 timeout=args.timeout,
                 sandbox=args.sandbox,
+                engine=args.engine,
             )
 
         try:
@@ -213,6 +222,13 @@ batch *args:
             "stops soon after its tests decide",
         )
         plan_arguments(parser)
+        parser.add_argument(
+            "--engine",
+            choices=["judge", "toolkit"],
+            default="judge",
+            help="Play sandboxed games between compiled bots in the Zig judge (default) "
+            "or all through the toolkit; Python bots always play through the toolkit",
+        )
         args = parser.parse_args()
         if not (args.maps or any(Path("maps").glob("*.map"))):
             parser.error("No maps found; run just article-bots first or pass --maps")
@@ -270,6 +286,13 @@ ladder *args:
         parser.add_argument("--rounds", type=int, default=100)
         parser.add_argument("--workers", type=int, default=cpu_workers())
         parser.add_argument("--resume", action="store_true")
+        parser.add_argument(
+            "--engine",
+            choices=["judge", "toolkit"],
+            default="judge",
+            help="Play games between compiled bots in the Zig judge (default) or all "
+            "through the toolkit; Python bots always play through the toolkit",
+        )
         args = parser.parse_args()
         if args.rounds < 1 or args.workers < 1:
             parser.error("rounds and workers must be positive")
@@ -282,7 +305,15 @@ ladder *args:
             parser.error("Maps must be existing files with distinct names")
         if "room-nim" in args.bots and not args.resume:
             subprocess.run(["just", "room-nim"], check=True)
-        run(args.output, args.bots, maps, args.rounds, args.workers, args.resume)
+        run(
+            args.output,
+            args.bots,
+            maps,
+            args.rounds,
+            args.workers,
+            args.resume,
+            args.engine,
+        )
 
 
     raise SystemExit(main())
@@ -425,7 +456,45 @@ tools-build:
     nim c -d:release --hints:off --nimcache:../../build/nimcache/report -o:../../build/bin/loong-report ../../harness/report/report.nim
     nim c -d:release -d:ssl --hints:off --nimcache:../../build/nimcache/sample-replays -o:../../build/bin/loong-sample-replays ../../replays/collection.nim
 
-# Experimental Zig engine host; the organiser's toolkit remains the default.
+# Check the Zig judge meters bots and records games exactly as the toolkit does.
+[group("Evaluation")]
+judge-fidelity *args:
+    #!/usr/bin/env -S {{quote(python)}}
+    import argparse
+    from pathlib import Path
+
+    from harness.zig_judge.fidelity import __doc__, run
+
+
+    def main() -> int:
+        parser = argparse.ArgumentParser(
+            prog="judge-fidelity",
+            description=__doc__,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
+        parser.add_argument(
+            "--bots", nargs="+", default=["room-c", "starter-c"], help="Bot directories"
+        )
+        parser.add_argument(
+            "--maps",
+            nargs="+",
+            type=Path,
+            default=[Path("maps/arena.map"), Path("maps/portals.map")],
+        )
+        parser.add_argument("--seeds", type=int, default=1, help="Seeds per map")
+        parser.add_argument("--output", type=Path, default=Path("results/judge-fidelity"))
+        parser.add_argument("--timeout", type=float, default=600)
+        args = parser.parse_args()
+        if len(args.bots) < 2 or any(not path.is_file() for path in args.maps):
+            parser.error("Name at least two bots and existing maps")
+        if any((Path(bot) / "main.py").is_file() for bot in args.bots):
+            parser.error("The judge plays compiled bots only")
+        return run(args.bots, args.maps, args.seeds, args.output, args.timeout)
+
+
+    raise SystemExit(main())
+
+# Build the Zig judge the round robin, batch and ladder play in by default.
 [group("Build")]
 zig-judge-build:
     zig build --build-file ../../harness/zig_judge/build.zig --cache-dir "$PWD/../../build/zig-cache" --global-cache-dir "$PWD/../../build/zig-global-cache" --prefix "$PWD/../../build/zig-judge" -Doptimize=ReleaseFast

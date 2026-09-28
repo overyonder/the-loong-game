@@ -4,10 +4,13 @@
 //! `run` answers one request file. `serve` compiles the bot once and answers a
 //! request per line of standard input, `REQUEST<TAB>RESPONSE` file paths, with
 //! `ok` or `failed` on standard output, so recovering many dragons of one build
-//! compiles it once.
+//! compiles it once. It first writes `ServerGreeting`, so a client can tell a
+//! judge with this mode from one without.
 const std = @import("std");
 const wt = @import("wasmtime.zig");
 const bot = @import("bot.zig");
+
+pub const ServerGreeting = "inspection-server 1\n";
 
 const Observation = struct { v1: []const u8, v3: []const u8 };
 const Request = struct { init: []const u8, name: u32, initial_protocol: u32 = 1, observations: []Observation };
@@ -65,14 +68,16 @@ pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm_path: []const u8, inpu
 }
 
 pub fn serve(allocator: std.mem.Allocator, io: std.Io, wasm_path: []const u8) !void {
+    var out_buffer: [64]u8 = undefined;
+    var replies = std.Io.File.stdout().writerStreaming(io, &out_buffer);
+    try replies.interface.writeAll(ServerGreeting);
+    try replies.interface.flush();
     const host = try wt.newEngine(true);
     defer wt.c.wasm_engine_delete(host);
     var module = try load(allocator, io, host, wasm_path);
     defer module.deinit(allocator);
     var in_buffer: [16384]u8 = undefined;
     var requests = std.Io.File.stdin().readerStreaming(io, &in_buffer);
-    var out_buffer: [64]u8 = undefined;
-    var replies = std.Io.File.stdout().writerStreaming(io, &out_buffer);
     while (try requests.interface.takeDelimiter('\n')) |line| {
         const tab = std.mem.indexOfScalar(u8, line, '\t') orelse return error.MalformedRequest;
         const input_path = try allocator.dupe(u8, line[0..tab]);

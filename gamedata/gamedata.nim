@@ -1,6 +1,7 @@
 ## `loong-gamedata`: write a replay's `game` columns (format.md) from the packed
-## Cap'n Proto replay, a game's `result` columns, or a run's merged results,
-## and summarise replays. `Usage` below lists the commands.
+## Cap'n Proto replay and, for a game the judge played, its `points` file, a
+## game's `result` columns, or a run's merged results, and summarise replays.
+## `Usage` below lists the commands.
 
 import std/[os, strutils, tables]
 import columns, capnp_replay, decode, gzip_inflate, result
@@ -13,7 +14,14 @@ type
     team:          uint8
     event:         uint32
     action:        string
+    points:        uint64
+    failure:       string
+    pointsKnown:   bool
     log:           string
+
+proc pointsFileFor(replay: string): string =
+  ## The judge's per-turn points beside the replay (harness/zig_judge/src/run.zig).
+  replay.changeFileExt("points.cols")
 
 proc cellOf(message: CapnpMessage, point: CapnpStruct, width: int32): uint32 =
   uint32(message.int32Field(point, 1) * width + message.int32Field(point, 0))
@@ -87,6 +95,21 @@ proc writeGameColumns*(replayPath, outputPath: string) =
       inc startCount
     else: discard
 
+  var points: Table[(int32, int32), (uint64, string)]
+  let pointsPath = pointsFileFor(replayPath)
+  if fileExists(pointsPath):
+    var record = openColumnsFile(pointsPath)
+    let rounds = record.columnValues[:int32]("turn.round")
+    let dragons = record.columnValues[:uint32]("turn.dragon").values
+    let spent = record.columnValues[:uint64]("turn.points").values
+    let failureStarts = record.columnValues[:uint64]("turn.failure#").values
+    let failureBytes = record.columnValues[:uint8]("turn.failure").values
+    for row in 0 ..< rounds.count:
+      var failure = ""
+      for at in int(failureStarts[row]) ..< int(failureStarts[row + 1]): failure.add char(failureBytes[at])
+      points[(rounds.values[row], int32(dragons[row]))] = (spent[row], failure)
+    record.closeColumnsFile()
+
   var turns: seq[TurnBeingRead]
   var pingReceived: seq[int32]         ## per ping: the round its target next moved, or -1
   var awaitingTarget: Table[int32, seq[int]]  ## dragon to its unread pings
@@ -115,8 +138,10 @@ proc writeGameColumns*(replayPath, outputPath: string) =
       let dragon = message.int32Field(member, 0)
       for ping in awaitingTarget.getOrDefault(dragon): pingReceived[ping] = round
       awaitingTarget.del dragon
+      let (turnPoints, failure) = points.getOrDefault((round, dragon), (0'u64, ""))
       turns.add TurnBeingRead(round: round, dragon: dragon, team: teams.getOrDefault(dragon),
-        event: eventCount)
+        event: eventCount, points: turnPoints, failure: failure,
+        pointsKnown: (round, dragon) in points)
       active = turns.high
       game.addEvent(2, dragon, 0, 0, 0)
     of 2:
@@ -177,10 +202,9 @@ proc writeGameColumns*(replayPath, outputPath: string) =
     game.appendValue("turn.team", turn.team)
     game.appendValue("turn.event", turn.event)
     game.appendString("turn.action", turn.action)
-    # The toolkit records no judge points per turn, so they are absent.
-    game.appendValue("turn.points", 0'u64)
-    game.appendValue("turn.points?", 0'u8)
-    game.appendString("turn.failure", "")
+    game.appendValue("turn.points", turn.points)
+    game.appendValue("turn.points?", uint8(turn.pointsKnown))
+    game.appendString("turn.failure", turn.failure)
     game.appendString("turn.log", turn.log)
   for received in pingReceived: game.appendValue("ping.received_round", received)
 

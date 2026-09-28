@@ -31,7 +31,8 @@ def result_directory(output: Path, candidate: str) -> Path:
 def play_sequential(candidates: list[str], args, output: Path) -> None:
     """Play every candidate's schedule until its tests decide.
 
-    `args` carries `plan_arguments`, `--in-flight`, `--timeout` and `--workers`.
+    `args` carries `plan_arguments`, `--engine`, `--in-flight`, `--timeout` and
+    `--workers`.
     A results set whose recorded plan differs from this one is refused rather
     than mixed.
     """
@@ -113,7 +114,15 @@ def play_sequential(candidates: list[str], args, output: Path) -> None:
     def play(index: int) -> dict:
         directory, stem, map_path, seed, a, b = games[index]
         return play_game(
-            directory, stem, map_path, seed, a, b, timeout=args.timeout, sandbox=True
+            directory,
+            stem,
+            map_path,
+            seed,
+            a,
+            b,
+            timeout=args.timeout,
+            sandbox=True,
+            engine=args.engine,
         )
 
     landed = {}

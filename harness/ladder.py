@@ -5,15 +5,14 @@ import hashlib
 import itertools
 import json
 import shutil
-import time
 import zlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from harness import toolkit
+from harness import tournament
 from harness.loong_report import fit_ratings
-from harness.parallel import match_verbosity, prepare_bots
-from harness.tournament import discover_bots, read_outcome, run_game, write_result
+from harness.parallel import prepare_bots
+from harness.tournament import discover_bots
 
 
 def pairing_rounds(names: list[str], rounds: int) -> list[list[tuple[str, str]]]:
@@ -158,53 +157,35 @@ def save(directory: Path, report: dict) -> None:
     (directory / "summary.md").write_text("\n".join(lines))
 
 
-def play_game(directory: Path, job: dict, timeout: float) -> dict:
+def play_game(directory: Path, job: dict, timeout: float, engine: str) -> dict:
     stem = (
         f"r{job['round']:03d}-{job['A'].replace('/', '-')}-vs-"
         f"{job['B'].replace('/', '-')}"
     )
-    log = directory / "games" / f"{stem}.log"
-    replay = log.with_suffix(".replay")
     # The seed depends only on the map and round, never on the bots, so renaming or
     # refreezing a bot doesn't change which games it plays.
     seed = zlib.crc32(f"{job['map']}:{job['round']}".encode())
-    command = [
-        *toolkit.toolkit_match_command(),
-        "run",
-        "--sandbox",
-        *match_verbosity(),
-        "-o",
-        str(replay),
-        "--seed",
-        str(seed),
-        str(directory / "maps" / job["map"]),
-        # The toolkit names each team by its argument, so pass the bot directory.
+    played = tournament.play_game(
+        directory / "games",
+        stem,
+        directory / "maps" / job["map"],
+        seed,
         str(directory / "bots" / job["A"]),
         str(directory / "bots" / job["B"]),
-    ]
-    started = time.monotonic()
-    code, expired = run_game(command, log, timeout)
-    outcome = read_outcome(log, code, expired)
-    if outcome["status"] == "completed" and not replay.is_file():
-        outcome.update(status="error", error="Replay missing")
-    write_result(
-        log.with_suffix(".result.cols"),
-        replay=replay,
-        map_name=job["map"],
-        seed=seed,
-        a=job["A"],
-        b=job["B"],
-        exit_code=code,
-        timed_out=expired,
-        elapsed=time.monotonic() - started,
+        timeout=timeout,
+        sandbox=True,
+        engine=engine,
     )
+    outcome = {
+        key: played[key]
+        for key in ("status", "error", "winner_side", "rounds", "reason", "seconds")
+    }
     return {
         **job,
         "seed": seed,
         **outcome,
-        "seconds": time.monotonic() - started,
-        "log": str(log.relative_to(directory)),
-        "replay": str(replay.relative_to(directory)),
+        "log": f"games/{stem}.log",
+        "replay": f"games/{stem}.replay" if played["replay"] else None,
     }
 
 
@@ -215,6 +196,7 @@ def run(
     rounds: int,
     workers: int,
     resume: bool,
+    engine: str = "judge",
 ) -> None:
     directory = directory.resolve()
     if resume:
@@ -278,7 +260,7 @@ def run(
     report["workers"] = workers
     with ThreadPoolExecutor(max_workers=workers) as executor:
         ordered = executor.map(
-            lambda job: play_game(directory, job, 600),
+            lambda job: play_game(directory, job, 600, engine),
             itertools.chain.from_iterable(remaining),
         )
         for jobs in remaining:

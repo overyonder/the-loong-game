@@ -11,6 +11,7 @@ const std = @import("std");
 const wt = @import("wasmtime.zig");
 const c = wt.c;
 const framer_mod = @import("framer.zig");
+const metering = @import("metering.zig");
 const Framer = framer_mod.Framer;
 
 pub const MAX_TURN_POINTS: i64 = 100_000_000;
@@ -177,8 +178,11 @@ pub const BotModule = struct {
         has_results: bool,
     };
 
+    /// Compiles a bot, metering it first unless it already carries the meter.
     pub fn load(allocator: std.mem.Allocator, engine: *c.wasm_engine_t, bytes: []const u8) !BotModule {
-        const module = try wt.compileModule(engine, bytes);
+        const metered = if (metering.isMetered(bytes)) bytes else try metering.instrument(allocator, bytes);
+        defer if (metered.ptr != bytes.ptr) allocator.free(metered);
+        const module = try wt.compileModule(engine, metered);
         var imports: c.wasm_importtype_vec_t = undefined;
         c.wasmtime_module_imports(module, &imports);
         var functions: std.ArrayList(ImportSpec) = .empty;
@@ -381,10 +385,7 @@ pub const Instance = struct {
         self.start_fn = item.of.func;
         if (c.wasmtime_instance_export_get(self.context, &self.instance, REMAINING_EXPORT, REMAINING_EXPORT.len, &item)) self.meter = item.of.global;
         if (c.wasmtime_instance_export_get(self.context, &self.instance, EXHAUSTED_EXPORT, EXHAUSTED_EXPORT.len, &item)) self.exhausted = item.of.global;
-        if (self.meter == null) {
-            std.debug.print("bot carries no meter: run it through the toolkit's metering pass first\n", .{});
-            return error.Unmetered;
-        }
+        if (self.meter == null) return error.Unmetered;
 
         self.future = c.wasmtime_func_call_async(self.context, &self.start_fn, null, 0, null, 0, &self.trap_out, &self.error_out) orelse return error.Wasmtime;
         // Like the toolkit's warm pool: the bot runs its start-up until its first read.
@@ -1011,6 +1012,10 @@ pub const Dragon = struct {
     written: usize = 0,
     is_new: bool = true,
     error_reason: ?[]const u8 = null,
+    /// The last turn's CPU points as the toolkit's match wrapper records them: the
+    /// sandbox's figures when the turn ended, and none for a turn killed at the wall.
+    points: i64 = 0,
+    skipped_points: ?i64 = null,
     payload: std.ArrayList(u8) = .empty,
     reply_buf: [3 * framer_mod.BUFFER_LIMIT + 8]u8 = undefined,
     reason_buf: [64]u8 = undefined,
@@ -1044,6 +1049,13 @@ pub const Dragon = struct {
 
     /// One turn: the reply, or an empty reply with `error_reason` set.
     pub fn ask(self: *Dragon, block: []const u8) []const u8 {
+        self.skipped_points = null;
+        const out = self.answer(block);
+        self.points = self.skipped_points orelse if (self.instance) |inst| inst.live().points else 0;
+        return out;
+    }
+
+    fn answer(self: *Dragon, block: []const u8) []const u8 {
         self.error_reason = null;
         if (self.instance == null) self.fresh();
         var attempt: u32 = 0;
@@ -1083,6 +1095,9 @@ pub const Dragon = struct {
     }
 
     fn skip(self: *Dragon, why: []const u8) []const u8 {
+        // The toolkit kills a bot at its wall limit before skipping it, taking its figures.
+        const killed = std.mem.eql(u8, why, "ran out of time");
+        self.skipped_points = if (killed) 0 else if (self.instance) |inst| inst.live().points else 0;
         self.error_reason = why;
         self.stop();
         return "";

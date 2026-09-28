@@ -8,6 +8,17 @@
 //! optional replay path and team names, tab separated), on N threads:
 //!   loong-judge --engine unswbc_engine.wasm --jobs jobs.tsv [--threads N] [--debug 0]
 //!
+//! A match as `unswbc run --sandbox` plays it (run.zig), taking the toolkit's
+//! arguments after `run`:
+//!   loong-judge --engine unswbc_engine.wasm [--log game.log] [--timeout SECONDS]
+//!               run --sandbox --seed 1 -o out.replay arena.map a.wasm b.wasm
+//! `--log` sends the game's output there, and `--timeout` ends the process with exit
+//! code 124 at that wall time.
+//!
+//! Bots are metered here unless they already carry the meter (metering.zig). `--meter`
+//! writes a bot's metered module alone, for the fidelity check:
+//!   loong-judge --meter bot.wasm --output bot-metered.wasm
+//!
 //! Inspection replays recorded observations through one bot, from a request file,
 //! or with `--inspect -` from request and response paths on standard input:
 //!   loong-judge --inspect request.json --a a-metered.wasm --output response.jsonl
@@ -25,6 +36,12 @@ const bot = @import("bot.zig");
 const game = @import("game.zig");
 const batch = @import("batch.zig");
 const inspection = @import("inspection.zig");
+const run = @import("run.zig");
+const metering = @import("metering.zig");
+const sync = @import("sync.zig");
+
+/// The exit code of a game `--timeout` ended, as coreutils `timeout` uses.
+const TIMED_OUT = 124;
 
 const Options = struct {
     engine_path: ?[]const u8 = null,
@@ -40,18 +57,32 @@ const Options = struct {
     threads: usize = 1,
     inspection_path: ?[]const u8 = null,
     output_path: ?[]const u8 = null,
+    meter_path: ?[]const u8 = null,
+    run_at: ?usize = null, // where `run` and the toolkit's arguments begin
+    log_path: ?[]const u8 = null,
+    timeout_seconds: ?u64 = null,
 };
 
 fn parseOptions(args: []const [:0]const u8) !Options {
     var options = Options{};
     var i: usize = 1;
     while (i < args.len) : (i += 2) {
+        if (std.mem.eql(u8, args[i], "run")) {
+            options.run_at = i;
+            break;
+        }
         if (i + 1 >= args.len) return error.MissingValue;
         const flag = args[i];
         const value = args[i + 1];
-        if (std.mem.eql(u8, flag, "--engine")) options.engine_path = value else if (std.mem.eql(u8, flag, "--map")) options.map_path = value else if (std.mem.eql(u8, flag, "--a")) options.a_path = value else if (std.mem.eql(u8, flag, "--b")) options.b_path = value else if (std.mem.eql(u8, flag, "--seed")) options.seed = try std.fmt.parseInt(u64, value, 0) else if (std.mem.eql(u8, flag, "--name-a")) options.name_a = value else if (std.mem.eql(u8, flag, "--name-b")) options.name_b = value else if (std.mem.eql(u8, flag, "--replay")) options.replay_path = value else if (std.mem.eql(u8, flag, "--debug")) options.debug = try std.fmt.parseInt(i32, value, 0) else if (std.mem.eql(u8, flag, "--jobs")) options.jobs_path = value else if (std.mem.eql(u8, flag, "--threads")) options.threads = try std.fmt.parseInt(usize, value, 10) else if (std.mem.eql(u8, flag, "--inspect")) options.inspection_path = value else if (std.mem.eql(u8, flag, "--output")) options.output_path = value else return error.UnknownFlag;
+        if (std.mem.eql(u8, flag, "--engine")) options.engine_path = value else if (std.mem.eql(u8, flag, "--map")) options.map_path = value else if (std.mem.eql(u8, flag, "--a")) options.a_path = value else if (std.mem.eql(u8, flag, "--b")) options.b_path = value else if (std.mem.eql(u8, flag, "--seed")) options.seed = try std.fmt.parseInt(u64, value, 0) else if (std.mem.eql(u8, flag, "--name-a")) options.name_a = value else if (std.mem.eql(u8, flag, "--name-b")) options.name_b = value else if (std.mem.eql(u8, flag, "--replay")) options.replay_path = value else if (std.mem.eql(u8, flag, "--debug")) options.debug = try std.fmt.parseInt(i32, value, 0) else if (std.mem.eql(u8, flag, "--jobs")) options.jobs_path = value else if (std.mem.eql(u8, flag, "--threads")) options.threads = try std.fmt.parseInt(usize, value, 10) else if (std.mem.eql(u8, flag, "--inspect")) options.inspection_path = value else if (std.mem.eql(u8, flag, "--output")) options.output_path = value else if (std.mem.eql(u8, flag, "--meter")) options.meter_path = value else if (std.mem.eql(u8, flag, "--log")) options.log_path = value else if (std.mem.eql(u8, flag, "--timeout")) options.timeout_seconds = try std.fmt.parseInt(u64, value, 10) else return error.UnknownFlag;
     }
     return options;
+}
+
+fn endAfter(seconds: u64) void {
+    var left = sync.c.struct_timespec{ .tv_sec = @intCast(seconds), .tv_nsec = 0 };
+    while (sync.c.nanosleep(&left, &left) != 0) {}
+    std.c._exit(TIMED_OUT);
 }
 
 pub fn main(init: std.process.Init) !void {
@@ -64,6 +95,15 @@ pub fn main(init: std.process.Init) !void {
         std.debug.print("usage: loong-judge --engine E (--map M --a A.wasm --b B.wasm --seed N [--name-a S --name-b S --replay P] | --jobs J [--threads N]) [--debug D] ({s})\n", .{@errorName(err)});
         return err;
     };
+    if (options.meter_path) |input| {
+        const bytes = try cwd.readFileAlloc(io, input, allocator, .unlimited);
+        defer allocator.free(bytes);
+        const metered = try metering.instrument(allocator, bytes);
+        defer allocator.free(metered);
+        const output = try cwd.createFile(io, options.output_path orelse return error.MissingOutput, .{});
+        defer output.close(io);
+        return output.writeStreamingAll(io, metered);
+    }
     if (options.inspection_path) |input| {
         const wasm = options.a_path orelse return error.MissingBotA;
         // `--inspect -` answers a request per line of standard input.
@@ -71,6 +111,17 @@ pub fn main(init: std.process.Init) !void {
         return inspection.run(allocator, io, wasm, input, options.output_path orelse return error.MissingOutput);
     }
     const engine_path = options.engine_path orelse return error.MissingEngine;
+    if (options.run_at) |at| {
+        // A runner reads the game from its log and its exit: 124 when the wall limit ended it.
+        if (options.log_path) |path| {
+            const log = try cwd.createFile(io, path, .{});
+            _ = std.c.dup2(log.handle, 1);
+            _ = std.c.dup2(log.handle, 2);
+        }
+        if (options.timeout_seconds) |seconds| _ = try std.Thread.spawn(.{}, endAfter, .{seconds});
+        const code = try run.main(allocator, io, engine_path, args[at + 1 ..]);
+        std.process.exit(code);
+    }
     const engine_bytes = try cwd.readFileAlloc(io, engine_path, allocator, .unlimited);
     defer allocator.free(engine_bytes);
 
@@ -113,7 +164,7 @@ pub fn main(init: std.process.Init) !void {
         .names = .{ options.name_a orelse a_path, options.name_b orelse b_path },
         .want_replay = options.replay_path != null,
     });
-    defer if (summary.replay) |replay| allocator.free(replay);
+    defer summary.deinit(allocator);
 
     if (options.replay_path) |path| {
         const file = try cwd.createFile(io, path, .{});

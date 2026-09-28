@@ -1,6 +1,6 @@
 # Games in the cloud
 
-> **Editor's note, 28 September 2026.** I've reworded the opening to say what the games are for: playing the bot against a pool of opponents to find what it gets wrong.
+> **Editor's note, 28 September 2026.** I've reworded the opening to say what the games are for: playing the bot against a pool of opponents to find what it gets wrong. The workers now play every game in our own Zig judge, which cut the cost of a run by more than half.
 
 The [harness](03-the-evaluation-harness.md) plays games side by side on every core of one machine, and for a while that was enough. Then the work got bigger. Playing our bot against a pool of opponents across 120 maps, both sides and several seeds runs to thousands of games, and the games it loses are what tell us what to fix next. My desktop could grind through them overnight, but it's also the machine several of us work on, and every hour spent waiting for games is an hour before the next fault turns up.
 
@@ -12,7 +12,7 @@ So big batches now go to a fleet of cloud machines, and this post explains how i
 
 A run starts on my machine. The launcher bundles the bots, maps and runner into one archive, uploads it to a bucket, and creates a queue with one message per game. Then it asks AWS for Spot instances, which are spare capacity sold cheaply on the understanding that it can be taken back, and packs them into the run's vCPU allowance, cheaper region first.
 
-Each worker boots Amazon Linux, installs the official toolkit, downloads the bundle and starts pulling games off the queue, one per free core. A game's queue message is leased while it plays, and only acknowledged once its result is safely in the bucket, so a worker that disappears mid-game loses nothing but that game, which goes back on the queue for someone else. Back on my machine, the launcher collects results as they land, so a run that gets cut short still returns every game it finished.
+Each worker boots Amazon Linux, installs the official toolkit for its game engine, downloads the bundle and starts pulling games off the queue, one per free core, and plays each one in our own [Zig judge](16-the-machine-inside-the-judge.md). Every game has a wall-clock limit of 300 seconds, so a bot that hangs costs one game and five minutes of a core. A game's queue message is leased while it plays, and only acknowledged once its result is safely in the bucket, so a worker that disappears mid-game loses nothing but that game, which goes back on the queue for someone else. Back on my machine, the launcher collects results as they land, so a run that gets cut short still returns every game it finished.
 
 The workers run in two AWS regions, Hyderabad and Mumbai, each allowed up to 320 vCPUs at once, capped by the live Spot quota. Mumbai's workers use Hyderabad's queue and bucket across the region boundary, which keeps a run in one place however its workers are spread.
 
@@ -57,7 +57,7 @@ OpenTofu itself runs from nixpkgs through a small wrapper that decrypts an admin
 
 The fleet is the one place where a mistake costs money, and the agents that launch runs can crash, time out or be interrupted like any other program. So I wanted every run to end on its own, with no one needing to stay alive to stop it.
 
-Each run gets a hard deadline when it's launched, three hours out at most. The first thing a worker does when it boots is schedule its own shutdown for that moment, and an instance that shuts down is terminated. This is the line from the worker's startup script, with the deadline filled in by the launcher:
+A run normally ends because it's finished: once every game is in, or once nothing has been committed for a while, the workers stop and shut down. Behind that, each run gets a hard deadline when it's launched, three hours out at most. The first thing a worker does when it boots is schedule its own shutdown for that moment, and an instance that shuts down is terminated. This is the line from the worker's startup script, with the deadline filled in by the launcher:
 
 ```bash
 shutdown -h +$(( ({deadline} - $(date +%s) + 59) / 60 ))
@@ -69,7 +69,7 @@ Spending has its own guard. Every launch is written to a ledger at its worst-cas
 
 ## What it costs
 
-A two-region test with one small worker in each region, a c8i-flex.large in Hyderabad and another in Mumbai, played 8 games, four per worker, for an estimated $0.0008. Big batches scale that up, but by 26 September, eleven full runs had cost $17.51 between them, which is cheap for tens of thousands of games that would otherwise have tied up a desktop for days.
+A two-region test with one small worker in each region, a c8i-flex.large in Hyderabad and another in Mumbai, played 8 games, four per worker, for an estimated $0.0008. Big batches scale that up, but by 26 September, eleven full runs had cost $17.51 between them, which is cheap for tens of thousands of games that would otherwise have tied up a desktop for days. Moving the games into our judge cut the compute again: 1,000 games of our main line against an older version now cost about $0.04, against $0.09 through the toolkit. At that price, downloading the replays the run keeps, about 2 GB compressed at roughly $0.11 a gigabyte, costs more than playing the games.
 
 ## Next up
 

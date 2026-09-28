@@ -1,10 +1,10 @@
 # The machine inside the judge
 
-> **Editor's note, 28 September 2026.** I've added figures to this post, linked the judge's source, and moved the reasons for writing it in Zig to [The choice](02-the-choice.md), and linked the next post.
+> **Editor's note, 28 September 2026.** I've added figures to this post, linked the judge's source, moved the reasons for writing it in Zig to [The choice](02-the-choice.md), and linked the next post. Every game we play now runs in the judge, which meters bots itself, so I've added the larger equivalence check that came first, the check you can run yourself, and what the judge saves when every core is busy.
 
-We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
+We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time, and every game we play now runs in it, with the toolkit kept as the reference we check it against. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
-This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API, and [harness.py](../harness/zig_judge/harness.py) plays batches of games from Python, metering each bot on the way.
+This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay, and the harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](../harness/zig_judge/harness.py).
 
 ## What a judge does
 
@@ -12,7 +12,7 @@ The rules aren't in the judge. The organisers ship the game engine as a WebAssem
 
 ![What a judge does. The game engine, unswbc_engine.wasm, owns every rule and writes the replay, and talks to the judge through bot_spawn, bot_reply and log. The judge hosts the engine, feeds each dragon its turn, meters CPU points and reads the reply. Each dragon is its own bot.wasm instance, reading its view on stdin and replying on stdout.](images/judge-parts.svg)
 
-The online judge runs bots in Wasmer. The toolkit reproduces it in wasmtime, with a metering pass that inserts the same point counting into each bot's module. Our judge uses that same metering pass and the same engine module. Only the host around them is new.
+The online judge runs bots in Wasmer. The toolkit reproduces it in wasmtime, with a metering pass that inserts the same point counting into each bot's module. Our judge uses the same engine module, and meters each bot itself with a port of that pass, [metering.zig](../harness/zig_judge/src/metering.zig), checked byte for byte against the original. Only the host around them is new.
 
 ## The race in the official sandbox
 
@@ -79,6 +79,10 @@ The judge is written in Zig, for reasons [The choice](02-the-choice.md) goes int
 
 A faster judge is only useful if it plays the same games. A probe bot, written to call every one of the starter helper's 40 functions, played six paired games through both hosts, with the same bot, engine, maps and seeds. That covered splits, sprints, both sonar formats, portals and replay annotations, over 15,296 dragon turns and 183,711 replay events. Every decoded event matched, and so did the probe's per-turn clock readings and each team's median, mean and maximum CPU points.
 
+Before every game of ours moved to the judge, the check grew. 144 paired games across 12 maps, with portals, heavy kelp, flagships and boards from small to large, played through both hosts on the fleet against toolkit 1.1.0. All 144 gave identical replays apart from the team names, identical per-turn points and identical logs. Between them they held 96 games that went to round 500, about 128,000 splits, 42,000 sprints and 1,030 turns over the CPU limit, some of them from a test bot built to fail on purpose. Every one of the 1,238 bot builds we had was also metered by both, and the judge produced byte-identical modules for all of them.
+
+The same check ships with the judge. `just judge-fidelity` meters each bot with both passes and compares the modules byte for byte, then plays each seeded game through both hosts and compares the replays byte for byte and the logs line by line. By default it plays the flood-fill bot against the C starter on Arena and Portals, and under toolkit 1.2.2 both modules and all four games came out identical.
+
 ## Four times faster
 
 Timed one game at a time on a Ryzen 7 5800X3D, with the same bot, map, seed, engine and replay output for both hosts, the Zig judge is about four times faster end to end in every game we timed:
@@ -90,6 +94,8 @@ Each time is the median of three runs, including startup, compiling the WebAssem
 ![CPU time for one game in seconds, on a log scale. Probe bot on Default: 4.08 with the toolkit and 2.03 with our judge. Older bot on Arena: 4.18 and 2.19. Older bot on Default: 125.96 and 29.44.](images/judge-cpu.svg)
 
 Peak memory in the long game fell from 467 MiB to 294 MiB.
+
+That's one game at a time. What matters on the fleet is how much machine a game takes when every core is busy, and there the judge used 2.85 times fewer core-seconds a game than the toolkit on a 32-vCPU worker, 16.3 against 46.3 on average over the 144 paired games. The saving depends on how much of a game is the host's work: 2.4 times for our main line against an older version, where the bots' own thinking dominates, and 3.6 times for that older version against a bot that moves at random.
 
 The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. These timings don't separate the two.
 

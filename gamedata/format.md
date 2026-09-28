@@ -73,7 +73,8 @@ records in its `meta.version` column.
 
 ## Kind `game`, version 1
 
-`loong-gamedata REPLAY` writes `REPLAY` with the suffix `.cols` from the replay.
+`loong-gamedata REPLAY` writes `REPLAY` with the suffix `.cols` from the replay
+and, when present, its `points` file.
 A reader rebuilds any board by applying `event` rows forward, so no board is
 stored per turn.
 
@@ -107,9 +108,9 @@ Cells are `y * width + x`. Teams are 0 for A and 1 for B. Directions are 0 N,
 
 A pearl countdown makes the tile due at the current round plus the countdown.
 A move puts the new head first and drops tail cells until the body ends at
-`c`. A split replaces the parent's body and adds the child. The toolkit
-records no judge points per turn, so `turn.points?` is 0 and `turn.failure`
-empty.
+`c`. A split replaces the parent's body and adds the child. Judge points exist
+only for games the Zig judge played; for a toolkit game `turn.points?` is 0
+and `turn.failure` empty.
 
 ## Kind `result`, version 1
 
@@ -136,8 +137,18 @@ back one cell for each step after a turn's first, so a gap between the two
 means a misreading. A split is counted when a dragon alive at its turn start
 asks for one. `best_fed_intake` is the most any one dragon of the side ate, and
 `best_fed_share` its share of the side's pearls. `peak_points` and `exceeded`
-(turns that exceeded the CPU limit or ran out of time) are 0, since the toolkit
-records no judge points per turn. `tiles_visited` counts the cells a head of
+(turns that exceeded the CPU limit or ran out of time) are 0 for a game played
+through the toolkit, which records no judge points per turn. `tiles_visited` counts the cells a head of
 the side occupied, starting heads included, and `head_coverage` divides it by
 `map_tiles`.
 
+## Kind `points`, version 1
+
+Each dragon turn's judge points, written beside a replay the Zig judge played as
+`REPLAY.points.cols` (harness/zig_judge/src/run.zig). The `game` converter
+carries them into `turn.points`.
+
+| Table | Columns | Rows |
+| --- | --- | --- |
+| `meta` | `version` u32 | 1 |
+| `turn` | `round` i32 (-1 before round 0), `dragon` u32, `points` u64, `failure` (string: the reason the turn gave no reply, such as `exceeded CPU limit`, or empty) | one per dragon turn, in the order played |

@@ -123,19 +123,23 @@
     {
       "source": "evaluation/zig_judge/harness.py",
       "path": "harness/zig_judge/harness.py",
-      "sha256": "647ddb6084c683c169febeb3b72fe3ec1d72402bd261b48caa0c8856a4d5d19a",
-      "source_revision": "9d3fddecca7addb93934dba0eac494610459c190",
-      "source_sha256": "f5f113b92b97a05cc5a42f593440588545212dacb2b79830f079dca35d873bdd"
+      "sha256": "12bb23b1235c87a67673ed2f2d8c0e72109ed0d4c8ed75fa460d38638a72a10d",
+      "source_revision": "a9a373156b80ee75dc7c810b7c05cc27eb5ad00c",
+      "source_sha256": "81dd35d2c29e6e002a5291caa5a2ed6ef0ffccff89a492924e78f3ea95b0f497"
     },
     {
       "source": "evaluation/zig_judge/src/batch.zig",
       "path": "harness/zig_judge/src/batch.zig",
-      "sha256": "3b5527e12d0f0e1713e51f26d952a21bb23612b80eb30c3f6a39794ba7909f0e"
+      "sha256": "173493871ee653343ebedf04bc5fe34ab131fde3177587db71672b1c5be45773",
+      "source_revision": "0088bab6cdb9aa8e6946ee49b0fc47b59bb66bbf",
+      "source_sha256": "173493871ee653343ebedf04bc5fe34ab131fde3177587db71672b1c5be45773"
     },
     {
       "source": "evaluation/zig_judge/src/bot.zig",
       "path": "harness/zig_judge/src/bot.zig",
-      "sha256": "50ecfe5e0e4ea3e1d491ff317bc02d65cf0a79f8d73a594da38387561572bddc"
+      "sha256": "3746f6c1babdb5df6f26c4817b41aca4a6b54d717454670cadab78b6d4c26c3c",
+      "source_revision": "0088bab6cdb9aa8e6946ee49b0fc47b59bb66bbf",
+      "source_sha256": "3746f6c1babdb5df6f26c4817b41aca4a6b54d717454670cadab78b6d4c26c3c"
     },
     {
       "source": "evaluation/zig_judge/src/engine.zig",
@@ -150,21 +154,23 @@
     {
       "source": "evaluation/zig_judge/src/game.zig",
       "path": "harness/zig_judge/src/game.zig",
-      "sha256": "3634f1f7b07cdfe3fbce5756d940f74eddb0a2577c150e11c9971ce4ff92b272"
+      "sha256": "1db0ca8529a81cd78d2bdc4b53f4d32a00055d4baf31b36b725b240298ea46f1",
+      "source_revision": "0088bab6cdb9aa8e6946ee49b0fc47b59bb66bbf",
+      "source_sha256": "8ab8e434b25367e9aba2fbc654cbd07cb86a669a9900451f5f54e6b27cd09bf9"
     },
     {
       "source": "evaluation/zig_judge/src/inspection.zig",
       "path": "harness/zig_judge/src/inspection.zig",
-      "sha256": "c88f506acbe74d50290a08fa2f635244160ff0e0d48b26635da2e0374857076c",
-      "source_revision": "cc9b4e96b7e6ac1e224868563f6758b41167d3b7",
-      "source_sha256": "c88f506acbe74d50290a08fa2f635244160ff0e0d48b26635da2e0374857076c"
+      "sha256": "23f7d02642a6c5010023557720c93d41716ac720cd053275bb2a72acf183dccd",
+      "source_revision": "c790e8b300f9c6a8149b8a00e4f6f4762e9e7d8b",
+      "source_sha256": "23f7d02642a6c5010023557720c93d41716ac720cd053275bb2a72acf183dccd"
     },
     {
       "source": "evaluation/zig_judge/src/main.zig",
       "path": "harness/zig_judge/src/main.zig",
-      "sha256": "8955e508e274bf7ac9a6fa750d2094faaef13e8d865736c49730e5f741f75931",
-      "source_revision": "cc9b4e96b7e6ac1e224868563f6758b41167d3b7",
-      "source_sha256": "8955e508e274bf7ac9a6fa750d2094faaef13e8d865736c49730e5f741f75931"
+      "sha256": "076c4a99fad6788371f0a8c4c1819f09ff551df7ddba36d3884fcd1ab3bc796c",
+      "source_revision": "a9a373156b80ee75dc7c810b7c05cc27eb5ad00c",
+      "source_sha256": "08ea11795487e94fa064fa08b3b5abecedd37da0bfcfbd017894e472c1002b8a"
     },
     {
       "source": "evaluation/zig_judge/src/sync.zig",
@@ -235,16 +241,16 @@
     {
       "source": "gamedata/gamedata.nim",
       "path": "gamedata/gamedata.nim",
-      "sha256": "2368b8f2c5fff5e7d674a6fc2096ff7c4a3f5f02c07efd173d16c5605dd4c745",
+      "sha256": "e6d707d81ce64b58f0b2457b4d16ee4c0e44cd1afb9d053ffeec2ebb704ebf13",
       "source_revision": "2d5651e3b8a2f80d051410942ea1109ae35c72f0",
       "source_sha256": "977f08acb0387d9b8d34c28aaffdd9d1157a13f1c542ebb4386c457328ba365e"
     },
     {
       "source": "gamedata/format.md",
       "path": "gamedata/format.md",
-      "sha256": "f1aafe5de2492a7f1dac8e5502fb9bd19f91985b2d9f26131a1a4a772c286017",
-      "source_revision": "d83a5577424d1810d2f32e2b8d9ff69a95e32222",
-      "source_sha256": "e58bba56ae7060052702db40f5b0eff3ff099f684d79256741869d81aecb4699"
+      "sha256": "af570802bf23211cf3c59aec6904aa31e78d32d53fa63257432e5cab22de3eff",
+      "source_revision": "c790e8b300f9c6a8149b8a00e4f6f4762e9e7d8b",
+      "source_sha256": "37863ac9098f73b9d1489af7d294a4e22db58f37477a6da7ef69e78257f0bcb9"
     },
     {
       "source": "evaluation/report/report.nim",
@@ -284,9 +290,9 @@
     {
       "source": "evaluation/batch.py",
       "path": "harness/batch.py",
-      "sha256": "49c72ee7061de5f0e24e1cebc5fedbab65851cb5c4d30a14665b83b9f4200ca8",
-      "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee",
-      "source_sha256": "a982b95f561b5a97120b554da971ff3c2f60c183622e74d4e24f11f31a848827"
+      "sha256": "aa1a483cdae69671c4000367ff57e0947f5b2a140b0f972adc4909e9db1881e9",
+      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
+      "source_sha256": "3c629323a6216de77e686283424de7e95ed08d9a60c2d93ae3940391bdff044f"
     },
     {
       "source": "evaluation/loong_report.py",
@@ -298,16 +304,16 @@
     {
       "source": "evaluation/tournament.py",
       "path": "harness/tournament.py",
-      "sha256": "34a8c75d00ff163052c191df3ff6f10bbab323d2c0024c1b85c23d0de8e5333c",
-      "source_revision": "a51ff6bf43f69e9ea6ad7a82ede5be3b9b37554a",
-      "source_sha256": "89d2541633f8eb53e25423dda8123ca46f93bd1d6f359413bc05f1d43c83d0ca"
+      "sha256": "122658a0aae2b890b01c771e4d4e9b8b2ffc8cf0792ba8a95623bec81a066ab2",
+      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
+      "source_sha256": "a57d6c7b7d15cf3e8cf21e46e25dd11e80ea85e7a24863e3ac561b2a8b6d4749"
     },
     {
       "source": "evaluation/ladder.py",
       "path": "harness/ladder.py",
-      "sha256": "38dd4cf5f234fb8ba0f15ffa936c1faac1b2fcc0a80591b7c4c84fee08dbdfa6",
-      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
-      "source_sha256": "2c1eab350fce1a5698088f7ede3cf04182172f9ac2f44b884e8c6d85d22532bf"
+      "sha256": "b0b0c87290253f0fddf543721f6930ae6470ac3d452e08acab92d900e366e818",
+      "source_revision": "a9a373156b80ee75dc7c810b7c05cc27eb5ad00c",
+      "source_sha256": "cdd6b0cd2f1acc107aaec2a8ae20209e3780777a276b4c76c035edabff2e54d4"
     },
     {
       "source": "replays/collection.nim",
@@ -326,21 +332,13 @@
     {
       "source": "commands/evaluation.just",
       "path": "just/evaluation.just",
-      "sha256": "5bac9e8388604a3dede9620df962935e55b329a4deacaa2d03aa3a7340d3f922",
-      "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee",
-      "source_sha256": "7227a1d66d2cc6e3819249231f2f06e72329dcff5ff57197205610aacc4acd87",
+      "sha256": "21972d69c195e3f23edd909ae8f81d6af6e23fa39f63cfa63419d44ab1c36749",
+      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
+      "source_sha256": "24ca0f5bffa77bcdb53bf8e9d6399931e540ce682f302ddb94e153a05ef8bd04",
       "recipe_sources": [
         {
           "recipe": "mapgen",
           "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d"
-        },
-        {
-          "recipe": "round-robin",
-          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
-        },
-        {
-          "recipe": "batch",
-          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
         },
         {
           "recipe": "verdict",
@@ -354,6 +352,22 @@
           "recipe": "tools-build",
           "source": "justfile",
           "source_revision": "d83a5577424d1810d2f32e2b8d9ff69a95e32222"
+        },
+        {
+          "recipe": "round-robin",
+          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
+        },
+        {
+          "recipe": "batch",
+          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
+        },
+        {
+          "recipe": "ladder",
+          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
+        },
+        {
+          "recipe": "judge-fidelity",
+          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
         }
       ]
     },
@@ -410,6 +424,27 @@
       "sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4",
       "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
       "source_sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4"
+    },
+    {
+      "source": "evaluation/zig_judge/src/run.zig",
+      "path": "harness/zig_judge/src/run.zig",
+      "sha256": "6c5ebb7c7792dcc689c29ce0eb301a251b31ffb40a02877a6bb189bbe0861673",
+      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
+      "source_sha256": "b233d26b21866b652a920c021a7c333bf916e509d91d9bb736bb6047d92ca79d"
+    },
+    {
+      "source": "evaluation/zig_judge/src/metering.zig",
+      "path": "harness/zig_judge/src/metering.zig",
+      "sha256": "9cb1098d2dcd1ab836c391efc3899537dd3d5fcc9c74a5f9f82595e8d8cd4b41",
+      "source_revision": "0088bab6cdb9aa8e6946ee49b0fc47b59bb66bbf",
+      "source_sha256": "9cb1098d2dcd1ab836c391efc3899537dd3d5fcc9c74a5f9f82595e8d8cd4b41"
+    },
+    {
+      "source": "evaluation/zig_judge/fidelity.py",
+      "path": "harness/zig_judge/fidelity.py",
+      "sha256": "2f85c5bcb72c995e0fa715bf744c8f67ba978b1c12da9c759e733c9d953afb6f",
+      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
+      "source_sha256": "482bc8a5339a28185e78d8e2bf5fda46d434aa24202f9fbcb0d838d7cf9108b8"
     }
   ]
 }

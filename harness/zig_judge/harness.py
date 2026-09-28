@@ -1,67 +1,109 @@
 """Run games through loong-judge from the Python harness.
 
-The judge plays the official engine (unswbc_engine.wasm) against metered bot modules
-and prints one line of figures per game. This module meters bots with the toolkit's
-own pass, writes a jobs file, runs a batch on N threads and parses the figures into
-the outcome dictionaries the harness already uses.
+The judge plays the official engine (unswbc_engine.wasm) against bot modules it
+meters itself with a port of the toolkit's metering pass (src/metering.zig).
+`match_command()` replaces `unswbc` in a sandboxed match command: it takes the
+arguments `unswbc run --sandbox` takes and writes the same log lines and replay,
+with each dragon turn's judge points beside the replay (src/run.zig). `play_batch`
+writes a jobs file, runs a batch on N threads and parses the figures into the
+outcome dictionaries the harness already uses.
 
     from harness.zig_judge.harness import play_batch
     outcomes = play_batch(jobs, threads=8)
 
 Each job is (map path, bot A directory or .wasm, bot B directory or .wasm, seed,
 replay path or None). A C or C++ bot directory is compiled with the judge's clang,
-as `unswbc run --sandbox` compiles it.
+as `unswbc run --sandbox` compiles it. The judge plays compiled modules only, so
+Python bots play through the toolkit.
 """
 
 from __future__ import annotations
 
+import math
 import os
-import shutil
 import subprocess
-import sys
 import tempfile
+from functools import cache
 from pathlib import Path
+
+from harness import toolkit
 
 ROOT = Path(__file__).resolve().parents[2]
 JUDGE = Path(os.environ.get("LOONG_JUDGE", ROOT / "build/zig-judge/bin/loong-judge"))
-
-
-def toolkit_packages() -> Path:
-    """site-packages of the Python that `uv tool install` gave the `unswbc` launcher."""
-    if "LOONG_TOOLKIT" in os.environ:
-        return Path(os.environ["LOONG_TOOLKIT"])
-    launcher = shutil.which("unswbc")
-    if launcher is None:
-        raise FileNotFoundError(
-            "unswbc is not on PATH: install the organiser's toolkit"
-        )
-    shebang = Path(launcher).read_bytes().split(b"\n", 1)[0]
-    interpreter = Path(shebang.removeprefix(b"#!").decode().strip())
-    return next(interpreter.parent.parent.glob("lib/python*/site-packages"))
-
-
-TOOLKIT = toolkit_packages()
-ENGINE = Path(
-    os.environ.get("LOONG_JUDGE_ENGINE", TOOLKIT / "unswbc/unswbc_engine.wasm")
-)
+# The exit code of a game the judge's `--timeout` ended (src/main.zig).
+TIMED_OUT = 124
 
 END_REASONS = {0: "by elimination", 1: "on length"}
 DRAW_REASONS = {0: "both teams eliminated", 1: "equal length"}
 DEATH_CODES = "WSOHA"
 
 
-def metered(bot: str | Path) -> Path:
-    """Meter a bot with the toolkit, using the toolkit's own build cache."""
-    if str(TOOLKIT) not in sys.path:
-        sys.path.insert(0, str(TOOLKIT))
-    from unswbc import clangtool
-    from unswbc.sandbox import _metered  # the toolkit's cache of instrumented modules
+@cache
+def engine() -> Path:
+    """The organiser's engine the judge plays: the toolkit's own copy, so a new
+    toolkit brings its engine. Run `just judge-fidelity` after changing toolkit."""
+    found = sorted(
+        toolkit.toolkit_interpreter().parent.parent.glob(
+            "lib/python*/site-packages/unswbc/unswbc_engine.wasm"
+        )
+    )
+    if not found:
+        raise FileNotFoundError("the toolkit has no unswbc_engine.wasm")
+    return found[-1]
 
+
+def compiled(bot: str | Path) -> Path:
+    """A bot's module: a .wasm as given, or a C or C++ directory built with the
+    judge's clang into the toolkit's cache, as `unswbc run --sandbox` builds it."""
     path = Path(bot)
-    wasm = path if path.suffix == ".wasm" else clangtool.build(path)
-    if not wasm.is_file():
-        raise FileNotFoundError(f"{bot}: no compiled module")
-    return _metered(wasm)
+    if path.suffix == ".wasm":
+        return path
+    toolkit.sandbox_module()  # puts the toolkit's packages on sys.path
+    from unswbc import clangtool
+
+    return clangtool.build(path)
+
+
+def check_judge(judge: Path = JUDGE) -> Path:
+    """`judge`, refused when missing or older than the sources it is built from."""
+    if not judge.is_file():
+        raise FileNotFoundError(f"{judge} is missing: run just zig-judge-build")
+    sources = Path(__file__).parent
+    built = judge.stat().st_mtime
+    if any(
+        source.stat().st_mtime > built
+        for source in (sources / "build.zig", *sources.glob("src/*.zig"))
+    ):
+        raise RuntimeError(
+            f"{judge} is older than its sources: run just zig-judge-build"
+        )
+    return judge
+
+
+def match_command() -> list[str]:
+    """Replaces `unswbc` in a sandboxed match command: `match_command() + ["run",
+    "--sandbox", ...]` plays the game in the judge."""
+    return [str(check_judge()), "--engine", str(engine())]
+
+
+def play(command: list[str], log: Path, timeout: float) -> tuple[int, bool]:
+    """Play a `match_command()` game with its output in `log`, ended at `timeout`
+    wall seconds: its exit code and whether the limit ended it. The judge ends
+    itself; one still running a minute later is killed."""
+    at = command.index("run")
+    limit = ["--log", str(log), "--timeout", str(math.ceil(timeout))]
+    log.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        code = subprocess.run(
+            [*command[:at], *limit, *command[at:]],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout + 60,
+        ).returncode
+    except subprocess.TimeoutExpired:
+        return -9, True
+    return code, code == TIMED_OUT
 
 
 def _split(field: str) -> list[int]:
@@ -114,14 +156,14 @@ def play_batch(
     threads: int = os.cpu_count() or 1,
     names: dict[str, str] | None = None,
     judge: Path = JUDGE,
-    engine: Path = ENGINE,
+    engine_path: Path | None = None,
 ) -> list[dict]:
     """Play each (map, bot_a, bot_b, seed, replay) job; return outcomes in order.
 
     `names` maps a bot path to the team name written into replays; the default is the
     bot path itself, as `unswbc run` names them.
     """
-    modules = {bot: metered(bot) for job in jobs for bot in job[1:3]}
+    modules = {bot: compiled(bot) for job in jobs for bot in job[1:3]}
     with tempfile.NamedTemporaryFile("w", suffix=".tsv", delete=False) as handle:
         for index, (map_path, bot_a, bot_b, seed, replay) in enumerate(jobs):
             name_a = (names or {}).get(bot_a, str(bot_a))
@@ -136,7 +178,7 @@ def play_batch(
             [
                 str(judge),
                 "--engine",
-                str(engine),
+                str(engine_path or engine()),
                 "--jobs",
                 jobs_path,
                 "--threads",

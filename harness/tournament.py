@@ -12,6 +12,7 @@ from pathlib import Path
 from harness import toolkit
 from harness.loong_report import fit_ratings, summary
 from harness.parallel import match_verbosity
+from harness.zig_judge import harness as judge
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULT_PATTERN = re.compile(
@@ -71,11 +72,14 @@ def game_key(command: list[str]) -> str | None:
     argument except the replay path, with each map or bot path replaced by its
     name and content, plus the toolkit version, so an edited bot, map or toolkit
     never reuses an old result. The toolkit's interpreter, the command's first
-    argument, is covered by that version and its repair script by its content.
+    argument, is covered by that version and its repair script by its content; the
+    judge, when it plays, by its binary's content.
     """
     if "--sandbox" not in command or "--seed" not in command:
         return None
     parts, skip = [toolkit_version()], False
+    if Path(command[0]).name == "loong-judge":
+        parts.append(content_hash(Path(command[0])))
     for argument in command[1:]:
         if skip:
             skip = False
@@ -161,6 +165,15 @@ def run_game(command: list[str], log_path: Path, timeout: float) -> tuple[int, b
                             previous_replay.resolve(), replay_path.parent.resolve()
                         )
                     )
+                    # The judge's per-turn points travel with its replay.
+                    previous_points = points_path(previous_replay)
+                    if previous_points.is_file():
+                        points_path(replay_path).unlink(missing_ok=True)
+                        points_path(replay_path).symlink_to(
+                            os.path.relpath(
+                                previous_points.resolve(), replay_path.parent.resolve()
+                            )
+                        )
                 return 0, False
         returncode, timed_out = play_match(command, log_path, timeout)
         if read_outcome(log_path, returncode, timed_out)["status"] != "completed":
@@ -181,8 +194,14 @@ def run_game(command: list[str], log_path: Path, timeout: float) -> tuple[int, b
         return returncode, timed_out
 
 
+def points_path(replay: Path) -> Path:
+    """Where the judge records a game's per-turn points: beside its replay."""
+    return replay.with_suffix(".points.cols")
+
+
 def play_match(command: list[str], log_path: Path, timeout: float) -> tuple[int, bool]:
-    """Run the Just-owned organiser adapter; caching remains tournament policy."""
+    """One game's process: the judge's, or the toolkit's through the Just-owned
+    organiser adapter. Caching remains tournament policy."""
     # Rerunning into a reused result must not overwrite another game's evidence.
     outputs = [log_path]
     if "-o" in command:
@@ -190,6 +209,8 @@ def play_match(command: list[str], log_path: Path, timeout: float) -> tuple[int,
     for output in outputs:
         if output.is_symlink():
             output.unlink()
+    if Path(command[0]).name == "loong-judge":
+        return judge.play(command, log_path.resolve(), timeout)
     completed = subprocess.run(
         ["just", "--quiet", "_match", str(log_path.resolve()), str(timeout), *command],
         capture_output=True,
@@ -300,24 +321,43 @@ def play_game(
     *,
     timeout: float,
     sandbox: bool,
+    engine: str = "judge",
 ) -> dict:
     """Play one game into `directory/stem.*`, write its result record and
-    return its entry for results.json."""
+    return its entry for results.json.
+
+    With `engine` "judge", a sandboxed game between compiled bots plays in the Zig
+    judge; a Python bot, an unsandboxed game or `engine` "toolkit" plays through
+    the organiser's toolkit."""
     log_path = directory / f"{stem}.log"
     replay_path = directory / f"{stem}.replay"
-    command = [
-        *toolkit.toolkit_match_command(),
-        "run",
-        *match_verbosity(),
-        "-o",
-        str(replay_path),
-    ]
-    if sandbox:
-        command.append("--sandbox")
+    in_judge = (
+        engine == "judge"
+        and sandbox
+        and not any((Path(bot) / "main.py").is_file() for bot in (a, b))
+    )
+    if in_judge:
+        command = [*judge.match_command(), "run", "-o", str(replay_path), "--sandbox"]
+    else:
+        command = [
+            *toolkit.toolkit_match_command(),
+            "run",
+            *match_verbosity(),
+            "-o",
+            str(replay_path),
+        ]
+        if sandbox:
+            command.append("--sandbox")
     if seed is not None:
         command += ["--seed", str(seed)]
-    # The toolkit names each team by its argument, so pass the bot directory.
-    command += [str(map_path), a, b]
+    if in_judge:
+        # The judge plays compiled modules and names each team as the toolkit
+        # would, by the bot directory.
+        command += ["--team-a", a, "--team-b", b, str(map_path)]
+        command += [str(judge.compiled(a)), str(judge.compiled(b))]
+    else:
+        # The toolkit names each team by its argument, so pass the bot directory.
+        command += [str(map_path), a, b]
     started = time.monotonic()
     returncode, timed_out = run_game(command, log_path, timeout)
     seconds = round(time.monotonic() - started, 3)

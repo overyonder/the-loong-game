@@ -5,8 +5,9 @@ An open source series running alongside the UNSW Battlecode competition: weird b
 Read the posts at [over-yonder.tech/games/loong](https://over-yonder.tech/games/loong/). Their sources are in [blog/](blog/README.md). Code from the posts is in [examples/](examples/), and the tools that make the figures are in [tools/](tools/).
 
 Run the article tools from `examples/tooling` with Just. Command options and
-process orchestration live in [just/](just/). Python modules run games through
-the organiser's toolkit, and compiled Nim tools read what the games leave.
+process orchestration live in [just/](just/). Python modules schedule games, the
+Zig judge plays them with the organiser's engine, and compiled Nim tools read
+what the games leave.
 
 | Article capability | Command | Domain owner |
 | --- | --- | --- |
@@ -20,7 +21,7 @@ the organiser's toolkit, and compiled Nim tools read what the games leave.
 | Graphical and headless viewer | `just viewer` | `replays/viewer` |
 | Nim tools | `just tools-build` | `gamedata`, `harness/report`, `replays` |
 | Profiling | `just profile`, `just native`, `just native-profile` | `examples/performance/justfile` |
-| Zig judge | `just zig-judge-build`, `just zig-judge` | `harness/zig_judge` |
+| Zig judge | `just zig-judge-build`, `just zig-judge`, `just judge-fidelity` | `harness/zig_judge` |
 
 `just viewer-build` compiles the Odin viewer into `build/bin/viewer`. It needs
 Odin, raylib, raygui, GLFW and OpenGL. raygui ships as a header only, so the
@@ -42,9 +43,14 @@ cd examples/tooling
 nix-shell -p nim zlib sqlite openssl just --run 'just tools-build'
 ```
 
-The Zig judge plays seeded sandbox games with the organiser's engine. Building it
-needs Zig 0.16 and the wasmtime C API, named by `WASMTIME_INCLUDE` and
-`WASMTIME_LIB`. With Nix:
+The Zig judge plays sandboxed games with the organiser's own engine module, which
+it takes from the installed toolkit, and meters each bot with a port of the
+toolkit's metering pass (`harness/zig_judge/src/metering.zig`). Its `run` mode
+takes the arguments `unswbc run --sandbox` takes and writes the same log lines
+and replay, and each dragon turn's judge points beside the replay as
+`REPLAY.points.cols` (`src/run.zig`). The round robin, batch and ladder play in
+it by default. Building it needs Zig 0.16 and the wasmtime C API, named by
+`WASMTIME_INCLUDE` and `WASMTIME_LIB`. With Nix:
 
 ```sh
 export WASMTIME_INCLUDE=$(nix build --no-link --print-out-paths nixpkgs#wasmtime.dev)/include
@@ -53,22 +59,33 @@ cd examples/tooling
 nix shell nixpkgs#zig nixpkgs#just -c just zig-judge-build
 ```
 
-After the build, play one game from `examples/tooling`. `--a` and `--b` take
-metered modules:
+After the build, play one game from `examples/tooling`, with bots compiled by
+`just bot-build`:
 
 ```sh
-just zig-judge --engine <toolkit site-packages>/unswbc/unswbc_engine.wasm --map maps/default.map --a A.wasm --b B.wasm --seed 1
+just zig-judge --engine <toolkit site-packages>/unswbc/unswbc_engine.wasm run --sandbox --seed 1 -o game.replay maps/arena.map A.wasm B.wasm
 ```
 
-The simpler route is `harness/zig_judge/harness.py`, which meters bots itself and
-plays batches from Python.
+`--log FILE` sends the game's output to a file, and `--timeout SECONDS` ends it
+with exit code 124 at that wall time. `harness/zig_judge/harness.py` runs the
+judge from Python, one game or a batch on N threads.
+
+`just judge-fidelity` checks that the judge matches the toolkit: it meters each
+bot with both and compares the modules byte for byte, then plays each seeded game
+in both and compares the replays byte for byte and the logs line by line, apart
+from timings. Run it after building the judge and after changing toolkit. By
+default it plays `room-c` and `starter-c` on Arena and Portals.
 
 `just round-robin` plays every pair of bots on every map from both sides, in
 parallel, and writes `results.json` and `summary.md`, with a log, replay and
 `result` record per game ([gamedata/format.md](gamedata/format.md)). Add
 `--sandbox` to play in the judge's sandbox and `--seeds N` for seeded,
-repeatable games. Seeded sandbox games are cached in `build/game-cache` and
-reused while the bots, map and toolkit are unchanged. `just bot-build` builds a
+repeatable games. Sandboxed games between compiled bots play in the Zig judge;
+`--engine toolkit` plays them through the toolkit instead, and Python bots and
+unsandboxed games always play through the toolkit. `just batch` and `just
+ladder` take the same `--engine`. Seeded sandbox games are cached in
+`build/game-cache` and reused while the bots, map, toolkit and judge are
+unchanged. `just bot-build` builds a
 bot once into the toolkit's own caches, as the round robin does before it
 plays. An existing `--output` is resumed, playing again only the games that did
 not complete.

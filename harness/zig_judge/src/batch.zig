@@ -117,7 +117,7 @@ const Worker = struct {
             .names = .{ job.name_a orelse job.a, job.name_b orelse job.b },
             .want_replay = job.replay != null,
         });
-        defer if (summary.replay) |replay| self.shared.allocator.free(replay);
+        defer summary.deinit(self.shared.allocator);
         if (job.replay) |path| {
             const file = try std.Io.Dir.cwd().createFile(self.shared.io, path, .{});
             defer file.close(self.shared.io);
