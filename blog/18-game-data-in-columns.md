@@ -101,4 +101,4 @@ New columns can appear without breaking anything, because readers look columns u
 
 ## Next up
 
-That's the last of our tooling for now. The final post in the series, after the tournament, is about the team of agents that runs all of this with me.
+That's the last of the performance posts for now. The final post in the series, after the tournament, is about the team of agents that runs all of this with me.
