@@ -1,10 +1,10 @@
 # The evaluation harness
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the harness as it's now released: a frozen copy of the round robin runner we use for our own bots, in place of the simpler one this post first described.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the harness as it's now released: a frozen copy of the round robin runner we use for our own bots, in place of the simpler one this post first described. I reran the first run with the released harness and toolkit 1.2.2, and show its standard summary.
 
 The [wishlist](01-the-wishlist.md) ended with eight tools, and most of them lean on the first one. The statistics need results to judge, the map generator needs something playing on its maps, and the ladder rates versions from games they've already played. So we start with the tool that produces games.
 
-![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which decides the next change. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
+![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which says how sure we can be of a difference, and the loop back to the bot is what to fix next. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
 
 The fish loop from the wishlist post worked, but we're going to be testing ideas for weeks, each against a whole pool of bots including our own older versions. Running a loop by hand every time and reading results off the terminal gets old fast. What I want is to hand over a list of bots, walk away, and come back to a complete record of every game that I can trust and look back through later. That's the harness: `just round-robin`, with the runner in [harness/tournament.py](../harness/tournament.py). [just](https://just.systems) is a command runner. A `justfile` holds named recipes, like make's targets without the build-system rules, and every tool in this series is a recipe you run from `examples/tooling`. Under the hood it still calls the official `unswbc run` for every game, so every result is exactly what the organisers' tools would report. We're only automating the tedious part.
 
@@ -88,13 +88,19 @@ A bot failure is a dragon that ran out of time, exited, hit a fuel, trap or memo
 
 ## A first run
 
-To try it out, let's use the four bots we already have: the C and Python starters, and the flood-fill bot from [The choice](02-the-choice.md) in C and in Python. From `examples/tooling`, two seeds on each bundled map in the sandbox comes to those 312 games:
+To try it out, let's use the four bots we already have: the C and Python starters, and the flood-fill bot from [The choice](02-the-choice.md) in C and in Python. From `examples/tooling`, `just article-bots` fetches the toolkit's maps and sets up the bots, and `just tools-build` compiles the Nim programs the harness writes its results with. Then two seeds on each of toolkit 1.2.2's 15 bundled maps, in the sandbox, comes to 360 games:
 
-![A terminal showing the round robin's results table for the run. room-c and room-py each won 126 games and lost 30, both rated 1772.5. starter-c won 31 and lost 125, rated 1233.2, and starter-py won 29 and lost 127, rated 1221.8. No game had an error.](images/harness-round-robin.png)
+```sh
+just round-robin --bots starter-c starter-py room-c room-py --maps maps/*.map --sandbox --seeds 2
+```
 
-Spread across 16 cores, the run took just under five minutes, for games that add up to about half an hour of CPU time. The results look the way we'd hope: both flood-fill bots beat both starters comfortably, and not a single game ended in an error. Everything lands in a folder under `results/round-robin/`, with a `results.json`, a `summary.md` linking every game, and one log and replay per game. Pointing `--output` at an existing folder resumes it, playing only the games that didn't complete, so the capture above just reprinted the finished run's table.
+The games add up to about 43 minutes of play, which the harness spreads over as many cores as the machine has. Everything lands in a folder under `results/round-robin/`: a `results.json` with every game, one log, replay and small result file per game, and a `summary.md`. Pointing `--output` at an existing folder resumes it, playing only the games that didn't complete. Here's the top of the summary:
 
-There's one detail in that table worth pausing on. The two flood-fill bots make exactly the same move in every position, and because every pairing meets the same seeds, they finish with exactly the same record, 126 wins and 30 losses, with 26 wins each in their games against each other. So they get exactly the same rating too. The rating column is fitted to every game at once, and [the ladder post](06-a-ladder-of-our-own.md) explains why that matters. What a table like this can't tell us is whether a gap between two bots means anything, and that's the problem the next tool solves.
+![The top of the round robin's summary.md, rendered by glow. 360 games completed in sandbox mode, with Bradley–Terry ratings of 1785 for room-c and room-py and 1215 for starter-c and starter-py. A table gives every bot against every other: room-c and room-py split their 60 games 30–30, beat starter-c 60–0 and starter-py 56–4, for +458 Elo with a 95% interval from +331 to +979. starter-c beat starter-py 34–26, +47 Elo with an interval from −41 to +141. The last column counts side-swapped pairs won both, lost both and discordant.](images/harness-round-robin.png)
+
+Every pairing gets a row, with its record, its score, the Elo difference that score implies and a 95% interval around it. The results look the way we'd hope: both flood-fill bots beat both starters comfortably, and not a single game ended in an error. The intervals say how far to trust each gap. The starters' 34–26 is +47 Elo, but the interval runs from −41 to +141, so the two could easily be equal.
+
+The last column counts pairs of games: the same map and seed played twice, with the sides swapped. The two flood-fill bots make exactly the same move in every position, so every one of their 30 pairs is discordant, each bot winning from the same side, and they finish exactly level on 30–30. That's a useful warning. Two bots that play almost alike mostly win on which side they start, so their games against each other say very little, and [the next post](04-better-worse-or-undecided.md) compares close versions another way. Below this table the summary breaks each bot's results down by map group and by map, and counts how its dragons died, which later posts put to use.
 
 ## Next up
 

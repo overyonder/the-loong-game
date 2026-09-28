@@ -4,22 +4,19 @@ round-robin *args:
     #!/usr/bin/env -S {{quote(python)}}
     import argparse
     import itertools
-    import time
     import zlib
     from concurrent.futures import ThreadPoolExecutor
     from datetime import UTC, datetime
     from pathlib import Path
 
-    from harness import toolkit
-    from harness.parallel import cpu_workers, match_verbosity, prepare_bots
+    from harness.parallel import cpu_workers, prepare_bots
     from harness.tournament import (
         __doc__,
         discover_bots,
         forget_game,
         game_id,
-        read_outcome,
+        play_game,
         reusable_games,
-        run_game,
         save_results,
     )
 
@@ -145,38 +142,17 @@ round-robin *args:
         def play(item):
             index, (map_path, team_a, team_b, seed) = item
             stem = f"{index:03d}-{Path(team_a).name}-vs-{Path(team_b).name}-{map_path.stem}"
-            log_path = directory / f"{stem}.log"
-            replay_path = directory / f"{stem}.replay"
-            forget_game(directory, log_path.name)
-            command = [
-                *toolkit.toolkit_match_command(),
-                "run",
-                *match_verbosity(),
-                "-o",
-                str(replay_path),
-            ]
-            if args.sandbox:
-                command.append("--sandbox")
-            if seed is not None:
-                command += ["--seed", str(seed)]
-            # The toolkit names each team by its argument, so pass the bot directory.
-            command += [str(map_path), team_a, team_b]
-            started = time.monotonic()
-            returncode, timed_out = run_game(command, log_path, args.timeout)
-            outcome = read_outcome(log_path, returncode, timed_out)
-            if not replay_path.is_file() and outcome["status"] == "completed":
-                outcome.update(status="error", error="Replay was not written")
-            return {
-                "A": team_a,
-                "B": team_b,
-                "map": str(map_path),
-                "seed": seed,
-                "command": command,
-                "log": log_path.name,
-                "replay": replay_path.name if replay_path.is_file() else None,
-                "seconds": round(time.monotonic() - started, 3),
-                **outcome,
-            }
+            forget_game(directory, f"{stem}.log")
+            return play_game(
+                directory,
+                stem,
+                map_path,
+                seed,
+                team_a,
+                team_b,
+                timeout=args.timeout,
+                sandbox=args.sandbox,
+            )
 
         try:
             with ThreadPoolExecutor(max_workers=args.workers) as executor:
@@ -207,249 +183,56 @@ round-robin *args:
 
     raise SystemExit(main())
 
-# Decide whether a candidate bot is better than the baseline it changes.
+# Play sequential runs for candidates until their tests decide.
 [group("Evaluation")]
-verdict *args:
+batch *args:
     #!/usr/bin/env -S {{quote(python)}}
     import argparse
-    import json
-    import os
-    import statistics
-    import subprocess
-    from datetime import UTC, datetime
     from pathlib import Path
 
-    from harness.verdict import (
-        __doc__,
-        activation,
-        changed_games_needed,
-        score,
-        sign_flip_p_values,
-    )
+    from harness.batch import IN_FLIGHT, __doc__, play_sequential
+    from harness.compare import plan_arguments
+    from harness.parallel import cpu_workers
 
 
-    def main() -> None:
+    def main() -> int:
         parser = argparse.ArgumentParser(
-            prog="verdict",
+            prog="batch",
             description=__doc__,
             formatter_class=argparse.RawDescriptionHelpFormatter,
         )
-        parser.add_argument("--candidate", required=True)
-        parser.add_argument("--baseline", required=True)
-        parser.add_argument(
-            "--behaviour",
-            nargs="*",
-            default=[],
-            help="indicator words naming the changed behaviour; without them every changed pair counts fully",
-        )
-        parser.add_argument("--weak", nargs="*", default=["starter-c", "starter-py"])
-        parser.add_argument(
-            "--maps",
-            nargs="+",
-            default=[str(path) for path in sorted(Path("maps").glob("*.map"))],
-        )
-        parser.add_argument("--seeds", type=int, default=4, help="games per map and side")
-        parser.add_argument("--significance", type=float, default=0.05)
-        parser.add_argument("--workers", type=int, default=os.cpu_count())
+        parser.add_argument("--bots", nargs="+", required=True, help="Candidate bots")
+        parser.add_argument("--output", type=Path, required=True)
         parser.add_argument("--timeout", type=float, default=600)
-        parser.add_argument("--output", type=Path)
-        arguments = parser.parse_args()
-        if not arguments.maps:
+        parser.add_argument("--workers", type=int, default=cpu_workers())
+        parser.add_argument(
+            "--in-flight",
+            type=int,
+            default=IN_FLIGHT,
+            help=f"Games playing at once (default {IN_FLIGHT}); a sequential run "
+            "stops soon after its tests decide",
+        )
+        plan_arguments(parser)
+        args = parser.parse_args()
+        if not (args.maps or any(Path("maps").glob("*.map"))):
             parser.error("No maps found; run just article-bots first or pass --maps")
-        candidate, baseline = arguments.candidate, arguments.baseline
-        output = arguments.output or Path("results/verdict") / datetime.now(UTC).strftime(
-            "%Y%m%dT%H%M%SZ"
-        )
-        if output.exists():
-            parser.error(f"Result directory already exists: {output}")
-        # A bot never counts as a weak opponent of itself: its games are already head to head.
-        arguments.weak = [bot for bot in arguments.weak if bot not in (candidate, baseline)]
-        opponents = [baseline, *arguments.weak]
-
-        # Each bot plays each opponent in its own round robin on the same seeded maps.
-        # The baseline's self-play game against itself serves both sides.
-        games = {}
-        for bot in (candidate, baseline):
-            for opponent in opponents:
-                directory = output / f"{Path(bot).name}-vs-{Path(opponent).name}"
-                completed = subprocess.run(
-                    [
-                        "just",
-                        "round-robin",
-                        "--bots",
-                        bot,
-                        opponent,
-                        "--sandbox",
-                        "--maps",
-                        *arguments.maps,
-                        "--seeds",
-                        str(arguments.seeds),
-                        "--workers",
-                        str(arguments.workers),
-                        "--timeout",
-                        str(arguments.timeout),
-                        "--output",
-                        str(directory),
-                    ],
-                    stdout=subprocess.DEVNULL,
-                    env={
-                        **os.environ,
-                        "LOONG_VERBOSE_MATCHES": "1" if arguments.behaviour else "0",
-                    },
-                    check=False,
-                )
-                results = directory / "results.json"
-                if not results.is_file():
-                    raise SystemExit(completed.returncode or 1)
-                for played in json.loads(results.read_text())["games"]:
-                    played["log"] = str(directory / played["log"])
-                    for side, mine in (("A", played["A"]), ("B", played["B"])):
-                        if mine == bot:
-                            games[bot, opponent, side, played["map"], played["seed"]] = (
-                                played
-                            )
-
-        fixtures = sorted(
-            {(o, side, m, s) for (_, o, side, m, s) in games if o in opponents}
-        )
-        head_to_head, weak_drops, weak_gains, errors = [], [], 0, 0
-        faster = slower = 0
-        candidate_win_rounds, baseline_win_rounds = [], []
-        for opponent, side, map_path, seed in fixtures:
-            mine = games.get((candidate, opponent, side, map_path, seed))
-            theirs = games.get((baseline, opponent, side, map_path, seed))
-            if mine is None or theirs is None:
-                errors += 1
-                continue
-            my_score, their_score = score(mine, side), score(theirs, side)
-            if my_score is None or their_score is None:
-                errors += 1
-                continue
-            if my_score == 1 == their_score:
-                faster += mine["rounds"] < theirs["rounds"]
-                slower += mine["rounds"] > theirs["rounds"]
-            if my_score == 1:
-                candidate_win_rounds.append((mine["rounds"], mine))
-            if their_score == 1:
-                baseline_win_rounds.append(theirs["rounds"])
-            if opponent == baseline:
-                weight = (
-                    activation(Path(mine["log"]), side, arguments.behaviour)
-                    if arguments.behaviour
-                    else 1.0
-                )
-                head_to_head.append(
-                    {
-                        "map": map_path,
-                        "seed": seed,
-                        "side": side,
-                        "change": my_score - their_score,
-                        "weight": weight,
-                    }
-                )
-            elif my_score < their_score:
-                weak_drops.append(mine)
-            elif my_score > their_score:
-                weak_gains += 1
-
-        weighted = [pair["change"] * pair["weight"] for pair in head_to_head]
-        p_better, p_worse = sign_flip_p_values(weighted)
-        gained = sum(pair["change"] > 0 for pair in head_to_head)
-        dropped = sum(pair["change"] < 0 for pair in head_to_head)
-        # Against weak bots every changed game counts in full: none of them should ever be lost.
-        _, p_worse_weak = sign_flip_p_values([-1.0] * len(weak_drops) + [1.0] * weak_gains)
-        if p_worse < arguments.significance or p_worse_weak < arguments.significance:
-            verdict = "worse"
-        elif p_better < arguments.significance and len(weak_drops) <= weak_gains:
-            verdict = "better"
-        else:
-            verdict = "undecided"
-
-        # A win far shorter than the rest of the run's wins is worth a look before trusting it.
-        rounds = [win_rounds for win_rounds, _ in candidate_win_rounds]
-        outliers = []
-        if len(rounds) >= 8:
-            low, _, high = statistics.quantiles(rounds, n=4)
-            outliers = [
-                entry
-                for entry in candidate_win_rounds
-                if entry[0] < low - 1.5 * (high - low)
-            ]
-
-        result = {
-            "verdict": verdict,
-            "pairs": len(head_to_head),
-            "gained": gained,
-            "dropped": dropped,
-            "p_worse_against_weak_bots": p_worse_weak,
-            "weighted_total": sum(weighted),
-            "p_better": p_better,
-            "p_worse": p_worse,
-            "weak_drops": weak_drops,
-            "weak_gains": weak_gains,
-            "faster_wins": faster,
-            "slower_wins": slower,
-            "errors": errors,
-            "median_rounds_to_win": {
-                candidate: statistics.median(rounds) if rounds else None,
-                baseline: statistics.median(baseline_win_rounds)
-                if baseline_win_rounds
-                else None,
-            },
-            "changed_games_needed": changed_games_needed(
-                gained, dropped, arguments.significance
-            ),
-            "short_win_outliers": [played for _, played in outliers],
-            "pairs_detail": head_to_head,
-        }
-        (output / "verdict.json").write_text(json.dumps(result, indent=2) + "\n")
-
-        weighting = (
-            f", weighted by {' / '.join(arguments.behaviour)} activation"
-            if arguments.behaviour
-            else ""
-        )
-        print(
-            f"{candidate} in place of {baseline}: {len(head_to_head)} paired games, "
-            f"{gained} gained, {dropped} dropped, {len(head_to_head) - gained - dropped} unchanged{weighting}"
-        )
-        print(
-            f"chance random signs do this well: {p_better:.4f}   this badly: {p_worse:.4f}"
-        )
-        print(
-            f"weak bots ({', '.join(arguments.weak)}): {len(weak_drops)} games lost that {baseline} won, "
-            f"{weak_gains} won that it lost (chance this badly: {p_worse_weak:.4f})"
-        )
-        for played in weak_drops[:5]:
-            print(
-                f"  lost: {played['A']} vs {played['B']} on {Path(played['map']).stem} seed {played['seed']}"
-            )
-        if len(weak_drops) > 5:
-            print(f"  ... and {len(weak_drops) - 5} more, all listed in verdict.json")
-        medians = result["median_rounds_to_win"]
-        print(
-            f"rounds to win: {candidate} {medians[candidate]}, {baseline} {medians[baseline]}; "
-            f"paired wins {faster} faster, {slower} slower"
-        )
-        for _, played in outliers:
-            print(
-                f"  unusually short win: {played['rounds']} rounds on {Path(played['map']).stem} seed {played['seed']}"
-            )
-        if errors:
-            print(f"{errors} pairs had an error and don't count")
-        needed = changed_games_needed(gained, dropped, arguments.significance)
-        print(
-            f"verdict: {verdict}"
-            + (
-                f" (at this rate, about {needed} changed games would settle it)"
-                if verdict == "undecided" and needed and needed > gained + dropped
-                else ""
-            )
-        )
-        print(f"Results: {output}")
+        play_sequential(args.bots, args, args.output)
+        for candidate in args.bots:
+            print(f"just verdict --output {args.output} --candidate {candidate}")
+        return 0
 
 
-    main()
+    raise SystemExit(main())
+
+# Judge a sequential run: each opponent's test and upset faults.
+[group("Evaluation")]
+verdict *args:
+    ../../build/bin/loong-report verdict "$@"
+
+# Render the standard summary.md for any result directories.
+[group("Evaluation")]
+report *args:
+    ../../build/bin/loong-report summary "$@"
 
 # Rate a pool of bots on a resumable, frozen offline ladder.
 [group("Evaluation")]
@@ -633,6 +416,14 @@ bot-build source mode="judge":
 
 
     main()
+
+# Compile loong-gamedata, loong-report and loong-sample-replays into build/bin.
+[group("Build")]
+tools-build:
+    mkdir -p ../../build/bin
+    nim c -d:release --hints:off --nimcache:../../build/nimcache/gamedata -o:../../build/bin/loong-gamedata ../../gamedata/gamedata.nim
+    nim c -d:release --hints:off --nimcache:../../build/nimcache/report -o:../../build/bin/loong-report ../../harness/report/report.nim
+    nim c -d:release -d:ssl --hints:off --nimcache:../../build/nimcache/sample-replays -o:../../build/bin/loong-sample-replays ../../replays/collection.nim
 
 # Experimental Zig engine host; the organiser's toolkit remains the default.
 [group("Build")]

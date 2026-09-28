@@ -172,43 +172,6 @@ def game_outcomes():
     return svg(1000, 150, "How the harness sorts a finished game", parts)
 
 
-def coin_flips():
-    """How often an even match of 100 games gives one side at least k wins."""
-    from math import comb
-    left, top, width, height = 70, 50, 880, 220
-    parts = [text(20, 30, "Out of 100 games between equal bots, how often does one side win at least this many?", 15, INK, weight="bold")]
-    at_least = {k: sum(comb(100, j) for j in range(k, 101)) / 2 ** 100 for k in range(40, 71)}
-    for k in range(40, 71):
-        x = left + (k - 40) * width / 31
-        h = height * at_least[k]
-        colour = SIGNAL if k in (55, 60) else FOREST
-        parts.append(f'<rect x="{x:.1f}" y="{top + height - h:.1f}" width="{width / 31 - 4:.1f}" height="{h:.1f}" fill="{colour}" opacity="{1 if k in (55, 60) else .75}"/>')
-        if k % 5 == 0:
-            parts.append(text(x + width / 62, top + height + 20, k, 12.5, MUTED, "middle"))
-    for k, label in ((55, "55 or more: 18%, could easily be luck"), (60, "60 or more: 3%, strong evidence")):
-        x = left + (k - 40) * width / 31 + width / 62
-        y = top + height - height * at_least[k] - 10
-        parts.append(text(x + 8, y, label, 13, SIGNAL, "start", "bold"))
-    parts.append(text(left, top + height + 42, "wins out of 100", 12.5, MUTED))
-    return svg(990, 320, "How often coin flips win at least this many of 100 games", parts)
-
-
-def verdict_games():
-    parts = [
-        card(20, 20, 300, 80, "The candidate plays…", ["on every map, side and seed"], dark=True),
-        card(20, 120, 300, 80, "…and so does the baseline", ["in the candidate's seat"]),
-        card(400, 20, 250, 56, "the baseline itself", [], centre=True),
-        card(400, 88, 250, 56, "starter-c", [], centre=True),
-        card(400, 156, 250, 56, "starter-py", [], centre=True),
-        arrow([(320, 60), (398, 48)]), arrow([(320, 60), (398, 116)]), arrow([(320, 60), (398, 184)]),
-        arrow([(320, 160), (398, 48)], dashed=True), arrow([(320, 160), (398, 116)], dashed=True), arrow([(320, 160), (398, 184)], dashed=True),
-        card(720, 20, 270, 90, "Head to head", ["paired game by game; judged", "by weighted sign flips"]),
-        card(720, 122, 270, 90, "Against weak bots", ["a candidate that loses more of", "these is never called better"], accent=SIGNAL),
-        arrow([(650, 48), (718, 64)]), arrow([(650, 116), (718, 166)]), arrow([(650, 184), (718, 166)]),
-    ]
-    return svg(1010, 232, "The games a verdict plays", parts)
-
-
 def rating_odds():
     """The chance the higher-rated bot wins, against the rating gap."""
     left, top, width, height = 90, 50, 820, 240
@@ -232,15 +195,9 @@ def rating_odds():
     return svg(960, 350, "Chance the stronger bot wins, by rating gap", parts)
 
 
-def pearls_weak_bots():
-    return bars("Games against the starters that changed, room-pearls in place of room-c", [
-        ("lost that room-c won", 51, SIGNAL), ("won that room-c lost", 3, FOREST)],
-        "games", log=False)
-
-
 def replay_requests():
     parts = [
-        card(20, 20, 220, 100, "Battles page", ["/battles?sort=rating", "25 series a page,", "highest rated first"]),
+        card(20, 20, 220, 100, "Battles page", ["/battles?sort=at&dir=desc", "25 series a page,", "newest first"]),
         card(290, 20, 220, 100, "Series page", ["one per series", "lists its games"]),
         card(560, 20, 220, 100, "Replay API", ["/api/matches/<game>/replay", "redirects to storage"]),
         card(830, 20, 160, 100, "Replay file", ["packed binary,", "gzipped"], dark=True),
@@ -412,11 +369,6 @@ def judge_speed():
         "s", width=1010, note="Log scale. Median of three runs each, on a Ryzen 7 5800X3D, with identical replays from both hosts.")
 
 
-def coil_forage_result():
-    return bars("Coil and forage against the roles bot, changed games on four seeds", [
-        ("gained", 80, FOREST), ("dropped", 45, SIGNAL)], "games", log=False)
-
-
 def fleet_run():
     parts = [
         text(20, 30, "Standing resources, declared in OpenTofu", 14, INK, weight="bold"),
@@ -448,32 +400,29 @@ def strategy_cost_nim():
 
 def death_causes():
     rows = []
-    for cause, flood, pearl in (("hit a wall", 11, 31), ("hit itself", 16, 51), ("hit another body", 25, 17), ("lost head-on", 22, 20)):
+    for cause, flood, pearl in (("hit a wall", 46, 92), ("hit itself", 34, 91), ("hit another dragon", 46, 46), ("lost head-on", 24, 28)):
         rows += [(f"{cause}: room-c", flood, FOREST), (f"{cause}: room-pearls", pearl, SIGNAL)]
-    return bars("How each bot's dragons died across their 66 games", rows, "dragons", log=False)
+    return bars("How each bot's dragons died across their 70 games", rows, "dragons", log=False)
 
 
 def pearl_lengths():
-    return bars("Dragon lengths across the 66 games, in segments", [
-        ("longest dragon per game: room-c", 13.5, FOREST), ("longest dragon per game: room-pearls", 33.5, SIGNAL),
-        ("dragons that hit themselves: room-c", 13.5, FOREST), ("dragons that hit themselves: room-pearls", 32, SIGNAL)],
+    return bars("Dragon lengths across the 70 games, in segments", [
+        ("longest dragon per game: room-c", 22, FOREST), ("longest dragon per game: room-pearls", 46.5, SIGNAL),
+        ("dragons that hit themselves: room-c", 8.5, FOREST), ("dragons that hit themselves: room-pearls", 27, SIGNAL)],
         "median", log=False)
 
 
-def first_bot_gains():
-    return bars("The first bot's changed games against the flood-fill bot, by map set", [
-        ("bundled maps: gained", 21, FOREST), ("bundled maps: dropped", 25, SIGNAL),
-        ("generated maps: gained", 56, FOREST), ("generated maps: dropped", 25, SIGNAL)], "games", log=False)
-
-
-def first_bot_self_hits():
-    return bars("Dragons that hit their own body on the generated maps", [
-        ("flood-fill bot", 74, SIGNAL), ("first bot", 23, FOREST)], "dragons", log=False)
+def first_bot_deaths():
+    rows = []
+    for cause, first, flood in (("hit a wall", 0.8, 0.8), ("hit another dragon", 0.5, 0.8),
+                                ("lost a head-to-head", 0.4, 0.4), ("hit itself", 0.4, 0.6)):
+        rows += [(f"{cause}: first-bot", first, FOREST), (f"{cause}: room-c", flood, SIGNAL)]
+    return bars("Deaths per game by cause, first bot against the flood-fill bot", rows, "a game", log=False)
 
 
 def friendly_fire():
     return bars("Head-on collisions in the version that split at length 10", [
-        ("between two of our own dragons", 382, SIGNAL), ("with an enemy dragon", 78, FOREST)], "collisions", log=False)
+        ("between two of our own dragons", 491, SIGNAL), ("with an enemy dragon", 49, FOREST)], "collisions", log=False)
 
 
 def judge_cpu():
@@ -637,15 +586,13 @@ FIGURES = {
     "sprt-walk": sprt_walk,
     "death-causes": death_causes,
     "pearl-lengths": pearl_lengths,
-    "first-bot-gains": first_bot_gains,
-    "first-bot-self-hits": first_bot_self_hits,
+    "first-bot-deaths": first_bot_deaths,
     "friendly-fire": friendly_fire,
     "judge-cpu": judge_cpu,
     "strategy-cost-nim": strategy_cost_nim,
     "unseen-losses": unseen_losses,
     "map-supply": map_supply,
     "fleet-run": fleet_run,
-    "coil-forage-result": coil_forage_result,
     "sonar-position-message": sonar_position_message,
     "who-hears": who_hears,
     "echo-totals": echo_totals,
@@ -659,10 +606,7 @@ FIGURES = {
     "moving-targets": moving_targets,
     "two-rules": two_rules,
     "strategy-tactics": strategy_tactics,
-    "pearls-weak-bots": pearls_weak_bots,
     "rating-odds": rating_odds,
-    "coin-flips": coin_flips,
-    "verdict-games": verdict_games,
     "round-robin-schedule": round_robin_schedule,
     "game-outcomes": game_outcomes,
     "language-options": language_options,

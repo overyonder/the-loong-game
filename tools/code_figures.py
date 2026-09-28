@@ -122,7 +122,7 @@ def close_ups():
         CloseUp("roles-bot-sonar", [Block(loong("length_radio.nim"), Region("sonar", r"^proc encode", r"^proc create"))]),
         CloseUp("tactics-bot-strategy", [Block(example("tactics-bot/strategy.nim"), Region("frame", r"^hsm\.run", "$"), [
             Region("coil", r"^  roles\.champion", r"^  roles\.kamikaze", "Champion coils"),
-            Region("forage", r"^  roles\.other", label="Feeders forage")])]),
+            Region("forage", r"^  roles\.other", r"^\]\)", "Feeders deliver or forage")])]),
         CloseUp("tactics-bot-coil", [Block(behaviour("coil"), Region("coil", r"^proc objective", "$"))]),
         CloseUp("tactics-bot-forage", [Block(loong("window.nim"), Region("forage", r"^proc nearestPearl")),
                                        Block(behaviour("forage"), Region("forage", r"^proc objective", "$"))]),

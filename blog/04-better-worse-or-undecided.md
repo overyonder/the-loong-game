@@ -1,116 +1,115 @@
 # Better, worse or undecided
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to use the released verdict, which now plays its games through the released round robin runner. I reran the checks and the pearl-chasing experiment with it, so the numbers below are new.
+> **Editor's note, 28 September 2026.** I've rewritten this post around the verdict as it works now. It no longer plays a fixed pile of games and judges them afterwards. It decides how many games a question needs, checks after every game, and stops as soon as the answer is safe. I've also made clear what it's for: measuring how far to trust a difference, while the faults it turns up are what we act on.
 
-With the [harness](03-the-evaluation-harness.md) we can play as many games as we like, but a results table on its own will always tempt us to read meaning into small gaps. This post builds the tool that answers the question we actually care about: did this change make the bot better? The command is `just verdict`, with the statistics in [harness/verdict.py](../harness/verdict.py). You give it a candidate bot and the baseline it changes, and it comes back with one of three answers: better, worse, or undecided.
+With the [harness](03-the-evaluation-harness.md) we can play as many games as we like, and that's exactly the problem: a pile of results always tempts us to read meaning into small gaps. Playing a bot against a pool of opponents is how we find out what's wrong with it, and the useful output of those games is the faults, the games it should have won and didn't, each one something to watch in a viewer and fix. But the games also produce a score, and sooner or later we want to know what that score means. This post builds the tool for that, from first principles, and explains why it plays as few games as it does. The commands are `just batch` to play and `just verdict` to read, with the statistics in [harness/report/verdict.nim](../harness/report/verdict.nim).
 
-## Judging a result against luck
+## The question
 
-The idea underneath is the reasoning you'd use to judge any result by eye. Suppose a change made no difference at all. Then every game it won or lost could just as easily have gone the other way, like a coin flip. So the right question isn't "did the candidate win more?" but "how often would coin flips do at least this well?" If the answer is "almost never", the change is probably real. If it's "fairly often", we can't tell yet.
+A verdict compares a candidate bot with the opponents it plays, or with a baseline version it was changed from. The question it answers is narrow: is the difference we're seeing real, and how big is it? Stated precisely, if the candidate played those opponents forever, would it score more than half its games?
 
-The numbers make this concrete. Out of 100 games, an even match sees one side win 60 or more only about 3% of the time, so a 60–40 result is strong evidence. But one side wins 55 or more about 18% of the time, so 55–45 could easily be luck. The verdict uses the usual cut-off: if coin flips would do this well less than 5% of the time, the candidate is better, and if they'd do this badly less than 5% of the time, it's worse.
+That's a measurement, not a decision about what the bot should contain. A behaviour goes into our bot because there's a sound reason it helps at least some of the time, and a bad first result usually says more about its parameters than about the idea. What the verdict tells us is how far to trust a difference, so we don't talk ourselves into a gain that isn't there or explain away a loss that is.
 
-![How often coin flips win at least this many of 100 games, as bars from 40 to 70 wins. At least 55 wins happens 18% of the time, which could easily be luck, and at least 60 wins 3% of the time, which is strong evidence.](images/coin-flips.svg)
+We can never play forever, so every answer is a bet, and there are two ways to lose it. We can call a difference real when it's luck, or miss one that really is there. Statisticians call the chance of the first mistake α, and one minus the chance of the second the test's power. The usual choice, and ours, is α of 5% and power of 80%.
 
-The hard part is deciding which games to count, and that's where most of the tool's design goes.
+## How many games a question needs
 
-## Comparing like with like
+The third ingredient is the size of the difference we care about. A change that makes the bot win 70% of its games against the baseline is easy to spot. One that wins 51% is real but almost invisible, and chasing it would cost thousands of games. So before playing anything, we decide on the smallest improvement worth detecting, and that sets how many games the test needs:
 
-A game depends on two things besides the bots: the map, and the seed that decides where pearls appear and how each bot's random choices fall. So the verdict plays every game twice. The candidate plays an opponent on a map, side and seed, and then the baseline plays that same map, side and seed against the same opponent, sitting in the candidate's seat.
+![Games needed to detect a better bot at α 0.05 and 80% power: about 36 at a true win rate of 70%, about +150 Elo; 66 at 65%, about +110 Elo; 150 at 60%, about +70 Elo; and 600 at 55%, about +35 Elo.](images/verdict-games-needed.svg)
 
-Seeded games are deterministic. If the candidate's change never comes into play in a game, both versions make exactly the same moves, the two games are identical, and they cancel out. Only the games whose result changed are left:
+We size our verdicts for +70 Elo, which means winning about 60% of games against the baseline. Smaller gains are real, but a test that could see them would cost four times as many games, and on unseen tournament maps a change that small might not survive anyway. For comparison, the verdict we used before this redesign played a fixed schedule of about 3,700 games per candidate, whatever the question.
 
-![Twelve pairs of games, the baseline above and the candidate below. Eight pairs have the same result and don't count. Four are outlined: in three the candidate won a game the baseline lost, and in one it lost a game the baseline won. Under each pair a bar shows how much of the game the changed behaviour ran.](images/paired-games.svg)
+## Why you can't just keep checking
 
-This matters more than it looks, because most changes to a bot only fire in some situations: a rule for portals, a tactic for narrow corridors. If a change never fires on nine maps in ten and wins the tenth outright, counting every game buries that win under nine maps' worth of games that couldn't have gone any other way. Pairing throws those out, so a change is judged on the games it could actually affect.
+A fixed-size test has an obvious waste. If a candidate wins its first 20 games in a row, the answer is already clear, and playing the other 130 feels silly. The tempting fix is to check the result after every game and stop as soon as it looks significant.
 
-## Weighing each game by how much the change ran
+That breaks the test. The 5% false-positive rate of a significance test assumes you look once, at the planned size. Every extra look is another chance for luck to cross the line, and luck gets a lot of chances. Here's how often two exactly equal bots would be declared different if we stopped at the first p-value below 0.05:
 
-Pairing still treats every changed game the same, whether the new behaviour ran for most of the game or for two turns near the end, and the first kind says much more about it. So each bot names its behaviours. On every turn it writes the one that chose its move as its indicator, the short text the viewer shows beside a dragon, and if you tell the verdict which behaviour changed, it weights each changed game by the share of the candidate's turns that behaviour was active.
+![How often two equal bots look different if you stop at the first p below 0.05: 5% with one test at the planned size, 9.9% checking after every game up to 20 games, 15.8% up to 50, 22.7% up to 150, and 31% up to 600.](images/peeking.svg)
 
-With weights, counting wins isn't enough any more, so the test becomes a sign flip: add up the weighted changes, then ask how often random signs on the same changes would add up to at least as much.
+By 150 games, peeking has turned a 5% error rate into nearly 23%. We'd be believing a difference that isn't there one time in four or five.
 
-```python
-def sign_flip_p_values(changes: list[float], trials: int = 200_000) -> tuple[float, float]:
-    """P(a random sign on each change sums to at least, and at most, the observed total)."""
-    changes = [change for change in changes if change]
-    if not changes:
-        return 1.0, 1.0
-    observed = sum(changes)
-    magnitudes = [abs(change) for change in changes]
-    generator = random.Random(0)
-    at_least = at_most = 0
-    for _ in range(trials):
-        total = sum(magnitude if generator.random() < 0.5 else -magnitude for magnitude in magnitudes)
-        at_least += total >= observed - 1e-12
-        at_most += total <= observed + 1e-12
-    return at_least / trials, at_most / trials
-```
+## A test built for checking every game
 
-It's the coin-flip question again, asked of the changes themselves. With every weight equal to one, it gives the same answer as counting wins against losses.
+The sequential probability ratio test, which Abraham Wald worked out in the 1940s, is built for exactly this. It keeps one running number: how much more likely the results so far are if the candidate is really better, meaning it wins 60% of games, than if it's no better, meaning it wins 50%. That number is a log-likelihood ratio, and it's simple to update. Each win makes "better" more likely by a factor of 0.6 / 0.5, so it adds ln(0.6 / 0.5), about +0.18. Each loss makes it less likely by 0.4 / 0.5, adding ln(0.4 / 0.5), about −0.22, and a draw counts as half of each, about −0.02.
 
-## Games we should never lose
+Wald showed where the stopping lines have to go to keep the error rates we chose, however often we look. The upper line is ln(0.8 / 0.05), about 2.77: cross it and the candidate is better. The lower line is ln(0.2 / 0.95), about −1.56: cross it and the candidate is not better, meaning the evidence says the change isn't worth +70 Elo. The test only asks whether the candidate is better, so this is "not better" rather than "worse", and the score it prints shows which way it leaned. The run stops at whichever it reaches first.
 
-Testing a change against the bot it came from has a blind spot: it never shows how the bot does against bots unlike itself. So the candidate and the baseline both also play the two starter bots, on the same maps, sides and seeds, and those games are paired too.
+## Straight wins
 
-![The games a verdict plays. The candidate plays the baseline, starter-c and starter-py on every map, side and seed, and the baseline plays the same opponents from the candidate's seat. The head-to-head games are paired game by game and judged by weighted sign flips. The games against weak bots are paired too, and a candidate that loses more of them is never called better.](images/verdict-games.svg)
+The case that makes this concrete is a candidate that wins every game. Each win adds 0.18, so it takes 16 straight wins to pass 2.77. A test designed to detect a bigger improvement, +150 Elo, adds more per win and decides after 9:
 
-The standard here is different. A decent bot should beat a bot that walks at random every single time, so a loss to one can't be put down to bad luck. It should be about as likely as a mouse beating a lion. A candidate that loses more of these games than the baseline did is never called better, and the verdict lists every game the candidate lost to a weak bot that the baseline won, because each one is a bug to find whatever the verdict says.
+![The test after each straight win. A test designed for +70 Elo climbs by 0.18 a win and crosses the upper boundary of 2.77 after 16 wins. A test designed for +150 Elo climbs faster and crosses after 9. A naive sign test would already stop at 5 wins.](images/sprt-walk.svg)
 
-It also compares game length, pair by pair. A win in 40 rounds and a win in 400 aren't the same result, so it reports the median rounds to win for each version and flags any win much shorter than the rest, since a very short game is sometimes a fluke worth looking at before trusting it.
+A naive sign test would call it after only 5 straight wins, since five heads in a row happen by chance about 3% of the time. That's fine if you only ever look at game 5. Checked after every game, it's the peeking problem from the chart above, and it would pass far too many lucky runs.
 
-## Checking the tool on questions we can answer
+The verdict also caps every test at the size a fixed test would have needed, 155 games at +70 Elo. Across the range of true improvements, this is how often each outcome happens, and how many games it takes on average:
 
-Before trusting a new tool with a real question, it's worth giving it some questions where we already know the answer. Each run below plays the 13 bundled maps from both sides on four seeds.
+| True improvement | Better | Not better | No material difference at the cap | Average games |
+| --- | ---: | ---: | ---: | ---: |
+| None | 3.8% | 86.4% | 9.8% | 65 |
+| +35 Elo | 24% | 50% | 26% | 91 |
+| +70 Elo | 65% | 17% | 18% | 90 |
+| +120 Elo | 97.0% | 1.8% | 1.2% | 59 |
+| +150 Elo | 99.5% | 0.5% | 0.1% | 46 |
 
-The first check should be easy: the flood-fill bot from [The choice](02-the-choice.md) in place of the C starter, which just wanders about at random. The flood-fill bot ought to come out clearly better, and it does. Of 104 paired games, 46 came out the same, and of the rest it gained 56 and dropped 2. Even so, it lost 2 games to the Python starter that the C starter had won, which is a reminder that a bot that only counts room can still walk into trouble. One pair also had an error, a Python starter that failed to launch on a busy machine, so it doesn't count either way:
+A change that does nothing is almost never called better, and a big improvement is found in well under 50 games. The cap costs some power right at +70 Elo, where a fixed test of 155 games would have reached 80%. On our own bots, the same test has called a candidate better after 139 games, not better after 69, and reached the cap at 155 with no material difference.
 
-```text
-$ just verdict --candidate room-c --baseline starter-c
-room-c in place of starter-c: 104 paired games, 56 gained, 2 dropped, 46 unchanged
-chance random signs do this well: 0.0000   this badly: 1.0000
-weak bots (starter-py): 2 games lost that starter-c won, 35 won that it lost (chance this badly: 1.0000)
-  lost: room-c vs starter-py on autarky seed 722775847
-  lost: starter-py vs room-c on Colosseum seed 4061594858
-rounds to win: room-c 191, starter-c 143.0; paired wins 25 faster, 35 slower
-1 pairs had an error and don't count
-verdict: better
-```
+## Pairing makes each game count for more
 
-The second check is the more important one. The C and Python versions of the flood-fill bot make exactly the same move in every position, so neither can be better than the other, and a trustworthy tool has to say so. With pairing, the answer is exact rather than statistical: all 104 paired games were identical, against the weak bots too, and the verdict was undecided. A tool that found a difference here would be finding it in pure noise.
+A game depends on more than the two bots: the map, the seed that decides where pearls appear, and which side each bot starts on. Those differences are noise, and noise is what makes a test need more games. So the verdict pairs its games. The candidate and the baseline each play the same opponent, on the same map, seed and side, and each pair is compared directly:
 
-```text
-$ just verdict --candidate room-py --baseline room-c
-room-py in place of room-c: 104 paired games, 0 gained, 0 dropped, 104 unchanged
-chance random signs do this well: 1.0000   this badly: 1.0000
-weak bots (starter-c, starter-py): 0 games lost that room-c won, 0 won that it lost (chance this badly: 1.0000)
-rounds to win: room-py 203, room-c 203; paired wins 0 faster, 0 slower
-verdict: undecided
-```
+![Twelve pairs of games, the baseline above and the candidate below. Eight pairs have the same result and don't count. Four are outlined: in three the candidate won a game the baseline lost, and in one it lost a game the baseline won.](images/paired-games.svg)
 
-## A real question
+Seeded games are deterministic, so if the change never comes into play, the two games are identical and cancel out. What's left is the effect of the change, with the map and the luck of the seed held fixed.
+
+That's how the verdict compares two close versions of the same bot. Played directly against each other, versions that similar mostly win by which side they start on, so their head-to-head games tell us little. Instead both play the same fixtures against common opponents, and a fixture counts once both games are done: a win for the candidate if it scored more, a loss if the baseline did. Ties, such as both winning, carry no evidence and are just counted. For a candidate that isn't a close relative, the verdict plays it directly against each opponent and scores every game.
+
+## Stopping early only pays if the games are mixed
+
+A sequential test can stop after 16 games, but only if those 16 games are a fair sample. If the schedule played every game on one map first, then the next map, an early stop would judge the candidate on one map. So the verdict rotates the map, the opponent and the side from the very first game.
+
+The other catch is how many games are running at once. Stopping is only a saving if the games still running when the test crosses a line are few. So the verdict keeps roughly as many games in flight as it expects to need, and cancels the rest the moment it decides.
+
+Concretely, the maps are shuffled into a fixed order for each run, and on each map every opponent that still needs games is played from both sides before moving on. Each test reads only the longest unbroken run of finished games in that order, never whichever games happen to finish first, so a slow map can't be skipped. An opponent whose test has decided gets no more games, and the whole run ends as soon as every test has.
+
+One more check runs alongside. Ten games against a bot that moves at random are mixed into the first few maps, and any game the candidate fails to win is flagged as a fault to watch. A decent bot should never lose to one, so those games never enter the statistics. Any fault is a bug to go and find.
+
+## Reaching the cap
+
+Some changes are too small for either line: they help a little, or on some maps and not others. After 155 games without crossing, the verdict stops and reports no material difference. That's an honest answer, and a useful one. It means the difference is smaller than the test was built to see, and measuring it would take far more games, such as the [ladder](06-a-ladder-of-our-own.md) later in this stage, which plays every pair many times.
+
+## A first verdict
 
 Now for something we don't know the answer to. The flood-fill bot only cares about keeping room to move, and it ignores food completely. That seems like an obvious thing to fix. Eating pearls makes a dragon longer, and the longest dragon decides the game at round 500, so a bot that heads for food ought to do better.
 
-The candidate, `room-pearls`, keeps the flood fill and adds one rule: when several moves all leave plenty of room, it picks the one nearest a visible pearl. On the turns where that rule changes the move, it writes `Pearl` as its indicator, so the verdict can weigh each game by it:
+The candidate, `room-pearls`, keeps the flood fill and adds one rule: when several moves all leave plenty of room, it picks the one nearest a visible pearl. It isn't a close relative of anything we'd compare it with in pairs, so it plays the flood-fill bot directly, on the 15 bundled maps and the 20 generated ones. From `examples/tooling`, `just batch` plays the games and `just verdict` reads them:
 
-![A terminal running just verdict --candidate room-pearls --baseline room-c --behaviour Pearl. Of 104 paired games, room-pearls gained 18, dropped 36 and left 50 unchanged, weighted by Pearl activation, and random signs do this badly 2.3% of the time. Against the weak bots it lost 51 games that room-c won and won 3 that room-c lost, and the first five losses are listed. Median rounds to win: 163 for room-pearls, 203 for room-c, with 52 paired wins faster and 33 slower. The verdict is worse.](images/verdict-room-pearls.png)
+```sh
+just batch --bots room-pearls --output results/verdict-pearls
+just verdict --output results/verdict-pearls --candidate room-pearls
+```
 
-Head to head, the pearl chaser comes out worse. Of the 104 paired games, 50 came out the same, and of the rest it won 18 that the flood-fill bot lost and lost 36 that the flood-fill bot won. Weighted by how much the pearl rule ran, random signs would do that badly only 2.3% of the time.
+The verdict writes a `verdict.md` in the same format as the harness's summary, with more columns for the test. Here is its first row, trimmed to the columns this post uses:
 
-The weak bots make it much starker. Against the two starters, the pearl chaser lost 51 games that the flood-fill bot won and won back only 3. Chasing food makes the bot beatable by bots that don't try at all, which is exactly the kind of failure a head-to-head test between two versions of the same bot can miss.
+| Candidate | Opponent | W–D–L | Elo (95% interval) | Decision | LLR (lower, upper) | Games used |
+| --- | --- | --- | --- | --- | --- | --- |
+| `room-pearls` | `room-c` | 2–0–9 | −261 (… to −63) | not better | −1.632 (−1.558, +2.773) | 11, decided at 11 (cap 155) |
 
-![Games against the two starters whose result changed when room-pearls took room-c's place: room-pearls lost 51 that room-c won, and won 3 that room-c lost.](images/pearls-weak-bots.svg) It does win faster when it wins, a median of 163 rounds against 203, which fits: a bot that eats more grows faster. Working out why it keeps dying is a job for the debug viewer later in this stage.
+It took 11 games. The pearl chaser won 2 and lost 9, and after the eleventh the running number fell to −1.632, past the lower line at −1.558, so the answer is not better. The Elo estimate says worse, not merely no better: its interval stops at −63. That doesn't mean heading for food is a bad idea. It means this rule, which chases the nearest pearl whenever there's room, is losing games, and the next step is to find out how. By the time it decided, 41 games had been played in all, counting the ten upset games and the games already in flight, which is the price of keeping several running at once.
 
-## Keeping the versions that win
+The upset check found something too. Of its ten games against `starter-c`, the pearl chaser failed to win one, on Colosseum, and the verdict lists it with the `just viewer` command that opens its replay.
 
-When a candidate comes out better, it becomes the new baseline, and the next idea has to beat it. We also save a numbered snapshot of it, and keep the last few around so every new candidate has to beat them as well.
+The flood-fill bot doesn't lose to a starter, and the pearl chaser did. That's the most useful thing the whole run produced: a specific game, on a specific map, that a decent bot should never lose, with the command to watch it. Why the pearl chaser's dragons die is a question for the replay tools later in this stage, and the answer turns out to be about how long its dragons grow.
 
-The reason is that beating the previous version isn't the same thing as getting better. Strategies can go round in circles, the way rock, paper and scissors do. Suppose our first bot plays rock. Paper beats it and becomes version 2, scissors beats paper and becomes version 3, and then rock beats scissors and becomes version 4, even though it's exactly the bot we started with:
+## Checking the whole line
+
+As the bot grows, we save numbered snapshots of it, and it's tempting to read each version beating the one before as steady progress. Beating the previous version isn't the same as getting better, though, because strategies can go round in circles the way rock, paper and scissors do:
 
 ![Rock, paper, scissors, rock, paper, scissors, labelled v1 to v6, with each version beating the one before it. The labels read as steady progress, but v4 plays exactly like v1.](images/version-cycle.svg)
 
-Every step in that sequence passed a fair test, and the bot has only gone round in a circle. Real bots do the same in subtler ways. A change that makes our dragons better at dodging the last version's attacks might also make them worse against a bot that simply forages, and testing against the last few snapshots catches that, because a version that has gone back round the circle loses to one of its own ancestors. The [ladder](06-a-ladder-of-our-own.md), later in this stage, rates every snapshot against every other so the whole history can be seen at once.
+Every step in that sequence would pass a fair test, and the bot has only gone round in a circle. The [ladder](06-a-ladder-of-our-own.md), later in this stage, rates every snapshot against every other, so a version that has gone back round the circle shows up losing to one of its own ancestors.
 
 ## Next up
 

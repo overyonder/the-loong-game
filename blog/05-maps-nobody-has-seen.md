@@ -1,6 +1,6 @@
 # Maps nobody has seen
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to use the released round robin runner, and replaced my first map generator with xCirno's, bounded by the official maps. I redrew the figures and reran the comparison on the new maps with toolkit 1.2.2.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to use the released round robin runner, and replaced my first map generator with xCirno's, bounded by the official maps. I redrew the figures and reran the comparison on the new maps with toolkit 1.2.2 and the released harness.
 
 The organisers have said that every Sprint, Qualifier and Grand Final map will be brand new. That's a problem for anyone who only tests on the maps bundled with the toolkit, because a bot can quietly come to depend on something those maps happen to have in common, and look strong right up until the tournament puts it on a map without it. We can't test on maps nobody has seen, but we can make lots of new ones that look like the real thing. That's the map generator from the wishlist. This post shows how ours works, built on a generator another competitor shared, and then uses it straight away to find a blind spot the bundled maps had been hiding.
 
@@ -64,7 +64,7 @@ Here they are:
 
 To see whether the new maps tell us anything, we'll play the same matchup twice, the flood-fill bot from [The choice](02-the-choice.md) against the C starter, first on the bundled maps and then on the generated ones. If the generated maps were just more of the same, both runs should look alike. `just unseen-maps` generates the maps and plays both, two seeds per map and side, in the sandbox:
 
-![A terminal reading the two round robins' results through rg and glow, drawn as tables. On the bundled maps, room-c won all 60 games against starter-c. On the generated maps, room-c won 77 and lost 3.](images/unseen-maps.png)
+![A terminal reading the two round robins' summaries through rg and glow, drawn as tables with records, scores, Elo intervals and side-swapped pairs. On the bundled maps, room-c won all 60 games against starter-c. On the generated maps, room-c won 77 and lost 3, +564 Elo, with 37 pairs won both ways and 3 split.](images/unseen-maps.png)
 
 They don't look alike. On the bundled maps the flood-fill bot never loses to a bot that moves at random, and on maps it has never seen it does, which already tells us the bundled maps flatter it. The more useful part is how its dragons died in those three games:
 
@@ -80,7 +80,7 @@ That's three of the eight tools. The harness plays the games, the statistics tel
 
 ![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. Our wishlist tools are on the left with their languages: the evaluation harness, statistics and map generator in Python are built, and the offline Elo ladder, replay sampler, replay decoder, the Odin debug viewer, profiling and the Zig judge are still to come. Ideas from the grand strategy, tactical ideas and espionage stages flow into the bot from the top.](images/pipeline.svg)
 
-Those three take the drudgery out of improving a bot. Trying an idea is now one command, and the answer comes back as better, worse or undecided, tested on maps the bot has never seen. The other five tools answer different questions: whether the bot is improving overall, what the other teams are doing, why one of our dragons did what it did, and where its CPU budget went.
+Those three take the drudgery out of improving a bot. Playing it against a pool of opponents is now one command, on maps it has never seen, and the games it loses point straight at what to fix, with the statistics to say how much the results can be trusted. The other five tools answer different questions: whether the bot is improving overall, what the other teams are doing, why one of our dragons did what it did, and where its CPU budget went.
 
 ## Next up
 

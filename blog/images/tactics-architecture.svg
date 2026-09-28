@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 598" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">The tactics bot's structure</title>
-<desc id="d">The roles bot's structure with new behaviours. The champion splits, evades, coils when no enemy head is within three tiles, or roams. A feeder evades or forages; the Deliver behaviour, a feeder's sacrifice, is left out of the assembly because it made the bot worse. A kamikaze hunts or roams. Sonar messages now carry each dragon's head position.</desc>
+<desc id="d">The roles bot's structure with new behaviours. The champion splits, evades, coils when no enemy head is within three tiles, or roams. A feeder evades, delivers itself to the champion once grown, or forages. A kamikaze hunts or roams. Sonar messages now carry each dragon's head position.</desc>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="720" height="598" fill="#ede5d5"/>
 <rect x="40" y="20" width="280" height="58" rx="7" fill="#f6f1e7" stroke="#2f7f79" stroke-width="2.2"/>
@@ -29,11 +29,11 @@
 <rect x="388.0" y="246" width="44" height="22" rx="11" fill="#5d8a2e"/><text x="409.8" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Roam</text>
 <rect x="480" y="206" width="230" height="74" rx="7" fill="#f6f1e7" stroke="#a8801a" stroke-width="2.2"/>
 <text x="595.0" y="231" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Feeder</text>
-<rect x="537.3" y="246" width="51" height="22" rx="11" fill="#7a4f8a"/><text x="562.8" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
-<rect x="594.3" y="246" width="58" height="22" rx="11" fill="#8f8a25"/><text x="623.5" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Forage</text>
-<rect x="484" y="288" width="66" height="22" rx="11" fill="#9c5b2e"/><text x="516.9" y="303.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Deliver</text>
-<text x="556" y="303" font-size="12" fill="#66675e" text-anchor="start" font-weight="normal">left out: it made the bot worse</text>
-<path d="M360 314 L360 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="501.4" y="246" width="51" height="22" rx="11" fill="#7a4f8a"/><text x="526.9" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
+<rect x="558.4" y="246" width="66" height="22" rx="11" fill="#9c5b2e"/><text x="591.3" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Deliver</text>
+<rect x="630.2" y="246" width="58" height="22" rx="11" fill="#8f8a25"/><text x="659.4000000000001" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Forage</text>
+<text x="360" y="302" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">then the first behaviour whose guard holds; Split, Hunt's strike and Deliver's sacrifice act as reflexes</text>
+<path d="M360 310 L360 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
 <rect x="170" y="332" width="380" height="80" rx="7" fill="#f6f1e7" stroke="#b53b13" stroke-width="2.2"/>
 <text x="360.0" y="358" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Movement: hard constraints first</text>
 <text x="360.0" y="380" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">no kelp, bodies or unseen portals; only Hunt</text>

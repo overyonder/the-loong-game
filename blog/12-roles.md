@@ -1,6 +1,6 @@
 # Roles
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to show the roles bot as it's built now, from behaviour modules in a shared repertoire. It plays exactly the same games as before, so the results stand.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to show the roles bot as it's built now, from behaviour modules in a shared repertoire. I reran its tests with the sequential verdict and toolkit 1.2.2 on the new generated maps, recounted the replays, and dropped a chart that screened variants for keeping or dropping, since settings like the champion's berth are parameters to tune rather than reasons to drop a behaviour.
 
 The [first strategy bot](11-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500, and another is two segments long and not worth much alive. This post gives dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its own role.
 
@@ -48,15 +48,13 @@ The tag stops a dragon mistaking random enemy traffic for a teammate. It won't s
 
 ![examples/repertoire/games/loong/length_radio.nim. encode puts the team tag in the top 32 bits, then the sender's ID, its role and its length. decodeLength returns -1 when the tag is wrong or the sender is this dragon, and the length otherwise.](images/roles-bot-sonar.png)
 
-## The first try was worse
+## The champion's berth
 
-Since the champion carries the team's hopes for round 500, the first version played it extra carefully, keeping three tiles from enemy heads instead of the usual two. Against the first bot, that version lost. The chart shows it, along with every variant I tried while working out why, each as the share of changed games it gained in the paired verdict from [the statistics post](04-better-worse-or-undecided.md):
+Since the champion carries the team's hopes for round 500, the first version played it extra carefully, keeping three tiles from enemy heads instead of the usual two. Against the first bot it won 17, drew 3 and lost 21 before the [verdict](04-better-worse-or-undecided.md) stopped at not better, with an interval from −148 to +73 Elo.
 
-![Each change against the first bot, as the share of changed games it gained, out of 132 paired games. Roles, first try: 12 gained, 26 dropped, worse. No kamikazes: 10–25, worse. No kamikazes with a narrower champion berth: no game changed, undecided. Narrower champion berth: 3–4, undecided. Champion splits at length 10: 39–4, better. Splits, but children work instead: 35–8, better. Splits, and ignores its own echo: 39–5, better.](images/roles-experiments.svg)
+A result like that is about the settings as much as the idea, so the first question was whether the roles machinery itself cost anything. A control that gave every dragon the first bot's behaviour, with the sonar still running and the champion keeping the usual two-tile berth, split its games with the first bot 36–37, and every pair of games on the same map and seed went to whichever bot had the same side. That's what two bots that make identical moves do, so listening and announcing cost nothing. That left the berth, a single number: keeping three tiles from enemy heads made the champion too timid to hold its ground. At two tiles, the roles bot came out level with the first bot, +14 Elo after 128 games with an interval from −47 to +75.
 
-When a change comes out worse, the useful thing is to test its pieces separately, and the verdict makes that cheap. Removing the kamikazes didn't help, so they weren't the problem. A control that removed them and gave the champion the normal two-tile berth played every one of its 132 games exactly as the first bot did, which showed the sonar itself cost nothing. That left the berth: keeping three tiles from enemy heads made the champion too timid to hold its ground. Narrowing it brought the roles bot level with the first bot.
-
-A level result isn't an improvement, though, and the pairing showed why. Only 7 of the 132 games came out any differently, and counting role labels in the replays explained it: only 1.7% of dragon-turns were kamikaze turns. Short dragons with a longer teammate nearby were rare, so the role hardly ever came into play.
+Level isn't better, though, and counting role labels in the replays explained why: only 5.3% of its dragon-turns were kamikaze turns. Short dragons with a longer teammate nearby were rare, so the role hardly ever came into play.
 
 ## Making kamikazes
 
@@ -66,7 +64,7 @@ If kamikazes are rare because short dragons are rare, the answer is to make shor
 
 The child is a new dragon running a fresh copy of the program, with no memory. Nothing tells it to be a kamikaze. It hears the champion announce length 10, sees that it's only three segments long, and picks the role itself.
 
-With splitting, the roles bot beat the first bot convincingly, as the chart above shows. But that mixes two changes, since there are more dragons now and the new ones hunt. To separate them, I tried a version that split in exactly the same way but made its children ordinary workers. That also beat the first bot, so having more dragons helps on its own. Playing the two versions directly against each other, weighting each game by the turns spent as a kamikaze, the one with kamikazes gained 30 and dropped 12. So splitting and the kamikaze role each earn their place.
+With splitting, the roles bot beat the first bot convincingly, +257 Elo after only 27 games, as the verdict below shows. But splitting brings two things at once: more dragons, and new ones that hunt. A version that split in exactly the same way but made its children ordinary workers did just as well against the first bot. Played directly against each other, the two ran to the verdict's cap of 155 games, 83–4–68 to the kamikazes, with no material difference. So it's the extra dragons that do most of the work. Whether a short child should hunt or forage is a question for tuning later, and the kamikaze stays, since trading a three-segment child for an enemy head that might otherwise win at round 500 is a sound idea.
 
 ## A bug in the replay
 
@@ -76,17 +74,21 @@ Here's one of those kamikazes on Arena, the turn before it drives into an enemy 
 
 The dragon at the top has just split off that kamikaze. It's still our longest dragon, so it should be the champion, but its indicator says Worker. Working out why took a closer look at how sonar travels. A ray stops at the first dragon segment it reaches, and nothing exempts the sender's own body. Rays also wrap around the edges of the board, so on a small map like Arena, 11 tiles across, a ray can travel all the way round and hit the dragon that sent it. This one had been 13 segments long before it split, so it heard its own old announcement of 13, concluded some teammate was longer than its current 10, and demoted itself for the 12 turns that message stayed in its memory.
 
-The fix is to put the sender's ID in each message and ignore our own, which is the check in `decodeLength` above. The fixed version beat the one before it, 26 changed games to 14, and it's the one in [examples/roles-bot](../examples/roles-bot/strategy.nim):
+The fix is to put the sender's ID in each message and ignore our own, which is the check in `decodeLength` above. Played directly against the version before it, the fixed version won 76 games, drew 5 and lost 49 before the verdict called it better, at +73 Elo with an interval from +14 to +137. It's the one in [examples/roles-bot](../examples/roles-bot/strategy.nim), and `just roles` builds it and runs the verdict against the first bot:
 
-![A terminal running just roles, which builds the roles bot from Nim and runs the verdict against the first bot. Of 132 paired games, roles-bot gained 39, dropped 5 and left 88 unchanged. Against the weak bots it lost one game on Trauma that the first bot won, and won 5 that it lost. Median rounds to win: 130 against 143, with 115 paired wins faster and 31 slower. The verdict is better.](images/roles-verdict.png)
+| Candidate | Opponent | W–D–L | Elo (95% interval) | Decision | Games used |
+| --- | --- | --- | --- | --- | --- |
+| `roles-bot` | `first-bot` | 21–2–4 | +257 (+122 to +558) | better | 27, decided at 27 (cap 155) |
+
+It took 27 games to be sure, and the roles bot won all ten of its upset games against the starter.
 
 ## Friendly fire
 
-The replays showed one more problem. Head-on collisions kill teammates as well as enemies, but movement only keeps clear of enemy heads, and once splitting fills the board with our own dragons, they start running into each other. In the version that split at length 10, most head-on collisions were between two of our own dragons:
+The replays showed one more problem. Head-on collisions kill teammates as well as enemies, but movement only keeps clear of enemy heads, and once splitting fills the board with our own dragons, they start running into each other. In the version that split at length 10, playing the first bot, nine in ten head-on collisions were between two of our own dragons:
 
-![Head-on collisions in the version that split at length 10: 382 between two of our own dragons, and 78 with an enemy dragon.](images/friendly-fire.svg)
+![Head-on collisions in the version that split at length 10: 491 between two of our own dragons, and 49 with an enemy dragon.](images/friendly-fire.svg)
 
-The obvious fix is to give friendly heads the same berth as enemy ones. Surprisingly, that came out undecided and leaned the wrong way: it gained 19 changed games, dropped 29, and lost 5 games to the weak bots that the version without it won. Finding out why will need a closer look at the games themselves.
+The obvious fix is to give friendly heads the same berth as enemy ones. Surprisingly, that made things worse. Against the version without it, it won 2, drew 3 and lost 9 before the verdict stopped at not better, with an Elo interval that ends at −16, and it lost 2 of its 10 upset games to the starter. Finding out why will need a closer look at the games themselves.
 
 ## Next up
 

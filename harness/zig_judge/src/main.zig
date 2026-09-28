@@ -8,6 +8,11 @@
 //! optional replay path and team names, tab separated), on N threads:
 //!   loong-judge --engine unswbc_engine.wasm --jobs jobs.tsv [--threads N] [--debug 0]
 //!
+//! Inspection replays recorded observations through one bot, from a request file,
+//! or with `--inspect -` from request and response paths on standard input:
+//!   loong-judge --inspect request.json --a a-metered.wasm --output response.jsonl
+//!   loong-judge --inspect - --a a-metered.wasm
+//!
 //! Figures, tab separated: winner (A, B or -), rounds, reason, A dragons, B dragons,
 //! A length, B length, A deaths by cause (W,S,O,H,A), B deaths, A bot failures,
 //! B bot failures, A turns, A points p50/mean/max, B turns, B points p50/mean/max,
@@ -60,7 +65,10 @@ pub fn main(init: std.process.Init) !void {
         return err;
     };
     if (options.inspection_path) |input| {
-        return inspection.run(allocator, io, options.a_path orelse return error.MissingBotA, input, options.output_path orelse return error.MissingOutput);
+        const wasm = options.a_path orelse return error.MissingBotA;
+        // `--inspect -` answers a request per line of standard input.
+        if (std.mem.eql(u8, input, "-")) return inspection.serve(allocator, io, wasm);
+        return inspection.run(allocator, io, wasm, input, options.output_path orelse return error.MissingOutput);
     }
     const engine_path = options.engine_path orelse return error.MissingEngine;
     const engine_bytes = try cwd.readFileAlloc(io, engine_path, allocator, .unlimited);

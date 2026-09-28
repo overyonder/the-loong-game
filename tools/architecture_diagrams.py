@@ -125,10 +125,9 @@ def tactics_bot():
         arrow(300, 166, 130, 204), arrow(360, 166, 360, 204), arrow(420, 166, 590, 204),
         role_card(10, 206, 280, "Champion", [("split", "Split"), ("evade", "Evade"), ("coil", "Coil"), ("roam", "Roam")]),
         role_card(300, 206, 170, "Kamikaze", [("hunt", "Hunt"), ("roam", "Roam")]),
-        role_card(480, 206, 230, "Feeder", [("evade", "Evade"), ("forage", "Forage")]),
-        chip(484, 288, "deliver", "Deliver")[0],
-        text(556, 303, "left out: it made the bot worse", 12, MUTED, "start"),
-        arrow(360, 314, 360, 330),
+        role_card(480, 206, 230, "Feeder", [("evade", "Evade"), ("deliver", "Deliver"), ("forage", "Forage")]),
+        text(360, 302, "then the first behaviour whose guard holds; Split, Hunt's strike and Deliver's sacrifice act as reflexes", 12, MUTED),
+        arrow(360, 310, 360, 330),
         card(170, 332, 380, 80, "Movement: hard constraints first", ["no kelp, bodies or unseen portals; only Hunt", "may step next to an enemy head"], "safety"),
         arrow(360, 412, 360, 438),
         card(185, 440, 350, 56, "Best remaining step by the objective", [], "frame"),
@@ -138,8 +137,8 @@ def tactics_bot():
     ]
     return svg(720, 598, "The tactics bot's structure",
                "The roles bot's structure with new behaviours. The champion splits, evades, coils when no enemy head is"
-               " within three tiles, or roams. A feeder evades or forages; the Deliver behaviour, a feeder's sacrifice,"
-               " is left out of the assembly because it made the bot worse. A kamikaze hunts or roams. Sonar messages"
+               " within three tiles, or roams. A feeder evades, delivers itself to the champion once grown, or forages."
+               " A kamikaze hunts or roams. Sonar messages"
                " now carry each dragon's head position.", body)
 
 

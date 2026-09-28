@@ -87,17 +87,17 @@ Each round and each turn records the row of its starting event, so the viewer ju
 
 ![Opening that game in the viewer. Before, it had reached 6,100 MB when it was stopped, after over 8 minutes without drawing a frame. Now its peak memory to the first frame is 332 MB, and the first frame takes 0.96 s.](images/gamedata-viewer.svg)
 
-A game that never finished loading now draws its first frame in under a second. The same change went into our bots' decision records, which the viewer recovers one dragon at a time. They now land in a columns file of their own beside the game, with each turn's records kept as the bot wrote them and parsed only for the turn on screen:
+A game that never finished loading now draws its first frame in under a second. The same change went into our bots' decision records, which the viewer regenerates one dragon at a time by re-running the bot on what that dragon observed. They now land in a columns file of their own beside the game, with each turn's records kept as the bot wrote them and parsed only for the turn on screen:
 
 ![Recovering one dragon's diagnostics took 31 s before and takes 3.0 s with columns. Peak memory fell from 709 MB to 122 MB.](images/gamedata-recovery.svg)
 
 ## Writing and merging
 
-Our converter, written in Nim, turns a replay into a game file in 0.37 s with a peak of 100 MB. It builds each column in memory, writes the header, the columns and the directory to a `.partial` file beside the destination, and renames it into place. A reader never sees half a file, and nothing ever changes a file once it's written.
+Our converter, [gamedata/gamedata.nim](../gamedata/gamedata.nim), turns a replay into a game file in 0.37 s with a peak of 100 MB, and `loong-gamedata REPLAY` writes one beside any replay. It builds each column in memory, writes the header, the columns and the directory to a `.partial` file beside the destination, and renames it into place. A reader never sees half a file, and nothing ever changes a file once it's written.
 
-The format isn't only for the viewer. Each game our runs play also gets a small `result` file, one row per game and one per side, with how it ended and each side's economy: pearls eaten, splits, deaths by cause, peak points and how much of the map its heads covered. When a run ends, its games merge into one file of the same kind, table by table, with list starts and row indices shifted past the rows before them.
+The format isn't only for the viewer. Each game the harness plays also gets a small `result` file, one row per game and one per side, with how it ended and each side's economy: pearls eaten, splits, deaths by cause, peak points and how much of the map its heads covered. When a run ends, its games merge into one file of the same kind, table by table, with list starts and row indices shifted past the rows before them.
 
-New columns can appear without breaking anything, because readers look columns up by name and ignore the ones they don't know. Removing a column or changing its meaning raises the version that each kind records in its own `meta.version` column, so an old reader can refuse a file instead of misreading it.
+New columns can appear without breaking anything, because readers look columns up by name and ignore the ones they don't know. Removing a column or changing its meaning raises the version that each kind records in its own `meta.version` column, so an old reader can refuse a file instead of misreading it. The whole format, both kinds included, is written up in [gamedata/format.md](../gamedata/format.md).
 
 ## Next up
 

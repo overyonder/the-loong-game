@@ -1,20 +1,9 @@
-# Summarise recorded replay events, deaths or reconstructed observations.
+# Summarise replays: sides, map, result and event counts, or deaths by cause with --deaths.
 [group("Inspection")]
-decode *args:
-    #!/usr/bin/env -S {{quote(python)}}
-    import argparse
-    from pathlib import Path
+decode +replays:
+    ../../build/bin/loong-gamedata decode "$@"
 
-    from replays.viewer.inspection import inspect_replays
-
-    parser = argparse.ArgumentParser(prog="decode")
-    parser.add_argument("replays", nargs="+", type=Path)
-    parser.add_argument("--deaths", action="store_true")
-    parser.add_argument("--observations", action="store_true")
-    args = parser.parse_args()
-    inspect_replays(args.replays, deaths=args.deaths, observations=args.observations)
-
-# Death causes from the viewer's canonical replay decoder.
+# Each bot's deaths by the engine's cause, over replays.
 [group("Inspection")]
 deaths *replays:
     #!/usr/bin/env bash
@@ -27,42 +16,7 @@ deaths *replays:
 # Paced, resumable public replay sample. No collection starts unless invoked.
 [group("Inspection")]
 sample-replays *args:
-    #!/usr/bin/env -S {{quote(python)}}
-    import argparse
-    import math
-    from pathlib import Path
-
-    from replays.collection import collect_public_replays
-
-    parser = argparse.ArgumentParser(prog="sample-replays")
-    parser.add_argument("--count", type=int, default=5)
-    parser.add_argument("--all", action="store_true", help="Collect the full archive")
-    parser.add_argument("--output", type=Path, default=Path("public-replays"))
-    parser.add_argument("--interval", type=float, default=2.0)
-    parser.add_argument("--battles", nargs="+", type=int)
-    parser.add_argument("--teams", nargs="+", type=int)
-    parser.add_argument("--max-games", type=int, help="Maximum games per battle")
-    parser.add_argument("--replays", type=Path)
-    args = parser.parse_args()
-    if args.count < 1 or not math.isfinite(args.interval) or args.interval < 0.2:
-        parser.error(
-            "Require a positive count and a finite interval of at least 0.2 seconds"
-        )
-    status = collect_public_replays(
-        args.output,
-        args.interval,
-        args.battles,
-        args.max_games,
-        args.teams,
-        args.replays,
-        total_games=None if args.all else args.count,
-    )
-    raise SystemExit(
-        0
-        if status
-        in ("completed_sample", "completed_discovered_snapshot", "completed_targeted_batch")
-        else 2
-    )
+    ../../build/bin/loong-sample-replays "$@"
 
 # Recorded observations; competitive source recovery stays private.
 [private]
@@ -119,10 +73,19 @@ _viewer-export *args:
     temporary.replace(args.export)
     print(f"wrote {args.export}")
 
+# Build the Odin viewer, and the raygui library it links when it is missing.
 [group("Build")]
 viewer-build:
-    mkdir -p ../../build/bin
-    odin build ../../replays/viewer -vet -strict-style -warnings-as-errors -debug -out:../../build/bin/viewer
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p ../../build/bin ../../build/lib
+    lib=$(realpath ../../build/lib)
+    # raygui ships as a header only; Odin's raygui binding links a shared
+    # library built from it with its implementation, against raylib.
+    if [[ ! -f "$lib/libraygui.so" ]]; then
+        echo '#include <raygui.h>' | cc -x c -O2 -fPIC -shared -DRAYGUI_IMPLEMENTATION - -lraylib -o "$lib/libraygui.so"
+    fi
+    odin build ../../replays/viewer -vet -strict-style -warnings-as-errors -debug -out:../../build/bin/viewer -extra-linker-flags:"-L$lib -Wl,-rpath,$lib"
 
 [group("Inspection")]
 viewer *args:

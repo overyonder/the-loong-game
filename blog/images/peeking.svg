@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 292" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">How often two equal bots look different, if you stop at the first p below 0.05</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="292" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">How often two equal bots look different, if you stop at the first p below 0.05</text>
+<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">one test at the planned size</text>
+<rect x="380" y="60" width="75.8" height="26" rx="4" fill="#263d31"/>
+<text x="465.80645161290323" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">5 % of runs</text>
+<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">checking after every game, up to 20</text>
+<rect x="380" y="104" width="150.1" height="26" rx="4" fill="#b53b13"/>
+<text x="540.0967741935484" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">9.9 % of runs</text>
+<text x="368" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">…up to 50 games</text>
+<rect x="380" y="148" width="239.5" height="26" rx="4" fill="#b53b13"/>
+<text x="629.5483870967741" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">15.8 % of runs</text>
+<text x="368" y="211" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">…up to 150 games</text>
+<rect x="380" y="192" width="344.2" height="26" rx="4" fill="#b53b13"/>
+<text x="734.1612903225806" y="211" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">22.7 % of runs</text>
+<text x="368" y="255" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">…up to 600 games</text>
+<rect x="380" y="236" width="470.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="255" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">31 % of runs</text>
+</svg>

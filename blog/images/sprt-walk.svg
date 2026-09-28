@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">A sequential test after each straight win</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="960" height="420" fill="#ede5d5"/>
+<text x="20" y="30" font-size="16" fill="#20251f" text-anchor="start" font-weight="bold">The test after each straight win, until it crosses the upper boundary</text>
+<path d="M90 60V360" stroke="#b9ad99"/>
+<path d="M90 244.6153846153846H910" stroke="#b9ad99" stroke-dasharray="3 4"/>
+<path d="M90 84.7H910" stroke="#b53b13" stroke-width="2"/>
+<text x="100" y="76.65834294770494" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">better: ln(0.8/0.05) = 2.77</text>
+<path d="M90 334.5H910" stroke="#b53b13" stroke-width="2"/>
+<text x="100" y="326.5083433488394" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">no material difference: ln(0.2/0.95) = −1.56</text>
+<polyline points="90.0,244.6 90.0,234.1 135.6,234.1 135.6,223.6 181.1,223.6 181.1,213.1 226.7,213.1 226.7,202.5 272.2,202.5 272.2,192.0 317.8,192.0 317.8,181.5 363.3,181.5 363.3,171.0 408.9,171.0 408.9,160.5 454.4,160.5 454.4,149.9 500.0,149.9 500.0,139.4 545.6,139.4 545.6,128.9 591.1,128.9 591.1,118.4 636.7,118.4 636.7,107.9 682.2,107.9 682.2,97.4 727.8,97.4 727.8,86.8 773.3,86.8 773.3,76.3 818.9,76.3" fill="none" stroke="#263d31" stroke-width="3"/>
+<circle cx="818.9" cy="76.3" r="5" fill="#263d31"/>
+<path d="M522.8 272.3h28" stroke="#263d31" stroke-width="3"/>
+<text x="558.7777777777778" y="276.3461538461538" font-size="12.5" fill="#263d31" text-anchor="start" font-weight="bold">designed for +70 Elo: decided after 16 wins</text>
+<polyline points="90.0,244.6 90.0,224.9 135.6,224.9 135.6,205.2 181.1,205.2 181.1,185.5 226.7,185.5 226.7,165.8 272.2,165.8 272.2,146.2 317.8,146.2 317.8,126.5 363.3,126.5 363.3,106.8 408.9,106.8 408.9,87.1 454.4,87.1 454.4,67.4 500.0,67.4" fill="none" stroke="#3f6e8c" stroke-width="3"/>
+<circle cx="500.0" cy="67.4" r="5" fill="#3f6e8c"/>
+<path d="M522.8 294.3h28" stroke="#3f6e8c" stroke-width="3"/>
+<text x="558.7777777777778" y="298.3461538461538" font-size="12.5" fill="#3f6e8c" text-anchor="start" font-weight="bold">designed for +150 Elo: decided after 9 wins</text>
+<circle cx="317.8" cy="192.0" r="5" fill="none" stroke="#b53b13" stroke-width="2"/>
+<text x="325.77777777777777" y="208.02262784789775" font-size="12" fill="#b53b13" text-anchor="start" font-weight="normal">a naive sign test would stop here, at 5 wins</text>
+<text x="90.0" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">0</text>
+<text x="181.11111111111111" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">2</text>
+<text x="272.22222222222223" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">4</text>
+<text x="363.3333333333333" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">6</text>
+<text x="454.44444444444446" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">8</text>
+<text x="545.5555555555555" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">10</text>
+<text x="636.6666666666666" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">12</text>
+<text x="727.7777777777778" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">14</text>
+<text x="818.8888888888889" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">16</text>
+<text x="910.0" y="380" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">18</text>
+<text x="500.0" y="402" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">straight wins</text>
+<text x="80" y="248.6153846153846" font-size="12" fill="#66675e" text-anchor="end" font-weight="normal">0</text>
+</svg>

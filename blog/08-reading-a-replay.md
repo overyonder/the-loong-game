@@ -1,6 +1,6 @@
 # Reading a replay
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to quote the decoder's current reconstruction code.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter, to describe the released decoder, now in Nim with its own Cap'n Proto reader, and to quote the viewer's reconstruction code. I decoded a newly sampled replay and counted deaths from the rerun ladder.
 
 In the [wishlist](01-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](07-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 
@@ -45,15 +45,40 @@ struct Event {
 }
 ```
 
-With the schema, the [pycapnp](https://github.com/capnproto/pycapnp) library does the reading, packing included, and `just decode` counts what's inside. Here's a top-rated game from the sample:
+With the schema, reading a replay takes very little code. `just decode` runs `loong-gamedata decode`, which has its own small Cap'n Proto reader in [gamedata/capnp_replay.nim](../gamedata/capnp_replay.nim), with an accessor for each field the schema lays out. Undoing the packing from the table above is one short loop:
 
-![A terminal running just decode on a public replay: team A vs team B on a 32×32 map, format 2, team A wins after 403 rounds by elimination. It holds 19,512 turnStart and dragonAction events, 19,183 dragonUpdate, 14,473 sonarPing, 1,516 pearlCountdown, 1,291 tileChange, 404 roundStart, 209 dragonSplit and 184 dragonDeath events.](images/replay-decode.png)
+```nim
+while at < packed.len:
+  let tag = packed[at]
+  inc at
+  for bit in 0 .. 7:
+    if (tag and (1'u8 shl bit)) != 0:
+      result.add packed[at]
+      inc at
+    else:
+      result.add 0
+  if tag == 0:
+    let zeros = int(packed[at]) * 8
+    inc at
+    result.setLen(result.len + zeros)
+  elif tag == 0xFF:
+    let verbatim = int(packed[at]) * 8
+    inc at
+    let copyStart = result.len
+    result.setLen(copyStart + verbatim)
+    if verbatim > 0: copyMem(addr result[copyStart], unsafeAddr packed[at], verbatim)
+    at += verbatim
+```
 
-Public replays leave the bot names blank, so the decoder calls the players team A and team B. The game is all there: 403 rounds, almost 20,000 dragon turns, 209 splits and 184 deaths.
+Each tag byte says which of the next word's eight bytes are stored, a tag of zero is followed by a count of further all-zero words, and a tag of 0xFF by a count of words stored as they are. The decoder then counts what's inside. Here's a game from the sample:
+
+![A terminal running just decode on a public replay: team A vs team B on a 63×27 map, format 2, team B wins after 221 rounds. It holds 11,168 turnStart and dragonAction events, 9,933 dragonUpdate, 3,839 tileChange, 664 dragonSplit, 614 dragonDeath and 221 roundStart events.](images/replay-decode.png)
+
+Public replays leave the bot names blank, so the decoder calls the players team A and team B. The game is all there: 221 rounds, 11,168 dragon turns, 664 splits and 614 deaths.
 
 ## Rebuilding the game
 
-A replay records changes in the order the engine made them, not pictures of the board, so knowing where everything was at round 200 means replaying 200 rounds of changes, as the official viewer does. The decoder's [reconstruction](../replays/viewer/reconstruction.py) applies each event in turn. The interesting one is a move:
+A replay records changes in the order the engine made them, not pictures of the board, so knowing where everything was at round 200 means replaying 200 rounds of changes, as the official viewer does. The [reconstruction](../replays/viewer/reconstruction.py) behind the debug viewer does the same. It reads the replay through the [pycapnp](https://github.com/capnproto/pycapnp) library and the schema above, and applies each event in turn. The interesting one is a move:
 
 ```python
 elif kind == "dragonUpdate":
@@ -83,7 +108,7 @@ window = [
 ]
 ```
 
-Here is round 238 of that game, from a three-segment dragon in the middle of the map:
+Here is round 238 of another public game, on a 32×32 map, from a three-segment dragon in the middle of it:
 
 ![Round 238 of a public ladder game on a 32×32 map. Everything is dimmed except a 7×7 square around one dragon's head, which holds a few dragons and pearls, part of a room of kelp walls, and several portal edges.](images/replay-window.svg)
 
@@ -91,15 +116,15 @@ That lit square is all the dragon's program was given that turn. Most of the ene
 
 ## A first question
 
-The decoder can already answer questions across many games. The [verdict post](04-better-worse-or-undecided.md) found the pearl-chasing bot losing far more than the plain flood-fill bot, above all to the starters, and left the reason for later. The [ladder](06-a-ladder-of-our-own.md) kept every replay, so we can count how each bot's dragons died across the 66 games between them:
+The decoder can already answer questions across many games. The [verdict post](04-better-worse-or-undecided.md) found the pearl-chasing bot losing to the plain flood-fill bot, and even dropping a game to a starter, and left the reason for later. The [ladder](06-a-ladder-of-our-own.md) kept every replay, so `just deaths` can count how each bot's dragons died across the 70 games between them:
 
-![A terminal running just deaths over 66 replays. room-c's dragons hit a wall 11 times, hit themselves 16 times, hit another body 25 times and lost 22 head-on collisions. room-pearls hit a wall 31 times, hit itself 51 times, hit another body 17 times and lost 20 head-on collisions. Neither had a turn with no valid action.](images/replay-deaths.png)
+![A terminal running just deaths over 70 replays. room-c's dragons hit a wall 46 times, hit themselves 34 times, hit another dragon 46 times and lost 24 head-to-heads. room-pearls hit a wall 92 times, hit itself 91 times, hit another dragon 46 times and lost 28 head-to-heads. Neither had a turn with no valid action.](images/replay-deaths.png)
 
 Drawn side by side, the difference is plain:
 
-![How each bot's dragons died across their 66 games. room-c: 11 hit a wall, 16 hit themselves, 25 hit another body and 22 lost head-on. room-pearls: 31 hit a wall, 51 hit themselves, 17 hit another body and 20 lost head-on.](images/death-causes.svg)
+![How each bot's dragons died across their 70 games. room-c: 46 hit a wall, 34 hit themselves, 46 hit another dragon and 24 lost head-on. room-pearls: 92 hit a wall, 91 hit themselves, 46 hit another dragon and 28 lost head-on.](images/death-causes.svg)
 
-The pearl chaser's dragons run into walls and into themselves far more often. That says what goes wrong but not why, and for that we need the view from inside the game.
+The pearl chaser's dragons run into walls twice as often and into themselves nearly three times as often, while they meet other dragons about as often as the flood-fill bot's do. That says what goes wrong but not why, and for that we need the view from inside the game.
 
 ## Next up
 

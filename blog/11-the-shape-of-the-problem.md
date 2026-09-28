@@ -1,6 +1,6 @@
 # The shape of the problem
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to match how our bots are built now. The example bots were restructured into a repertoire of behaviour modules, and they play exactly the same games as before, so the results stand.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to match how our bots are built now, from a repertoire of behaviour modules. I reran the first bot's test with the sequential verdict and toolkit 1.2.2 on the new generated maps. On the first generated maps it came out better. On these, which stay within the range of the official maps, it isn't clearly better, so the section ends by looking at how it loses.
 
 With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. The short version is that this game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises decisions, and shows how I lay out a bot so the organisation itself can change.
 
@@ -80,23 +80,27 @@ Neither behaviour can pick a fatal step, because movement filters those out firs
 
 ## The first result
 
-To see whether the structure pays off, we test the first bot in place of the flood-fill bot from [The choice](02-the-choice.md), on the 13 bundled maps and the 20 generated ones, over four seeds:
+To see whether the structure pays off, we test the first bot against the flood-fill bot from [The choice](02-the-choice.md), on toolkit 1.2.2's 15 bundled maps and the 20 generated ones. From `examples/tooling`, `just first-bot` builds the bot from Nim to C and runs the [verdict](04-better-worse-or-undecided.md) on it:
 
-![A terminal running just first-bot, which copies the bot, builds it from Nim to C, and runs the verdict on four seeds. Of 264 paired games, first-bot gained 77, dropped 50 and left 137 unchanged. Random signs do this well about 3% of the time. Against the weak bots it lost 5 games that room-c won, all listed, and won 51 that room-c lost. The verdict is better.](images/first-bot-verdict.png)
+| Candidate | Opponent | W–D–L | Elo (95% interval) | Decision | Games used |
+| --- | --- | --- | --- | --- | --- |
+| `first-bot` | `room-c` | 17–2–21 | −35 (−151 to +73) | not better | 40, decided at 40 (cap 155) |
 
-It's a real improvement, if not a large one, and the first bot also beats the starters more often than the flood-fill bot did.
+It isn't better. After 40 games the first bot had won 17 and lost 21, and the test crossed its lower line. The interval runs from −151 to +73 Elo, so the first bot could be a little worse or a little better, but it isn't the +70 gain the test was built to find. It won all ten of its upset games against the starter.
 
-Where the gain comes from is interesting. Splitting the changed games by map set, the two bots are level on the bundled maps, and almost all of the improvement is on the generated ones:
+Its dragons do survive better. The verdict counts deaths from each game's result file:
 
-![The first bot's changed games against the flood-fill bot, by map set. Bundled maps: 21 gained and 25 dropped. Generated maps: 56 gained and 25 dropped.](images/first-bot-gains.svg)
+![Deaths per game by cause, first bot against the flood-fill bot over their 40 games. The first bot's dragons died 2.0 times a game: 0.8 hitting a wall, 0.5 hitting another dragon, 0.4 losing a head-to-head and 0.4 hitting themselves. The flood-fill bot's died 2.5 times: 0.8 hitting a wall, 0.8 hitting another dragon, 0.6 hitting themselves and 0.4 losing a head-to-head.](images/first-bot-deaths.svg)
 
-The replays show why. On the generated maps, far fewer of the first bot's dragons ran into their own bodies:
+Fewer of the first bot's dragons run into their own bodies or into other dragons, and its dragons end the game longer on average, 41.5 segments for its longest against 38.0. None of that is turning into wins yet, so the useful question is how it loses. The run played 72 games against the flood-fill bot before it stopped, and the results file says how each one ended. The first bot won 30, and 18 of those were by eliminating the flood-fill bot. It lost 30, and 18 of those went the full 500 rounds and were decided on length. It's better at fights and at staying alive, and worse at ending the game with the longest dragon.
 
-![Dragons that hit their own body on the generated maps: 74 for the flood-fill bot and 23 for the first bot.](images/first-bot-self-hits.svg)
+Here's one of those length losses in the viewer, the last round of a game on the bundled Portals map:
 
-That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), closed by movement refusing to step through portals it can't see past.
+![The debug viewer at round 499 of room-c against first-bot on Portals. Pearls fill dozens of small walled boxes across the board, each reachable only through a portal edge. Outside them the board is nearly bare. The flood-fill bot's only dragon is 4 segments long, and the first bot's three dragons, on the right, are 3 segments each.](images/first-bot-length-loss.png)
 
-It's a modest start, but it's measurably better, and every new behaviour now has an obvious place to go.
+Nobody on this board grew, and it isn't for lack of food. Nearly every pearl sits in one of those small walled boxes, which a dragon can only enter through a portal, and neither bot goes looking for food, let alone through a portal to reach it. The flood-fill bot's only dragon ends 4 segments long and the first bot's three end 3 each, so a single pearl picked up by chance decided the game. Surviving with more dragons doesn't count for anything at round 500, only the longest one does, which is a job for the roles in the next post.
+
+So the first bot is a structure more than a clear improvement, and [the ladder at the end of the tactics post](13-tactics.md#every-version-on-one-ladder) puts it only a little ahead of the flood-fill bot. Every new behaviour now has an obvious place to go.
 
 ## Next up
 

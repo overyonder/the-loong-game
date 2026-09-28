@@ -1,12 +1,12 @@
 # Through one dragon's eyes
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to quote the viewer's current loader.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to quote the viewer's current loader. I took the examples and figures from the rerun ladder, played with toolkit 1.2.2 on the new generated maps.
 
 When a dragon does something stupid, the official visualiser shows the whole board. But the dragon only saw the 7×7 square around its head, and a move that looks absurd from above can look sensible from inside that square. So the debugging question is never "what was on the board?" but "what could this dragon see?" The seventh tool answers it: a debug viewer that shows a game through one dragon's eyes, written in [Odin](https://odin-lang.org) for the reasons in [The choice](02-the-choice.md) and built on the [decoder](08-reading-a-replay.md).
 
 ## From replay to viewer
 
-The decoder's Python side rebuilds the game and exports it as JSON for the Odin display: the map's kelp and portals, the board before every round, and one record for every dragon turn, holding the dragon's window, its indicator text and its action. From `examples/tooling`, `just viewer REPLAY --round 130 --dragon 0` builds the viewer and opens that turn, and `--image board.png` saves the display as a picture instead.
+The viewer's Python side rebuilds the game from the replay and exports it as JSON for the Odin display: the map's kelp and portals, the board before every round, and one record for every dragon turn, holding the dragon's window, its indicator text and its action. From `examples/tooling`, `just viewer REPLAY --round 208 --dragon 7` builds the viewer and opens that turn, and `--image board.png` saves the display as a picture instead.
 
 ## Loading a game into an arena
 
@@ -34,25 +34,25 @@ Every string, slice and map in the game ends up in that one arena, including tho
 
 ## What a bot can tell you
 
-A replay records what a dragon saw and did, but not why. A bot can say why through its indicator, the short text the viewer shows beside the dragon. The example bots use it to name their role and behaviour each turn. Our competition bot goes further: each turn it writes out every behaviour it considered, whether each was eligible, its score and reason, and which one it chose, and our viewer draws that as a tree beside the board. A bad move then leads straight to the decision that caused it.
+A replay records what a dragon saw and did, but not why. A bot can say why through its indicator, the short text the viewer shows beside the dragon. The example bots use it to name their role and behaviour each turn. Our competition bot goes further without spending a point during play. The replay records what each dragon observed, and the bot is deterministic, so our viewer re-runs the same build on those observations and gets the same decisions back, this time with every behaviour it considered written out: whether each was eligible, its score and reason, and which one it chose. The viewer draws that as a tree beside the board. A bad move then leads straight to the decision that caused it.
 
 ## Why chasing pearls kills
 
-Back to the question from the last post: why do the pearl chaser's dragons hit walls and themselves about three times as often as the plain flood-fill bot's? Here's one in the viewer, on the 16×16 Colosseum map, just before it dies:
+Back to the question from the last post: why do the pearl chaser's dragons hit walls and themselves so much more often than the plain flood-fill bot's? Here's one in the viewer, on the bundled Autarky map, just before it dies:
 
-![The debug viewer at round 130 of room-pearls against room-c on Colosseum. Dragon 0 of room-pearls is 87 segments long and winds across most of the board. A yellow outline marks its 7×7 window, and a portal edge, drawn dashed, runs just beside its head. The inspector reports the dragon's length and action, MOVE S, and notes that the bot's memory is unavailable because its build can't be identified.](images/viewer-long-dragon-portal.png)
+![The debug viewer at round 208 of room-c against room-pearls on Autarky. Dragon 7 of room-pearls is 27 segments long. Its head sits inside a small walled box on the left of the board, and the rest of its body trails across the right side. The inspector reports the dragon's length and action, MOVE N, and notes that the bot's memory is unavailable because its build can't be identified.](images/viewer-long-dragon-portal.png)
 
-The dragon is 87 segments long on a board of 256 tiles, so most of its body is somewhere its 49-tile window can't see. Its next move went south through the portal edge under its head and landed on its own body on the far side. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), made far more likely by a body filling a third of the board.
+Its head is inside a small walled box that the dragon can only have entered through a portal, and most of its body is back on the other side of the board, far outside its 49-tile window. Its next move went north through the portal edge and landed on its own body on the far side. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), and 28 of the pearl chaser's 91 self-hits in these games went through a portal the same way.
 
-The next one has no portals to blame. The big_empty map has no kelp and no portals, and this dragon had grown to 122 segments:
+The next one has no portal to blame. Pale Maze, one of the generated maps, has no portals, and this dragon had grown to 55 segments:
 
-![The debug viewer at round 337 of room-pearls against room-c on big_empty, a 64×64 map with no kelp or portals. Dragon 4 of room-pearls is 122 segments long and sprawls across the top half of the board. Its head, in the yellow 7×7 outline, is wound into a tight knot of its own body.](images/viewer-long-dragon.png)
+![The debug viewer at round 131 of room-c against room-pearls on Pale Maze, a 26×50 generated map with no portals. Dragon 9 of room-pearls is 55 segments long, and its head is enclosed by a loop of its own body. The inspector reports its action, MOVE S.](images/viewer-long-dragon.png)
 
-Its head is wound into a knot of its own body, and almost everything in its window is itself. The flood fill only counts room inside the window, so it has almost nothing to choose between moves with, and the next move ran into its own body.
+Its head is wound inside a loop of its own body, so most of what its window shows is itself. The flood fill only counts room inside the window, so it has almost nothing to choose between moves with, and the next move ran into its own body.
 
-Across all 66 games the numbers agree. Chasing pearls works, in that dragons get long, and the ones that die on their own bodies are long too:
+Across all 70 games the numbers agree. Chasing pearls works, in that dragons get long, and the ones that die on their own bodies are long too:
 
-![Median dragon lengths across the 66 games. The longest dragon per game: 13.5 segments for room-c and 33.5 for room-pearls. Dragons that hit themselves: 13.5 for room-c and 32 for room-pearls.](images/pearl-lengths.svg)
+![Median dragon lengths across the 70 games. The longest dragon per game: 22 segments for room-c and 46.5 for room-pearls. Dragons that hit themselves: 8.5 for room-c and 27 for room-pearls.](images/pearl-lengths.svg)
 
 A third of the pearl chaser's self-hits were dragons longer than 49 segments, too long to fit in their own window. The flood fill was designed for a short dragon, and chasing pearls takes that assumption away. A bot that grows long needs to know where its own body is outside its window, which is a job for strategy.
 

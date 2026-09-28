@@ -2,7 +2,7 @@
   "format_version": 1,
   "source_repository": "overyonder/the-loong-game-private",
   "source_base_revision": "7f8b053c200949e3dad2be0ce34a612f91e1b179",
-  "policy": "Shared files are exact content snapshots; content hashes identify the working-tree source, including uncommitted consolidation changes. Do not evolve public copies independently.",
+  "policy": "Public files are releases of their private sources, simplified to leave out private infrastructure. Each entry records the public file's hash and, where known, the source's revision and hash. Changes originate in the private source.",
   "files": [
     {
       "source": "replays/viewer/replay.py",
@@ -28,11 +28,6 @@
       "source": "replays/viewer/board.py",
       "path": "replays/viewer/board.py",
       "sha256": "51eb070d9847a0a7c1d18491aaa19b55ca44d19e5307e5b9e4aeb04959910551"
-    },
-    {
-      "source": "replays/viewer/inspection.py",
-      "path": "replays/viewer/inspection.py",
-      "sha256": "8c649b9b90bef2e8cfea596f37fb54dd70fcefdb162ee1f8a89ebec8991b494b"
     },
     {
       "source": "replays/viewer/board_drawing.odin",
@@ -70,11 +65,6 @@
       "sha256": "5fe29ca155a645e28b91aa21a2c150592d592a5b9679d235bb3211586b180e33"
     },
     {
-      "source": "replays/collection.py",
-      "path": "replays/collection.py",
-      "sha256": "2dcd312f22ac420aa0eeed993d0afad8a3ab256475565cc5f09f141fcc9290d1"
-    },
-    {
       "source": "commands/match.just",
       "path": "just/match.just",
       "sha256": "5323368d475e9a531ae2738dcd855f0df01f3de17cae58bdccecac99129b3123"
@@ -89,9 +79,16 @@
     {
       "source": "commands/checks.just",
       "path": "just/checks.just",
-      "sha256": "8fc1001d8ac9fb301364626667cf2adca5dccbc81cffc75489ede40a6df9d8e5",
+      "sha256": "1d0c44a8b35ef7753ea2fb272386cdeccd0712860f55b5fdf57835026fb7c3bb",
       "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "96be26fca053555e8175f87f61b6bbe9c9e15f95d4ae35c0b9195c06e2049284"
+      "source_sha256": "96be26fca053555e8175f87f61b6bbe9c9e15f95d4ae35c0b9195c06e2049284",
+      "recipe_sources": [
+        {
+          "recipe": "test-verdict",
+          "source": "justfile",
+          "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9"
+        }
+      ]
     },
     {
       "source": "replays/viewer/annotations.odin",
@@ -158,12 +155,16 @@
     {
       "source": "evaluation/zig_judge/src/inspection.zig",
       "path": "harness/zig_judge/src/inspection.zig",
-      "sha256": "2fadece99d16381c97a70c42e6d4fc5fa1d86c287f7951c22ec9dad6728a1577"
+      "sha256": "c88f506acbe74d50290a08fa2f635244160ff0e0d48b26635da2e0374857076c",
+      "source_revision": "cc9b4e96b7e6ac1e224868563f6758b41167d3b7",
+      "source_sha256": "c88f506acbe74d50290a08fa2f635244160ff0e0d48b26635da2e0374857076c"
     },
     {
       "source": "evaluation/zig_judge/src/main.zig",
       "path": "harness/zig_judge/src/main.zig",
-      "sha256": "05087bff3c651a6517807733ccc1fcfb6772a0a0100831b4f56a9589dfa2a82a"
+      "sha256": "8955e508e274bf7ac9a6fa750d2094faaef13e8d865736c49730e5f741f75931",
+      "source_revision": "cc9b4e96b7e6ac1e224868563f6758b41167d3b7",
+      "source_sha256": "8955e508e274bf7ac9a6fa750d2094faaef13e8d865736c49730e5f741f75931"
     },
     {
       "source": "evaluation/zig_judge/src/sync.zig",
@@ -176,30 +177,11 @@
       "sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900"
     },
     {
-      "source": "evaluation/tournament.py",
-      "path": "harness/tournament.py",
-      "sha256": "8e43d9e9adf796f6a984a6af6fff8ae2a085e8a092fcb80a9b858ff696c6d14e",
-      "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
-      "source_sha256": "02e98573aab485c519c55fd9f8b9ce9bb0d81977ea05ea8a0f10fc39909ee591"
-    },
-    {
       "source": "evaluation/parallel.py",
       "path": "harness/parallel.py",
       "sha256": "638c1861f81637b487dc799a9916e2f3474abea0e05b40aabc8ae0a31e59e505",
       "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
       "source_sha256": "2533030adb8dcb69917b61a85b686c556c86911953730711b7c3c4bd955f6e00"
-    },
-    {
-      "source": "evaluation/rating.py",
-      "path": "harness/rating.py",
-      "sha256": "a090a5da19e2cc2f1031023803a3b6bbe6a8947b0ffb75d3b54078f1fb23cf86"
-    },
-    {
-      "source": "evaluation/ladder.py",
-      "path": "harness/ladder.py",
-      "sha256": "7d543216daacff07b760ca5aa8666793fcfdf1ebf8c769c7113fd248f5ae2f01",
-      "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
-      "source_sha256": "acc8b31769c40f670ba1eec194e7697843634abb963a303b8773c9e98025f50f"
     },
     {
       "source": "evaluation/toolkit.py",
@@ -209,36 +191,225 @@
       "source_sha256": "0f1f45c6b0c9ba65d3585720a0d483984b5ca5d62a8640d8472b1d19b46a8678"
     },
     {
+      "source": "gamedata/columns.nim",
+      "path": "gamedata/columns.nim",
+      "sha256": "39502672a7ebccaf0792ca923983766bb893e05986da8ed6e091357fab444844",
+      "source_revision": "0278f8ce794bb21596895944f6d1e360cbe4c031",
+      "source_sha256": "39502672a7ebccaf0792ca923983766bb893e05986da8ed6e091357fab444844"
+    },
+    {
+      "source": "gamedata/capnp_replay.nim",
+      "path": "gamedata/capnp_replay.nim",
+      "sha256": "f7b45299f98415c3a71a18fbd3ee554e7f0a44b3fbf89cf601fd4d6fac701801",
+      "source_revision": "fc4ba0fd4cdcf185a1bfe6b76ae9003ea0ac496e",
+      "source_sha256": "dbd4ffde7f6379b2224e54dff2d3f447b20e29c8497c86474b7bc26384cf2fee"
+    },
+    {
+      "source": "gamedata/gzip_inflate.nim",
+      "path": "gamedata/gzip_inflate.nim",
+      "sha256": "679fe1e3f85062318e95f492ed65a3705738eda9405b872ef2c068275e038043",
+      "source_revision": "6e591cc3a44e6635e38843ff1b9e848dc564d9a8",
+      "source_sha256": "07965a0f4adcf1a96c1daaf02005c39460bf0ba90139264811e57314ca6cff47"
+    },
+    {
+      "source": "gamedata/sha256.nim",
+      "path": "gamedata/sha256.nim",
+      "sha256": "34ea74669baf5181f9d5c824a82fcdf0403627e9d8c41cd385eab471c08bdfbe",
+      "source_revision": "e65cde6623683c0f50e65d229b4cfcfda312cb82",
+      "source_sha256": "a5ad4abe67415e57eca6cb5ef3d2de0132ddd2c09fcc8048b8af736d100c2b4e"
+    },
+    {
+      "source": "gamedata/result.nim",
+      "path": "gamedata/result.nim",
+      "sha256": "34d9489412d17ab71dfe7ba5d67d05260cf2e5c295bab384829e889804dabdef",
+      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
+      "source_sha256": "62aac6a55e40414d5943f175ef6cc8157b1d58816578354bd601c4ae721a2eb1"
+    },
+    {
+      "source": "gamedata/decode.nim",
+      "path": "gamedata/decode.nim",
+      "sha256": "9820c4254a7dee0f4bfad9d1f7710f1ee86a095cf9df83257e19cb08f8395805",
+      "source_revision": "9608f46ce5446b591042a2670fd9e1fe21957c54",
+      "source_sha256": "9e966f1ba4da4ef6c320fa23dd1002717d84c7048bd375d40a0562276285e10c"
+    },
+    {
+      "source": "gamedata/gamedata.nim",
+      "path": "gamedata/gamedata.nim",
+      "sha256": "2368b8f2c5fff5e7d674a6fc2096ff7c4a3f5f02c07efd173d16c5605dd4c745",
+      "source_revision": "2d5651e3b8a2f80d051410942ea1109ae35c72f0",
+      "source_sha256": "977f08acb0387d9b8d34c28aaffdd9d1157a13f1c542ebb4386c457328ba365e"
+    },
+    {
+      "source": "gamedata/format.md",
+      "path": "gamedata/format.md",
+      "sha256": "f1aafe5de2492a7f1dac8e5502fb9bd19f91985b2d9f26131a1a4a772c286017",
+      "source_revision": "d83a5577424d1810d2f32e2b8d9ff69a95e32222",
+      "source_sha256": "e58bba56ae7060052702db40f5b0eff3ff099f684d79256741869d81aecb4699"
+    },
+    {
+      "source": "evaluation/report/report.nim",
+      "path": "harness/report/report.nim",
+      "sha256": "cc4003537398bdbaeeea22c5aeebf89aee6957280add1e7b1bc546aeefd5afc8",
+      "source_revision": "c71ccbd513f905e2d33e2a002b529083af4e8bfb",
+      "source_sha256": "b97dd25a35f430611d927db4173edab3558e4986a332a918338519758394f34c"
+    },
+    {
+      "source": "evaluation/report/rating.nim",
+      "path": "harness/report/rating.nim",
+      "sha256": "92ac1d6098b2daf4957ba9bb814ff1afc08323d2735bf80adc3289f9ecc4d9d1",
+      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
+      "source_sha256": "92ac1d6098b2daf4957ba9bb814ff1afc08323d2735bf80adc3289f9ecc4d9d1"
+    },
+    {
+      "source": "evaluation/report/records.nim",
+      "path": "harness/report/records.nim",
+      "sha256": "9d11087b6ebbde2b9580dad37029268f3de21cac22436fe5c9b0e509b0e99d4c",
+      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
+      "source_sha256": "5fd8fe4e0e7b14c145c0712c4b871970b327fe6df392b0ca393b6fb59f91ebd1"
+    },
+    {
+      "source": "evaluation/report/summary.nim",
+      "path": "harness/report/summary.nim",
+      "sha256": "568a3dce0c224197ce32d61ff037352c6afaca266f6f48db631b95111d845847",
+      "source_revision": "c8122226aca835b7bdb8e2b0963ab22f853652ba",
+      "source_sha256": "57ad51dd3c6276ca9bab1b85f99f25945871db37cf3bfa67c17435c86cae5bd5"
+    },
+    {
+      "source": "evaluation/report/maps.nim",
+      "path": "harness/report/maps.nim",
+      "sha256": "c6fff3e4cba43ae866d94daf8c1d1dc9922a3eb13bde4ae5fa66c2e734fdaad3",
+      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
+      "source_sha256": "2c7aab7f7a15f0ccfcec8073be57cd69a578c901926a7f36771ca9bec18728dd"
+    },
+    {
+      "source": "evaluation/batch.py",
+      "path": "harness/batch.py",
+      "sha256": "49c72ee7061de5f0e24e1cebc5fedbab65851cb5c4d30a14665b83b9f4200ca8",
+      "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee",
+      "source_sha256": "a982b95f561b5a97120b554da971ff3c2f60c183622e74d4e24f11f31a848827"
+    },
+    {
+      "source": "evaluation/loong_report.py",
+      "path": "harness/loong_report.py",
+      "sha256": "12026f9f1d8a40c02b240ce9a77f8b37ba0a8bf24084720e97eed2686d219bdf",
+      "source_revision": "6e591cc3a44e6635e38843ff1b9e848dc564d9a8",
+      "source_sha256": "1af5f353424db111148baef2b592b94e5c4a03c8602616d106f0d79092ae04e2"
+    },
+    {
+      "source": "evaluation/tournament.py",
+      "path": "harness/tournament.py",
+      "sha256": "34a8c75d00ff163052c191df3ff6f10bbab323d2c0024c1b85c23d0de8e5333c",
+      "source_revision": "a51ff6bf43f69e9ea6ad7a82ede5be3b9b37554a",
+      "source_sha256": "89d2541633f8eb53e25423dda8123ca46f93bd1d6f359413bc05f1d43c83d0ca"
+    },
+    {
+      "source": "evaluation/ladder.py",
+      "path": "harness/ladder.py",
+      "sha256": "38dd4cf5f234fb8ba0f15ffa936c1faac1b2fcc0a80591b7c4c84fee08dbdfa6",
+      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
+      "source_sha256": "2c1eab350fce1a5698088f7ede3cf04182172f9ac2f44b884e8c6d85d22532bf"
+    },
+    {
+      "source": "replays/collection.nim",
+      "path": "replays/collection.nim",
+      "sha256": "0989c65b1f616bccf89a71c2966b14ebb9436e2ba083c4c68adbcd2d5371375b",
+      "source_revision": "ec9cf7a131e52bc81aa7e4eaaa801f592728091d",
+      "source_sha256": "915f0e66686a9c7df6255d9f02624ca6bda400832f019d997a88677a068cf634"
+    },
+    {
+      "source": "replays/sqlite.nim",
+      "path": "replays/sqlite.nim",
+      "sha256": "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e",
+      "source_revision": "6e591cc3a44e6635e38843ff1b9e848dc564d9a8",
+      "source_sha256": "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e"
+    },
+    {
       "source": "commands/evaluation.just",
       "path": "just/evaluation.just",
-      "sha256": "4ca47edf94876f73e5bdf70f39f7c4106fa80f4f7ab708f381eb9b0ed040fe47",
-      "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
-      "source_sha256": "5f5dce3d1a4d7d406978cd29041595a043ab20391b10917e4aef832a62969491",
+      "sha256": "5bac9e8388604a3dede9620df962935e55b329a4deacaa2d03aa3a7340d3f922",
+      "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee",
+      "source_sha256": "7227a1d66d2cc6e3819249231f2f06e72329dcff5ff57197205610aacc4acd87",
       "recipe_sources": [
         {
           "recipe": "mapgen",
           "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d"
+        },
+        {
+          "recipe": "round-robin",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "batch",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "verdict",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "report",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "tools-build",
+          "source": "justfile",
+          "source_revision": "d83a5577424d1810d2f32e2b8d9ff69a95e32222"
         }
       ]
     },
     {
       "source": "commands/inspection.just",
       "path": "just/inspection.just",
-      "sha256": "f58d21e1dccc5ba132468b109cf08a72bb2ee9f83ab9f870ecad8452fb915416",
-      "source_revision": "2e00232962ba35eeb7cc2ab0810b2c36900d7f36",
-      "source_sha256": "af0349e5a4ccfc770b06159c8cf815ba5c952e137dbf49fbb33b40fd5b0016b2"
+      "sha256": "18a39a28d4b38b9608f229b2351d0e50e9b7db8d2a3bf6b7d2ee427884c91cd2",
+      "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee",
+      "source_sha256": "dc815a9d00ee55f56c2f08eb60393ac46e146d95bf7f751fc276e55a4e37e1fd",
+      "recipe_sources": [
+        {
+          "recipe": "decode",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "deaths",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "sample-replays",
+          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
+        },
+        {
+          "recipe": "viewer-build",
+          "source": "flake.nix",
+          "source_revision": "60ca6f51146089be5284517a0578502bb79ea5b8"
+        }
+      ]
+    },
+    {
+      "source": "evaluation/compare.py",
+      "path": "harness/compare.py",
+      "sha256": "180aca3249b7ebb78fad0309071b4f45b18a4e4f5819d45ac7ce475d3fe845c6",
+      "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
+      "source_sha256": "bdf8d9479ecaa71bab97d3719e5f4487c08c1e2829ec428292059b9306db0959"
+    },
+    {
+      "source": "evaluation/report/verdict.nim",
+      "path": "harness/report/verdict.nim",
+      "sha256": "fc06b6cb9300177bf7c829c864d06dded8029d05e2d6e73f28501b1be59d62c0",
+      "source_revision": "8432a2fd1e9e2e448d6eea1ebf42d263d1fbd2cd",
+      "source_sha256": "16d62fc54d98aa56b60c69f03d989c14ff7e3260153fdcc0c8a0a7b54b8c1ee3"
+    },
+    {
+      "source": "evaluation/tests/compare.py",
+      "path": "harness/tests/compare.py",
+      "sha256": "b4a64fb3318e5c482bf7ac437002e44af0ab4f1c51a8c991b249454ae39d3705",
+      "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
+      "source_sha256": "2df691d52079475aa55d81010182dc950a87dbfb00e9371aa852e1b848daec1b"
+    },
+    {
+      "source": "evaluation/report/tests/verdict.nim",
+      "path": "harness/report/tests/verdict.nim",
+      "sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4",
+      "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
+      "source_sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4"
     }
-  ],
-  "historical_evaluation": {
-    "source_repository": "overyonder/the-loong-game",
-    "source_revision": "1d64dd495d84e2b940f5f0c61f97a3e1f7369759",
-    "policy": "Frozen article-era statistics retain their historical models and play their games through the released round robin; recorded article results are not rerun claims.",
-    "files": [
-      {
-        "path": "harness/verdict.py",
-        "original_sha256": "4ee16855944bf3aa80381dbac99cbd3cfeee954f7401dd2a6f5b75a8a24a7d52",
-        "sha256": "504c099fca1302528c721886e37070242f684b0165042687b3a4486cc9acbe73"
-      }
-    ]
-  }
+  ]
 }

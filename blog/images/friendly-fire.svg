@@ -5,8 +5,8 @@
 <text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Head-on collisions in the version that split at length 10</text>
 <text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">between two of our own dragons</text>
 <rect x="380" y="60" width="470.0" height="26" rx="4" fill="#b53b13"/>
-<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">382 collisions</text>
+<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">491 collisions</text>
 <text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">with an enemy dragon</text>
-<rect x="380" y="104" width="96.0" height="26" rx="4" fill="#263d31"/>
-<text x="485.9685863874346" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">78 collisions</text>
+<rect x="380" y="104" width="46.9" height="26" rx="4" fill="#263d31"/>
+<text x="436.90427698574337" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">49 collisions</text>
 </svg>

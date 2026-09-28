@@ -6,10 +6,12 @@ import json
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 
 from harness import toolkit
-from harness.rating import fit_ratings
+from harness.loong_report import fit_ratings, summary
+from harness.parallel import match_verbosity
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULT_PATTERN = re.compile(
@@ -144,12 +146,20 @@ def run_game(command: list[str], log_path: Path, timeout: float) -> tuple[int, b
                 log_path.parent.mkdir(parents=True, exist_ok=True)
                 if log_path.resolve() != previous_log.resolve():
                     log_path.unlink(missing_ok=True)
-                    log_path.symlink_to(os.path.relpath(previous_log, log_path.parent))
+                    # Between real locations: either side may sit behind a
+                    # symlink, such as a symlinked result directory.
+                    log_path.symlink_to(
+                        os.path.relpath(
+                            previous_log.resolve(), log_path.parent.resolve()
+                        )
+                    )
                 if replay_path and replay_path.resolve() != previous_replay.resolve():
                     replay_path.parent.mkdir(parents=True, exist_ok=True)
                     replay_path.unlink(missing_ok=True)
                     replay_path.symlink_to(
-                        os.path.relpath(previous_replay, replay_path.parent)
+                        os.path.relpath(
+                            previous_replay.resolve(), replay_path.parent.resolve()
+                        )
                     )
                 return 0, False
         returncode, timed_out = play_match(command, log_path, timeout)
@@ -243,6 +253,101 @@ def forget_game(directory: Path, log: str) -> None:
         path.unlink()
 
 
+def write_result(
+    output: Path,
+    *,
+    replay: Path | None,
+    map_name: str,
+    seed: int,
+    a: str,
+    b: str,
+    exit_code: int,
+    timed_out: bool,
+    elapsed: float | None,
+) -> None:
+    """Write a game's `result` record (gamedata/format.md) with loong-gamedata.
+
+    The replay's game columns are written beside `output` first and removed
+    after. A game that left no replay records its harness facts only.
+    """
+    binary = ROOT / "build/bin/loong-gamedata"
+    if not binary.is_file():
+        raise SystemExit(f"{binary} is missing: run just tools-build")
+    game = output.with_name(output.name.removesuffix(".result.cols") + ".cols")
+    converted = (
+        replay is not None
+        and replay.is_file()
+        and subprocess.run([binary, replay, game], capture_output=True).returncode == 0
+    )
+    command = [binary, "result", output, "--map", map_name, "--seed", str(seed)]
+    command += ["--bot-a", a, "--bot-b", b, "--exit-code", str(exit_code)]
+    command += ["--game", game] if converted else []
+    command += ["--timed-out"] if timed_out else []
+    command += ["--elapsed", f"{elapsed:.3f}"] if elapsed is not None else []
+    try:
+        subprocess.run(command, check=True, capture_output=True)
+    finally:
+        game.unlink(missing_ok=True)
+
+
+def play_game(
+    directory: Path,
+    stem: str,
+    map_path: Path,
+    seed: int | None,
+    a: str,
+    b: str,
+    *,
+    timeout: float,
+    sandbox: bool,
+) -> dict:
+    """Play one game into `directory/stem.*`, write its result record and
+    return its entry for results.json."""
+    log_path = directory / f"{stem}.log"
+    replay_path = directory / f"{stem}.replay"
+    command = [
+        *toolkit.toolkit_match_command(),
+        "run",
+        *match_verbosity(),
+        "-o",
+        str(replay_path),
+    ]
+    if sandbox:
+        command.append("--sandbox")
+    if seed is not None:
+        command += ["--seed", str(seed)]
+    # The toolkit names each team by its argument, so pass the bot directory.
+    command += [str(map_path), a, b]
+    started = time.monotonic()
+    returncode, timed_out = run_game(command, log_path, timeout)
+    seconds = round(time.monotonic() - started, 3)
+    outcome = read_outcome(log_path, returncode, timed_out)
+    if not replay_path.is_file() and outcome["status"] == "completed":
+        outcome.update(status="error", error="Replay was not written")
+    write_result(
+        directory / f"{stem}.result.cols",
+        replay=replay_path,
+        map_name=map_path.name,
+        seed=seed or 0,
+        a=a,
+        b=b,
+        exit_code=returncode,
+        timed_out=timed_out,
+        elapsed=seconds,
+    )
+    return {
+        "A": a,
+        "B": b,
+        "map": str(map_path),
+        "seed": seed,
+        "command": command,
+        "log": log_path.name,
+        "replay": replay_path.name if replay_path.is_file() else None,
+        "seconds": seconds,
+        **outcome,
+    }
+
+
 def save_results(directory: Path, report: dict) -> str:
     standings = {
         name: {
@@ -275,38 +380,16 @@ def save_results(directory: Path, report: dict) -> str:
         standings.values(), key=lambda row: (-row["points"], row["bot"])
     )
     (directory / "results.json").write_text(json.dumps(report, indent=2) + "\n")
-    lines = [
-        "# Round-robin results",
-        "",
-        f"Mode: {report['mode']}. Finished {len(report['games'])} of "
-        f"{report['scheduled_games']} scheduled games. State: {report['status']}.",
-        "",
-        "Each pair plays both sides on each map. Win = 1 point; draw = 0.5.",
-        "Execution failures are unscored and count as errors for both participants.",
-        "Ratings are a Bradley–Terry fit to every game, on the Elo scale: "
-        "400 points is ten-to-one odds, and the pool averages 1500.",
-        "",
-        "| Bot | W | D | L | Errors | Points | Rating |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
-    ]
-    for row in report["standings"]:
-        lines.append(
-            f"| {row['bot']} | {row['wins']} | {row['draws']} | "
-            f"{row['losses']} | {row['errors']} | {row['points']:g} | "
-            f"{row['rating']:.1f} |"
-        )
-    lines += ["", "## Games", ""]
-    for game in report["games"]:
-        winner = game[game["winner_side"]] if game["winner_side"] else "draw"
-        result = (
-            game["error"] or f"{winner}, {game['rounds']} rounds ({game['reason']})"
-        )
-        lines.append(
-            f"- {game['A']} (A) vs {game['B']} (B), {game['map']}: {result}. "
-            f"[Log]({game['log']})"
-            + (f" · [Replay]({game['replay']})" if game["replay"] else "")
-        )
-    lines.append("")
-    summary = "\n".join(lines)
-    (directory / "summary.md").write_text(summary)
-    return summary
+    ratings = ", ".join(
+        f"`{row['bot']}` {row['rating']:.0f}" for row in report["standings"]
+    )
+    return summary(
+        [directory],
+        directory,
+        title="Round-robin results",
+        context=(
+            f"Mode {report['mode']}, {report['scheduled_games']} scheduled games, "
+            f"state {report['status']}. Bradley–Terry ratings on the Elo scale, pool "
+            f"mean 1500: {ratings}."
+        ),
+    )

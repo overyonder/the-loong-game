@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 424" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Deaths per game by cause, first bot against the flood-fill bot</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="424" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Deaths per game by cause, first bot against the flood-fill bot</text>
+<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit a wall: first-bot</text>
+<rect x="380" y="60" width="470.0" height="26" rx="4" fill="#263d31"/>
+<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.8 a game</text>
+<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit a wall: room-c</text>
+<rect x="380" y="104" width="470.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.8 a game</text>
+<text x="368" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit another dragon: first-bot</text>
+<rect x="380" y="148" width="293.8" height="26" rx="4" fill="#263d31"/>
+<text x="683.75" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.5 a game</text>
+<text x="368" y="211" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit another dragon: room-c</text>
+<rect x="380" y="192" width="470.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="211" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.8 a game</text>
+<text x="368" y="255" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">lost a head-to-head: first-bot</text>
+<rect x="380" y="236" width="235.0" height="26" rx="4" fill="#263d31"/>
+<text x="625.0" y="255" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.4 a game</text>
+<text x="368" y="299" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">lost a head-to-head: room-c</text>
+<rect x="380" y="280" width="235.0" height="26" rx="4" fill="#b53b13"/>
+<text x="625.0" y="299" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.4 a game</text>
+<text x="368" y="343" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit itself: first-bot</text>
+<rect x="380" y="324" width="235.0" height="26" rx="4" fill="#263d31"/>
+<text x="625.0" y="343" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.4 a game</text>
+<text x="368" y="387" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">hit itself: room-c</text>
+<rect x="380" y="368" width="352.5" height="26" rx="4" fill="#b53b13"/>
+<text x="742.5" y="387" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">0.6 a game</text>
+</svg>

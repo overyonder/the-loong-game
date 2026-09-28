@@ -34,3 +34,9 @@ check-recipes:
                 )
         checked += 1
     print(f"Checked {checked} inline Python recipes")
+
+# Check both sequential judges score a baseline that is also an opponent by side.
+[group("Checks")]
+test-verdict:
+    {{python}} ../../harness/tests/compare.py
+    nim r --hints:off --nimcache:../../build/nimcache/verdict-test ../../harness/report/tests/verdict.nim

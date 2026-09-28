@@ -1,5 +1,10 @@
 //! Replay recorded observations through the WASM sandbox. Annotations are kept
 //! separate from the action reply; no private bot state is manufactured here.
+//!
+//! `run` answers one request file. `serve` compiles the bot once and answers a
+//! request per line of standard input, `REQUEST<TAB>RESPONSE` file paths, with
+//! `ok` or `failed` on standard output, so recovering many dragons of one build
+//! compiles it once.
 const std = @import("std");
 const wt = @import("wasmtime.zig");
 const bot = @import("bot.zig");
@@ -7,20 +12,15 @@ const bot = @import("bot.zig");
 const Observation = struct { v1: []const u8, v3: []const u8 };
 const Request = struct { init: []const u8, name: u32, initial_protocol: u32 = 1, observations: []Observation };
 
-pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm_path: []const u8, input_path: []const u8, output_path: []const u8) !void {
+/// One dragon's observations in a fresh instance of the loaded module, one
+/// response record per observation. Fails where the bot does.
+fn answer(allocator: std.mem.Allocator, io: std.Io, module: *bot.BotModule, input_path: []const u8, output_path: []const u8) !void {
     const cwd = std.Io.Dir.cwd();
-    const bytes = try cwd.readFileAlloc(io, wasm_path, allocator, .unlimited);
-    defer allocator.free(bytes);
     const input = try cwd.readFileAlloc(io, input_path, allocator, .unlimited);
     defer allocator.free(input);
     const request = try std.json.parseFromSlice(Request, allocator, input, .{});
     defer request.deinit();
-    const host = try wt.newEngine(true);
-    defer wt.c.wasm_engine_delete(host);
-    var module = try bot.BotModule.load(allocator, host, bytes);
-    defer module.deinit(allocator);
-    module.inspection_enabled = true;
-    const dragon = try bot.Dragon.create(allocator, &module, "a", 0, request.value.name, request.value.init);
+    const dragon = try bot.Dragon.create(allocator, module, "a", 0, request.value.name, request.value.init);
     defer dragon.destroy();
     const output = try cwd.createFile(io, output_path, .{});
     defer output.close(io);
@@ -45,5 +45,49 @@ pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm_path: []const u8, inpu
         try output.writeStreamingAll(io, record);
         try output.writeStreamingAll(io, "\n");
         if (dragon.error_reason != null) return error.InspectionFailed;
+    }
+}
+
+fn load(allocator: std.mem.Allocator, io: std.Io, host: *wt.c.wasm_engine_t, wasm_path: []const u8) !bot.BotModule {
+    const bytes = try std.Io.Dir.cwd().readFileAlloc(io, wasm_path, allocator, .unlimited);
+    defer allocator.free(bytes);
+    var module = try bot.BotModule.load(allocator, host, bytes);
+    module.inspection_enabled = true;
+    return module;
+}
+
+pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm_path: []const u8, input_path: []const u8, output_path: []const u8) !void {
+    const host = try wt.newEngine(true);
+    defer wt.c.wasm_engine_delete(host);
+    var module = try load(allocator, io, host, wasm_path);
+    defer module.deinit(allocator);
+    try answer(allocator, io, &module, input_path, output_path);
+}
+
+pub fn serve(allocator: std.mem.Allocator, io: std.Io, wasm_path: []const u8) !void {
+    const host = try wt.newEngine(true);
+    defer wt.c.wasm_engine_delete(host);
+    var module = try load(allocator, io, host, wasm_path);
+    defer module.deinit(allocator);
+    var in_buffer: [16384]u8 = undefined;
+    var requests = std.Io.File.stdin().readerStreaming(io, &in_buffer);
+    var out_buffer: [64]u8 = undefined;
+    var replies = std.Io.File.stdout().writerStreaming(io, &out_buffer);
+    while (try requests.interface.takeDelimiter('\n')) |line| {
+        const tab = std.mem.indexOfScalar(u8, line, '\t') orelse return error.MalformedRequest;
+        const input_path = try allocator.dupe(u8, line[0..tab]);
+        defer allocator.free(input_path);
+        const output_path = try allocator.dupe(u8, line[tab + 1 ..]);
+        defer allocator.free(output_path);
+        answer(allocator, io, &module, input_path, output_path) catch |err| switch (err) {
+            error.InspectionFailed => {
+                try replies.interface.writeAll("failed\n");
+                try replies.interface.flush();
+                continue;
+            },
+            else => return err,
+        };
+        try replies.interface.writeAll("ok\n");
+        try replies.interface.flush();
     }
 }

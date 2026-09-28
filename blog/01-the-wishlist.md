@@ -1,6 +1,6 @@
 # The wishlist
 
-> **Editor's note, 28 September 2026.** I've edited this post to be shorter.
+> **Editor's note, 28 September 2026.** I've edited this post to be shorter, and to say what the statistics are for: telling how far a difference can be trusted, while the games themselves are where we find what to fix.
 
 Most of us start the same way: we run `unswbc init`, get a starter bot going, and immediately have a list of ideas for making it better. Before trying any of them, though, we need a way to tell whether a change actually helped. Otherwise we're just guessing, and a guess that feels like progress is worse than no change at all.
 
@@ -40,7 +40,7 @@ This is the trap every bot developer falls into sooner or later: a handful of wi
 
 ![Games needed to detect a better bot at 95% confidence and 80% power, by its true win rate: about 3,900 at 52%, 617 at 55%, 153 at 60%, 37 at 70% and 23 at 75%. A 26-game loop only catches bots that win about 74% of the time or more.](images/games-needed.svg)
 
-So "did my change help?" is really a statistics question. We want a tool that looks at a pile of results and gives a straight answer, better, worse or not sure yet, and tells us how many more games we'd need when it isn't sure.
+So a pile of results can't be read by eye. The games are how we find what's wrong with a bot, the ones it should have won and didn't, but whenever we want to say one version scores better than another, we need a tool that says how far the difference can be trusted, better, worse or not sure yet, and how many more games it would take to be sure.
 
 The second item is **statistics**.
 
@@ -112,7 +112,7 @@ The last item is **profiling**.
 
 Here's how the eight tools connect, and where they'll sit around the bot next to the official toolkit:
 
-![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which decides the next change. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
+![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which says how sure we can be of a difference, and the loop back to the bot is what to fix next. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
 
 ![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. The eight wishlist tools are on the left with their languages, all still on the wishlist: the evaluation harness, statistics, map generator, offline Elo ladder, replay sampler and replay decoder in Python, the debug viewer in Odin, profiling with perf, and the Zig judge. Ideas from the grand strategy, tactical ideas and espionage stages flow into the bot from the top.](images/pipeline-wishlist.svg)
 

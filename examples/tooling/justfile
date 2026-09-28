@@ -28,26 +28,28 @@ first-bot:
     cp starter-c/helper.c starter-c/helper.h first-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" first-bot/
     nim c first-bot/strategy.nim
-    just verdict --candidate first-bot --baseline room-c \
-        --maps maps/*.map maps-generated/*.map --seeds 4
+    just batch --bots first-bot --opponents room-c --output results/first-bot
+    just verdict --output results/first-bot --candidate first-bot
 
 roles:
+    just nim-bot first-bot
     rm -rf roles-bot && cp -r ../roles-bot roles-bot
     rm -rf repertoire && cp -r ../repertoire repertoire
     cp starter-c/helper.c starter-c/helper.h roles-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" roles-bot/
     nim c roles-bot/strategy.nim
-    just verdict --candidate roles-bot --baseline first-bot \
-        --maps maps/*.map maps-generated/*.map --seeds 2
+    just batch --bots roles-bot --opponents first-bot --output results/roles
+    just verdict --output results/roles --candidate roles-bot
 
 tactics:
+    just nim-bot roles-bot
     rm -rf tactics-bot && cp -r ../tactics-bot tactics-bot
     rm -rf repertoire && cp -r ../repertoire repertoire
     cp starter-c/helper.c starter-c/helper.h tactics-bot/
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" tactics-bot/
     nim c tactics-bot/strategy.nim
-    just verdict --candidate tactics-bot --baseline roles-bot --behaviour Coil Forage \
-        --maps maps/*.map maps-generated/*.map --seeds 4
+    just batch --bots tactics-bot --opponents roles-bot --output results/tactics
+    just verdict --output results/tactics --candidate tactics-bot
 
 nim-bot name:
     rm -rf {{name}} && cp -r ../{{name}} {{name}}

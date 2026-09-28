@@ -11,9 +11,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from harness import toolkit
+from harness.loong_report import fit_ratings
 from harness.parallel import match_verbosity, prepare_bots
-from harness.rating import fit_ratings, head_to_head
-from harness.tournament import discover_bots, read_outcome, run_game
+from harness.tournament import discover_bots, read_outcome, run_game, write_result
 
 
 def pairing_rounds(names: list[str], rounds: int) -> list[list[tuple[str, str]]]:
@@ -42,6 +42,22 @@ def pairing_rounds(names: list[str], rounds: int) -> list[list[tuple[str, str]]]
         else cycle[index % len(cycle)]
         for index in range(rounds)
     ]
+
+
+def head_to_head(bots: list[str], games: list) -> dict[tuple[str, str], float]:
+    """Points each bot scored against each other bot: 1 for a win, 1/2 for a draw."""
+    scores = {(a, b): 0.0 for a in bots for b in bots if a != b}
+    for game in games:
+        if game["status"] != "completed":
+            continue
+        a, b = game["A"], game["B"]
+        if game["winner_side"] is None:
+            scores[a, b] += 0.5
+            scores[b, a] += 0.5
+        else:
+            winner, loser = (a, b) if game["winner_side"] == "A" else (b, a)
+            scores[winner, loser] += 1
+    return scores
 
 
 def history(bots: list[str], games: list) -> list[dict]:
@@ -171,6 +187,17 @@ def play_game(directory: Path, job: dict, timeout: float) -> dict:
     outcome = read_outcome(log, code, expired)
     if outcome["status"] == "completed" and not replay.is_file():
         outcome.update(status="error", error="Replay missing")
+    write_result(
+        log.with_suffix(".result.cols"),
+        replay=replay,
+        map_name=job["map"],
+        seed=seed,
+        a=job["A"],
+        b=job["B"],
+        exit_code=code,
+        timed_out=expired,
+        elapsed=time.monotonic() - started,
+    )
     return {
         **job,
         "seed": seed,

@@ -1,8 +1,8 @@
 # A ladder of our own
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the released ladder, which now fits its ratings offline with the Bradley–Terry model and plays its games in rounds. The ratings below come from refitting the 990 games this post originally recorded.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the released ladder, which fits its ratings offline with the Bradley–Terry model, now in Nim, and plays its games in rounds. I reran the ladder with toolkit 1.2.2 on the new generated maps, so the ratings below are new.
 
-The [verdict tool](04-better-worse-or-undecided.md) answers one question at a time: is this candidate better than that baseline? That's the right question when deciding whether to keep a change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
+The [verdict tool](04-better-worse-or-undecided.md) answers one question at a time: how sure can we be that this candidate scores differently from that opponent? That's a useful question about one change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
 
 ## What a rating means
 
@@ -20,26 +20,26 @@ Offline we're in a better position. The harness plays every game first, so we ha
 
 ## Fitting all the games at once
 
-The fit is in [harness/rating.py](../harness/rating.py). It looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
+The fit is in [harness/report/rating.nim](../harness/report/rating.nim), and `loong-report ratings` runs it. It looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
 
-```python
-for i in range(size):
-    expected = 1 / (1 + math.exp(-theta[i]))
-    gradient[i] -= expected
-    hessian[i][i] += expected * (1 - expected)
-    for j in range(size):
-        if played[i][j]:
-            expected = 1 / (1 + math.exp(theta[j] - theta[i]))
-            gradient[i] -= played[i][j] * expected
-            curvature = played[i][j] * expected * (1 - expected)
-            hessian[i][i] += curvature
-            hessian[i][j] -= curvature
-step = solve(hessian, gradient)
+```nim
+for i in 0 ..< size:
+  var expected = 1 / (1 + exp(-theta[i]))
+  gradient[i] -= expected
+  hessian[i][i] += expected * (1 - expected)
+  for j in 0 ..< size:
+    if played[i][j] != 0:
+      expected = 1 / (1 + exp(theta[j] - theta[i]))
+      gradient[i] -= played[i][j] * expected
+      let curvature = played[i][j] * expected * (1 - expected)
+      hessian[i][i] += curvature
+      hessian[i][j] -= curvature
+let step = solve(hessian, gradient)
 ```
 
 Here `theta` is each bot's strength on a log scale, `played[i][j]` counts the games between two bots, and the gradient starts from the points each bot actually scored. The first three lines inside the loop add one imaginary draw against an average bot to every bot's record. Without it, a bot that won every game would have no finite rating, because no strength would ever be high enough. A draw counts as half a win for each side, and games that ended in an error are left out entirely. At the end, each strength becomes a rating of 1500 plus 400 times its base-10 logarithm, shifted so the pool averages 1500, which is what makes 400 points mean ten-to-one odds.
 
-An older, simpler way to fit the same model nudges one bot's strength at a time towards the value that would match its score, and it gets to the same answer. It just takes far longer: on a 12-bot ladder of ours, Newton's method takes about 3 milliseconds and the nudging about a second.
+An older, simpler way to fit the same model nudges one bot's strength at a time towards the value that would match its score, and it gets to the same answer. It just takes many more passes to get there, because each nudge moves one bot while the others stand still.
 
 ## Playing a ladder in rounds
 
@@ -49,26 +49,33 @@ A ladder writes three things: `results.json` with every game and every refit, `r
 
 ## The first ladder
 
-At this point in the series we have six bots: the two starters, the flood-fill bot from [The choice](02-the-choice.md) in C, Python and Nim, and the pearl-chasing version the verdict rejected. Every pair on the 13 bundled maps and the 20 generated ones, from both sides, comes to 990 games. Here are the fitted ratings, with each bot's points against each other bot, out of the 66 games between them:
+At this point in the series we have six bots: the two starters, the flood-fill bot from [The choice](02-the-choice.md) in C, Python and Nim, and the pearl-chasing version the verdict found losing. From `examples/tooling`, a ladder of all six on toolkit 1.2.2's 15 bundled maps and the 20 generated ones plays 350 rounds, 1,050 games, 70 between each pair of bots:
 
-| Bot | Rating | Won | Drawn | Lost | vs room-c | vs room-nim | vs room-py | vs room-pearls | vs starter-py | vs starter-c |
+```sh
+just ladder --bots starter-c starter-py room-c room-nim room-py room-pearls \
+    --maps maps/*.map maps-generated/*.map --rounds 350
+```
+
+Here are the fitted ratings, with each bot's points against each other bot:
+
+| Bot | Rating | Won | Drawn | Lost | vs room-c | vs room-py | vs room-nim | vs room-pearls | vs starter-py | vs starter-c |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| room-c | 1645 | 223 | 15 | 92 | | 33 | 33 | 44.5 | 59 | 61 |
-| room-nim | 1641 | 223 | 12 | 95 | 33 | | 33 | 46.5 | 55.5 | 61 |
-| room-py | 1628 | 218 | 10 | 102 | 33 | 33 | | 42 | 55.5 | 59.5 |
-| room-pearls | 1504 | 159 | 11 | 160 | 21.5 | 19.5 | 24 | | 48.5 | 51 |
-| starter-py | 1307 | 76 | 3 | 251 | 7 | 10.5 | 10.5 | 17.5 | | 32 |
-| starter-c | 1275 | 65 | 1 | 264 | 5 | 5 | 6.5 | 15 | 34 | |
+| room-c | 1723 | 264 | 2 | 84 | | 34.5 | 42.5 | 51 | 67 | 70 |
+| room-py | 1713 | 257 | 8 | 85 | 35.5 | | 37 | 54 | 67 | 67.5 |
+| room-nim | 1683 | 246 | 5 | 99 | 27.5 | 33 | | 52 | 68 | 68 |
+| room-pearls | 1477 | 157 | 7 | 186 | 19 | 16 | 18 | | 49.5 | 58 |
+| starter-py | 1211 | 60 | 1 | 289 | 3 | 3 | 2 | 20.5 | | 32 |
+| starter-c | 1192 | 54 | 1 | 295 | 0 | 2.5 | 2 | 12 | 38 | |
 
-The three flood-fill bots finish almost level, and their games against each other split exactly evenly. That's what it should look like, because they make the same move in every position. The small gaps between them come from their games against the other three bots, which the harness of the time seeded separately for each pairing, so they fell slightly differently. A gap that small is noise, and the head-to-head columns show it.
+The three flood-fill bots make the same move in every position, so any gap between them is luck. Each ladder game draws its own seed from its map and round, so the pearls fall differently in every game, and two identical bots don't split their games exactly. room-c took 42.5 of its 70 games against room-nim, a split that two equal bots produce about one time in eleven, and across three such pairings one of them looking that lopsided is unremarkable. So the 40 points between room-c and room-nim are noise, and a ladder this size can't separate bots closer than that.
 
-The pearl-chasing bot sits about 140 points below them, which predicts that it wins roughly three games in ten against them, and it did. The verdict already rejected it with a single comparison, and the ladder agrees with a much broader one. The two starters trail everything and are nearly level with each other.
+The pearl-chasing bot sits about 230 points below them, which predicts that it scores about one game in five against them, and it scored about one in four. The verdict already found it losing head to head, and the ladder agrees with a much broader comparison. The two starters trail everything and are nearly level with each other.
 
 ## Looking for circles
 
 The head-to-head columns are there for a reason besides checking the ratings. A single number per bot assumes the pool is ordered, so that if A beats B and B beats C, then A beats C. When a rock-paper-scissors circle breaks that, the table shows it plainly: a lower-rated bot has a winning record against one above it, and the ratings get squeezed together to average over the circle.
 
-There's no circle here. The only upset is between the two starters, where starter-c beat starter-py 34–32 despite rating 32 points lower, and a two-game margin between two random walkers is a coin toss. Every other bot has a winning record against every bot rated below it. That's reassuring, but it's also a small pool of simple bots. The check matters more as the pool fills with versions of our own bot that differ in subtler ways, and from now on every saved version can join the ladder.
+There's no circle here. The two upsets are both between bots that play alike: room-py edged room-c 35.5–34.5 despite rating 10 points lower, and starter-c beat starter-py 38–32 despite rating 19 lower, and a few games' margin between equal bots is a coin toss. Every other bot has a winning record against every bot rated below it. That's reassuring, but it's also a small pool of simple bots. The check matters more as the pool fills with versions of our own bot that differ in subtler ways, and from now on every saved version can join the ladder.
 
 ## Next up
 
