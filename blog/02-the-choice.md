@@ -1,10 +1,10 @@
 # The choice
 
-> **Editor's note, 28 September 2026.** I've edited this post to be shorter, to say how our competition bot uses these languages now, and to add Zig, the language of the judge we later wrote.
+> **Editor's note, 28 September 2026.** I've edited this post to be shorter, to say how our competition bot uses these languages now, and to add Zig, the language of the judge we later wrote, and Rake, the language we write vector kernels in.
 
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
 
-## One strategy, two languages
+## What a language costs
 
 To see how much it matters, I wrote the same small strategy in Python and in C. The idea behind it is that a dragon usually dies by running out of room, so each turn it looks for the move that leaves it the most space. For every move, and every follow-up move after that, it flood-fills the visible 7×7 window from where it would end up and counts how many tiles it could still reach. That's up to 16 flood fills a turn, which is enough work to measure. Here's the flood fill in Python:
 
@@ -61,9 +61,9 @@ So the choice looks simple. Python is quick to write and slow to run. C and C++ 
 
 ![Three ways to write a bot for the judge. Python is quick to write, but the strategy costs 450 times as much as in C. C and C++ are fast, going through the same clang to the same WebAssembly, but verbose while ideas change. Nim reads like Python and compiles to C, which the judge accepts.](images/language-options.svg)
 
-## Three less familiar languages
+## Four less familiar languages
 
-This series will do a fair amount of its work in three languages a lot of folks have never heard of.
+This series will do a fair amount of its work in four languages a lot of folks have never heard of.
 
 ### Nim for strategies
 
@@ -145,6 +145,33 @@ pub const c = @cImport({
 The second is that Zig has no runtime and no hidden allocations. Every function that allocates takes an allocator explicitly, much like Odin's context but passed by hand, so it's always visible where a turn's memory comes from and when it's freed. For a host that feeds every turn of every dragon through wasmtime, that makes the cost of each turn easy to see.
 
 The third is the build. Zig's build system is written in Zig, and the judge's `build.zig` links wasmtime statically in a few lines, so the result is one binary with nothing to install beside it. The whole host comes to about 2,100 lines.
+
+
+### Rake for vector kernels
+
+The fourth language is my own. [Rake](https://rake-lang.org) is a language for writing vector kernels, the small hot loops that do the same arithmetic to many values at once with SIMD instructions.
+
+I'm building it because the usual ways of getting SIMD code leave you checking it by hand. You can write a plain loop and hope the compiler vectorises it, but nothing promises it will, or that it still will after the next edit. You can write intrinsics, one function call per machine instruction, but then the code is tied to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
+
+Rake makes vector code a condition of compiling. A kernel works on racks, where a rack is one vector register holding a lane per element, and every live rack has to stay in its register. If an operation would need a scalar fallback, a helper call or a spill, the program doesn't build, and the error names the operation and the rule it broke. The syntax is built to show those facts. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
+
+```rake
+crunch occupied_bits(tiles: u8s) -> u32:
+  return bitmask(tiles != <0>)
+```
+
+A `crunch` does the same thing to every lane. `u8s` is a rack of bytes, sixteen of them in the 128-bit registers WebAssembly has, and `u8` without the `s` would be one byte. Angle brackets mark a value that's the same in every lane, so `<0>` is zero broadcast across the rack, and every broadcast is visible in the source. Longer kernels name their intermediate values in a fused chain:
+
+```rake
+crunch advance(positions: f32s, velocities: f32s) -> f32s:
+  | scaled: f32s <| velocities * <0.5>
+  | result: f32s <| positions + scaled
+  return result
+```
+
+Each `| name <| expression` line reads right to left, with the value flowing into its name, and a run of them has to compile to one unbroken stretch of vector instructions with no calls or memory traffic. Here that stretch becomes a single fused multiply-add.
+
+This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. Rake is still an alpha, and its production targets are x86 AVX2 and Arm NEON, so [counting room faster](15-counting-room-faster.md) adds a WebAssembly profile that emits C the judge accepts, and writes the room count's masks in Rake.
 
 ## Next up
 

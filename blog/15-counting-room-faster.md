@@ -81,7 +81,7 @@ The masks now cost about 435 points instead of 7,800, and the whole room count a
 
 Vectorised C has one weakness: nothing promises it stays vectorised. A small edit elsewhere can let the compiler turn part of a kernel back into scalar code, and the only way to find out is to read the assembly or notice a slow benchmark.
 
-[Rake](https://rake-lang.org) is a language I'm building for that problem. A kernel works on racks, one vector register with a lane per element, and every operation must compile to vector instructions or the program doesn't build. For this post I added a WebAssembly profile to it. Here is the north mask in Rake:
+As I mentioned in [the choice](02-the-choice.md#rake-for-vector-kernels), Rake exists for exactly this problem: every rack stays in one vector register, and a kernel that would fall back to scalar code doesn't build. For this post I added a WebAssembly profile to it. Here is the north mask in Rake:
 
 ```rake
 crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:

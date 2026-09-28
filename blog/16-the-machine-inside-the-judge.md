@@ -1,6 +1,6 @@
 # The machine inside the judge
 
-> **Editor's note, 28 September 2026.** I've added figures to this post, linked the judge's source, and moved the reasons for writing it in Zig to [The choice](02-the-choice.md).
+> **Editor's note, 28 September 2026.** I've added figures to this post, linked the judge's source, and moved the reasons for writing it in Zig to [The choice](02-the-choice.md), and linked the next post.
 
 We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
@@ -116,3 +116,7 @@ Everything in this series has happened above one line. Strategy, algorithms, dat
 ![An optimisation path down the computing stack, plotted against the time per operation after each fix on a log scale from 1 second to 10 microseconds. Fixes in product and architecture, data and execution, runtime and toolchain, operating system and services, and machine architecture sit above a dashed line marked software. Fixes with reconfigurable logic and application-specific silicon sit below it, marked hardware.](images/computing-stack.svg)
 
 The judge stops our bots at WebAssembly. At [over|yonder](https://over-yonder.tech/) we work down the whole of that stack, including the part below the line.
+
+## Next up
+
+[Games in the cloud](17-games-in-the-cloud.md): running big batches of games on AWS Spot workers, and how every run ends on its own.
