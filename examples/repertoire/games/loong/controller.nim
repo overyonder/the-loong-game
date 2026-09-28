@@ -1,4 +1,5 @@
-## The starter's C helper, called through Nim's FFI.
+## The judge's interface: the starter's C helper through Nim's FFI, the point clock and
+## the program's entry point.
 
 type
   Controller* {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
@@ -33,6 +34,21 @@ proc unswbc_position*(ct: ptr Controller): Position {.importc, header: "helper.h
 proc unswbc_sonar*(ct: ptr Controller, count: ptr cint): ptr UncheckedArray[uint64] {.importc, header: "helper.h".}
 proc unswbc_send_sonar_to*(side: Direction, message: uint64): cint {.importc, discardable, header: "helper.h".}
 proc unswbc_indicator*(message: cstring) {.importc, header: "helper.h".}
+proc unswbc_log*(message: cstring) {.importc, header: "helper.h".}
 proc unswbc_can_split*(ct: ptr Controller, childSize: cint): cint {.importc, header: "helper.h".}
 proc unswbc_split*(ct: ptr Controller, childSize: cint): cint {.importc, discardable, header: "helper.h".}
 var UNSWBC_DIRECTIONS* {.importc, header: "helper.h".}: array[4, Direction]
+
+proc wasi_clock_time_get(id: uint32, precision: uint64, time: ptr uint64): uint16 {.importc: "__wasi_clock_time_get", header: "<wasi/api.h>".}
+
+proc clockNanoseconds*(): uint64 =
+  ## The monotonic clock. In the judge it advances one nanosecond per CPU point, so this
+  ## reads points spent.
+  discard wasi_clock_time_get(1, 1, result.addr)  # 1 is WASI's monotonic clock
+
+proc NimMain() {.importc, cdecl.}
+
+proc main(): cint {.exportc, cdecl.} =
+  ## The program's entry point, which runs the bot's turn loop. Each bot's nim.cfg sets
+  ## noMain, because wasi-libc can't start the main(argc, argv, env) Nim writes by default.
+  NimMain()

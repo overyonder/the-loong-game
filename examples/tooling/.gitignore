@@ -6,6 +6,8 @@ starter-py/
 room-c/
 room-py/
 room-pearls/helper.*
+room-pearls/nimbase.h
+room-pearls/gen/
 first-bot/
 roles-*/
 tactics-*/

@@ -1,31 +1,7 @@
 # The first strategy bot, with its hot path in C: the room each first move leaves is
 # counted once a turn by the SIMD bitboard kernel in kernels.c, and room() looks it up.
 
-# ---- The starter's C helper, called through Nim's FFI ------------------------
-
-type
-  Controller {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
-  Game {.importc: "UnswbcGame", header: "helper.h", incompleteStruct.} = object
-  Tile {.importc: "UnswbcTile", header: "helper.h", incompleteStruct.} = object
-  Edge {.importc: "UnswbcEdge", header: "helper.h", incompleteStruct.} = object
-  Entity {.importc: "UnswbcEntity", header: "helper.h", incompleteStruct.} = object
-    kind {.importc: "type".}: cint
-    team: cint
-    isHead {.importc: "is_head".}: bool
-  Direction {.importc: "UnswbcDirection", header: "helper.h".} = distinct cint
-
-proc unswbc_init(ct: ptr ptr Controller, game: ptr ptr Game) {.importc, header: "helper.h".}
-proc unswbc_update(ct: ptr Controller, game: ptr Game): cint {.importc, header: "helper.h".}
-proc unswbc_end_turn() {.importc, header: "helper.h".}
-proc unswbc_tile_at(ct: ptr Controller, index: cint): ptr Tile {.importc, header: "helper.h".}
-proc unswbc_entity(tile: ptr Tile): ptr Entity {.importc, header: "helper.h".}
-proc unswbc_edge(tile: ptr Tile, side: Direction): ptr Edge {.importc, header: "helper.h".}
-proc unswbc_passable(edge: ptr Edge): cint {.importc, header: "helper.h".}
-proc unswbc_is_portal(edge: ptr Edge): cint {.importc, header: "helper.h".}
-proc unswbc_move(side: Direction): cint {.importc, discardable, header: "helper.h".}
-proc unswbc_facing(ct: ptr Controller): Direction {.importc, header: "helper.h".}
-proc unswbc_team(ct: ptr Controller): cint {.importc, header: "helper.h".}
-var UNSWBC_DIRECTIONS {.importc, header: "helper.h".}: array[4, Direction]
+from ../../repertoire/games/loong/controller import nil  # the judge's interface
 
 # ---- What the dragon sees ----------------------------------------------------
 
@@ -43,19 +19,19 @@ type
     portal: array[Tiles, array[4, bool]]
     enemyHeads: seq[int]
 
-proc readWindow(ct: ptr Controller): Window =
-  let ourTeam = unswbc_team(ct)
+proc readWindow(ct: ptr controller.Controller): Window =
+  let ourTeam = controller.unswbc_team(ct)
   for i in 0 ..< Tiles:
-    let tile = unswbc_tile_at(ct, i.cint)
-    let entity = unswbc_entity(tile)
+    let tile = controller.unswbc_tile_at(ct, i.cint)
+    let entity = controller.unswbc_entity(tile)
     if entity != nil and entity.kind == DragonEntity:
       result.occupied[i] = true
       if entity.isHead and entity.team != ourTeam:
         result.enemyHeads.add i
     for side in 0 .. 3:
-      let edge = unswbc_edge(tile, UNSWBC_DIRECTIONS[side])
-      result.portal[i][side] = unswbc_is_portal(edge) != 0
-      result.open[i][side] = unswbc_passable(edge) != 0 and not result.portal[i][side]
+      let edge = controller.unswbc_edge(tile, controller.UNSWBC_DIRECTIONS[side])
+      result.portal[i][side] = controller.unswbc_is_portal(edge) != 0
+      result.open[i][side] = controller.unswbc_passable(edge) != 0 and not result.portal[i][side]
 
 proc neighbour(i, side: int): int =
   ## The window index across one side, or -1 off the window.
@@ -146,7 +122,7 @@ proc score(w: Window, mode: Mode, side: int): int =
   of Roam: w.roam(first)
   of Evade: w.evade(first)
 
-proc chooseMove(w: Window, fallback: Direction): Direction =
+proc chooseMove(w: Window, fallback: controller.Direction): controller.Direction =
   w.countRooms
   let mode = w.chooseMode
   var candidates = w.safeMoves
@@ -158,18 +134,18 @@ proc chooseMove(w: Window, fallback: Direction): Direction =
     # Only a portal or nothing is left. A portal leads somewhere we can't see, which beats a wall.
     for side in 0 .. 3:
       let next = neighbour(Head, side)
-      if w.portal[Head][side] and (next < 0 or not w.occupied[next]): return UNSWBC_DIRECTIONS[side]
+      if w.portal[Head][side] and (next < 0 or not w.occupied[next]): return controller.UNSWBC_DIRECTIONS[side]
     return fallback
   var best = candidates[0]
   for side in candidates:
     if w.score(mode, side) > w.score(mode, best): best = side
-  UNSWBC_DIRECTIONS[best]
+  controller.UNSWBC_DIRECTIONS[best]
 
 # ---- The turn loop -----------------------------------------------------------
 
-var ct: ptr Controller
-var game: ptr Game
-unswbc_init(ct.addr, game.addr)
-while unswbc_update(ct, game) != 0:
-  unswbc_move(readWindow(ct).chooseMove(unswbc_facing(ct)))
-  unswbc_end_turn()
+var ct: ptr controller.Controller
+var game: ptr controller.Game
+controller.unswbc_init(ct.addr, game.addr)
+while controller.unswbc_update(ct, game) != 0:
+  controller.unswbc_move(readWindow(ct).chooseMove(controller.unswbc_facing(ct)))
+  controller.unswbc_end_turn()

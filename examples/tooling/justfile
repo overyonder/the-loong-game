@@ -18,6 +18,8 @@ article-bots:
     cp -r ../the-choice/python room-py
     cp starter-c/helper.c starter-c/helper.h room-c/
     cp starter-c/helper.c starter-c/helper.h room-pearls/
+    cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" room-pearls/
+    nim c room-pearls/strategy.nim
     cp starter-py/helper.py room-py/
 
 first-bot:

@@ -1,6 +1,6 @@
 # Where the points go
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter, and the bot now reads the clock from Nim instead of C.
 
 [The choice](02-the-choice.md) measured what a whole turn costs in each language, which was enough to pick one. It can't say what the points are spent on, and once a bot searches properly, every point spent elsewhere is search depth it doesn't get. The last tool on the wishlist splits a turn's cost into its parts, then follows the expensive part down to individual instructions.
 
@@ -24,15 +24,14 @@ Three things stand out. Output is by far the most expensive thing a bot can do, 
 
 ## A profiler inside the bot
 
-The judge's clock doesn't follow real time: it advances one nanosecond for every point the bot spends. So a bot that reads the clock before and after a piece of its own code gets that code's exact cost, with no sampling. Reading it takes a few lines of C, which the Nim bot calls like any other helper:
+The judge's clock doesn't follow real time: it advances one nanosecond for every point the bot spends. So a bot that reads the clock before and after a piece of its own code gets that code's exact cost, with no sampling. Reading it is one call into WASI, the system interface WebAssembly programs use, and the repertoire's controller module wraps it for every bot:
 
-```c
-uint64_t ClockNanoseconds(void)
-{
-    struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-    return (uint64_t)now.tv_sec * 1000000000u + (uint64_t)now.tv_nsec;
-}
+```nim
+proc wasi_clock_time_get(id: uint32, precision: uint64, time: ptr uint64): uint16
+  {.importc: "__wasi_clock_time_get", header: "<wasi/api.h>".}
+
+proc clockNanoseconds*(): uint64 =
+  discard wasi_clock_time_get(1, 1, result.addr)  # 1 is WASI's monotonic clock
 ```
 
 A Nim template wraps any block and adds its cost to a running total for that part of the turn:

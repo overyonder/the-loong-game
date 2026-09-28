@@ -1,43 +1,18 @@
 # The Nim flood-fill bot from "The choice", with a points profiler: each turn it logs how
 # many CPU points each part of the turn took, read from the judge's clock, which
 # advances one nanosecond per point.
-type
-  Controller {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
-  Game {.importc: "UnswbcGame", header: "helper.h", incompleteStruct.} = object
-    width, height: cint
-  Position {.importc: "UnswbcPosition", header: "helper.h".} = object
-    x, y: cint
-  Tile {.importc: "UnswbcTile", header: "helper.h", incompleteStruct.} = object
-  Edge {.importc: "UnswbcEdge", header: "helper.h", incompleteStruct.} = object
-  Entity {.importc: "UnswbcEntity", header: "helper.h", incompleteStruct.} = object
-    kind {.importc: "type".}: cint
-  Direction {.importc: "UnswbcDirection", header: "helper.h".} = distinct cint
-
-proc unswbc_init(ct: ptr ptr Controller, game: ptr ptr Game) {.importc, header: "helper.h".}
-proc unswbc_update(ct: ptr Controller, game: ptr Game): cint {.importc, header: "helper.h".}
-proc unswbc_end_turn() {.importc, header: "helper.h".}
-proc unswbc_tile_at(ct: ptr Controller, index: cint): ptr Tile {.importc, header: "helper.h".}
-proc unswbc_entity(tile: ptr Tile): ptr Entity {.importc, header: "helper.h".}
-proc unswbc_edge(tile: ptr Tile, side: Direction): ptr Edge {.importc, header: "helper.h".}
-proc unswbc_passable(edge: ptr Edge): cint {.importc, header: "helper.h".}
-proc unswbc_move(side: Direction): cint {.importc, discardable, header: "helper.h".}
-proc unswbc_position(ct: ptr Controller): Position {.importc, header: "helper.h".}
-proc unswbc_facing(ct: ptr Controller): Direction {.importc, header: "helper.h".}
-var UNSWBC_DIRECTIONS {.importc, header: "helper.h".}: array[4, Direction]
+from ../../repertoire/games/loong/controller import nil
 
 # ---- Profiler: points per part of the turn ---------------------------------------
-
-proc clockNanoseconds(): uint64 {.importc: "ClockNanoseconds".}
-proc unswbc_log(message: cstring) {.importc, header: "helper.h".}
 
 type Part = enum Input, ReadWindow, ChooseMove, Output
 var spent: array[Part, uint64]
 var floodFills = 0
 
 template profile(part: Part, body: untyped): untyped =
-  let started = clockNanoseconds()
+  let started = controller.clockNanoseconds()
   body
-  spent[part] += clockNanoseconds() - started
+  spent[part] += controller.clockNanoseconds() - started
 
 const
   Size = 7
@@ -48,16 +23,16 @@ type Window = object
   occupied: array[49, bool]
   open: array[49, array[4, bool]]
 
-proc readWindow(ct: ptr Controller, game: ptr Game): Window =
-  let head = unswbc_position(ct)
+proc readWindow(ct: ptr controller.Controller, game: ptr controller.Game): Window =
+  let head = controller.unswbc_position(ct)
   for i in 0 ..< 49:
-    let tile = unswbc_tile_at(ct, i.cint)
-    let entity = unswbc_entity(tile)
+    let tile = controller.unswbc_tile_at(ct, i.cint)
+    let entity = controller.unswbc_entity(tile)
     let (x, y) = (head.x + i mod Size - 3, head.y + i div Size - 3)
     let offMap = x notin 0 ..< game.width or y notin 0 ..< game.height
     result.occupied[i] = offMap or (entity != nil and entity.kind == 1)
     for side in 0 .. 3:
-      result.open[i][side] = unswbc_passable(unswbc_edge(tile, UNSWBC_DIRECTIONS[side])) != 0
+      result.open[i][side] = controller.unswbc_passable(controller.unswbc_edge(tile, controller.UNSWBC_DIRECTIONS[side])) != 0
 
 proc step(w: Window, i, side: int): int =
   let (column, row) = (i mod Size + Steps[side][0], i div Size + Steps[side][1])
@@ -79,7 +54,7 @@ proc reachable(w: Window, start, first: int): int =
     inc cursor
   queue.len
 
-proc chooseMove(w: Window, fallback: Direction): Direction =
+proc chooseMove(w: Window, fallback: controller.Direction): controller.Direction =
   result = fallback
   var bestRoom = -1
   for firstSide in 0 .. 3:
@@ -91,28 +66,28 @@ proc chooseMove(w: Window, fallback: Direction): Direction =
       if second >= 0 and second != Head:
         room = max(room, w.reachable(second, first))
     if room > bestRoom:
-      (result, bestRoom) = (UNSWBC_DIRECTIONS[firstSide], room)
+      (result, bestRoom) = (controller.UNSWBC_DIRECTIONS[firstSide], room)
 
-var ct: ptr Controller
-var game: ptr Game
-unswbc_init(ct.addr, game.addr)
-var turnStarted = clockNanoseconds()
+var ct: ptr controller.Controller
+var game: ptr controller.Game
+controller.unswbc_init(ct.addr, game.addr)
+var turnStarted = controller.clockNanoseconds()
 while true:
   # The whole of the previous turn, now that its output fee has been paid.
-  let previousTurn = clockNanoseconds() - turnStarted
-  turnStarted = clockNanoseconds()
+  let previousTurn = controller.clockNanoseconds() - turnStarted
+  turnStarted = controller.clockNanoseconds()
   var updated: bool
-  profile(Input): updated = unswbc_update(ct, game) != 0
+  profile(Input): updated = controller.unswbc_update(ct, game) != 0
   if not updated: break
   var w: Window
   profile(ReadWindow): w = readWindow(ct, game)
-  var move: Direction
-  profile(ChooseMove): move = w.chooseMove(unswbc_facing(ct))
-  unswbc_move(move)
+  var move: controller.Direction
+  profile(ChooseMove): move = w.chooseMove(controller.unswbc_facing(ct))
+  controller.unswbc_move(move)
   var line = "profile"
   for part in Part: line.add " " & $part & "=" & $spent[part]
   line.add " floodFills=" & $floodFills & " previousTurn=" & $previousTurn
-  unswbc_log(cstring(line))
+  controller.unswbc_log(cstring(line))
   for part in Part: spent[part] = 0
   floodFills = 0
-  profile(Output): unswbc_end_turn()
+  profile(Output): controller.unswbc_end_turn()

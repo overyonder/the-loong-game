@@ -2,31 +2,7 @@
 # Each turn it plays the first bot's move, then runs every kernel on the same window,
 # checks they agree, and logs the CPU points each one took.
 
-# ---- The starter's C helper, called through Nim's FFI ------------------------
-
-type
-  Controller {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
-  Game {.importc: "UnswbcGame", header: "helper.h", incompleteStruct.} = object
-  Tile {.importc: "UnswbcTile", header: "helper.h", incompleteStruct.} = object
-  Edge {.importc: "UnswbcEdge", header: "helper.h", incompleteStruct.} = object
-  Entity {.importc: "UnswbcEntity", header: "helper.h", incompleteStruct.} = object
-    kind {.importc: "type".}: cint
-    team: cint
-    isHead {.importc: "is_head".}: bool
-  Direction {.importc: "UnswbcDirection", header: "helper.h".} = distinct cint
-
-proc unswbc_init(ct: ptr ptr Controller, game: ptr ptr Game) {.importc, header: "helper.h".}
-proc unswbc_update(ct: ptr Controller, game: ptr Game): cint {.importc, header: "helper.h".}
-proc unswbc_end_turn() {.importc, header: "helper.h".}
-proc unswbc_tile_at(ct: ptr Controller, index: cint): ptr Tile {.importc, header: "helper.h".}
-proc unswbc_entity(tile: ptr Tile): ptr Entity {.importc, header: "helper.h".}
-proc unswbc_edge(tile: ptr Tile, side: Direction): ptr Edge {.importc, header: "helper.h".}
-proc unswbc_passable(edge: ptr Edge): cint {.importc, header: "helper.h".}
-proc unswbc_is_portal(edge: ptr Edge): cint {.importc, header: "helper.h".}
-proc unswbc_move(side: Direction): cint {.importc, discardable, header: "helper.h".}
-proc unswbc_facing(ct: ptr Controller): Direction {.importc, header: "helper.h".}
-proc unswbc_team(ct: ptr Controller): cint {.importc, header: "helper.h".}
-var UNSWBC_DIRECTIONS {.importc, header: "helper.h".}: array[4, Direction]
+from ../../repertoire/games/loong/controller import nil  # the judge's interface
 
 # ---- What the dragon sees ----------------------------------------------------
 
@@ -44,19 +20,19 @@ type
     portal: array[Tiles, array[4, bool]]
     enemyHeads: seq[int]
 
-proc readWindow(ct: ptr Controller): Window =
-  let ourTeam = unswbc_team(ct)
+proc readWindow(ct: ptr controller.Controller): Window =
+  let ourTeam = controller.unswbc_team(ct)
   for i in 0 ..< Tiles:
-    let tile = unswbc_tile_at(ct, i.cint)
-    let entity = unswbc_entity(tile)
+    let tile = controller.unswbc_tile_at(ct, i.cint)
+    let entity = controller.unswbc_entity(tile)
     if entity != nil and entity.kind == DragonEntity:
       result.occupied[i] = true
       if entity.isHead and entity.team != ourTeam:
         result.enemyHeads.add i
     for side in 0 .. 3:
-      let edge = unswbc_edge(tile, UNSWBC_DIRECTIONS[side])
-      result.portal[i][side] = unswbc_is_portal(edge) != 0
-      result.open[i][side] = unswbc_passable(edge) != 0 and not result.portal[i][side]
+      let edge = controller.unswbc_edge(tile, controller.UNSWBC_DIRECTIONS[side])
+      result.portal[i][side] = controller.unswbc_is_portal(edge) != 0
+      result.open[i][side] = controller.unswbc_passable(edge) != 0 and not result.portal[i][side]
 
 proc neighbour(i, side: int): int =
   ## The window index across one side, or -1 off the window.
@@ -132,7 +108,7 @@ proc score(w: Window, mode: Mode, side: int): int =
   of Roam: w.roam(first)
   of Evade: w.evade(first)
 
-proc chooseMove(w: Window, fallback: Direction): Direction =
+proc chooseMove(w: Window, fallback: controller.Direction): controller.Direction =
   let mode = w.chooseMode
   var candidates = w.safeMoves
   if candidates.len == 0:
@@ -143,12 +119,12 @@ proc chooseMove(w: Window, fallback: Direction): Direction =
     # Only a portal or nothing is left. A portal leads somewhere we can't see, which beats a wall.
     for side in 0 .. 3:
       let next = neighbour(Head, side)
-      if w.portal[Head][side] and (next < 0 or not w.occupied[next]): return UNSWBC_DIRECTIONS[side]
+      if w.portal[Head][side] and (next < 0 or not w.occupied[next]): return controller.UNSWBC_DIRECTIONS[side]
     return fallback
   var best = candidates[0]
   for side in candidates:
     if w.score(mode, side) > w.score(mode, best): best = side
-  UNSWBC_DIRECTIONS[best]
+  controller.UNSWBC_DIRECTIONS[best]
 
 when defined(dumpWindows):
   import std/strutils
@@ -171,8 +147,6 @@ proc masksOnly(w: ptr KernelWindow): uint64 {.importc: "MasksOnly", header: "ker
 proc masksOnlySimd(w: ptr KernelWindow): uint64 {.importc: "MasksOnlySimd", header: "kernels.h".}
 proc masksOnlyRake(w: ptr KernelWindow): uint64 {.importc: "MasksOnlyRake", header: "kernels.h".}
 proc masksOnlyPolished(w: ptr KernelWindow): uint64 {.importc: "MasksOnlyPolished", header: "kernels.h".}
-proc clockNanoseconds(): uint64 {.importc: "ClockNanoseconds", header: "kernels.h".}
-proc unswbc_log(message: cstring) {.importc, header: "helper.h".}
 
 proc roomsNim(w: Window, rooms: var Rooms) =
   ## The first bot's own code: a seq for the queue and a set for visited tiles.
@@ -223,10 +197,10 @@ proc benchmark(w: Window) =
   template measure(name: string, call: untyped) =
     block:
       var rooms {.inject.}: Rooms
-      let started = clockNanoseconds()
+      let started = controller.clockNanoseconds()
       for repeat in 1 .. Repeats:
         call
-      let points = (clockNanoseconds() - started) div Repeats
+      let points = (controller.clockNanoseconds() - started) div Repeats
       if rooms != expected: inc mismatches
       line.add " " & name & "=" & $points
   measure("nim-seq", w.roomsNim(rooms))
@@ -244,9 +218,9 @@ proc benchmark(w: Window) =
   if sink != masksOnlyPolished(kernelWindow.addr): inc mismatches
   template measureMasks(name: string, call: untyped) =
     block:
-      let started = clockNanoseconds()
+      let started = controller.clockNanoseconds()
       for repeat in 1 .. Repeats: sink = sink xor call(kernelWindow.addr)
-      line.add " " & name & "=" & $((clockNanoseconds() - started) div Repeats)
+      line.add " " & name & "=" & $((controller.clockNanoseconds() - started) div Repeats)
   measureMasks("masks", masksOnly)
   measureMasks("masks-simd", masksOnlySimd)
   measureMasks("masks-rake", masksOnlyRake)
@@ -258,15 +232,15 @@ proc benchmark(w: Window) =
     line.add " window="
     let bytes = cast[ptr UncheckedArray[uint8]](kernelWindow.addr)
     for index in 0 ..< 245: line.add bytes[index].toHex(2)
-  unswbc_log(cstring(line))
+  controller.unswbc_log(cstring(line))
 
 # ---- The turn loop -----------------------------------------------------------
 
-var ct: ptr Controller
-var game: ptr Game
-unswbc_init(ct.addr, game.addr)
-while unswbc_update(ct, game) != 0:
+var ct: ptr controller.Controller
+var game: ptr controller.Game
+controller.unswbc_init(ct.addr, game.addr)
+while controller.unswbc_update(ct, game) != 0:
   let w = readWindow(ct)
-  unswbc_move(w.chooseMove(unswbc_facing(ct)))
+  controller.unswbc_move(w.chooseMove(controller.unswbc_facing(ct)))
   w.benchmark()
-  unswbc_end_turn()
+  controller.unswbc_end_turn()
