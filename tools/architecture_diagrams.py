@@ -9,9 +9,7 @@ has in the code maps.
 import sys
 from pathlib import Path
 
-from figure_palette import CARD, INK, MUTED, PAPER, colour
-
-SOFT_TEXT = "#f3ece0"
+from figure_palette import CARD, FONT, INK, MUTED, PAPER, WHITE, colour
 
 
 def text(x, y, value, size=13, fill=INK, anchor="middle", weight="normal"):
@@ -28,7 +26,7 @@ def arrow(x1, y1, x2, y2, label=None):
 
 def card(x, y, width, height, title, lines, key, filled=False):
     """A block outlined in its part's colour, or filled with it for a behaviour."""
-    fill, title_colour, line_colour = (colour(key), PAPER, SOFT_TEXT) if filled else (CARD, INK, MUTED)
+    fill, title_colour, line_colour = (colour(key), PAPER, WHITE) if filled else (CARD, INK, MUTED)
     parts = [f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="7" fill="{fill}"'
              f' stroke="{colour(key)}" stroke-width="2.2"/>',
              text(x + width / 2, y + (26 if lines else height / 2 + 5.5), title, 16, title_colour, weight="bold")]
@@ -58,7 +56,7 @@ def role_card(x, y, width, title, behaviours):
 
 def svg(width, height, title, description, body):
     return "\n".join([
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="Helvetica, Arial, sans-serif"'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="{FONT}"'
         ' role="img" aria-labelledby="t d">',
         f'<title id="t">{title}</title>',
         f'<desc id="d">{description}</desc>',

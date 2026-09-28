@@ -9,14 +9,10 @@ as empty dashed slots.
 import sys
 from pathlib import Path
 
+from figure_palette import CARD, FONT, INK, MUTED, PAPER, RULE, SIGNAL
+
 WISHLIST_ITEMS = ["Evaluation harness", "Statistics", "Offline Elo ladder", "Map generator",
                   "Replay sampler", "Replay decoder", "Debug viewer", "Profiling"]
-PAPER         = "#ede5d5"
-CARD          = "#f6f1e7"
-INK           = "#20251f"
-MUTED         = "#66675e"
-RULE          = "#b9ad99"
-SIGNAL        = "#b53b13"
 COLUMNS       = 4
 SLOT_WIDTH    = 162
 SLOT_HEIGHT   = 46
@@ -32,7 +28,7 @@ def render_wishlist_card_svg(filled_count):
     listed = ", ".join(WISHLIST_ITEMS[:filled_count])
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}"'
-        ' font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">',
+        f' font-family="{FONT}" role="img" aria-labelledby="t">',
         f'<title id="t">Wishlist so far: {listed}</title>',
         f'<rect width="{width}" height="{height}" fill="{PAPER}"/>',
         f'<text x="{MARGIN}" y="{MARGIN + 16}" font-size="14" font-weight="700"'

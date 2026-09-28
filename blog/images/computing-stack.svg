@@ -6,12 +6,13 @@
 .barriers path { fill: none; stroke: #596057; stroke-width: 1.25; stroke-opacity: .75; }
 .hardware-boundary path { fill: none; stroke: #ff7a3d; stroke-width: 1.5; stroke-dasharray: 7 5; }
 .hardware-boundary text { fill: #ff7a3d; font: 700 11px "SFMono-Regular", Consolas, monospace; letter-spacing: .1em; text-anchor: end; }
-.axis-labels, .group-labels, .stage-labels { font-family: "SFMono-Regular", Consolas, "DejaVu Sans Mono", monospace; }
-.axis-labels { fill: #a5a293; font-size: 14px; text-anchor: middle; }
+.axis-labels, .group-labels, .stage-labels, .plot-points { font-family: "SFMono-Regular", Consolas, monospace; }
+.axis-labels { fill: #a5a293; font-size: 14px; }
+.axis-labels text { text-anchor: middle; }
 .axis-labels .axis-title { fill: #f3ecdf; font-size: 13px; letter-spacing: .02em; }
 .group-labels { fill: #a5a293; font-size: 11px; font-weight: 700; letter-spacing: .1em; }
-.stage-labels .domain { fill: #f3ecdf; font-size: 11.5px; font-weight: 500; }
-.stage-labels .intervention { fill: #ff7a3d; stroke: #263d31; stroke-width: 4px; paint-order: stroke; font-size: 10.5px; font-weight: 650; }
+.stage-labels .domain { fill: #f3ecdf; font-size: 11.5px; font-weight: 500; letter-spacing: .005em; }
+.stage-labels .intervention { fill: #ff7a3d; stroke: #263d31; stroke-width: 4px; paint-order: stroke; font-size: 10.5px; font-weight: 650; letter-spacing: .005em; }
 .stage-labels .intervention-before { text-anchor: end; }
 .progress-halo { fill: none; stroke: #ff7a3d; stroke-width: 15; stroke-opacity: .12; }
 .progress-line { fill: none; stroke: #ff7a3d; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }

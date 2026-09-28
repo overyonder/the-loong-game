@@ -5,9 +5,8 @@
 
 import sys
 
-PAPER, CARD, INK, MUTED, RULE = "#ede5d5", "#f6f1e7", "#20251f", "#66675e", "#b9ad99"
-BOARD, GRID, KELP = "#1d3027", "rgba(243,236,223,.08)", "#7fb069"
-OURS, THEIRS, SIGNAL = "#ff7a3d", "#f3ecdf", "#b53b13"
+from figure_palette import BOARD, CARD, FONT, INK, KELP, MUTED, OURS, PAPER, RULE, SIGNAL, THEIRS
+from figure_palette import BOARD_GRID as GRID
 
 SIZE, CELL = 11, 36
 LEFT, TOP = 24, 24
@@ -43,7 +42,7 @@ def main():
     board = SIZE * CELL
     width, height = LEFT + board + 300, TOP * 2 + board
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="Helvetica, Arial, sans-serif"'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="{FONT}"'
         ' role="img" aria-labelledby="t">',
         '<title id="t">One dragon\'s four sonar rays and the echo counts they return</title>',
         f'<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">'

@@ -22,15 +22,15 @@ from pathlib import Path
 from pygments.lexers import NimrodLexer as NimLexer
 from pygments.styles import get_style_by_name
 
-from figure_palette import COMPONENTS, MUTED, PAPER, colour
+from figure_palette import COMPONENTS, FONT as DIAGRAM_FONT, GRUVBOX, INK, MUTED, PAPER, colour
 
 ROOT = Path(__file__).resolve().parent.parent
 
 # Neovide with gruvbox dark hard, in the same Hyprland window as the terminal figures.
-BACKGROUND    = "#1d2021"
-FOREGROUND    = "#ebdbb2"
-LINE_NUMBER   = "#665c54"
-ACTIVE_BORDER = "#83a598"
+BACKGROUND    = GRUVBOX["bg0"]
+FOREGROUND    = GRUVBOX["fg1"]
+LINE_NUMBER   = GRUVBOX["bg3"]
+ACTIVE_BORDER = GRUVBOX["blue"]
 FONT          = "FiraCode Nerd Font"
 FONT_SIZE     = 15
 CELL_WIDTH    = FONT_SIZE * 1200 / 1950  # FiraCode's advance: 1200 units on a 1950-unit em
@@ -288,7 +288,7 @@ def draw_tree(title, description, root, columns_of, marks):
         columns.append(entries)
     height = 70 + max(len(entries) for entries in columns) * TREE_LINE + 20
     width = 20 + column_width * len(columns)
-    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="Helvetica, Arial, sans-serif"'
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="{DIAGRAM_FONT}"'
              ' role="img" aria-labelledby="t d">',
              f'<title id="t">{html.escape(title)}</title><desc id="d">{html.escape(description)}</desc>',
              f'<rect width="{width}" height="{height}" fill="{PAPER}"/>']
@@ -302,7 +302,7 @@ def draw_tree(title, description, root, columns_of, marks):
             folder = label.endswith("/")
             key = ("frame" if depth == 0 else "window") if folder else "roam"
             weight = "bold" if folder else "normal"
-            fill = colour(key) if folder else "#20251f"
+            fill = colour(key) if folder else INK
             parts.append(f'<text x="{x0 + depth * TREE_INDENT}" y="{y}" font-size="13" font-weight="{weight}"'
                          f' fill="{fill}">{html.escape(label)}</text>')
             for mark_index, (_, marked) in enumerate(marks):

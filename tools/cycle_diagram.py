@@ -5,8 +5,8 @@
 
 import sys
 
-PAPER, INK, MUTED = "#ede5d5", "#20251f", "#66675e"
-SIGNAL, FOREST, FOREST_TEXT = "#b53b13", "#263d31", "#c7c1b2"
+from figure_palette import FONT, FOREST, INK, MUTED, PAPER, SIGNAL
+from figure_palette import DARK_TEXT as FOREST_TEXT
 
 MOVES = ["Rock", "Paper", "Scissors"] * 2
 WIDTH, HEIGHT = 800, 330
@@ -40,7 +40,7 @@ def icon(move, cx, cy):
 
 def main():
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}" font-family="Helvetica, Arial, sans-serif"'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}" font-family="{FONT}"'
         ' role="img" aria-labelledby="t d">',
         '<title id="t">Six versions, each beating the last</title>',
         '<desc id="d">Rock, paper, scissors, rock, paper, scissors, labelled v1 to v6. Each beats the one before it,'

@@ -10,14 +10,14 @@ import html
 import sys
 from pathlib import Path
 
-PAPER, CARD, INK, MUTED, RULE = "#ede5d5", "#f6f1e7", "#20251f", "#66675e", "#b9ad99"
-FOREST, SIGNAL, HOT, PALE = "#263d31", "#b53b13", "#ff7a3d", "#dcd0bb"
+from figure_palette import (BLUE, BOARD, BOARD_GRID, CARD, DARK_LINE, DARK_TITLE, FONT, FOREST, GOLD, HOT, INK, KELP, MATE,
+                            MUTED, PALE, PAPER, PURPLE, RULE, SIGNAL, THEIRS)
 
 
 def svg(width, height, title, parts):
     return "\n".join([
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}"'
-        ' font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">',
+        f' font-family="{FONT}" role="img" aria-labelledby="t">',
         f'<title id="t">{html.escape(title)}</title>',
         f'<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
         f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{MUTED}"/></marker>'
@@ -34,7 +34,7 @@ def text(x, y, value, size=14, fill=INK, anchor="start", weight="normal"):
 
 def card(x, y, w, h, title, lines=(), dark=False, accent=RULE, centre=False):
     """A rounded card: a bold title, which may run to two lines with \n, then body lines."""
-    fill, title_fill, line_fill = (FOREST, PAPER, "#d9d2c3") if dark else (CARD, INK, MUTED)
+    fill, title_fill, line_fill = (FOREST, PAPER, DARK_LINE) if dark else (CARD, INK, MUTED)
     tx, anchor = (x + w / 2, "middle") if centre else (x + 14, "start")
     titles = title.split("\n")
     parts = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{fill}" stroke="{accent}" stroke-width="1.6"/>']
@@ -242,22 +242,22 @@ def strategy_tactics():
 
 def grid_board(x0, y0, columns, rows, cell, items):
     """A small board: items are (kind, column, row[, label]) with kind in kelp-h, kelp-v, ours, theirs, mate."""
-    colours = {"ours": HOT, "theirs": "#f3ecdf", "mate": "#e0a36a"}
-    parts = [f'<rect x="{x0}" y="{y0}" width="{columns * cell}" height="{rows * cell}" fill="#1d3027" rx="4"/>']
+    colours = {"ours": HOT, "theirs": THEIRS, "mate": MATE}
+    parts = [f'<rect x="{x0}" y="{y0}" width="{columns * cell}" height="{rows * cell}" fill="{BOARD}" rx="4"/>']
     grid = "".join(f"M{x0 + c * cell} {y0}v{rows * cell}" for c in range(1, columns))
     grid += "".join(f"M{x0} {y0 + r * cell}h{columns * cell}" for r in range(1, rows))
-    parts.append(f'<path d="{grid}" stroke="rgba(243,236,223,.08)"/>')
+    parts.append(f'<path d="{grid}" stroke="{BOARD_GRID}"/>')
     for item in items:
         kind, c, r = item[:3]
         cx, cy = x0 + c * cell + cell / 2, y0 + r * cell + cell / 2
         if kind == "kelp-h":
-            parts.append(f'<path d="M{x0 + c * cell} {y0 + r * cell}h{cell}" stroke="#7fb069" stroke-width="5"/>')
+            parts.append(f'<path d="M{x0 + c * cell} {y0 + r * cell}h{cell}" stroke="{KELP}" stroke-width="5"/>')
         elif kind == "kelp-v":
-            parts.append(f'<path d="M{x0 + c * cell} {y0 + r * cell}v{cell}" stroke="#7fb069" stroke-width="5"/>')
+            parts.append(f'<path d="M{x0 + c * cell} {y0 + r * cell}v{cell}" stroke="{KELP}" stroke-width="5"/>')
         else:
             parts.append(f'<circle cx="{cx}" cy="{cy}" r="{cell * 0.36}" fill="{colours[kind]}"/>')
         if len(item) > 3:
-            parts.append(text(cx, cy + cell * 0.95, item[3], 11.5, "#f3ecdf", "middle"))
+            parts.append(text(cx, cy + cell * 0.95, item[3], 11.5, THEIRS, "middle"))
     return parts
 
 
@@ -277,7 +277,7 @@ def bitfield(title, fields):
         w = width * bits / 64
         parts.append(f'<rect x="{x:.1f}" y="{top}" width="{w - 3:.1f}" height="52" rx="5" fill="{colour}"/>')
         parts.append(text(x + w / 2, top + 24, label, 13.5, PAPER, "middle", "bold"))
-        parts.append(text(x + w / 2, top + 42, f"{bits} bits", 11.5, "#e9e1d0", "middle"))
+        parts.append(text(x + w / 2, top + 42, f"{bits} bits", 11.5, DARK_TITLE, "middle"))
         parts.append(text(x + 2, top + 72, bit - 1, 11, MUTED))
         x += w
         bit -= bits
@@ -287,8 +287,8 @@ def bitfield(title, fields):
 
 def sonar_position_message():
     return bitfield("The tactics bot's sonar message", [
-        (16, "team tag LO", FOREST), (16, "sender ID", "#3f6e8c"), (4, "role", "#7a4f8a"),
-        (12, "length", "#a8801a"), (8, "head x", SIGNAL), (8, "head y", SIGNAL)])
+        (16, "team tag LO", FOREST), (16, "sender ID", BLUE), (4, "role", PURPLE),
+        (12, "length", GOLD), (8, "head x", SIGNAL), (8, "head y", SIGNAL)])
 
 
 def who_hears():
@@ -394,7 +394,7 @@ def unseen_losses():
 
 def strategy_cost_nim():
     return bars("CPU points per turn for the strategy alone, idle cost removed", [
-        ("C", 43_000, FOREST), ("Nim, written like Python", 69_000, "#a8801a"), ("Python", 19_700_000, SIGNAL)],
+        ("C", 43_000, FOREST), ("Nim, written like Python", 69_000, GOLD), ("Python", 19_700_000, SIGNAL)],
         "points", note="Log scale. The same flood-fill strategy in each language, making the same moves.")
 
 
@@ -460,7 +460,7 @@ def sprt_walk():
         parts.append(f'<path d="M{left} {y(value):.1f}H{left + width}" stroke="{SIGNAL}" stroke-width="2"/>')
         parts.append(text(left + 10, y(value) - 8, label, 13, SIGNAL, "start", "bold"))
     for step, wins_needed, colour, label in ((math.log(0.6 / 0.5), 16, FOREST, "designed for +70 Elo: decided after 16 wins"),
-                                            (math.log(0.7034 / 0.5), 9, "#3f6e8c", "designed for +150 Elo: decided after 9 wins")):
+                                            (math.log(0.7034 / 0.5), 9, BLUE, "designed for +150 Elo: decided after 9 wins")):
         points, value = [(x(0), y(0))], 0.0
         for n in range(1, wins_needed + 1):
             points.append((x(n - 1), y(value + step)))
@@ -490,7 +490,7 @@ def map_supply():
         ("first generator, seed 2026", SIGNAL, [0.874, 7.6162, 0.7557, 0.9091, 0.297, 5.9313, 0.0016, 0.1489, 4.1445,
                                                0.0038, 4.8789, 1.2734, 0.905, 0.0001, 7.231, 3.5982, 0.6316,
                                                0.1417, 22.6323, 0.0012]),
-        ("current generator, seed 2026", "#3f6e8c", [1.4702, 1.2777, 0.1693, 0.5822, 3.1608, 0.4987, 1.2933, 1.6615,
+        ("current generator, seed 2026", BLUE, [1.4702, 1.2777, 0.1693, 0.5822, 3.1608, 0.4987, 1.2933, 1.6615,
                                                     1.1569, 3.7037, 0.6183, 0.2818, 3.6518, 0.1692, 0.366,
                                                     0.6944, 0.1692, 1.7094, 1.0157, 0.2358]),
     ]
@@ -541,15 +541,15 @@ def gamedata_recovery():
 def gamedata_layout():
     parts = [text(20, 30, "A columns file", 16, INK, weight="bold")]
     blocks = [("header", 64, 120, FOREST, ["64 bytes", "magic, version,", "count, directory", "offset, length, kind"]),
-              ("turn.round", 0, 150, "#3f6e8c", ["u32 × turns"]), ("turn.dragon", 0, 150, "#3f6e8c", ["u32 × turns"]),
-              ("turn.points", 0, 150, "#3f6e8c", ["u64 × turns"]), ("event.kind", 0, 130, "#a8801a", ["u8 × events"]),
+              ("turn.round", 0, 150, BLUE, ["u32 × turns"]), ("turn.dragon", 0, 150, BLUE, ["u32 × turns"]),
+              ("turn.points", 0, 150, BLUE, ["u64 × turns"]), ("event.kind", 0, 130, GOLD, ["u8 × events"]),
               ("…", 0, 60, RULE, [""]), ("directory", 0, 160, SIGNAL, ["80 bytes a column:", "name, type, count,", "offset"])]
     x = 20
     for name, _, w, colour, lines in blocks:
         parts.append(f'<rect x="{x}" y="50" width="{w - 4}" height="110" rx="5" fill="{colour}"/>')
         parts.append(text(x + (w - 4) / 2, 76, name, 13.5, PAPER, "middle", "bold"))
         for i, line in enumerate(lines):
-            parts.append(text(x + (w - 4) / 2, 98 + 16 * i, line, 12, "#ede5d5", "middle"))
+            parts.append(text(x + (w - 4) / 2, 98 + 16 * i, line, 12, PAPER, "middle"))
         x += w
     parts.append(text(20, 190, "Each column is one contiguous array of fixed-size values, 8-byte aligned. A reader maps the file,", 13, MUTED))
     parts.append(text(20, 208, "reads the directory, and uses each column where it lies.", 13, MUTED))
@@ -559,7 +559,7 @@ def gamedata_layout():
 def gamedata_list():
     parts = [text(20, 30, "A list column: every row's values end to end, and where each row starts", 15, INK, weight="bold")]
     values = [1390, 1389, 1388, 1387, 1402, 1403, 1404, 1405, 1712, 1713, 1714, 1771]
-    colours = [FOREST, "#3f6e8c", "#a8801a"]
+    colours = [FOREST, BLUE, GOLD]
     parts.append(text(20, 76, "start.body", 13, INK, weight="bold"))
     for i, v in enumerate(values):
         parts.append(f'<rect x="{150 + i * 62}" y="56" width="58" height="30" rx="4" fill="{colours[i // 4]}"/>')

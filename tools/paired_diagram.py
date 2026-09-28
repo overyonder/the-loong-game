@@ -5,8 +5,7 @@
 
 import sys
 
-PAPER, INK, MUTED, RULE = "#ede5d5", "#20251f", "#66675e", "#b9ad99"
-FOREST, SIGNAL, PALE = "#263d31", "#b53b13", "#dcd0bb"
+from figure_palette import FONT, FOREST, INK, MUTED, PALE, PAPER, RULE, SIGNAL
 
 
 def text(x, y, content, size=14, weight="normal", fill=INK, anchor="start"):
@@ -21,7 +20,7 @@ def main():
     fixtures = [("same", 0.0), ("same", 0.0), ("gained", 0.40), ("same", 0.10), ("dropped", 0.05), ("same", 0.0),
                 ("gained", 0.30), ("same", 0.20), ("same", 0.0), ("gained", 0.15), ("same", 0.0), ("same", 0.0)]
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-             'font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">',
+             f'font-family="{FONT}" role="img" aria-labelledby="t">',
              '<title id="t">Paired games: the candidate and the baseline on the same map, side and seed</title>',
              f'<rect width="{width}" height="{height}" fill="{PAPER}"/>']
     parts.append(text(186, 72, "baseline", 21, "bold", anchor="end"))

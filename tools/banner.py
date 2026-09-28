@@ -12,9 +12,10 @@ lays the board out as a chip: register banks, cache lines and the wires between 
 import random
 import sys
 
+from figure_palette import BOARD, KELP, OURS, PEARL, THEIRS
+from figure_palette import BOARD_GRID as GRID
+
 WIDTH, HEIGHT, CELL = 1440, 960, 24
-BOARD, GRID, KELP, PEARL = "#1d3027", "rgba(243,236,223,.07)", "#7fb069", "#e8c766"
-OURS, THEIRS = "#ff7a3d", "#f3ecdf"
 
 
 def centre(column, row):

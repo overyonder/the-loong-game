@@ -4,7 +4,7 @@
 <rect width="990" height="390" fill="#ede5d5"/>
 <text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Two different neighbourhoods, the same echo counts</text>
 <rect x="20" y="50" width="360" height="280" fill="#1d3027" rx="4"/>
-<path d="M60 50v280M100 50v280M140 50v280M180 50v280M220 50v280M260 50v280M300 50v280M340 50v280M20 90h360M20 130h360M20 170h360M20 210h360M20 250h360M20 290h360" stroke="rgba(243,236,223,.08)"/>
+<path d="M60 50v280M100 50v280M140 50v280M180 50v280M220 50v280M260 50v280M300 50v280M340 50v280M20 90h360M20 130h360M20 170h360M20 210h360M20 250h360M20 290h360" stroke="rgba(243,236,223,.07)"/>
 <circle cx="200.0" cy="190.0" r="14.399999999999999" fill="#ff7a3d"/>
 <circle cx="320.0" cy="190.0" r="14.399999999999999" fill="#f3ecdf"/>
 <path d="M180 50h40" stroke="#7fb069" stroke-width="5"/>
@@ -12,7 +12,7 @@
 <path d="M200.0 190.0L200.0 86.0" stroke="#b53b13" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#s)"/>
 <text x="20" y="350" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">echoes: kelp 1, enemy head 1</text>
 <rect x="520" y="50" width="360" height="280" fill="#1d3027" rx="4"/>
-<path d="M560 50v280M600 50v280M640 50v280M680 50v280M720 50v280M760 50v280M800 50v280M840 50v280M520 90h360M520 130h360M520 170h360M520 210h360M520 250h360M520 290h360" stroke="rgba(243,236,223,.08)"/>
+<path d="M560 50v280M600 50v280M640 50v280M680 50v280M720 50v280M760 50v280M800 50v280M840 50v280M520 90h360M520 130h360M520 170h360M520 210h360M520 250h360M520 290h360" stroke="rgba(243,236,223,.07)"/>
 <circle cx="700.0" cy="190.0" r="14.399999999999999" fill="#ff7a3d"/>
 <circle cx="580.0" cy="190.0" r="14.399999999999999" fill="#f3ecdf"/>
 <path d="M680 290h40" stroke="#7fb069" stroke-width="5"/>

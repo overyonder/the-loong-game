@@ -11,17 +11,16 @@ import re
 import statistics
 import sys
 
-PAPER, INK, MUTED, RULE = "#ede5d5", "#20251f", "#66675e", "#b9ad99"
-FOREST, SIGNAL = "#263d31", "#b53b13"
+from figure_palette import BLUE, FONT, FOREST, INK, MUTED, PAPER, PURPLE, RULE, SIGNAL
 
 KERNELS = [  # log name, label, stage colour
     ("nim-seq", "Nim: a seq queue and a set", FOREST),
     ("nim-array", "Nim: fixed arrays", FOREST),
     ("c-queue", "C: fixed arrays", FOREST),
-    ("bitboard", "C: bitboards", "#3f6e8c"),
-    ("components", "C: one flood fill per region", "#3f6e8c"),
-    ("simd", "SIMD: two flood fills at once", "#7a4f8a"),
-    ("inline-asm", "Hand-written WebAssembly step", "#7a4f8a"),
+    ("bitboard", "C: bitboards", BLUE),
+    ("components", "C: one flood fill per region", BLUE),
+    ("simd", "SIMD: two flood fills at once", PURPLE),
+    ("inline-asm", "Hand-written WebAssembly step", PURPLE),
     ("simd-masks", "SIMD: building the bitboards", SIGNAL),
 ]
 
@@ -41,7 +40,7 @@ def main() -> None:
     low, high = math.log10(1000), math.log10(200_000)
     scale = lambda value: left + (math.log10(value) - low) / (high - low) * (right - left)
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="Helvetica, Arial, sans-serif"'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" font-family="{FONT}"'
         ' role="img" aria-labelledby="t">',
         f'<title id="t">CPU points to count the room behind all four first moves, median of {turns:,} turns</title>',
         f'<rect width="{width}" height="{height}" fill="{PAPER}"/>',

@@ -10,9 +10,10 @@ at the end of the wishlist post.
 
 import sys
 
-PAPER, CARD, INK, MUTED, RULE = "#ede5d5", "#f6f1e7", "#20251f", "#66675e", "#b9ad99"
-SIGNAL, FOREST = "#b53b13", "#263d31"
-LANGUAGE_COLOURS = {"Python": "#3f6e8c", "Odin": "#2f7f79", "Nim": "#a8801a", "C": "#5b5e57", "perf": "#7a4f8a", "Zig": "#b8672a"}
+from figure_palette import (BLUE, CARD, CLAY, DARK_TEXT, FONT, FOREST, GOLD, INK, MUTED, PAPER, PURPLE, RULE, SIGNAL,
+                            SLATE, TEAL)
+
+LANGUAGE_COLOURS = {"Python": BLUE, "Odin": TEAL, "Nim": GOLD, "C": SLATE, "perf": PURPLE, "Zig": CLAY}
 
 BUILT = {"Evaluation harness", "Statistics", "Map generator"}
 OUR_TOOLS = [  # name, language, what it does for us
@@ -76,7 +77,7 @@ def official_tool_card(y, name, purpose):
 
 def main():
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}" font-family="Helvetica, Arial, sans-serif"'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}" font-family="{FONT}"'
         ' role="img" aria-labelledby="t d">',
         '<title id="t">Our tools around the bot</title>',
         '<desc id="d">The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly,'
@@ -99,14 +100,14 @@ def main():
     parts += [
         f'<rect x="{CENTRE_X}" y="{bot_y}" width="{CENTRE_WIDTH}" height="150" rx="8" fill="{FOREST}"/>',
         text(CENTRE_X + CENTRE_WIDTH / 2, bot_y + 34, "Current bot", 19, PAPER, "middle", "bold"),
-        text(CENTRE_X + CENTRE_WIDTH / 2, bot_y + 58, "the thing we improve", 12.5, "#c7c1b2", "middle"),
+        text(CENTRE_X + CENTRE_WIDTH / 2, bot_y + 58, "the thing we improve", 12.5, DARK_TEXT, "middle"),
     ]
     for index, (language, role) in enumerate([("Nim", "strategy"), ("C", "hot paths")]):
         badge_x = CENTRE_X + 22 + index * 82
         parts += [f'<rect x="{badge_x}" y="{bot_y + 80}" width="74" height="22" rx="11" fill="{LANGUAGE_COLOURS[language]}"/>',
                   text(badge_x + 37, bot_y + 95, f"{language}", 12, PAPER, "middle", "bold"),
-                  text(badge_x + 37, bot_y + 120, role, 11, "#c7c1b2", "middle")]
-    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, bot_y + 141, "→ C → WebAssembly", 11.5, "#c7c1b2", "middle"))
+                  text(badge_x + 37, bot_y + 120, role, 11, DARK_TEXT, "middle")]
+    parts.append(text(CENTRE_X + CENTRE_WIDTH / 2, bot_y + 141, "→ C → WebAssembly", 11.5, DARK_TEXT, "middle"))
     frozen_y = bot_y + 190
     for index, version in enumerate(FROZEN_VERSIONS):
         y = frozen_y + index * 92
@@ -114,7 +115,7 @@ def main():
         parts += [
             f'<g opacity="{opacity:.2f}"><rect x="{CENTRE_X + 20}" y="{y}" width="{CENTRE_WIDTH - 40}" height="60" rx="6" fill="{FOREST}"/>',
             text(CENTRE_X + CENTRE_WIDTH / 2, y + 26, f"Snapshot {version}", 14, PAPER, "middle", "bold"),
-            text(CENTRE_X + CENTRE_WIDTH / 2, y + 45, "an earlier version", 11, "#c7c1b2", "middle") + "</g>",
+            text(CENTRE_X + CENTRE_WIDTH / 2, y + 45, "an earlier version", 11, DARK_TEXT, "middle") + "</g>",
         ]
         previous_bottom = bot_y + 150 if index == 0 else y - 32
         parts.append(arrow(CENTRE_X + CENTRE_WIDTH / 2, y, CENTRE_X + CENTRE_WIDTH / 2, previous_bottom + 4))

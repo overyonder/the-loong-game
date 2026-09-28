@@ -12,8 +12,8 @@ import sys
 from pathlib import Path
 
 from banner import BOARD, CELL, GRID, KELP, OURS, PEARL, THEIRS
-
-SHEET, LABEL = "#263d31", "#f3ecdf"
+from figure_palette import FONT
+from figure_palette import FOREST as SHEET, WHITE as LABEL
 COLUMNS, SLOT_WIDTH, SLOT_HEIGHT, GAP = 5, 200, 170, 16
 
 
@@ -73,7 +73,7 @@ def sheet(title, paths):
     width = columns * (slot_width + GAP) + GAP
     height = 56 + rows * (slot_height + GAP)
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-labelledby="t"'
-             ' font-family="Helvetica, Arial, sans-serif">',
+             f' font-family="{FONT}">',
              f'<title id="t">{html.escape(title)}</title>',
              f'<rect width="{width}" height="{height}" fill="{SHEET}"/>',
              f'<text x="{GAP}" y="36" font-size="20" font-weight="bold" fill="{LABEL}">{html.escape(title)}</text>']

@@ -4,7 +4,7 @@
 <rect width="990" height="232" fill="#ede5d5"/>
 <text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">Poker over sonar: two single dragons, one line of sight</text>
 <rect x="20" y="50" width="528" height="132" fill="#1d3027" rx="4"/>
-<path d="M64 50v132M108 50v132M152 50v132M196 50v132M240 50v132M284 50v132M328 50v132M372 50v132M416 50v132M460 50v132M504 50v132M20 94h528M20 138h528" stroke="rgba(243,236,223,.08)"/>
+<path d="M64 50v132M108 50v132M152 50v132M196 50v132M240 50v132M284 50v132M328 50v132M372 50v132M416 50v132M460 50v132M504 50v132M20 94h528M20 138h528" stroke="rgba(243,236,223,.07)"/>
 <circle cx="86.0" cy="116.0" r="15.84" fill="#ff7a3d"/>
 <text x="86.0" y="157.8" font-size="11.5" fill="#f3ecdf" text-anchor="middle" font-weight="normal">jester</text>
 <circle cx="482.0" cy="116.0" r="15.84" fill="#f3ecdf"/>
