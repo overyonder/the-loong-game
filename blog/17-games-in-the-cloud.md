@@ -71,4 +71,4 @@ A two-region test with one small worker in each region, a c8i-flex.large in Hyde
 
 ## Next up
 
-That's the fleet. The last post in the series, after the tournament, is about the team of agents that runs all of this with me.
+[Game data in columns](18-game-data-in-columns.md): one binary format for all our game data, which a reader maps into memory and uses without parsing.

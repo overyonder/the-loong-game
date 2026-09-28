@@ -1,7 +1,5 @@
 # Game data in columns
 
-<!-- draft: 6245051fe3, stage: Building our tooling -->
-
 The [debug viewer](09-through-one-dragons-eyes.md) started life reading a JSON export of each game, and that was fine for short games. Then we opened a 500-round game, and the viewer sat there for over eight minutes, reaching 6 GB of memory, without ever drawing a frame. The export for a game that long was 552 MB, or 27 MB once we delta-encoded it, and all of it had to be parsed into objects before anything could be drawn.
 
 ![A 500-round game on disk, on a log scale: the viewer's old JSON export was 552 MB, and 27 MB delta-encoded. The packed replay of game 610 is 13 MB, and its columns file 14.6 MB.](images/gamedata-sizes.svg)
