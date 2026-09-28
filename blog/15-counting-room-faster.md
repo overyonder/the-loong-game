@@ -19,9 +19,9 @@ visited_1 |= ((NU64)(1) << ((start_p1) % (sizeof(NU64) * 8)));
 queue_1.len = 1; queue_1.p = (tySequence__qwqHTkRvwhrRyENtudHQ7g_Content*) newSeqPayload(1, sizeof(NI), NIM_ALIGNOF(NI));
 /* ... for each tile in the queue, for each side ... */
             visited_1 |= ((NU64)1) << ((next_1) & 63);
-            add__fgengrtl_u61((&queue_1), next_1);
+            add__fgengrtl_u27((&queue_1), next_1);
 /* ... */
-eqdestroy___fgengrtl_u327(queue_1);
+eqdestroy___fgengrtl_u293(queue_1);
 ```
 
 Two things stand out. The `set` has already become a single 64-bit word with one bit per tile, which is about as cheap as a visited set can be. The `seq` is where the cost is. Every flood fill allocates its queue on the heap with `newSeqPayload`, calls `add` for every tile it reaches, which checks the capacity and grows the queue as it fills, and frees it all at the end. Swapping the `seq` for a fixed array on the stack, still in Nim, halves the cost to about 60,000 points. Writing the same thing by hand in C costs almost exactly the same, because at that point Nim and C are producing the same program.
