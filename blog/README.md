@@ -28,7 +28,7 @@ Next up: sonar.
 
 ## Stages
 
-The series runs through these stages in order. The site shows them as a stepper at the top of each post.
+The series runs through these stages in order. The site shows them as a stepper at the top of each post. Grand strategy and tactical ideas stay open: a post added to one later takes the number of its last post with a letter, such as 12a or 14a.
 
 1. Understanding the problem
 2. Building our tooling
