@@ -83,7 +83,7 @@ Vectorised C has one weakness: nothing promises it stays vectorised. A small edi
 
 [Rake](https://rake-lang.org) is a language I'm building for that problem. A kernel works on racks, one vector register with a lane per element, and every operation must compile to vector instructions or the program doesn't build. For this post I added a WebAssembly profile to it. Here is the north mask in Rake:
 
-```text
+```rake
 crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:
   | low <| shuffle(a, b, [0, 4, 8, 12, 16, 20, 24, 28, 0, 0, 0, 0, 0, 0, 0, 0])
   | high <| shuffle(c, d, [0, 4, 8, 12, 16, 20, 24, 28, 0, 0, 0, 0, 0, 0, 0, 0])
