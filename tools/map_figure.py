@@ -78,7 +78,7 @@ def sheet(title, paths):
              f'<rect width="{width}" height="{height}" fill="{SHEET}"/>',
              f'<text x="{GAP}" y="36" font-size="20" font-weight="bold" fill="{LABEL}">{html.escape(title)}</text>']
     for index, path in enumerate(paths):
-        name, columns, rows_, w, h, drawing = board(path)
+        name, map_width, map_height, w, h, drawing = board(path)
         x0 = GAP + (index % columns) * (slot_width + GAP)
         y0 = 56 + (index // columns) * (slot_height + GAP)
         scale = min(slot_width / w, (slot_height - 24) / h)
@@ -86,7 +86,7 @@ def sheet(title, paths):
         parts.append(f'<svg x="{dx:.1f}" y="{y0}" width="{w * scale:.1f}" height="{h * scale:.1f}" viewBox="0 0 {w} {h}">'
                      f'{drawing}</svg>')
         parts.append(f'<text x="{x0 + slot_width / 2}" y="{y0 + slot_height - 6}" font-size="12" fill="{LABEL}"'
-                     f' text-anchor="middle">{html.escape(name)}, {columns}×{rows_}</text>')
+                     f' text-anchor="middle">{html.escape(name)}, {map_width}×{map_height}</text>')
     parts.append("</svg>")
     return "\n".join(parts) + "\n"
 

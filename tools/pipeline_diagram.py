@@ -30,7 +30,7 @@ OFFICIAL_TOOLS = [
     ("unswbc init", "starter bots in C, C++, Python"),
     ("unswbc run --sandbox", "one match at judge prices"),
     ("--seed", "replay a match exactly"),
-    ("unswbc maps", "the 13 bundled maps"),
+    ("unswbc maps", "the bundled maps"),
     ("Visualiser", "watch the whole board"),
     ("unswbc submit", "upload to the ladder"),
 ]

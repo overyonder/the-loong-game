@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 312" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Pearl supply on each map, against the official maps&#x27; range</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="840" height="312" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Pearl supply on each map, against the official range</text>
+<rect x="473.1" y="58" width="105.7" height="186" fill="#dcd0bb"/>
+<text x="525.9208380183966" y="50" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">official range</text>
+<path d="M250 90H670" stroke="#b9ad99"/>
+<text x="236" y="95" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">the toolkit&#x27;s 15 maps</text>
+<circle cx="537.0" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="577.6" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="532.0" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="489.8" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="473.1" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="514.8" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="570.8" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="556.6" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="578.8" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="486.2" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="495.0" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="568.3" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="535.9" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="534.4" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<circle cx="501.2" cy="90" r="6" fill="#263d31" fill-opacity=".75"/>
+<path d="M250 150H670" stroke="#b9ad99"/>
+<text x="236" y="155" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">first generator, seed 2026</text>
+<circle cx="525.9" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="591.7" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="521.5" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="527.1" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="493.1" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="584.1" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="334.3" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="472.1" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="573.2" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="360.6" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="578.2" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="537.3" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="527.0" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="250.0" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="590.1" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="568.9" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="516.0" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="470.6" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="624.8" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<circle cx="325.5" cy="150" r="6" fill="#b53b13" fill-opacity=".75"/>
+<text x="682" y="155" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">10 outside</text>
+<path d="M250 210H670" stroke="#b9ad99"/>
+<text x="236" y="215" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">current generator, seed 2026</text>
+<circle cx="541.7" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="537.5" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="476.0" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="513.6" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="565.0" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="508.8" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="537.8" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="545.4" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="534.4" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="569.8" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="515.4" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="491.5" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="569.4" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="476.0" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="499.4" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="518.9" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="476.0" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="546.3" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="530.5" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<circle cx="486.1" cy="210" r="6" fill="#3f6e8c" fill-opacity=".75"/>
+<text x="682" y="215" font-size="13" fill="#3f6e8c" text-anchor="start" font-weight="bold">0 outside</text>
+<path d="M250.0 250v6" stroke="#66675e"/>
+<text x="250.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">0.0001</text>
+<path d="M320.0 250v6" stroke="#66675e"/>
+<text x="320.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">0.001</text>
+<path d="M390.0 250v6" stroke="#66675e"/>
+<text x="390.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">0.01</text>
+<path d="M460.0 250v6" stroke="#66675e"/>
+<text x="460.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">0.1</text>
+<path d="M530.0 250v6" stroke="#66675e"/>
+<text x="530.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">1</text>
+<path d="M600.0 250v6" stroke="#66675e"/>
+<text x="600.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">10</text>
+<path d="M670.0 250v6" stroke="#66675e"/>
+<text x="670.0" y="272" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">100</text>
+<text x="460.0" y="294" font-size="12.5" fill="#66675e" text-anchor="middle" font-weight="normal">expected pearls per 100 tiles per round, log scale</text>
+</svg>

@@ -435,9 +435,9 @@ def fleet_run():
 
 
 def unseen_losses():
-    return bars("How the flood-fill bot's 6 losses on generated maps began", [
-        ("hit itself through a portal", 3, SIGNAL), ("hit another dragon", 2, FOREST), ("hit a wall", 1, FOREST)],
-        "games", log=False)
+    return bars("How the flood-fill bot's dragons died in its 3 losses on generated maps", [
+        ("hit itself through a portal", 5, SIGNAL), ("moved into the same tile as a teammate", 6, FOREST),
+        ("hit a wall", 4, FOREST)], "dragons", log=False)
 
 
 def strategy_cost_nim():
@@ -531,6 +531,45 @@ def sprt_walk():
     return svg(960, 420, "A sequential test after each straight win", parts)
 
 
+def map_supply():
+    """Each map's expected pearls per 100 tiles per round, from harness.mapgen's map_profile:
+    toolkit 1.2.2's 15 maps, then seed 2026's 20 maps from the first generator and the current one."""
+    import math
+    rows = [
+        ("the toolkit's 15 maps", FOREST, [1.2591, 4.7816, 1.0691, 0.2663, 0.1538, 0.6069, 3.8329, 2.3996, 4.9716,
+                                           0.237, 0.3161, 3.5251, 1.2127, 1.154, 0.388]),
+        ("first generator, seed 2026", SIGNAL, [0.874, 7.6162, 0.7557, 0.9091, 0.297, 5.9313, 0.0016, 0.1489, 4.1445,
+                                               0.0038, 4.8789, 1.2734, 0.905, 0.0001, 7.231, 3.5982, 0.6316,
+                                               0.1417, 22.6323, 0.0012]),
+        ("current generator, seed 2026", "#3f6e8c", [1.4702, 1.2777, 0.1693, 0.5822, 3.1608, 0.4987, 1.2933, 1.6615,
+                                                    1.1569, 3.7037, 0.6183, 0.2818, 3.6518, 0.1692, 0.366,
+                                                    0.6944, 0.1692, 1.7094, 1.0157, 0.2358]),
+    ]
+    left, width, top, gap = 250, 420, 76, 60
+    lo, hi = -4, 2
+    x = lambda v: left + width * (math.log10(v) - lo) / (hi - lo)
+    low, high = min(rows[0][2]), max(rows[0][2])
+    bottom = top + gap * len(rows)
+    parts = [text(20, 34, "Pearl supply on each map, against the official range", 17, INK, weight="bold"),
+             f'<rect x="{x(low):.1f}" y="{top - 18}" width="{x(high) - x(low):.1f}" height="{bottom - top + 6}" fill="{PALE}"/>',
+             text((x(low) + x(high)) / 2, top - 26, "official range", 12.5, MUTED, "middle")]
+    for index, (label, colour, values) in enumerate(rows):
+        y = top + gap * index + 14
+        parts.append(f'<path d="M{left} {y}H{left + width}" stroke="{RULE}"/>')
+        parts.append(text(left - 14, y + 5, label, 14, INK, "end"))
+        outside = sum(not low <= v <= high for v in values)
+        for v in values:
+            parts.append(f'<circle cx="{x(v):.1f}" cy="{y}" r="6" fill="{colour}" fill-opacity=".75"/>')
+        if index:
+            parts.append(text(left + width + 12, y + 5, f"{outside} outside", 13, colour, weight="bold"))
+    for power in range(lo, hi + 1):
+        label = f"{10 ** power:g}"
+        parts.append(f'<path d="M{x(10 ** power):.1f} {bottom - 6}v6" stroke="{MUTED}"/>')
+        parts.append(text(x(10 ** power), bottom + 16, label, 12, MUTED, "middle"))
+    parts.append(text(left + width / 2, bottom + 38, "expected pearls per 100 tiles per round, log scale", 12.5, MUTED, "middle"))
+    return svg(840, bottom + 56, "Pearl supply on each map, against the official maps' range", parts)
+
+
 def gamedata_sizes():
     return bars("A 500-round game on disk", [
         ("the viewer's old JSON export", 552, SIGNAL), ("the same JSON, delta-encoded", 27, SIGNAL),
@@ -604,6 +643,7 @@ FIGURES = {
     "judge-cpu": judge_cpu,
     "strategy-cost-nim": strategy_cost_nim,
     "unseen-losses": unseen_losses,
+    "map-supply": map_supply,
     "fleet-run": fleet_run,
     "coil-forage-result": coil_forage_result,
     "sonar-position-message": sonar_position_message,

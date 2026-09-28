@@ -104,7 +104,7 @@
 <path d="M580 248 H534" stroke="#66675e" stroke-width="1.5"/>
 <rect x="580" y="300" width="200" height="56" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
 <text x="592" y="322" font-size="13.5" fill="#20251f" text-anchor="start" font-weight="bold">unswbc maps</text>
-<text x="592" y="342" font-size="11.5" fill="#66675e" text-anchor="start" font-weight="normal">the 13 bundled maps</text>
+<text x="592" y="342" font-size="11.5" fill="#66675e" text-anchor="start" font-weight="normal">the bundled maps</text>
 <path d="M580 328 H534" stroke="#66675e" stroke-width="1.5"/>
 <rect x="580" y="380" width="200" height="56" rx="6" fill="#f6f1e7" stroke="#b9ad99"/>
 <text x="592" y="402" font-size="13.5" fill="#20251f" text-anchor="start" font-weight="bold">Visualiser</text>

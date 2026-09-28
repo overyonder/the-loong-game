@@ -82,9 +82,9 @@
     {
       "source": "evaluation/mapgen.py",
       "path": "harness/mapgen.py",
-      "sha256": "746f7ada103ac5f88df230bb5186a4e7b5611129d5219bc412d510ab240075a2",
-      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "42c81783d9d2e0c7226bd296cc1321563afda10fdd2bdcaf48d70c905d00e334"
+      "sha256": "16ea78a94f1b1cf12fa65b7d12b032c275a441129f89737688c1a94f285e8b3a",
+      "source_revision": "fdee26bc185ae7341cc5b375e6262d8e4dd31222",
+      "source_sha256": "c078051e200280816e206b8aeabbb2d624aff9b52f95ccbbf519c81454c7118b"
     },
     {
       "source": "commands/checks.just",
@@ -211,9 +211,15 @@
     {
       "source": "commands/evaluation.just",
       "path": "just/evaluation.just",
-      "sha256": "b01aa5e92e4af552d4d55da88f497821e627d375e79896790a160e95d6bc9813",
+      "sha256": "4ca47edf94876f73e5bdf70f39f7c4106fa80f4f7ab708f381eb9b0ed040fe47",
       "source_revision": "5df3fe459cf761d8bd1d253cce627d0ec76c3a54",
-      "source_sha256": "5f5dce3d1a4d7d406978cd29041595a043ab20391b10917e4aef832a62969491"
+      "source_sha256": "5f5dce3d1a4d7d406978cd29041595a043ab20391b10917e4aef832a62969491",
+      "recipe_sources": [
+        {
+          "recipe": "mapgen",
+          "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d"
+        }
+      ]
     },
     {
       "source": "commands/inspection.just",

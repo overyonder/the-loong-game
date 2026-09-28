@@ -57,6 +57,14 @@ far, with `harness/rating.py`, and writes `results.json`, `ratings.csv` and
 `summary.md`, which holds the ratings and the head-to-head table. The round
 robin reports ratings from the same fit.
 
+`just mapgen` is xCirno's layered world generator
+([gist](https://gist.github.com/xCirno1/ffdaac4236c1f1085c351af4fdfc1600)),
+widened to the official maps' variety. It keeps a map only if every measure lies
+within the range the organiser's maps in `maps/` span, so run `just article-bots`
+first. The maps a seed gives depend on which toolkit's maps are installed.
+`just mapgen --check DIR` compares DIR's maps with them. The module
+docstring in `harness/mapgen.py` lists the stages and our additions.
+
 `article-bots` fetches the bundled maps, creates the starter bots and puts the
 flood-fill bots from the posts in place. `first-bot`, `roles`, `tactics`,
 `nim-bot` and `room-nim` build the article bots from Nim, and the first three

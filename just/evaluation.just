@@ -504,41 +504,103 @@ ladder *args:
 
     raise SystemExit(main())
 
-# Generate plausible symmetric maps for held-out evaluation.
+# Generate symmetric maps inside the official maps' envelope, or check a directory against it.
 [group("Evaluation")]
 mapgen *args:
     #!/usr/bin/env -S {{quote(python)}}
     import argparse
-    import random
     from pathlib import Path
 
     from harness.mapgen import (
         DEFAULT_OUTPUT,
+        LANDMARKS,
+        OFFICIAL_MAPS,
         ROOT,
+        STYLES,
         __doc__,
-        generate_map,
-        serialise_map,
+        generate,
+        map_profiles,
+        official_envelope,
+        profile_table,
     )
 
 
-    def main() -> None:
-        parser = argparse.ArgumentParser(prog="mapgen", description=__doc__)
-        parser.add_argument("--count", type=int, default=20)
-        parser.add_argument("--seed", type=int, default=2026)
-        parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    def main() -> int:
+        parser = argparse.ArgumentParser(
+            prog="mapgen",
+            description=__doc__,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
+        parser.add_argument("--count", type=int, default=20, help="Maps to generate")
+        parser.add_argument("--seed", type=int, default=2026, help="Random seed")
+        parser.add_argument(
+            "--output", type=Path, default=DEFAULT_OUTPUT, help="Directory for the maps"
+        )
+        parser.add_argument(
+            "--check",
+            type=Path,
+            metavar="DIR",
+            help="Report DIR's maps against the official envelope instead of generating",
+        )
+        parser.add_argument("--size", help="WxH, e.g. 48x24 (default: drawn)")
+        parser.add_argument("--sym", choices=["x", "y", "xy"])
+        parser.add_argument("--style", choices=sorted(STYLES))
+        parser.add_argument("--landmark", choices=[*LANDMARKS, "none"])
+        parser.add_argument("--border", choices=["closed", "wrap"])
+        parser.add_argument("--dragons", type=int, help="Dragons per side, 1 to 7")
+        parser.add_argument("--supply", type=float, help="Target pearls per round")
+        parser.add_argument(
+            "--candidates", type=int, default=8, help="Worlds judged per map, best kept"
+        )
         args = parser.parse_args()
-        generator = random.Random(args.seed)
+        if not any(OFFICIAL_MAPS.glob("*.map")):
+            parser.error("No maps in maps/; run just article-bots first")
+        envelope = official_envelope()
+        if args.check:
+            profiles = map_profiles(args.check)
+            print(
+                profile_table(
+                    {"official": map_profiles(OFFICIAL_MAPS), str(args.check): profiles}
+                )
+            )
+            outside = [
+                (p.name, envelope.outside(p)) for p in profiles if envelope.outside(p)
+            ]
+            for name, measures in outside:
+                print(f"outside: {name} {measures}")
+            print(f"{len(outside)} of {len(profiles)} maps outside the official envelope")
+            return 1 if outside else 0
+        settings = {}
+        if args.size:
+            settings["w"], settings["h"] = map(int, args.size.split("x"))
+        for key in ("sym", "style", "landmark", "supply"):
+            if getattr(args, key) is not None:
+                settings[key] = getattr(args, key)
+        if args.border:
+            settings["closed"] = args.border == "closed"
+        if args.dragons:
+            settings["per_side"] = max(1, min(7, args.dragons))
         args.output.mkdir(parents=True, exist_ok=True)
         for number in range(1, args.count + 1):
-            layout = generate_map(generator, f"Generated {args.seed}-{number:02d}")
+            # A world seed with no candidate inside the envelope moves to the next.
+            for attempt in range(20):
+                try:
+                    world = generate(
+                        (args.seed * 100 + number) * 20 + attempt,
+                        envelope,
+                        args.candidates,
+                        **settings,
+                    )
+                    break
+                except RuntimeError:
+                    continue
+            else:
+                raise SystemExit(f"no map inside the envelope for number {number}")
             path = args.output / f"gen_{args.seed}_{number:02d}.map"
-            path.write_text(serialise_map(layout))
-            print(
-                f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}: "
-                f"{layout.width}x{layout.height} symmetry={layout.symmetry} "
-                f"kelp={len(layout.kelp)} portal_edges={len(layout.portals)} "
-                f"dragons={len(layout.dragons)}"
-            )
+            path.write_text(world.text())
+            print(path.relative_to(ROOT) if path.is_relative_to(ROOT) else path)
+            print(world.summary())
+        return 0
 
 
     raise SystemExit(main())
