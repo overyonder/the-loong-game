@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 184" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Opening that game in the viewer</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1000" height="184" fill="#ede5d5"/>
+<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Opening that game in the viewer</text>
+<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">before: memory at the point it was stopped</text>
+<rect x="380" y="60" width="470.0" height="26" rx="4" fill="#b53b13"/>
+<text x="860.0" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">6,100 MB</text>
+<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">now: peak memory to the first frame</text>
+<rect x="380" y="104" width="137.2" height="26" rx="4" fill="#263d31"/>
+<text x="527.1930802575871" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">332 MB</text>
+<text x="20" y="170" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Before, the viewer ran for over 8 minutes without drawing a frame. Now the first frame takes 0.96 s.</text>
+</svg>

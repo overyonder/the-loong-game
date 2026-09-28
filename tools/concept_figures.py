@@ -531,7 +531,68 @@ def sprt_walk():
     return svg(960, 420, "A sequential test after each straight win", parts)
 
 
+def gamedata_sizes():
+    return bars("A 500-round game on disk", [
+        ("the viewer's old JSON export", 552, SIGNAL), ("the same JSON, delta-encoded", 27, SIGNAL),
+        ("the packed replay", 13.0, RULE), ("the columns file", 14.6, FOREST)], "MB", log=True,
+        note="Log scale. The replay and the columns file are game 610, with 62,919 dragon turns, 263,328 events and 161,966 pings.")
+
+
+def gamedata_viewer():
+    return bars("Opening that game in the viewer", [
+        ("before: memory at the point it was stopped", 6100, SIGNAL), ("now: peak memory to the first frame", 332, FOREST)],
+        "MB", log=True, note="Before, the viewer ran for over 8 minutes without drawing a frame. Now the first frame takes 0.96 s.")
+
+
+def gamedata_recovery():
+    return bars("Recovering one dragon's diagnostics", [
+        ("before", 31, SIGNAL), ("with columns", 3.0, FOREST)], "s", log=False,
+        note="Peak memory fell from 709 MB to 122 MB.")
+
+
+def gamedata_layout():
+    parts = [text(20, 30, "A columns file", 16, INK, weight="bold")]
+    blocks = [("header", 64, 120, FOREST, ["64 bytes", "magic, version,", "count, directory", "offset, length, kind"]),
+              ("turn.round", 0, 150, "#3f6e8c", ["u32 × turns"]), ("turn.dragon", 0, 150, "#3f6e8c", ["u32 × turns"]),
+              ("turn.points", 0, 150, "#3f6e8c", ["u64 × turns"]), ("event.kind", 0, 130, "#a8801a", ["u8 × events"]),
+              ("…", 0, 60, RULE, [""]), ("directory", 0, 160, SIGNAL, ["80 bytes a column:", "name, type, count,", "offset"])]
+    x = 20
+    for name, _, w, colour, lines in blocks:
+        parts.append(f'<rect x="{x}" y="50" width="{w - 4}" height="110" rx="5" fill="{colour}"/>')
+        parts.append(text(x + (w - 4) / 2, 76, name, 13.5, PAPER, "middle", "bold"))
+        for i, line in enumerate(lines):
+            parts.append(text(x + (w - 4) / 2, 98 + 16 * i, line, 12, "#ede5d5", "middle"))
+        x += w
+    parts.append(text(20, 190, "Each column is one contiguous array of fixed-size values, 8-byte aligned. A reader maps the file,", 13, MUTED))
+    parts.append(text(20, 208, "reads the directory, and uses each column where it lies.", 13, MUTED))
+    return svg(960, 226, "A columns file: header, column arrays, directory", parts)
+
+
+def gamedata_list():
+    parts = [text(20, 30, "A list column: every row's values end to end, and where each row starts", 15, INK, weight="bold")]
+    values = [1390, 1389, 1388, 1387, 1402, 1403, 1404, 1405, 1712, 1713, 1714, 1771]
+    colours = [FOREST, "#3f6e8c", "#a8801a"]
+    parts.append(text(20, 76, "start.body", 13, INK, weight="bold"))
+    for i, v in enumerate(values):
+        parts.append(f'<rect x="{150 + i * 62}" y="56" width="58" height="30" rx="4" fill="{colours[i // 4]}"/>')
+        parts.append(text(179 + i * 62, 76, v, 13, PAPER, "middle", "bold"))
+    parts.append(text(894, 76, "… 40 cells", 13, MUTED))
+    parts.append(text(20, 136, "start.body#", 13, INK, weight="bold"))
+    for i, v in enumerate([0, 4, 8, 12]):
+        parts.append(f'<rect x="{150 + i * 62}" y="116" width="58" height="30" rx="4" fill="{CARD}" stroke="{RULE}"/>')
+        parts.append(text(179 + i * 62, 136, v, 13, INK, "middle"))
+    parts.append(text(398, 136, "… 11 starts", 13, MUTED))
+    parts.append(text(20, 180, "The first three of game 610's ten starting dragons. Row i is body[start[i] ..< start[i + 1]], head first,", 13, MUTED))
+    parts.append(text(20, 198, "and a cell is y × width + x, so dragon 0's head, 1390 on this 57-wide map, is at (22, 24).", 13, MUTED))
+    return svg(990, 214, "A list column and its starts", parts)
+
+
 FIGURES = {
+    "gamedata-sizes": gamedata_sizes,
+    "gamedata-viewer": gamedata_viewer,
+    "gamedata-layout": gamedata_layout,
+    "gamedata-recovery": gamedata_recovery,
+    "gamedata-list": gamedata_list,
     "verdict-games-needed": verdict_games_needed,
     "peeking": peeking,
     "sprt-walk": sprt_walk,

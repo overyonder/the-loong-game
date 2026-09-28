@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 226" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">A columns file: header, column arrays, directory</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="960" height="226" fill="#ede5d5"/>
+<text x="20" y="30" font-size="16" fill="#20251f" text-anchor="start" font-weight="bold">A columns file</text>
+<rect x="20" y="50" width="116" height="110" rx="5" fill="#263d31"/>
+<text x="78.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">header</text>
+<text x="78.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">64 bytes</text>
+<text x="78.0" y="114" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">magic, version,</text>
+<text x="78.0" y="130" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">count, directory</text>
+<text x="78.0" y="146" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">offset, length, kind</text>
+<rect x="140" y="50" width="146" height="110" rx="5" fill="#3f6e8c"/>
+<text x="213.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">turn.round</text>
+<text x="213.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">u32 × turns</text>
+<rect x="290" y="50" width="146" height="110" rx="5" fill="#3f6e8c"/>
+<text x="363.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">turn.dragon</text>
+<text x="363.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">u32 × turns</text>
+<rect x="440" y="50" width="146" height="110" rx="5" fill="#3f6e8c"/>
+<text x="513.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">turn.points</text>
+<text x="513.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">u64 × turns</text>
+<rect x="590" y="50" width="126" height="110" rx="5" fill="#a8801a"/>
+<text x="653.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">event.kind</text>
+<text x="653.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">u8 × events</text>
+<rect x="720" y="50" width="56" height="110" rx="5" fill="#b9ad99"/>
+<text x="748.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">…</text>
+<text x="748.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal"></text>
+<rect x="780" y="50" width="156" height="110" rx="5" fill="#b53b13"/>
+<text x="858.0" y="76" font-size="13.5" fill="#ede5d5" text-anchor="middle" font-weight="bold">directory</text>
+<text x="858.0" y="98" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">80 bytes a column:</text>
+<text x="858.0" y="114" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">name, type, count,</text>
+<text x="858.0" y="130" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="normal">offset</text>
+<text x="20" y="190" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">Each column is one contiguous array of fixed-size values, 8-byte aligned. A reader maps the file,</text>
+<text x="20" y="208" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">reads the directory, and uses each column where it lies.</text>
+</svg>

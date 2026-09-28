@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 214" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">A list column and its starts</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="990" height="214" fill="#ede5d5"/>
+<text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">A list column: every row&#x27;s values end to end, and where each row starts</text>
+<text x="20" y="76" font-size="13" fill="#20251f" text-anchor="start" font-weight="bold">start.body</text>
+<rect x="150" y="56" width="58" height="30" rx="4" fill="#263d31"/>
+<text x="179" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1390</text>
+<rect x="212" y="56" width="58" height="30" rx="4" fill="#263d31"/>
+<text x="241" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1389</text>
+<rect x="274" y="56" width="58" height="30" rx="4" fill="#263d31"/>
+<text x="303" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1388</text>
+<rect x="336" y="56" width="58" height="30" rx="4" fill="#263d31"/>
+<text x="365" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1387</text>
+<rect x="398" y="56" width="58" height="30" rx="4" fill="#3f6e8c"/>
+<text x="427" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1402</text>
+<rect x="460" y="56" width="58" height="30" rx="4" fill="#3f6e8c"/>
+<text x="489" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1403</text>
+<rect x="522" y="56" width="58" height="30" rx="4" fill="#3f6e8c"/>
+<text x="551" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1404</text>
+<rect x="584" y="56" width="58" height="30" rx="4" fill="#3f6e8c"/>
+<text x="613" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1405</text>
+<rect x="646" y="56" width="58" height="30" rx="4" fill="#a8801a"/>
+<text x="675" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1712</text>
+<rect x="708" y="56" width="58" height="30" rx="4" fill="#a8801a"/>
+<text x="737" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1713</text>
+<rect x="770" y="56" width="58" height="30" rx="4" fill="#a8801a"/>
+<text x="799" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1714</text>
+<rect x="832" y="56" width="58" height="30" rx="4" fill="#a8801a"/>
+<text x="861" y="76" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">1771</text>
+<text x="894" y="76" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">… 40 cells</text>
+<text x="20" y="136" font-size="13" fill="#20251f" text-anchor="start" font-weight="bold">start.body#</text>
+<rect x="150" y="116" width="58" height="30" rx="4" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="179" y="136" font-size="13" fill="#20251f" text-anchor="middle" font-weight="normal">0</text>
+<rect x="212" y="116" width="58" height="30" rx="4" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="241" y="136" font-size="13" fill="#20251f" text-anchor="middle" font-weight="normal">4</text>
+<rect x="274" y="116" width="58" height="30" rx="4" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="303" y="136" font-size="13" fill="#20251f" text-anchor="middle" font-weight="normal">8</text>
+<rect x="336" y="116" width="58" height="30" rx="4" fill="#f6f1e7" stroke="#b9ad99"/>
+<text x="365" y="136" font-size="13" fill="#20251f" text-anchor="middle" font-weight="normal">12</text>
+<text x="398" y="136" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">… 11 starts</text>
+<text x="20" y="180" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">The first three of game 610&#x27;s ten starting dragons. Row i is body[start[i] ..&lt; start[i + 1]], head first,</text>
+<text x="20" y="198" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">and a cell is y × width + x, so dragon 0&#x27;s head, 1390 on this 57-wide map, is at (22, 24).</text>
+</svg>
