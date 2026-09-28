@@ -1,7 +1,5 @@
 # Counting room faster
 
-<!-- draft: 2c79a50464, stage: Performance -->
-
 Every bot in this series counts how much room a move leaves, and [where the points go](10-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, one step at a time, from the Nim the first bot used down to vector instructions.
 
 To compare versions fairly, I wrote a benchmark bot that plays the first bot's moves and, on every turn, runs each version of the room count on the same window. It checks that they all agree, then logs what each one cost using the judge's own clock, so the numbers are exact CPU points. Over 1,477 turns on six maps, every version agreed on every turn:

@@ -20,11 +20,13 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, a repertoire that keeps them swappable, and the first strategy bot assembled from behaviour modules. |
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes as parent states over shared behaviours, each dragon working out its own role by sonar, and the bugs the replays found. |
 | 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it: what worked, what didn't, and every version on one ladder. |
+| 14 | [Sonar](14-sonar.md) | Tactical ideas and espionage | The 2026 game's special feature, and open questions on encoding, decoding, fingerprinting, echolocation, misinformation and poker. |
+| 15 | [Counting room faster](15-counting-room-faster.md) | Performance | Taking the room count from Nim through bitboards to SIMD, 66 times cheaper in CPU points. |
 | 16 | [The machine inside the judge](16-the-machine-inside-the-judge.md) | Performance | A judge written in Zig that plays the toolkit's games four times faster, why running bots as fibres rules out a race that kills freshly split dragons, and the machine the meter presents to a bot. |
 | 17 | [Games in the cloud](17-games-in-the-cloud.md) | Performance | Running big batches of games on AWS Spot workers, the standing resources declared in OpenTofu, and how every run ends on its own. |
 | 18 | [Game data in columns](18-game-data-in-columns.md) | Performance | One binary format for all our game data: columns a reader maps into memory and uses without parsing, and a converter that writes them from a replay. |
 
-Next up: sonar.
+Next up: the Insight Diode.
 
 ## Stages
 

@@ -1,7 +1,5 @@
 # Sonar
 
-<!-- draft: 5e1a7c20b3, stage: Tactical ideas and espionage -->
-
 Most Battlecode seasons are built around one unusual mechanic, and the strongest teams exploit it better than anyone else. In 2026 it's sonar. It's the only way dragons can talk, the only way they learn anything beyond their 7×7 window, and every message is as audible to the enemy as to a teammate.
 
 [Roles](12-roles.md) used sonar to announce a dragon's length, and [Tactics](13-tactics.md) added its position. This post is a notebook of what else the rules allow, with the working out left to you.
