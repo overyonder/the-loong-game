@@ -1,6 +1,6 @@
 # Reading a replay
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter, to describe the released decoder, now in Nim with its own Cap'n Proto reader, and to quote the viewer's reconstruction code. I decoded a newly sampled replay and counted deaths from the rerun ladder.
+> **Editor's note, 29 September 2026.** I've rewritten this post to be shorter, to describe the released decoder, now in Nim with its own Cap'n Proto reader, and to quote the reconstruction the viewer now uses, also in Nim. I decoded a newly sampled replay and counted deaths from the rerun ladder.
 
 In the [wishlist](01-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](07-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 
@@ -78,35 +78,40 @@ Public replays leave the bot names blank, so the decoder calls the players team 
 
 ## Rebuilding the game
 
-A replay records changes in the order the engine made them, not pictures of the board, so knowing where everything was at round 200 means replaying 200 rounds of changes, as the official viewer does. The [reconstruction](../replays/viewer/reconstruction.py) behind the debug viewer does the same. It reads the replay through the [pycapnp](https://github.com/capnproto/pycapnp) library and the schema above, and applies each event in turn. The interesting one is a move:
+A replay records changes in the order the engine made them, not pictures of the board, so knowing where everything was at round 200 means replaying 200 rounds of changes, as the official viewer does. The [reconstruction](../gamedata/board.nim) behind the debug viewer does the same. It reads the replay through the decoder's reader and the schema above, and applies each event in turn. The interesting one is a move:
 
-```python
-elif kind == "dragonUpdate":
-    identifier = event["id"]
-    dragon = self.dragons[identifier]
-    ...
-    dragon["body"].insert(0, point(event["head"]))
-    dragon["directions"].insert(0, direction)
-    while len(dragon["body"]) > 1 and dragon["body"][-1] != point(
-        event["tail"]
-    ):
-        dragon["body"].pop()
-        dragon["directions"].pop()
+```nim
+proc moveDragon*(board: var ReconstructedBoard, dragon: int32, head, tail: int, facing: char) =
+  ## One step: the new head first, then tail cells dropped until the body ends
+  ## at `tail`.
+  board.unindexDragon(dragon)
+  let entry = addr board.dragons[dragon]
+  entry.directions[0] = facing
+  entry.body.insert(head, 0)
+  entry.directions.insert(facing, 0)
+  while entry.body.len > 1 and entry.body[^1] != tail:
+    entry.body.setLen(entry.body.len - 1)
+    entry.directions.setLen(entry.directions.len - 1)
+  board.indexDragon(dragon)
 ```
 
 An update only says where the head and tail are now, not the whole body. So we add the new head and drop segments from the old tail until it matches. An ordinary move drops one segment and a move that eats a pearl drops none, because the tail stays put, so one rule handles both. The starting board comes from the map text at the top of the replay.
 
 ## One dragon's window
 
-With the board rebuilt, a dragon's view is the 7×7 square around its head, wrapping round the edges of the map:
+With the board rebuilt, a dragon's view is the 7×7 square around its head, wrapping round the edges of the map. Cells are numbered row by row, and `floorMod` keeps a negative offset on the board:
 
-```python
-window = [
-    ((head[0] + dx) % self.width, (head[1] + dy) % self.height)
-    for dy in range(-3, 4)
-    for dx in range(-3, 4)
-]
+```nim
+proc cellAt*(board: ReconstructedBoard, x, y: int): int =
+  floorMod(y, board.height) * board.width + floorMod(x, board.width)
 ```
+
+```nim
+for dy in -3 .. 3:
+  for dx in -3 .. 3: visible.add board.cellAt(x + dx, y + dy)
+```
+
+The [observations](../gamedata/observations.nim) that the viewer's recovery feeds back to a bot are built from these cells, exactly as the engine wrote them to it.
 
 Here is round 238 of another public game, on a 32×32 map, from a three-segment dragon in the middle of it:
 

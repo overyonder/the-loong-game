@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 486" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Records the inspector lays out beside the board</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="1010" height="486" fill="#ede5d5"/>
+<text x="20" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">state, as a tree</text>
+<rect x="20" y="44" width="300" height="26" rx="4" fill="#f6f1e7" stroke="#66675e" stroke-width="1.5"/><text x="30" y="62" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Dragon</text><text x="310" y="62" font-size="12.5" fill="#66675e" text-anchor="end" font-weight="normal">not evaluated</text>
+<rect x="38" y="76" width="282" height="26" rx="4" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.5"/><text x="48" y="94" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Flee</text><text x="310" y="94" font-size="12.5" fill="#b53b13" text-anchor="end" font-weight="normal">ineligible</text>
+<rect x="38" y="108" width="282" height="26" rx="4" fill="#f6f1e7" stroke="#a8801a" stroke-width="1.5"/><text x="48" y="126" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Eat</text><text x="310" y="126" font-size="12.5" fill="#a8801a" text-anchor="end" font-weight="normal">selected / utility 6</text>
+<rect x="38" y="140" width="282" height="26" rx="4" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.5"/><text x="48" y="158" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Split</text><text x="310" y="158" font-size="12.5" fill="#b53b13" text-anchor="end" font-weight="normal">ineligible</text>
+<rect x="38" y="172" width="282" height="26" rx="4" fill="#f6f1e7" stroke="#263d31" stroke-width="1.5"/><text x="48" y="190" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Explore</text><text x="310" y="190" font-size="12.5" fill="#263d31" text-anchor="end" font-weight="normal">eligible / utility 1</text>
+<text x="20" y="222" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Each option with its eligibility, score and</text>
+<text x="20" y="240" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">reason. The chosen one opens its children.</text>
+<text x="360" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">state, as a graph</text>
+<rect x="360" y="80" width="80" height="36" rx="18" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="400" y="103" font-size="13" fill="#20251f" text-anchor="middle" font-weight="normal">Young</text>
+<rect x="465" y="80" width="80" height="36" rx="18" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="505" y="103" font-size="13" fill="#20251f" text-anchor="middle" font-weight="normal">Grown</text>
+<path d="M440 98 L463 98" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="570" y="80" width="80" height="36" rx="18" fill="#263d31" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="610" y="103" font-size="13" fill="#ede5d5" text-anchor="middle" font-weight="bold">Parent</text>
+<path d="M545 98 L568 98" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="438" y="136" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">length 6</text>
+<text x="543" y="136" font-size="11.5" fill="#66675e" text-anchor="middle" font-weight="normal">split</text>
+<text x="360" y="222" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Nodes at the bot&#x27;s own coordinates, the</text>
+<text x="360" y="240" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">active one filled, links with their conditions.</text>
+<text x="700" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">candidate</text>
+<rect x="700" y="44" width="290" height="26" rx="4" fill="#f6f1e7" stroke="#a8801a" stroke-width="1.5"/><text x="710" y="62" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Move N</text><text x="980" y="62" font-size="12.5" fill="#a8801a" text-anchor="end" font-weight="normal">−1 moves to the pearl, chosen</text>
+<rect x="700" y="76" width="290" height="26" rx="4" fill="#f6f1e7" stroke="#66675e" stroke-width="1.5"/><text x="710" y="94" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">Move W</text><text x="980" y="94" font-size="12.5" fill="#66675e" text-anchor="end" font-weight="normal">−1 moves to the pearl</text>
+<text x="700" y="222" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">A score and what it measures. Scores from</text>
+<text x="700" y="240" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">different objectives are never compared.</text>
+<text x="20" y="290" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">table</text>
+<text x="34" y="322" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="bold">side</text>
+<text x="129" y="322" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="bold">safe</text>
+<text x="224" y="322" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="bold">room</text>
+<rect x="20" y="332" width="300" height="26" rx="4" fill="#f6f1e7" stroke="#a8801a" stroke-width="1.5"/>
+<text x="34" y="350" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">N</text>
+<text x="129" y="350" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">yes</text>
+<text x="224" y="350" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">4</text>
+<rect x="20" y="362" width="300" height="26" rx="4" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.5"/>
+<text x="34" y="380" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">E</text>
+<text x="129" y="380" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">no</text>
+<text x="224" y="380" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">-</text>
+<rect x="20" y="392" width="300" height="26" rx="4" fill="#f6f1e7" stroke="#263d31" stroke-width="1.5"/>
+<text x="34" y="410" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">W</text>
+<text x="129" y="410" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">yes</text>
+<text x="224" y="410" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">4</text>
+<text x="20" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Rows marked selected, eligible or ineligible;</text>
+<text x="20" y="466" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">a row can open records of its own.</text>
+<text x="360" y="290" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">calculation</text>
+<rect x="360" y="304" width="300" height="90" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="374" y="329" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">utility = 8 − moves</text><text x="374" y="350" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">moves   2</text><text x="374" y="368" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">result   6</text>
+<text x="360" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">The expression as the bot wrote it; the</text>
+<text x="360" y="466" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">viewer shows the values and evaluates nothing.</text>
+<text x="700" y="290" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">sonar table</text>
+<rect x="700" y="304" width="130" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="714" y="329" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">D2 sent</text><text x="714" y="350" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">D2&#x27;s head, length 7</text>
+<rect x="860" y="304" width="130" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="874" y="329" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">D0 received</text><text x="874" y="350" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">position of D2</text><text x="874" y="368" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">updated</text>
+<path d="M830 339 L858 339" fill="none" stroke="#b53b13" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#s)"/>
+<text x="845" y="396" font-size="11.5" fill="#b53b13" text-anchor="middle" font-weight="normal">the replay&#x27;s ping</text>
+<text x="700" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Sender&#x27;s meaning, receiver&#x27;s reading and</text>
+<text x="700" y="466" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">outcome, joined on the recorded ping.</text>
+</svg>

@@ -4,9 +4,13 @@
 type
   Controller* {.importc: "UnswbcController", header: "helper.h", incompleteStruct.} = object
   Game* {.importc: "UnswbcGame", header: "helper.h", incompleteStruct.} = object
+    roundNum* {.importc: "round_num".}: cint
     width*, height*: cint
   Tile* {.importc: "UnswbcTile", header: "helper.h", incompleteStruct.} = object
+    position*: Position                        # already wrapped
+    pearlTime* {.importc: "pearl_time".}: cint  # rounds until a pearl tries to spawn; -1 never
   Edge* {.importc: "UnswbcEdge", header: "helper.h", incompleteStruct.} = object
+    present*: bool                             # this turn's window carried it
   Position* {.importc: "UnswbcPosition", header: "helper.h".} = object
     x*, y*: cint
   Entity* {.importc: "UnswbcEntity", header: "helper.h", incompleteStruct.} = object
@@ -24,6 +28,7 @@ proc unswbc_entity*(tile: ptr Tile): ptr Entity {.importc, header: "helper.h".}
 proc unswbc_edge*(tile: ptr Tile, side: Direction): ptr Edge {.importc, header: "helper.h".}
 proc unswbc_passable*(edge: ptr Edge): cint {.importc, header: "helper.h".}
 proc unswbc_is_portal*(edge: ptr Edge): cint {.importc, header: "helper.h".}
+proc unswbc_portal_id*(edge: ptr Edge): cint {.importc, header: "helper.h".}
 proc unswbc_has_pearl*(tile: ptr Tile): cint {.importc, header: "helper.h".}
 proc unswbc_move*(side: Direction): cint {.importc, discardable, header: "helper.h".}
 proc unswbc_facing*(ct: ptr Controller): Direction {.importc, header: "helper.h".}

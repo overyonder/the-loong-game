@@ -1,10 +1,8 @@
 package viewer
 import rl "vendor:raylib"
 
-import virtual "core:mem/virtual"
 
-// Version 4 exports preserve recorded pre-action boards separately from rerun
-// memory. Diagnostic types follow LOG K001_STATE v1 without reshaping its data.
+// A recorded board as the viewer draws it (board_replay.odin).
 Board_Edge :: struct {
 	x, y, side: i32,
 	kelp:       bool,
@@ -18,6 +16,9 @@ Board_Death :: struct {
 	id, team, cell: i32,
 	reason:         string,
 }
+Spawn_Rule :: struct {
+	cell, minimum, maximum: i32,
+}
 Pearl_Timer :: struct {
 	cell, remaining: i32,
 }
@@ -27,134 +28,68 @@ Board_Frame :: struct {
 	deaths:  []Board_Death,
 	timers:  []Pearl_Timer,
 }
-Memory_Edge :: struct {
-	kind,
-	confidence,
-	destination,
-	portal,
-	source,
-	record_round,
-	destination_source,
-	destination_round: i32,
-}
-Memory_Cell :: struct {
-	cell:                                                                                      i32,
-	observed:                                                                                  bool,
-	observed_round:                                                                            i32,
-	edges:                                                                                     []Memory_Edge,
-	pearl:                                                                                     bool,
-	pearl_round, pearl_source, spawn_round, spawn_period, spawn_samples, source, record_round: i32,
-	topology_only:                                                                             bool,
-	occupant, occupant_team:                                                                   i32,
-	occupant_head:                                                                             bool,
-	accuracy:                                                                                  string,
-}
-Candidate :: struct {
-	directions:                       []i32,
-	score, risk:                      f32,
-	survival_depth, survival_horizon: i32,
-	reason:                           string,
-}
-Search_Cell :: struct {
-	utility_evaluated: bool,
-	cell, cost:        i32,
-	utility:           f32,
-}
-Receiver_Effect :: struct {
-	value, kind:                string,
-	accepted:                   bool,
-	effect:                     string,
-	cell, source, record_round: i32,
-}
-Diagnostic :: struct {
-	version, round, dragon:                         i32,
-	role, regime, reason, target_reason, path_kind: string,
-	owned_cells:                                    []i32,
-	target:                                         i32,
-	previous_role, previous_regime:                 string,
-	moves:                                          []i32,
-	child_length, link_partner:                     i32,
-	selected_score:                                 f32,
-	search_objective:                               string,
-	farm:                                           struct {
-		cycle:           []i32,
-		estimated_yield: f32,
+// A dragon's declared mental map graded against replay truth (accuracy.odin).
+// Grades are 0 unknown, 1 correct, 2 wrong; each cell entry is
+// [cell, overall, pearl, north, east, south, west].
+Accuracy :: struct {
+	table:         string,
+	cells:         [][7]i32,
+	wrong:         []struct {
+		cell:   i32,
+		reason: string,
 	},
-	lobe:                                           struct {
-		doors:           []i32,
-		estimated_value: f32,
-	},
-	memory:                                         []Memory_Cell,
-	candidates:                                     []Candidate,
-	path:                                           []i32,
-	search:                                         []Search_Cell,
-	sonar_constraints:                              []struct {
-		origin, direction, round:      i32,
-		conditional_on_unseen_portals: bool,
-	},
-	coverage:                                       struct {
-		target, owned_unknown: i32,
-		complete:              bool,
-	},
-	rx:                                             []Receiver_Effect,
+	edges, pearls: [3]i32,
+	cell_totals:   [3]i32,
 }
+Dragon_Fact :: struct {
+	id, team, head, length: i32,
+}
+// One dragon turn: its record from the recovery stream (recovery_stream.odin),
+// the game's facts about it, and what the viewer derives when it opens it.
 Dragon_Turn :: struct {
-	dragon, team, round, head, length:                            i32,
-	action, window:                                               string,
-	board:                                                        Board_Frame,
-	report_present, reliable, action_matches:                     bool,
-	recovered_action, memory_source, known_mask:                  string,
-	exact_cells, wrong_cells, partial_cells:                      i32,
-	regime, role:                                                 string,
-	target:                                                       i32,
-	anchor, terminal:                                             bool,
-	exits, space, reported_known_cells, reported_believed_pearls: i32,
-	score:                                                        f32,
-	memory:                                                       []Memory_Cell,
-	diagnostic:                                                   Diagnostic,
-}
-Export_Build :: struct {
-	bot:                      string,
-	submission:               i32,
-	commit, how, wasm_sha256: string,
-	identified:               bool,
-	mismatch_rate:            f32,
-	notes:                    []string,
-}
-Export_Ping :: struct {
-	id, round, received_round, sender, hit, hit_kind, origin, end: i32,
-	direction, value, protocol, carries, decoded, acceptance:      string,
-	reflected:                                                     bool,
-}
-Debug_View_Export :: struct {
-	version:                      i32,
-	recorded_traces:              bool,
-	map_name:                     string,
-	width, height:                i32,
-	bot_a, bot_b, winner:         string,
-	edges:                        []Board_Edge,
-	frames:                       []Board_Frame,
-	turns:                        []Dragon_Turn,
-	team:                         string,
-	selected_dragon, start_frame: i32,
-	start_playing:                bool,
-	start_frames_per_second:      f32,
-	build:                        Export_Build,
-	pings:                        []Export_Ping,
-	annotation_path:              string,
-}
-Loaded_Game :: struct {
-	arena:                  virtual.Arena,
-	export:                 Debug_View_Export,
-	source_path:            string,
-	turn_indices_by_dragon: map[i32][dynamic]int,
-	first_turn_of_round:    []int,
+	// From the turn's record (diagnostics.md).
+	gizmos:                             []Gizmo,
+	gizmo_errors:                       []string,
+	// Display slots whose root record was rejected this turn.
+	gizmo_rejected_slots:               []string,
+	gizmo_source, gizmo_status:         string,
+	gizmo_reliable:                     bool,
+	gizmo_input_protocol:               i32,
+	// The recovery's note on the dragon's build.
+	build_guid, build_variant, build_status: string,
+	// Derived when opened: the mental map's grades and the sonar join's errors.
+	accuracy:                           Accuracy,
+	radio_errors:                       []string,
+	dragon, team, round, head, length:  i32,
+	action:                             string,
+	// Judge points charged to the turn, and the toolkit's reason if it failed.
+	points:                             i64,
+	point_failure:                      string,
+	// The replay at the turn's start, which grades its memory and beliefs:
+	// the pearls, each cell's next spawn attempt as {cell, round}, and the
+	// living dragons.
+	pearls:                             []i32,
+	spawns:                             [][2]i32,
+	dragons:                            []Dragon_Fact,
+	// Its beliefs graded against that (beliefs.odin).
+	beliefs:                            []Belief_Grade,
+	// Whether the stream had sent this turn's record when it was opened, and
+	// whether its memory has been graded since.
+	has_record, graded:                 bool,
+	// Recoverable, but not recovered yet.
+	recovery_pending:                   bool,
+	// Its retained gizmos have been rebuilt from their changes.
+	retained_expanded:                  bool,
 }
 Overlay_Toggles :: struct {
-	strategy_labels, target_lines, vision_windows, deaths, dragon_ids, grid, edges: bool,
-	pings, timers, search, path, coverage:                                          bool,
+	target_lines, vision_windows, deaths, dragon_ids, grid, edges: bool,
+	fog:                                                           bool,
+	pings, timers, search, path, mental_map, positions:            bool,
+	spawn_gaps:                                                    bool,
 }
 Playback_State :: struct {
+	substeps:          bool,
+	turn_position:     f32,
 	frame_position:    f32,
 	playing:           bool,
 	frames_per_second: f32,
@@ -163,24 +98,67 @@ Highlight :: struct {
 	kind: string,
 	id:   i32,
 }
+// A saved comment's context, carried in its inbox line (annotations.odin).
 Annotation :: struct {
+	replay:                 string,
+	turn_index:             i32,
+	substeps:               bool,
 	version, frame, dragon: i32,
 	highlights:             []Highlight,
-	text:                   string,
+	text:                   string `json:"-"`, // the line's visible text
 }
 Viewer_State :: struct {
-	inspector_area:                 rl.Rectangle,
-	game:                           Loaded_Game,
-	has_game:                       bool,
-	playback:                       Playback_State,
-	overlays:                       Overlay_Toggles,
-	selected_dragon, selected_cell: i32,
-	status:                         string,
-	scale:                          f32,
-	inspector_scroll:               f32,
-	highlights:                     [dynamic]Highlight,
-	comment:                        [4096]u8,
-	comment_editing:                bool,
-	annotations:                    [dynamic]Annotation,
-	annotation_index:               int,
+	gizmo_graph_y:                                                                                  [1024]f32,
+	gizmo_graph_hovered:                                                                            bool,
+	gizmo_graph_pan:                                                                                [1024]f32,
+	gizmo_selection:                                                                                string,
+	generic_signals_tab:                                                                            bool,
+	generic_memory_tab:                                                                             bool,
+	objective_scroll_limit,
+	inspector_scroll_limit,
+	detail_scroll_limit: f32,
+	brain_open:                                                                                     bool,
+	// The recovery process beside the viewer, and the dragons it is recovering.
+	recovery:                                                                                       Recovery_Process,
+	// Scroll over the board not yet taken as a step.
+	wheel_steps: f32,
+	// The dragon Defocus left, for the Focus button to return to.
+	last_focused: i32,
+	// The sidebar chart being dragged to seek, if any.
+	scrubbing: Scrub_Chart,
+	area_view:                                                                                      bool, // `f`: the 15×15 area round the focused head
+	objective_scroll:                                                                               f32,
+	drag_selecting:                                                                                 bool,
+	// How a board drag selects, whether it has left its first cell, and whether a
+	// brush stroke erases.
+	drag_shape:                                                                                     Drag_Shape,
+	drag_moved, brush_erases:                                                                       bool,
+	drag_start_cell,
+	drag_end_cell:                                                                 i32,
+	detail_title,
+	detail_text:                                                                      string,
+	detail_scroll:                                                                                  f32,
+	detail_open:                                                                                    bool,
+	// A belief the detail dialog draws as a board (belief_map.odin). With no
+	// category, the dialog is text only.
+	detail_map:                                                                                     Belief_Map_View,
+	inspector_area:                                                                                 rl.Rectangle,
+	// The inspector body's scissor, which a sideways-scrolling table narrows
+	// and then restores.
+	inspector_clip:                                                                                 rl.Rectangle,
+	game:                                                                                           Loaded_Game,
+	has_game:                                                                                       bool,
+	playback:                                                                                       Playback_State,
+	overlays:                                                                                       Overlay_Toggles,
+	selected_dragon,
+	selected_cell:                                                                 i32,
+	status:                                                                                         string,
+	scale:                                                                                          f32,
+	inspector_scroll:                                                                               f32,
+	highlights:                                                                                     [dynamic]Highlight,
+	comment:                                                                                        [4096]u8,
+	comment_editing:                                                                                bool,
+	comment_context:                                                                                Comment_Context,
+	annotations:                                                                                    [dynamic]Annotation,
+	annotation_index:                                                                               int,
 }

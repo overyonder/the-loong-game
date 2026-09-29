@@ -18,107 +18,146 @@ deaths *replays:
 sample-replays *args:
     ../../build/bin/loong-sample-replays "$@"
 
-# Recorded observations; competitive source recovery stays private.
-[private]
-_viewer-export *args:
-    #!/usr/bin/env -S {{quote(python)}}
-    import argparse
-    import json
-    from pathlib import Path
-
-    from replays.viewer.board import board_export
-    from replays.viewer.replay import read_replay
-
-    parser = argparse.ArgumentParser(prog="viewer")
-    parser.add_argument("replay", type=Path)
-    parser.add_argument("--dragon", type=int)
-    parser.add_argument("--round", type=int, default=0)
-    parser.add_argument("--play", action="store_true")
-    parser.add_argument("--watch", action="store_true")
-    parser.add_argument("--speed", type=float, default=4)
-    parser.add_argument("--no-display", action="store_true")
-    parser.add_argument("--export", type=Path, required=True)
-    parser.add_argument(
-        "--image",
-        type=Path,
-        help="Save PNG using the Odin viewer; requires a display/OpenGL context",
-    )
-    args = parser.parse_args()
-    if args.image and args.image.suffix.lower() != ".png":
-        parser.error("--image writes PNG; use a .png output path")
-    replay = read_replay(args.replay)
-    export = board_export(
-        args.replay, replay["botA"] or "team A", replay["botB"] or "team B"
-    )
-    export.update(
-        version=4,
-        team="A",
-        build={
-            "identified": False,
-            "notes": ["Recorded observations; bot state unavailable"],
-        },
-        dragons={},
-        pings=[],
-        annotation_path=str(args.replay.resolve()) + ".annotations.jsonl",
-        selected_dragon=-1 if args.dragon is None else args.dragon,
-        start_frame=args.round,
-        start_playing=args.play,
-        start_frames_per_second=args.speed,
-    )
-    for turn in export["turns"]:
-        turn["memory_source"] = "observed"
-    args.export.parent.mkdir(parents=True, exist_ok=True)
-    temporary = args.export.with_suffix(".tmp")
-    temporary.write_text(json.dumps(export) + "\n")
-    temporary.replace(args.export)
-    print(f"wrote {args.export}")
-
-# Build the Odin viewer, and the raygui library it links when it is missing.
+# Build the Odin viewer, and the raygui library Odin's raylib binding links when it is missing.
 [group("Build")]
 viewer-build:
     #!/usr/bin/env bash
     set -euo pipefail
     mkdir -p ../../build/bin ../../build/lib
     lib=$(realpath ../../build/lib)
-    # raygui ships as a header only; Odin's raygui binding links a shared
+    # raygui ships as a header only; Odin's raylib binding links a shared
     # library built from it with its implementation, against raylib.
     if [[ ! -f "$lib/libraygui.so" ]]; then
         echo '#include <raygui.h>' | cc -x c -O2 -fPIC -shared -DRAYGUI_IMPLEMENTATION - -lraylib -o "$lib/libraygui.so"
     fi
-    odin build ../../replays/viewer -vet -strict-style -warnings-as-errors -debug -out:../../build/bin/viewer -extra-linker-flags:"-L$lib -Wl,-rpath,$lib"
+    odin build ../../replays/viewer -vet -strict-style -warnings-as-errors -o:speed -out:../../build/bin/viewer -extra-linker-flags:"-L$lib -Wl,-rpath,$lib"
 
+# Write a replay's game columns (gamedata/format.md), beside it unless OUTPUT is given.
+[group("Inspection")]
+gamedata replay output="":
+    ../../build/bin/loong-gamedata "$1" ${2:+"$2"}
+
+# Open a replay in the viewer. The viewer starts `loong-recover` beside itself,
+# which reruns each seated side's registered build over its dragons' recorded
+# observations and streams their decisions into memory.
 [group("Inspection")]
 viewer *args:
     #!/usr/bin/env bash
     set -euo pipefail
-    for argument in "$@"; do
-        case "$argument" in -h|--help) just _viewer-export "$@"; exit ;; esac
-    done
-    mkdir -p build/viewer
-    export_path=$(mktemp "$PWD/build/viewer/export.XXXXXXXX.json")
-    temporary_export="$export_path"
+    usage() {
+        cat <<'USAGE'
+    usage: just viewer REPLAY [OPTIONS]
+
+      --seat A|B GUID         the registered build (just bot-build) that played that
+                              side; its dragons' decisions are rebuilt
+      --dragon N, --round R   where the viewer opens; the dragon's decisions are rebuilt first
+      --turn T                open Turns mode at that turn index, overriding --round
+      --whole-board           show the whole board; a --dragon with --round or --turn
+                              otherwise opens zoomed on its area
+      --rounds                open in Rounds mode instead of Turns
+      --play, --speed S       start playback, at S turns (or rounds) per second
+      --position FILE         restore a saved position (GAME.cols.position): round,
+                              dragon, zoom, selection, tab and overlays
+      --game FILE             where the game columns go (default build/viewer/<stem>.<hash>.cols)
+      --no-display            only write the game columns
+      --image FILE, --size WxH   render one frame to a PNG (needs a display)
+      --no-recovery           show only what the replay recorded
+      --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or build/registry)
+      --inbox FILE            where comments are appended (default build/viewer/comments.md)
+    USAGE
+    }
+    root=$(realpath ../..)
+    replay=''
+    game=''
     display=true
-    watch=false
-    previous=''
-    image_path=''
-    for argument in "$@"; do
-        if [[ "$previous" == '--export' ]]; then export_path="$argument"; fi
-        if [[ "$previous" == '--image' ]]; then image_path="$argument"; fi
-        case "$argument" in
-            --export=*) export_path="${argument#--export=}" ;;
-            --no-display|--image) display=false ;;
-            --image=*) image_path="${argument#--image=}"; display=false ;;
-            --watch) watch=true ;;
+    image=''
+    size=1600x960
+    recover=true
+    registry=${LOONG_BUILD_REGISTRY:-$root/build/registry}
+    judge=${LOONG_JUDGE:-$root/build/zig-judge/bin/loong-judge}
+    inbox=$root/build/viewer/comments.md
+    seats=()
+    viewer_arguments=()
+    while (($#)); do
+        case "$1" in
+            -h|--help) usage; exit ;;
+            --seat) seats+=(--seat "$2" "$3" "$2"); shift 2 ;;
+            --game) game=$2; shift ;;
+            --image) image=$2; display=false; shift ;;
+            --size) size=$2; shift ;;
+            --registry) registry=$2; shift ;;
+            --inbox) inbox=$2; shift ;;
+            --no-display) display=false ;;
+            --no-recovery) recover=false ;;
+            --dragon|--round|--turn|--speed) viewer_arguments+=("$1" "$2"); shift ;;
+            --position) viewer_arguments+=(--position "$(realpath "$2")"); shift ;;
+            --play|--whole-board|--rounds) viewer_arguments+=("$1") ;;
+            -*) echo "unknown option $1" >&2; usage >&2; exit 2 ;;
+            *) replay=$1 ;;
         esac
-        previous="$argument"
+        shift
     done
-    trap 'if [[ "$temporary_export" != "$export_path" ]]; then rm -f "$temporary_export"; fi' EXIT
-    just _viewer-export --export "$export_path" "$@"
-    if [[ -n "$image_path" ]]; then
-        just viewer-build
-        mkdir -p "$(dirname "$image_path")"
-        ../../build/bin/viewer "$export_path" --image "$image_path"
-    elif "$display"; then
-        just viewer-build
-        if "$watch"; then ../../build/bin/viewer "$export_path" --watch; else ../../build/bin/viewer "$export_path"; fi
+    [[ -f "$replay" ]] || { usage >&2; exit 2; }
+    just tools-build
+    just viewer-build
+    if [[ -z "$game" ]]; then
+        hash=$(realpath "$replay" | sha1sum | cut -c1-8)
+        game="$root/build/viewer/$(basename "${replay%.replay}").$hash.cols"
     fi
+    mkdir -p "$(dirname "$game")" "$(dirname "$inbox")"
+    if [[ ! "$game" -nt "$replay" ]]; then "$root/build/bin/loong-gamedata" "$replay" "$game" >&2; fi
+    if ! "$display" && [[ -z "$image" ]]; then echo "wrote $game"; exit; fi
+    arguments=("$(realpath "$game")" --inbox "$(realpath -m "$inbox")" --replay-name "$replay" "${viewer_arguments[@]}")
+    if "$recover"; then
+        [[ -x "$judge" ]] || { echo "No judge at $judge: run just zig-judge-build" >&2; exit 2; }
+        arguments+=(--recover "$root/build/bin/loong-recover" --replay "$(realpath "$replay")" --registry "$(realpath "$registry")" --judge "$(realpath "$judge")" "${seats[@]}")
+    fi
+    if [[ -n "$image" ]]; then
+        mkdir -p "$(dirname "$image")"
+        exec "$root/build/bin/viewer" "${arguments[@]}" --image "$(realpath -m "$image")" --size "$size"
+    fi
+    exec "$root/build/bin/viewer" "${arguments[@]}"
+
+# Print dragons' rebuilt decisions turn by turn, as text or JSON lines.
+[group("Inspection")]
+decisions *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    usage() {
+        cat <<'USAGE'
+    usage: just decisions REPLAY --seat A|B GUID... (--dragon D... | --team A|B | --all) [--rounds A-B] [--json]
+
+    Rebuilds each dragon's decisions through its side's registered build, as the
+    viewer does, and prints each turn in the rounds asked for, dragon by dragon:
+    the Brain's breakdown and every option it weighed with its eligibility, score
+    and reason, then the other records, and what changed in memory. Each dragon's
+    turns follow a line giving its build and how many rebuilt turns match the
+    replay, with the first divergence. --json prints one JSON object a turn.
+      --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or build/registry)
+    USAGE
+    }
+    root=$(realpath ../..)
+    replay=''
+    options=()
+    registry=${LOONG_BUILD_REGISTRY:-$root/build/registry}
+    judge=${LOONG_JUDGE:-$root/build/zig-judge/bin/loong-judge}
+    while (($#)); do
+        case "$1" in
+            -h|--help) usage; exit ;;
+            --seat) options+=(--seat "$2" "$3" "$2"); shift 2 ;;
+            --dragon|--rounds|--team) options+=("$1" "$2"); shift ;;
+            --json|--all) options+=("$1") ;;
+            --registry) registry=$2; shift ;;
+            -*) echo "unknown option $1" >&2; usage >&2; exit 2 ;;
+            *) replay=$1 ;;
+        esac
+        shift
+    done
+    [[ -f "$replay" ]] || { usage >&2; exit 2; }
+    [[ -x "$judge" ]] || { echo "No judge at $judge: run just zig-judge-build" >&2; exit 2; }
+    just tools-build >&2
+    hash=$(realpath "$replay" | sha1sum | cut -c1-8)
+    game="$root/build/viewer/$(basename "${replay%.replay}").$hash.cols"
+    mkdir -p "$(dirname "$game")"
+    if [[ ! "$game" -nt "$replay" ]]; then "$root/build/bin/loong-gamedata" "$replay" "$game" >&2; fi
+    exec "$root/build/bin/loong-recover" decisions --replay "$(realpath "$replay")" --game "$game" --registry "$registry" --judge "$judge" "${options[@]}"

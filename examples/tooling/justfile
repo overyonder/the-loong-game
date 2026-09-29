@@ -58,6 +58,28 @@ nim-bot name:
     cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" {{name}}/
     nim c {{name}}/strategy.nim
 
+# The showcase bot, built with the diagnostics runtime, then registered so the
+# viewer can rerun it. Prints the build's GUID.
+showcase-bot:
+    rm -rf showcase-bot && cp -r ../showcase-bot showcase-bot
+    rm -rf repertoire && cp -r ../repertoire repertoire
+    cp ../../runtime/*.c ../../runtime/*.h ../../runtime/*.nim showcase-bot/
+    cp "$(nim dump 2>&1 | grep -m1 '/lib$')/nimbase.h" showcase-bot/
+    nim c showcase-bot/strategy.nim
+    just bot-build showcase-bot
+
+# Play the showcase bot against itself and open the game with both sides rebuilt.
+showcase map="maps/default.map" seed="1":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    build=$(just showcase-bot | tail -1)
+    guid=$({{quote(python)}} -c 'import json, sys; print(json.loads(sys.argv[1])["guid"])' "$build")
+    wasm=$({{quote(python)}} -c 'import json, sys; print(json.loads(sys.argv[1])["wasm"])' "$build")
+    read -ra match < <({{quote(python)}} -c 'from harness.zig_judge.harness import match_command; print(" ".join(match_command()))')
+    mkdir -p results/showcase
+    "${match[@]}" run --sandbox --seed "{{seed}}" -o results/showcase/game.replay "{{map}}" "$wasm" "$wasm"
+    just viewer results/showcase/game.replay --seat A "$guid" --seat B "$guid"
+
 room-nim:
     rm -rf room-nim && cp -r ../the-choice/nim room-nim
     cp starter-c/helper.c starter-c/helper.h room-nim/

@@ -10,8 +10,30 @@ import html
 import sys
 from pathlib import Path
 
-from figure_palette import (BLUE, BOARD, BOARD_GRID, CARD, DARK_LINE, DARK_TITLE, FONT, FOREST, GOLD, HOT, INK, KELP, MATE,
-                            MUTED, PALE, PAPER, PURPLE, RULE, SIGNAL, THEIRS)
+from figure_palette import (
+    BLUE,
+    BOARD,
+    BOARD_GRID,
+    CARD,
+    DARK_LINE,
+    DARK_TITLE,
+    FONT,
+    FOREST,
+    GOLD,
+    HOT,
+    INK,
+    KELP,
+    MATE,
+    MUTED,
+    OURS,
+    PALE,
+    PAPER,
+    PEARL,
+    PURPLE,
+    RULE,
+    SIGNAL,
+    THEIRS,
+)
 
 
 def svg(width, height, title, parts):
@@ -575,7 +597,167 @@ def gamedata_list():
     return svg(990, 214, "A list column and its starts", parts)
 
 
+
+def viewer_recovery():
+    parts = [
+        text(20, 30, "In play", 15, INK, weight="bold"),
+        card(20, 44, 230, 96, "bot.wasm", ["diagnostics compiled in,", "switched off: one flag check", "per block"], dark=True),
+        arrow([(250, 92), (298, 92)]),
+        card(300, 44, 230, 96, "The judge", ["plays the game", "and writes the replay"]),
+        arrow([(530, 92), (578, 92)]),
+        card(580, 44, 410, 96, "The replay", ["what each dragon observed, turn by turn,", "and what it did"]),
+        text(20, 184, "In the viewer", 15, INK, weight="bold"),
+        card(20, 198, 230, 110, "The same bot.wasm", ["from the build registry,", "started with LOONG_INSPECT,", "so its diagnostics run"], dark=True),
+        arrow([(785, 140), (785, 170), (415, 170), (415, 196)]),
+        arrow([(250, 253), (298, 253)]),
+        card(300, 198, 230, 110, "loong-recover", ["runs it in the judge on each", "dragon's recorded observations",
+                                                   "and checks each action"]),
+        arrow([(530, 253), (578, 253)]),
+        card(580, 198, 410, 110, "The viewer", ["draws each turn's records beside the board", "and hides a dragon's overlays after its",
+                                                 "rebuilt action first differs from the replay"]),
+    ]
+    return svg(1010, 328, "Decisions come back by rerunning the build that played", parts)
+
+
+def mini_board(x0, y0, columns=7, rows=5, cell=34):
+    parts = [f'<rect x="{x0}" y="{y0}" width="{columns * cell}" height="{rows * cell}" fill="{BOARD}" rx="4"/>']
+    grid = "".join(f"M{x0 + c * cell} {y0}v{rows * cell}" for c in range(1, columns))
+    grid += "".join(f"M{x0} {y0 + r * cell}h{columns * cell}" for r in range(1, rows))
+    parts.append(f'<path d="{grid}" stroke="{BOARD_GRID}"/>')
+    return parts
+
+
+def centre(x0, y0, c, r, cell=34):
+    return x0 + c * cell + cell / 2, y0 + r * cell + cell / 2
+
+
+def gizmo_board():
+    """The record kinds drawn on the board, each on its own small board."""
+    cell, panels = 34, []
+    titles = [("line", "two cells joined, such as a threat"), ("target", "a cell, with its label beside it"),
+              ("path", "cells in the order they're walked"), ("search", "cells, each with a value"),
+              ("map markers", "labelled cells from the bot's memory"), ("positions", "where a dragon was, and may be now")]
+    for index, (title, caption) in enumerate(titles):
+        x0, y0 = 20 + (index % 3) * 330, 44 + (index // 3) * 250
+        panels.append(text(x0, y0 - 14, title, 15, INK, weight="bold"))
+        panels += mini_board(x0, y0)
+        panels.append(text(x0, y0 + 5 * cell + 22, caption, 12.5, MUTED))
+        head = centre(x0, y0, 1, 3)
+        def dot(c, r, colour=OURS, x0=x0, y0=y0):
+            return '<circle cx="{}" cy="{}" r="{}" fill="{}"/>'.format(*centre(x0, y0, c, r), cell * 0.34, colour)
+        if title == "line":
+            enemy = centre(x0, y0, 5, 1)
+            panels += [dot(1, 3), dot(5, 1, THEIRS),
+                       f'<path d="M{head[0]} {head[1]}L{enemy[0]} {enemy[1]}" stroke="{SIGNAL}" stroke-width="2.5"/>']
+        elif title == "target":
+            tx, ty = centre(x0, y0, 4, 1)
+            panels += [dot(1, 3), f'<circle cx="{tx}" cy="{ty}" r="7" fill="{PEARL}"/>',
+                       f'<rect x="{tx - 15}" y="{ty - 15}" width="30" height="30" fill="none" stroke="{GOLD}" stroke-width="2.5"/>',
+                       text(tx + 20, ty + 5, "pearl", 12, PEARL)]
+        elif title == "path":
+            steps = [(1, 3), (2, 3), (3, 3), (3, 2), (4, 2), (4, 1)]
+            points = " ".join(f"{'M' if i == 0 else 'L'}{centre(x0, y0, c, r)[0]} {centre(x0, y0, c, r)[1]}" for i, (c, r) in enumerate(steps))
+            px, py = centre(x0, y0, 4, 1)
+            panels += [dot(1, 3), f'<circle cx="{px}" cy="{py}" r="7" fill="{PEARL}"/>',
+                       f'<path d="{points}" fill="none" stroke="{GOLD}" stroke-width="3" stroke-linejoin="round"/>']
+        elif title == "search":
+            panels.append(dot(1, 3))
+            for c in range(7):
+                for r in range(5):
+                    steps = abs(c - 1) + abs(r - 3)
+                    if 0 < steps <= 4:
+                        cx, cy = centre(x0, y0, c, r)
+                        panels.append(f'<rect x="{cx - 16}" y="{cy - 16}" width="32" height="32" fill="{GOLD}" opacity="{0.36 - 0.07 * steps:.2f}"/>')
+                        panels.append(text(cx - 13, cy - 3, steps, 11, PALE))
+        elif title == "map markers":
+            panels.append(dot(1, 3))
+            for c, r, seen in ((4, 1, "r120"), (5, 3, "r131")):
+                cx, cy = centre(x0, y0, c, r)
+                panels += [f'<circle cx="{cx}" cy="{cy}" r="7" fill="none" stroke="{PEARL}" stroke-width="2" stroke-dasharray="3 2"/>',
+                           text(cx, cy + 25, f"pearl seen {seen}", 11, PEARL, "middle")]
+        else:
+            last = centre(x0, y0, 4, 2)
+            for c in range(7):
+                for r in range(5):
+                    if abs(c - 4) + abs(r - 2) <= 2:
+                        cx, cy = centre(x0, y0, c, r)
+                        panels.append(f'<rect x="{cx - 17}" y="{cy - 17}" width="34" height="34" fill="{THEIRS}" opacity="0.13"/>')
+            panels += [f'<rect x="{last[0] - 15}" y="{last[1] - 15}" width="30" height="30" fill="none" stroke="{THEIRS}" stroke-width="2.5"/>',
+                       text(last[0], last[1] + 5, "2", 12, THEIRS, "middle"), dot(1, 3),
+                       text(x0 + 7 * cell - 6, y0 + 16, "enemy D5, 2 rounds ago", 11, THEIRS, "end")]
+    return svg(1010, 540, "Records the viewer draws on the board", panels)
+
+
+def gizmo_inspector():
+    """The record kinds the inspector lays out beside the board."""
+    parts = []
+
+    def row(x, y, w, label, state, colour, indent=0, fill=CARD):
+        return (f'<rect x="{x + indent}" y="{y}" width="{w - indent}" height="26" rx="4" fill="{fill}" stroke="{colour}" stroke-width="1.5"/>'
+                + text(x + indent + 10, y + 18, label, 12.5, INK) + text(x + w - 10, y + 18, state, 12.5, colour, "end"))
+
+    # A state tree: every option, with its eligibility and score.
+    parts.append(text(20, 30, "state, as a tree", 15, INK, weight="bold"))
+    parts.append(row(20, 44, 300, "Dragon", "not evaluated", MUTED))
+    for i, (label, state, colour) in enumerate([("Flee", "ineligible", SIGNAL), ("Eat", "selected / utility 6", GOLD),
+                                                 ("Split", "ineligible", SIGNAL), ("Explore", "eligible / utility 1", FOREST)]):
+        parts.append(row(20, 76 + 32 * i, 300, label, state, colour, indent=18))
+    parts.append(text(20, 222, "Each option with its eligibility, score and", 12.5, MUTED))
+    parts.append(text(20, 240, "reason. The chosen one opens its children.", 12.5, MUTED))
+
+    # A state graph laid out by the bot.
+    parts.append(text(360, 30, "state, as a graph", 15, INK, weight="bold"))
+    for i, (label, active) in enumerate([("Young", False), ("Grown", False), ("Parent", True)]):
+        x = 360 + i * 105
+        fill, ink = (FOREST, PAPER) if active else (CARD, INK)
+        parts.append(f'<rect x="{x}" y="80" width="80" height="36" rx="18" fill="{fill}" stroke="{RULE}" stroke-width="1.5"/>')
+        parts.append(text(x + 40, 103, label, 13, ink, "middle", "bold" if active else "normal"))
+        if i:
+            parts.append(arrow([(x - 25, 98), (x - 2, 98)]))
+    parts.append(text(438, 136, "length 6", 11.5, MUTED, "middle"))
+    parts.append(text(543, 136, "split", 11.5, MUTED, "middle"))
+    parts.append(text(360, 222, "Nodes at the bot's own coordinates, the", 12.5, MUTED))
+    parts.append(text(360, 240, "active one filled, links with their conditions.", 12.5, MUTED))
+
+    # Candidates, each scored by the option's own measure.
+    parts.append(text(700, 30, "candidate", 15, INK, weight="bold"))
+    for i, (label, score, chosen) in enumerate([("Move N", "−1 moves to the pearl", True), ("Move W", "−1 moves to the pearl", False)]):
+        parts.append(row(700, 44 + 32 * i, 290, label, score + (", chosen" if chosen else ""), GOLD if chosen else MUTED))
+    parts.append(text(700, 222, "A score and what it measures. Scores from", 12.5, MUTED))
+    parts.append(text(700, 240, "different objectives are never compared.", 12.5, MUTED))
+
+    # A table with row states.
+    parts.append(text(20, 290, "table", 15, INK, weight="bold"))
+    columns = ["side", "safe", "room"]
+    for j, name in enumerate(columns):
+        parts.append(text(34 + j * 95, 322, name, 12.5, MUTED, weight="bold"))
+    for i, (cells, colour) in enumerate([(("N", "yes", "4"), GOLD), (("E", "no", "-"), SIGNAL), (("W", "yes", "4"), FOREST)]):
+        parts.append(f'<rect x="20" y="{332 + 30 * i}" width="300" height="26" rx="4" fill="{CARD}" stroke="{colour}" stroke-width="1.5"/>')
+        for j, value in enumerate(cells):
+            parts.append(text(34 + j * 95, 350 + 30 * i, value, 12.5, INK))
+    parts.append(text(20, 448, "Rows marked selected, eligible or ineligible;", 12.5, MUTED))
+    parts.append(text(20, 466, "a row can open records of its own.", 12.5, MUTED))
+
+    # A calculation: the bot's own expression, operands and result.
+    parts.append(text(360, 290, "calculation", 15, INK, weight="bold"))
+    parts.append(card(360, 304, 300, 90, "utility = 8 − moves", ["moves   2", "result   6"]))
+    parts.append(text(360, 448, "The expression as the bot wrote it; the", 12.5, MUTED))
+    parts.append(text(360, 466, "viewer shows the values and evaluates nothing.", 12.5, MUTED))
+
+    # A sonar table joined with the ping the replay recorded.
+    parts.append(text(700, 290, "sonar table", 15, INK, weight="bold"))
+    parts.append(card(700, 304, 130, 70, "D2 sent", ["D2's head, length 7"]))
+    parts.append(card(860, 304, 130, 70, "D0 received", ["position of D2", "updated"]))
+    parts.append(arrow([(830, 339), (858, 339)], colour=SIGNAL))
+    parts.append(text(845, 396, "the replay's ping", 11.5, SIGNAL, "middle"))
+    parts.append(text(700, 448, "Sender's meaning, receiver's reading and", 12.5, MUTED))
+    parts.append(text(700, 466, "outcome, joined on the recorded ping.", 12.5, MUTED))
+    return svg(1010, 486, "Records the inspector lays out beside the board", parts)
+
 FIGURES = {
+    "viewer-recovery": viewer_recovery,
+    "gizmo-board": gizmo_board,
+    "gizmo-inspector": gizmo_inspector,
     "gamedata-sizes": gamedata_sizes,
     "gamedata-viewer": gamedata_viewer,
     "gamedata-layout": gamedata_layout,

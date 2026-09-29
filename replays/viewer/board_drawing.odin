@@ -4,31 +4,57 @@ import "core:fmt"
 import rl "vendor:raylib"
 
 
-// Square cells fitted and centred inside an area.
+// Square cells fitted and centred inside an area. The view shows `columns` ×
+// `rows` cells from board column `left` and row `top`, wrapping round the
+// torus: the whole board, or the area round a followed head. Cells beyond the
+// view's far side are clipped away.
 Board_Geometry :: struct {
-	origin:    rl.Vector2,
-	cell_size: f32,
-	width:     i32,
-	height:    i32,
+	origin:        rl.Vector2,
+	cell_size:     f32,
+	width:         i32,
+	height:        i32,
+	left, top:     i32,
+	columns, rows: i32,
 }
 
-board_geometry_for_area :: proc(export: ^Debug_View_Export, area: rl.Rectangle) -> Board_Geometry {
-	cell_size := min(area.width / f32(export.width), area.height / f32(export.height))
+// Side of the area view that `f` toggles round the focused dragon's head.
+AREA_VIEW_SIDE :: 15
+
+// The whole board, or with a `centre` cell the area view round it.
+board_geometry_for_area :: proc(
+	export: ^Game_View,
+	area: rl.Rectangle,
+	centre: i32 = -1,
+) -> Board_Geometry {
+	columns, rows := export.width, export.height
+	left, top: i32
+	if centre >= 0 {
+		columns, rows = min(AREA_VIEW_SIDE, export.width), min(AREA_VIEW_SIDE, export.height)
+		left = (centre % export.width - columns / 2 + export.width) % export.width
+		top = (centre / export.width - rows / 2 + export.height) % export.height
+	}
+	cell_size := min(area.width / f32(columns), area.height / f32(rows))
 	return {
 		origin = {
-			area.x + (area.width - cell_size * f32(export.width)) / 2,
-			area.y + (area.height - cell_size * f32(export.height)) / 2,
+			area.x + (area.width - cell_size * f32(columns)) / 2,
+			area.y + (area.height - cell_size * f32(rows)) / 2,
 		},
 		cell_size = cell_size,
 		width = export.width,
 		height = export.height,
+		left = left,
+		top = top,
+		columns = columns,
+		rows = rows,
 	}
 }
 
 cell_rectangle :: proc(geometry: Board_Geometry, cell: i32) -> rl.Rectangle {
+	column := (cell % geometry.width - geometry.left + geometry.width) % geometry.width
+	row := (cell / geometry.width - geometry.top + geometry.height) % geometry.height
 	return {
-		geometry.origin.x + f32(cell % geometry.width) * geometry.cell_size,
-		geometry.origin.y + f32(cell / geometry.width) * geometry.cell_size,
+		geometry.origin.x + f32(column) * geometry.cell_size,
+		geometry.origin.y + f32(row) * geometry.cell_size,
 		geometry.cell_size,
 		geometry.cell_size,
 	}
@@ -45,20 +71,19 @@ cell_at_point :: proc(geometry: Board_Geometry, point: rl.Vector2) -> i32 {
 	row := i32((point.y - geometry.origin.y) / geometry.cell_size)
 	if point.x < geometry.origin.x ||
 	   point.y < geometry.origin.y ||
-	   column >= geometry.width ||
-	   row >= geometry.height {
+	   column >= geometry.columns ||
+	   row >= geometry.rows {
 		return -1
 	}
-	return row * geometry.width + column
+	return (row + geometry.top) % geometry.height * geometry.width +
+		(column + geometry.left) % geometry.width
 }
 
-draw_board_edges :: proc(export: ^Debug_View_Export, geometry: Board_Geometry) {
+draw_board_edges :: proc(export: ^Game_View, geometry: Board_Geometry) {
 	thickness := max(2, geometry.cell_size / 6)
 	for edge in export.edges {
-		start := rl.Vector2 {
-			geometry.origin.x + f32(edge.x) * geometry.cell_size,
-			geometry.origin.y + f32(edge.y) * geometry.cell_size,
-		}
+		corner := cell_rectangle(geometry, edge.y * geometry.width + edge.x)
+		start := rl.Vector2{corner.x, corner.y}
 		end :=
 			start +
 			(edge.side == 0 ? rl.Vector2{geometry.cell_size, 0} : rl.Vector2{0, geometry.cell_size})
@@ -124,134 +149,110 @@ draw_text_with_backdrop :: proc(
 	draw_text(text, i32(position.x), i32(position.y), font_size, color)
 }
 
-// Selected units show the recorded board at their own turnStart, not the
-// round boundary or the previous decision. This is truth, explicitly labelled.
+// A cell's background: plain, or with Spawn gaps on, tinted by its maximum
+// reset gap's band (palette.odin), so fast-spawning ground stands out under
+// everything drawn on it.
+cell_background :: proc(viewer: ^Viewer_State, cell: i32) -> rl.Color {
+	maximums := viewer.game.view.spawn_maximum
+	if !viewer.overlays.spawn_gaps || int(cell) >= len(maximums) || maximums[cell] <= 0 {return COLOR_CELL}
+	for band in SPAWN_BANDS {
+		if maximums[cell] <= band.maximum {return color_lerp(COLOR_CELL, SPAWN_TINT, band.share)}
+	}
+	return COLOR_CELL
+}
+
+color_lerp :: proc(from, to: rl.Color, share: f32) -> rl.Color {
+	mix :: proc(a, b: u8, share: f32) -> u8 {return u8(f32(a) + (f32(b) - f32(a)) * share)}
+	return {mix(from.r, to.r, share), mix(from.g, to.g, share), mix(from.b, to.b, share), 255}
+}
+
+// Turn mode shows the board at the active turn's start, before that dragon
+// moves; round mode shows the round after every dragon has moved.
 board_at_selection :: proc(viewer: ^Viewer_State, frame: i32) -> ^Board_Frame {
-	turn, found := selected_dragon_turn(&viewer.game, viewer.selected_dragon, frame)
-	if found {return &turn.board}
-	return &viewer.game.export.frames[frame]
+	game := &viewer.game
+	index := active_turn_index(viewer)
+	if index >= 0 {return turn_board(game, index)}
+	return frame_board(game, frame)
 }
 
 draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) -> Board_Geometry {
-	export := &viewer.game.export
-	geometry := board_geometry_for_area(
-		export,
-		{area.x, area.y + 28, area.width, area.height - 28},
-	)
+	export := &viewer.game.view
 	board := board_at_selection(viewer, frame)
-	turn, found := selected_dragon_turn(&viewer.game, viewer.selected_dragon, frame)
-	draw_text(
-		found ? "Recorded truth at selected dragon's turn; memory is in inspector" : "Recorded truth at round boundary; right-click a dragon to inspect",
-		i32(area.x),
-		i32(area.y),
-		18,
-		MUTED_TEXT_COLOR,
-	)
+	geometry := board_geometry_for_area(export, area, area_view_centre(viewer, board))
+	// main ends the clip after the gizmo overlays.
+	if board_view_clipped(geometry) {begin_board_view_clip(geometry)}
+	turn, found := focused_dragon_turn(viewer, frame)
 	for cell in 0 ..< export.width * export.height {
-		rl.DrawRectangleRec(cell_rectangle(geometry, cell), COLOR_CELL)
+		rl.DrawRectangleRec(cell_rectangle(geometry, cell), cell_background(viewer, cell))
 		if viewer.overlays.grid {rl.DrawRectangleLinesEx(cell_rectangle(geometry, cell), 1, COLOR_GRID)}
 	}
-	if found && viewer.overlays.coverage {
-		for cell in turn.diagnostic.owned_cells {rl.DrawRectangleRec(cell_rectangle(geometry, cell), rl.Color{127, 176, 105, 16})}
+	for pearl in board.pearls {rl.DrawCircleV(cell_center(geometry, pearl), geometry.cell_size * 0.23, COLOR_PEARL)}
+	// True countdowns sit bottom-right: cyan where the focused dragon remembers
+	// the same next spawn, otherwise gold, with a wrong memory in red above.
+	if viewer.overlays.timers {
+		remembered: map[i32]Remembered_Spawn
+		if found && turn.gizmo_reliable {remembered = remembered_spawns(&viewer.game, turn)}
+		for timer in board.timers {
+			memory, known := remembered[timer.cell]
+			color := known && memory.correct ? CORRECT_TIMER_COLOR : rl.Fade(COLOR_PEARL, 0.75)
+			draw_cell_text(geometry, timer.cell, fmt.tprintf("%d", timer.remaining), .Bottom_Right, color)
+		}
+		for cell, memory in remembered {
+			if memory.correct {continue}
+			label := memory.never ? "never" : fmt.tprintf("%d", memory.stated - frame)
+			draw_cell_text(geometry, cell, label, .Above_Bottom_Right, COLOR_WRONG)
+		}
 	}
-	if found && viewer.overlays.search {
-		for node in turn.diagnostic.search {
-			if node.cell < 0 || node.cell >= export.width * export.height {continue}
-			color := rl.Color{139, 169, 158, 14}
-			rl.DrawRectangleRec(cell_rectangle(geometry, node.cell), color)
-			if geometry.cell_size >= 28 {
-				r := cell_rectangle(geometry, node.cell)
-				draw_text(
-					node.utility_evaluated ? fmt.ctprintf("%.0f", node.utility) : "?",
-					i32(r.x + 2),
-					i32(r.y + 2),
+	if viewer.overlays.edges {draw_board_edges(export, geometry)}
+	// A dragon without diagnostics is followed on the replay alone, so its
+	// portals show where each leads.
+	if viewer.overlays.edges && found && !turn.has_record && !turn.recovery_pending {draw_portal_links(export, geometry)}
+	if found && turn.gizmo_reliable {draw_mental_map(viewer, geometry, turn)}
+	if found {
+		if viewer.overlays.vision_windows {draw_vision_window(geometry, turn.head, COLOR_SELECTED)}
+	}
+	// The focused decision's pings: those it read and the echoes of its
+	// previous sonar. Its own sends this turn reach it only as next turn's echoes.
+	mental := mental_view(viewer, turn, found)
+	if viewer.overlays.pings && !mental && found && focused_decision_phase(viewer) != .Waiting {
+		pings := decision_pings(&viewer.game, turn)
+		rows := make([dynamic]int, context.temp_allocator)
+		append(&rows, ..pings.received[:])
+		append(&rows, ..pings.echoes[:])
+		for row in rows {
+			ping := game_ping(&viewer.game, row)
+			draw_ping_ray(geometry, ping)
+			if ping.decoded != "" {
+				// The sender's own reading of the value, beside the impact.
+				meaning := ping.decoded
+				if len(meaning) > 48 {meaning = fmt.tprintf("%s...", meaning[:45])}
+				draw_text_with_backdrop(
+					fmt.ctprintf("D%d: %s", ping.sender, meaning),
+					cell_center(geometry, ping.end) + {geometry.cell_size * 0.4, -geometry.cell_size * 0.4},
 					12,
-					BOARD_TEXT,
+					TEXT_COLOR,
 				)
 			}
 		}
 	}
-	for pearl in board.pearls {rl.DrawCircleV(cell_center(geometry, pearl), geometry.cell_size * 0.23, COLOR_PEARL)}
-	if viewer.overlays.timers {
-		for timer in board.timers {
-			center := cell_center(geometry, timer.cell)
-			draw_text(
-				fmt.ctprintf("%d", timer.remaining),
-				i32(center.x + geometry.cell_size * 0.16),
-				i32(center.y + geometry.cell_size * 0.12),
-				12,
-				rl.Fade(COLOR_PEARL, 0.75),
-			)
-		}
-	}
-	if viewer.overlays.edges {draw_board_edges(export, geometry)}
-	if found {
-		if viewer.overlays.vision_windows {draw_vision_window(geometry, turn.head, COLOR_SELECTED)}
-		if turn.report_present &&
-		   turn.target >= 0 &&
-		   turn.target < export.width * export.height &&
-		   viewer.overlays.target_lines {
-			rl.DrawCircleLinesV(
-				cell_center(geometry, turn.target),
-				geometry.cell_size * 0.48,
-				COLOR_SELECTED,
-			)
-		}
-		if viewer.overlays.strategy_labels && turn.report_present {
-			label := fmt.ctprintf(
-				"%s / %s%s",
-				turn.regime,
-				turn.role,
-				turn.reliable ? "" : " UNRELIABLE",
-			)
-			position :=
-				cell_center(geometry, turn.head) +
-				rl.Vector2{geometry.cell_size * 0.6, geometry.cell_size * 0.5}
-			position.x = min(
-				position.x,
-				geometry.origin.x +
-				f32(geometry.width) * geometry.cell_size -
-				f32(measure_text(label, 14)) -
-				4,
-			)
-			if position.y + 16 * font_scale >
-			   geometry.origin.y + f32(geometry.height) * geometry.cell_size {
-				position.y = cell_center(geometry, turn.head).y - geometry.cell_size * 0.8
-			}
-			draw_text_with_backdrop(label, position, 14, COLOR_SELECTED)
-		}
-
-		if viewer.overlays.path {
-			for cell, index in turn.diagnostic.path {
-				if index >
-				   0 {draw_cell_link(geometry, turn.diagnostic.path[index - 1], cell, rl.Fade(COLOR_SELECTED, 0.65), 2)}
-			}
-		}
-		if viewer.overlays.coverage &&
-		   turn.diagnostic.version > 0 &&
-		   turn.diagnostic.coverage.target >= 0 {
-			rl.DrawRectangleLinesEx(
-				cell_rectangle(geometry, turn.diagnostic.coverage.target),
-				4,
-				rl.Color{100, 190, 255, 255},
-			)
-		}
-	}
-	if viewer.overlays.pings {
-		for ping in export.pings {
-			if (ping.round == frame && ping.sender == viewer.selected_dragon) ||
-			   (ping.received_round == frame && ping.hit == viewer.selected_dragon) {
-				draw_ping_ray(geometry, ping)
-			}
-		}
-	}
-	if viewer.overlays.deaths {
-		for death in export.frames[frame].deaths {
+	if viewer.overlays.deaths && !mental {
+		for death in board.deaths {
 			r := cell_rectangle(geometry, death.cell)
 			rl.DrawLineEx({r.x, r.y}, {r.x + r.width, r.y + r.height}, 3, COLOR_DEATH)
 		}
 	}
-	draw_dragon_bodies(viewer, board, geometry)
+	draw_dragon_bodies(viewer, board, geometry, mental ? turn : nil)
+	if found && viewer.overlays.fog && !mental {
+		for cell in 0 ..< export.width * export.height {
+			dx := abs(cell % export.width - turn.head % export.width)
+			dy := abs(cell / export.width - turn.head / export.width)
+			if min(dx, export.width - dx) > WINDOW_RADIUS ||
+			   min(dy, export.height - dy) > WINDOW_RADIUS {
+				rl.DrawRectangleRec(cell_rectangle(geometry, cell), rl.Color{8, 14, 12, 170})
+			}
+		}
+		draw_vision_window(geometry, turn.head, COLOR_SELECTED)
+	}
 
 	for highlight in viewer.highlights {
 		if highlight.kind ==
@@ -283,13 +284,16 @@ draw_cell_link :: proc(g: Board_Geometry, first, second: i32, color: rl.Color, t
 	if abs(a.x - b.x) <= g.cell_size * 1.1 && abs(a.y - b.y) <= g.cell_size * 1.1 {
 		rl.DrawLineEx(a, b, thickness, color)
 	} else if first / g.width == second / g.width &&
-	   abs(first % g.width - second % g.width) == g.width - 1 {
+	   (abs(first % g.width - second % g.width) == 1 ||
+			   abs(first % g.width - second % g.width) == g.width - 1) {
+		// Neighbours across the drawn seam, wherever the view puts it.
 		left := g.origin.x
 		right := left + f32(g.width) * g.cell_size
 		rl.DrawLineEx(a, {a.x > b.x ? right : left, a.y}, thickness, color)
 		rl.DrawLineEx({a.x > b.x ? left : right, b.y}, b, thickness, color)
 	} else if first % g.width == second % g.width &&
-	   abs(first / g.width - second / g.width) == g.height - 1 {
+	   (abs(first / g.width - second / g.width) == 1 ||
+			   abs(first / g.width - second / g.width) == g.height - 1) {
 		top := g.origin.y
 		bottom := top + f32(g.height) * g.cell_size
 		rl.DrawLineEx(a, {a.x, a.y > b.y ? bottom : top}, thickness, color)
@@ -300,7 +304,7 @@ draw_cell_link :: proc(g: Board_Geometry, first, second: i32, color: rl.Color, t
 	}
 }
 
-draw_ping_ray :: proc(g: Board_Geometry, ping: Export_Ping) {
+draw_ping_ray :: proc(g: Board_Geometry, ping: Game_Ping) {
 	color := ping.reflected ? COLOR_SELECTED : rl.Color{155, 189, 181, 125}
 	cell := ping.origin
 	direction: i32 = 0
@@ -313,11 +317,30 @@ draw_ping_ray :: proc(g: Board_Geometry, ping: Export_Ping) {
 		next :=
 			((cell / g.width + offsets[direction][1] + g.height) % g.height) * g.width +
 			(cell % g.width + offsets[direction][0] + g.width) % g.width
-		draw_cell_link(g, cell, next, color, 1)
+		a, b := cell_center(g, cell), cell_center(g, next)
+		if abs(a.x - b.x) > g.cell_size * 1.1 || abs(a.y - b.y) > g.cell_size * 1.1 {
+			middle :=
+				a +
+				rl.Vector2{f32(offsets[direction][0]), f32(offsets[direction][1])} *
+					g.cell_size *
+					0.5
+			draw_dashed_segment(a, middle, color)
+			middle =
+				b -
+				rl.Vector2{f32(offsets[direction][0]), f32(offsets[direction][1])} *
+					g.cell_size *
+					0.5
+			draw_dashed_segment(middle, b, color)
+		} else {draw_dashed_segment(a, b, color)}
 		cell = next
 		if cell == ping.end {break}
 	}
-	rl.DrawCircleLinesV(cell_center(g, ping.end), g.cell_size * 0.35, color)
+	impact := cell_center(g, ping.end)
+	radius := g.cell_size * 0.3
+	for i in 0 ..< 4 {
+		corners := [4]rl.Vector2{{0, -radius}, {radius, 0}, {0, radius}, {-radius, 0}}
+		rl.DrawLineEx(impact + corners[i], impact + corners[(i + 1) % 4], 2, color)
+	}
 }
 
 WINDOW_RADIUS :: 3
@@ -330,12 +353,12 @@ select_dragon_at_cell :: proc(viewer: ^Viewer_State, frame: i32, cell: i32) {
 	for dragon in board_at_selection(viewer, frame).dragons {
 		for body_cell in dragon.body {
 			if body_cell == cell {
-				viewer.selected_dragon = dragon.id
+				select_dragon_turn(viewer, dragon.id)
 				return
 			}
 		}
 	}
-	viewer.selected_dragon = -1
+	clear_viewer_selections(viewer)
 }
 
 // Composite the connected strokes once, like SVG group opacity .85. Drawing
@@ -348,16 +371,28 @@ draw_round_stroke :: proc(a, b: rl.Vector2, width: f32, color: rl.Color) {
 	rl.DrawCircleV(b, width / 2, color)
 }
 
-draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_Geometry) {
+// A dragon yet to move, mixed most of the way into the board so it stays opaque.
+faded :: proc(color: rl.Color) -> rl.Color {
+	mix :: proc(a, b: u8) -> u8 {return u8((u32(a) * 2 + u32(b) * 3) / 5)}
+	return {mix(color.r, COLOR_CELL.r), mix(color.g, COLOR_CELL.g), mix(color.b, COLOR_CELL.b), color.a}
+}
+
+// With a mental map's turn, dragons it doesn't know of are drawn in the
+// unknown colour.
+draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_Geometry, mental: ^Dragon_Turn = nil) {
 	width, height := rl.GetScreenWidth(), rl.GetScreenHeight()
 	if dragon_body_layer.texture.width != width || dragon_body_layer.texture.height != height {
 		if dragon_body_layer.id != 0 {rl.UnloadRenderTexture(dragon_body_layer)}
 		dragon_body_layer = rl.LoadRenderTexture(width, height)
 	}
+	// The layer is drawn whole; the area view clips it when it is composited.
+	if board_view_clipped(g) {rl.EndScissorMode()}
 	rl.BeginTextureMode(dragon_body_layer)
 	rl.ClearBackground(rl.BLANK)
-	for dragon in board.dragons {
+	for &dragon in board.dragons {
 		color := TEAM_BODY_COLORS[dragon.team]
+		if mental != nil && !dragon_known(mental, g, &dragon) {color = UNKNOWN_DRAGON_COLOR}
+		if dragon_awaits_turn(viewer, dragon.id) {color = faded(color)}
 		for cell, index in dragon.body {
 			rl.DrawCircleV(cell_center(g, cell), g.cell_size * 0.25, color)
 			if index == 0 {continue}
@@ -371,16 +406,20 @@ draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_
 		}
 	}
 	rl.EndTextureMode()
+	if board_view_clipped(g) {begin_board_view_clip(g)}
 	rl.DrawTextureRec(
 		dragon_body_layer.texture,
 		{0, 0, f32(width), -f32(height)},
 		{0, 0},
 		rl.Fade(rl.WHITE, 0.85),
 	)
-	for dragon in board.dragons {
+	for &dragon in board.dragons {
 		if len(dragon.body) == 0 {continue}
 		center := cell_center(g, dragon.body[0])
-		rl.DrawCircleV(center, g.cell_size * 0.36, TEAM_HEAD_COLORS[dragon.team])
+		head_color := TEAM_HEAD_COLORS[dragon.team]
+		if mental != nil && !dragon_known(mental, g, &dragon) {head_color = UNKNOWN_DRAGON_COLOR}
+		if dragon_awaits_turn(viewer, dragon.id) {head_color = faded(head_color)}
+		rl.DrawCircleV(center, g.cell_size * 0.36, head_color)
 		if dragon.id == viewer.selected_dragon {
 			rl.DrawRing(
 				center,
@@ -401,6 +440,89 @@ draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_
 				13,
 				COLOR_CELL,
 			)
+		}
+	}
+}
+
+draw_dashed_segment :: proc(a, b: rl.Vector2, color: rl.Color) {
+	for dash in 0 ..< 4 {rl.DrawLineEx(a + (b - a) * (f32(dash) / 4), a + (b - a) * ((f32(dash) + 0.5) / 4), 2, color)}
+}
+
+// The focused dragon's head while `f` has the area view on and it is on the
+// board, else -1 for the whole board.
+area_view_centre :: proc(viewer: ^Viewer_State, board: ^Board_Frame) -> i32 {
+	if !viewer.area_view || viewer.selected_dragon < 0 {return -1}
+	for dragon in board.dragons {
+		if dragon.id == viewer.selected_dragon && len(dragon.body) > 0 {return dragon.body[0]}
+	}
+	return -1
+}
+
+// Whether the view shows less than the whole board, so drawing must clip to it.
+board_view_clipped :: proc(g: Board_Geometry) -> bool {
+	return g.columns < g.width || g.rows < g.height
+}
+
+begin_board_view_clip :: proc(g: Board_Geometry) {
+	rl.BeginScissorMode(
+		i32(g.origin.x),
+		i32(g.origin.y),
+		i32(g.cell_size * f32(g.columns)),
+		i32(g.cell_size * f32(g.rows)),
+	)
+}
+
+// Text inside a board cell sits in one corner, a size under the board's other
+// labels, and shrinks to fit the cell so neighbouring cells' text never overlaps.
+CELL_TEXT :: 10
+Cell_Corner :: enum {
+	Top_Left,
+	Top_Right,
+	Bottom_Right,
+	// The line above the bottom-right corner.
+	Above_Bottom_Right,
+}
+
+draw_cell_text :: proc(
+	geometry: Board_Geometry,
+	cell: i32,
+	text: string,
+	corner: Cell_Corner,
+	color: rl.Color,
+) {
+	if text == "" {return}
+	r := cell_rectangle(geometry, cell)
+	label := fmt.ctprintf("%s", text)
+	room := r.width - 3
+	size := i32(CELL_TEXT)
+	width := f32(measure_text(label, size))
+	if width > room {
+		size = i32(f32(size) * room / width)
+		if size < 7 {return}
+		width = f32(measure_text(label, size))
+	}
+	x := corner == .Top_Left ? r.x + 2 : r.x + r.width - 1 - width
+	line := f32(size) * font_scale * 1.15
+	y := r.y + 1
+	if corner == .Bottom_Right {y = r.y + r.height - 1 - line}
+	if corner == .Above_Bottom_Right {y = r.y + r.height - 1 - 2 * line}
+	draw_text(label, i32(x), i32(y), size, color)
+}
+
+// A line joining the two edges of each portal pair, from the replay.
+draw_portal_links :: proc(export: ^Game_View, geometry: Board_Geometry) {
+	middle :: proc(geometry: Board_Geometry, edge: Board_Edge) -> rl.Vector2 {
+		corner := cell_rectangle(geometry, edge.y * geometry.width + edge.x)
+		return edge.side == 0 ? {corner.x + geometry.cell_size / 2, corner.y} : {corner.x, corner.y + geometry.cell_size / 2}
+	}
+	for edge, index in export.edges {
+		if edge.kelp {continue}
+		for other in export.edges[index + 1:] {
+			if other.kelp || other.portal != edge.portal {continue}
+			a, b := middle(geometry, edge), middle(geometry, other)
+			rl.DrawLineEx(a, b, 1.5, rl.Fade(COLOR_PORTAL, 0.6))
+			rl.DrawCircleV(a, 3, COLOR_PORTAL)
+			rl.DrawCircleV(b, 3, COLOR_PORTAL)
 		}
 	}
 }

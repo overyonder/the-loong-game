@@ -1,5 +1,7 @@
 # Game data in columns
 
+> **Editor's note, 29 September 2026.** The viewer and its recovery are now released in the public repository, so the code quoted here links to it. I've corrected how recovered decisions reach the viewer: they stream into memory rather than landing in a file.
+
 The [debug viewer](09-through-one-dragons-eyes.md) started life reading a JSON export of each game, and that was fine for short games. Then we opened a 500-round game, and the viewer sat there for over eight minutes, reaching 6 GB of memory, without ever drawing a frame. The export for a game that long was 552 MB, or 27 MB once we delta-encoded it, and all of it had to be parsed into objects before anything could be drawn.
 
 ![A 500-round game on disk, on a log scale: the viewer's old JSON export was 552 MB, and 27 MB delta-encoded. The packed replay of game 610 is 13 MB, and its columns file 14.6 MB.](images/gamedata-sizes.svg)
@@ -20,7 +22,7 @@ The header says this is version 1 of the container, with 57 columns, a directory
 
 ## Reading in place
 
-That makes the reader short. This is the viewer's, in [Odin](https://odin-lang.org). It maps the file, checks the header, and indexes the directory by name:
+That makes the reader short. This is [the viewer's](../replays/viewer/columns.odin), in [Odin](https://odin-lang.org). It maps the file, checks the header, and indexes the directory by name:
 
 ```odin columns.odin
 open_columns_file :: proc(path: string, allocator := context.allocator) -> (file: Columns_File, ok: bool) {
@@ -59,7 +61,7 @@ column_values :: proc(file: ^Columns_File, name: string, $T: typeid) -> []T {
 }
 ```
 
-Loading a game in the viewer is now a list of lines like `view.turn_points = column_values(file, "turn.points", u64)`. On game 610, opening the file and reading its directory takes 0.10 ms, summing every turn's points another 0.10 ms, and counting events by kind 1.4 ms. The operating system only reads the pages a question touches, so a file's size costs nothing until you use it. Our Nim tools read the same way through `memfiles`, and the few Python scripts left at the edges take a column with `numpy.frombuffer` over an `mmap`.
+Loading a game in the viewer is now a list of lines like `view.turn_points = column_values(file, "turn.points", u64)`. On game 610, opening the file and reading its directory takes 0.10 ms, summing every turn's points another 0.10 ms, and counting events by kind 1.4 ms. The operating system only reads the pages a question touches, so a file's size costs nothing until you use it. Our Nim tools read the same way through `memfiles`.
 
 ## Tables, lists and gaps
 
@@ -87,7 +89,7 @@ Each round and each turn records the row of its starting event, so the viewer ju
 
 ![Opening that game in the viewer. Before, it had reached 6,100 MB when it was stopped, after over 8 minutes without drawing a frame. Now its peak memory to the first frame is 332 MB, and the first frame takes 0.96 s.](images/gamedata-viewer.svg)
 
-A game that never finished loading now draws its first frame in under a second. The same change went into our bots' decision records, which the viewer regenerates one dragon at a time by re-running the bot on what that dragon observed. They now land in a columns file of their own beside the game, with each turn's records kept as the bot wrote them and parsed only for the turn on screen:
+A game that never finished loading now draws its first frame in under a second. The same change went into our bots' decision records, which the viewer regenerates one dragon at a time by [re-running the bot](09-through-one-dragons-eyes.md) on what that dragon observed. The recovery now rebuilds those observations as a columns file of their own, and streams each turn's records to the viewer, which keeps them as the bot wrote them and parses them only for the turn on screen:
 
 ![Recovering one dragon's diagnostics took 31 s before and takes 3.0 s with columns. Peak memory fell from 709 MB to 122 MB.](images/gamedata-recovery.svg)
 

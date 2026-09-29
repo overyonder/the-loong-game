@@ -1,10 +1,12 @@
 # Loong columns
 
-One binary format for game data: `loong-gamedata` writes a replay's `game`
-columns and each game's `result` record, which the round robin, the ladder and
-the verdict read through `loong-report`. A file holds named columns, each one
-contiguous array of fixed-size values, so a reader maps the file and uses each
-column in place with no parse step. `columns.nim` reads and writes it.
+One binary format for game data: the viewer's games, and the
+per-game and per-run records that the collector, verdict and reports read. A
+file holds named columns, each one contiguous array of fixed-size values, so a
+reader maps the file and uses each column in place with no parse step.
+
+Compiled code writes and reads it: `columns.nim` here for Nim tools and
+`columns.odin` in the viewer.
 
 ## Container, version 1
 
@@ -38,7 +40,7 @@ Value types: 1 u8, 2 i8, 3 u16, 4 i16, 5 u32, 6 i32, 7 u64, 8 i64, 9 f32,
 **Tables.** A column named `table.field` belongs to `table`, and each table has
 its own row count: every plain column of a table has one value per row. A
 column that refers to rows of another table is a u32 row index named after that
-table, such as `side.game`.
+table, such as `window.side`.
 
 **Lists.** A per-row list `table.field` is two columns: `table.field` holds every
 row's values end to end, and `table.field#` (u64, rows + 1 values) holds where
@@ -73,10 +75,9 @@ records in its `meta.version` column.
 
 ## Kind `game`, version 1
 
-`loong-gamedata REPLAY` writes `REPLAY` with the suffix `.cols` from the replay
-and, when present, its `points` file.
-A reader rebuilds any board by applying `event` rows forward, so no board is
-stored per turn.
+`just gamedata REPLAY` writes `REPLAY` with the suffix `.cols` from the replay
+and, when present, its `points` file. The viewer rebuilds any board by
+applying `event` rows forward, so no board is stored per turn.
 
 Cells are `y * width + x`. Teams are 0 for A and 1 for B. Directions are 0 N,
 1 E, 2 S, 3 W.
@@ -109,13 +110,39 @@ Cells are `y * width + x`. Teams are 0 for A and 1 for B. Directions are 0 N,
 A pearl countdown makes the tile due at the current round plus the countdown.
 A move puts the new head first and drops tail cells until the body ends at
 `c`. A split replaces the parent's body and adds the child. Judge points exist
-only for games the Zig judge played; for a toolkit game `turn.points?` is 0
-and `turn.failure` empty.
+only for games the Zig judge played; elsewhere
+`turn.points?` is 0.
+
+## Kind `points`, version 1
+
+Each dragon turn's judge points, written beside a sandboxed match's replay as
+`REPLAY.points.cols` by the Zig judge (`harness/zig_judge/src/run.zig`). The
+`game` converter carries them into `turn.points`.
+
+| Table | Columns | Rows |
+| --- | --- | --- |
+| `meta` | `version` u32 | 1 |
+| `turn` | `round` i32 (-1 before round 0), `dragon` u32, `points` u64, `failure` (string: the toolkit's reason the turn gave no reply, such as `exceeded CPU limit`, or empty) | one per dragon turn, in the order played |
+
+## Kind `observations`, version 1
+
+Each decision's bot-visible input, rebuilt from a `game` file by
+`loong-gamedata observations GAME.cols OUTPUT [--dragons ID,ID...] [--lenient]`,
+and by recovery (`loong-recover`) for as long as it
+reads them: the init block and the observation block the engine sent at the dragon's turn
+start, byte for byte. A turn with no recorded action has no decision. A body
+whose heading two directions explain fails the rebuild (exit 3) unless
+`--lenient`, which takes the first and counts it in `meta.ambiguous`.
+
+| Table | Columns | Rows |
+| --- | --- | --- |
+| `meta` | `version` u32, `ambiguous` u32 | 1 |
+| `decision` | `turn` u32 (row of the game's `turn`), `init`, `observation` (strings) | one per decision, in game order |
 
 ## Kind `result`, version 1
 
-How one game was played and ended, and each side's economy, for the round robin,
-ladder and verdict. `loong-gamedata result OUTPUT --game GAME.cols` computes
+How one game was played and ended, and each side's economy, for the collector,
+verdicts and reports. `loong-gamedata result OUTPUT --game GAME.cols` computes
 it from the game's columns in one pass over its events, with the harness's facts
 as options (`loong-gamedata` without arguments lists them). Without `--game` it
 records a game that left no replay: its status and harness facts, with the
@@ -125,7 +152,7 @@ run's games merge into one file of this kind.
 | Table | Columns | Rows |
 | --- | --- | --- |
 | `meta` | `version` u32 | 1 |
-| `game` | `map` (string), `map_tiles` u32, `seed` u64, `rounds` u16 (rounds played, with `rounds?`), `winner` u8 (enum `winner`, with `winner?`), `result` u8 (enum `result`, the replay's end reason, with `result?`), `status` u8 (enum `status`), `exit_code` i32, `elapsed_seconds` f32, `slot_seconds` f32 (with `slot_seconds?`, always absent here) | one per game |
+| `game` | `map` (string), `map_tiles` u32, `seed` u64, `rounds` u16 (rounds played, with `rounds?`), `winner` u8 (enum `winner`, with `winner?`), `result` u8 (enum `result`, the replay's end reason, with `result?`), `status` u8 (enum `status`), `exit_code` i32, `elapsed_seconds` f32, `slot_seconds` f32 (with `slot_seconds?`) | one per game |
 | `side` | `game` u32, `team` u8, `bot` (string), `pearls`, `pearls_by_length`, `dragon_turns` u32, `pearls_per_dragon_turn` f32, `splits`, `deaths`, `deaths_hit_wall`, `deaths_hit_itself`, `deaths_hit_dragon`, `deaths_head_to_head`, `deaths_no_action` u16, `final_units`, `final_longest` u16, `final_total_length` u32, `best_fed_intake` u32, `best_fed_share` f32, `peak_points` u64, `exceeded` u16, `tiles_visited` u32, `head_coverage` f32 | two per game, team A then B |
 
 Enums: `winner` a, b, draw. `result` elimination, length. `status` completed,
@@ -138,17 +165,7 @@ means a misreading. A split is counted when a dragon alive at its turn start
 asks for one. `best_fed_intake` is the most any one dragon of the side ate, and
 `best_fed_share` its share of the side's pearls. `peak_points` and `exceeded`
 (turns that exceeded the CPU limit or ran out of time) are 0 for a game played
-through the toolkit, which records no judge points per turn. `tiles_visited` counts the cells a head of
+outside the Zig judge. `tiles_visited` counts the cells a head of
 the side occupied, starting heads included, and `head_coverage` divides it by
 `map_tiles`.
 
-## Kind `points`, version 1
-
-Each dragon turn's judge points, written beside a replay the Zig judge played as
-`REPLAY.points.cols` (harness/zig_judge/src/run.zig). The `game` converter
-carries them into `turn.points`.
-
-| Table | Columns | Rows |
-| --- | --- | --- |
-| `meta` | `version` u32 | 1 |
-| `turn` | `round` i32 (-1 before round 0), `dragon` u32, `points` u64, `failure` (string: the reason the turn gave no reply, such as `exceeded CPU limit`, or empty) | one per dragon turn, in the order played |

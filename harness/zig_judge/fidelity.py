@@ -26,7 +26,10 @@ from harness import toolkit
 from harness.tournament import forget_game, play_game, toolkit_version
 from harness.zig_judge import harness as judge
 
-ENGINES = ("toolkit", "judge")
+# The judge doesn't charge a new process's first stdin read, as the
+# competition's judge doesn't (src/bot.zig). Here it charges it, as the toolkit
+# does, so everything else is compared exactly.
+ENGINES = ("toolkit", "judge-toolkit-accounting")
 # Log lines that differ between two plays of one game: progress timings and
 # where the replay was written. A result line's elapsed time is cut off.
 VOLATILE = ("running round ", "wrote replay: ")
@@ -117,7 +120,7 @@ def check_games(games: list[tuple], output: Path, timeout: float) -> dict:
                 "a": a,
                 "b": b,
                 "seed": seed,
-                "rounds": records["judge"]["rounds"],
+                "rounds": records[ENGINES[1]]["rounds"],
                 "differences": differences,
             }
         )

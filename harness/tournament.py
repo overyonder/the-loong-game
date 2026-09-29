@@ -328,16 +328,20 @@ def play_game(
 
     With `engine` "judge", a sandboxed game between compiled bots plays in the Zig
     judge; a Python bot, an unsandboxed game or `engine` "toolkit" plays through
-    the organiser's toolkit."""
+    the organiser's toolkit. "judge-toolkit-accounting" plays in the judge
+    charging each process's first read as the toolkit does, for `just
+    judge-fidelity`."""
     log_path = directory / f"{stem}.log"
     replay_path = directory / f"{stem}.replay"
     in_judge = (
-        engine == "judge"
+        engine in ("judge", "judge-toolkit-accounting")
         and sandbox
         and not any((Path(bot) / "main.py").is_file() for bot in (a, b))
     )
     if in_judge:
         command = [*judge.match_command(), "run", "-o", str(replay_path), "--sandbox"]
+        if engine == "judge-toolkit-accounting":
+            command.append("--charge-first-read")
     else:
         command = [
             *toolkit.toolkit_match_command(),

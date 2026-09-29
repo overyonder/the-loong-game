@@ -1,8 +1,8 @@
 # The machine inside the judge
 
-> **Editor's note, 28 September 2026.** I've added figures to this post, linked the judge's source, moved the reasons for writing it in Zig to [The choice](02-the-choice.md), and linked the next post. Every game we play now runs in the judge, which meters bots itself, so I've added the larger equivalence check that came first, the check you can run yourself, and what the judge saves when every core is busy.
+> **Editor's note, 29 September 2026.** I've added figures to this post, linked the judge's source, moved the reasons for writing it in Zig to [The choice](02-the-choice.md), and linked the next post. Every game we play now runs in the judge, which meters bots itself, so I've added the larger equivalence check that came first, the check you can run yourself, and what the judge saves when every core is busy. The released judge now leaves a bot's first read uncharged, as the competition's judge does, which the section on first reads covers, and gives a bot rerun for the viewer a larger turn budget.
 
-We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time, and every game we play now runs in it, with the toolkit kept as the reference we check it against. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
+We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and, apart from one deliberate difference, point for point, in about a quarter of the time, and every game we play now runs in it, with the toolkit kept as the reference we check it against. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
 This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay. The harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](../harness/zig_judge/harness.py).
 
@@ -60,7 +60,7 @@ And feeding a turn notes the count, appends the turn and lets the bot run, all o
 ```zig
 pub fn write(self: *Instance, data: []const u8) !bool {
     if (self.state == .finished) return false;
-    self.budget = MAX_TURN_POINTS;
+    self.budget = if (self.module.inspection_enabled) INSPECTION_TURN_POINTS else MAX_TURN_POINTS;
     self.parks_snapshot = self.parks;
     self.calls = 0;
     try self.stdin.appendSlice(self.allocator, data);
@@ -69,7 +69,7 @@ pub fn write(self: *Instance, data: []const u8) !bool {
 }
 ```
 
-So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread.
+So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread. The budget is the ordinary 100M points a turn, except when the [viewer](09-through-one-dragons-eyes.md) reruns a bot to read its explanations, when the turn may spend a hundred times that on them.
 
 ![Threads in the official sandbox, fibres in ours. In the official sandbox, a driver thread notes parks and feeds turns to dragon threads blocked in fd_read, and a new child's thread is already running, so it can reach its first read between the park count and the feed and be taken as done. In our judge, one thread per game holds the driver, the engine and every dragon, and a dragon's fibre pauses mid read and runs only when the driver resumes it, so no bot runs between noting the count and feeding a turn.](images/threads-fibres.svg)
 
@@ -82,6 +82,12 @@ A faster judge is only useful if it plays the same games. A probe bot, written t
 Before every game of ours moved to the judge, the check grew. 144 paired games across 12 maps, with portals, heavy kelp, flagships and boards from small to large, played through both hosts on the fleet against toolkit 1.1.0. All 144 gave identical replays apart from the team names, identical per-turn points and identical logs. Between them they held 96 games that went to round 500, about 128,000 splits, 42,000 sprints and 1,030 turns over the CPU limit, some of them from a test bot built to fail on purpose. Every one of the 1,238 bot builds we had was also metered by both, and the judge produced byte-identical modules for all of them.
 
 The same check ships with the judge. `just judge-fidelity` meters each bot with both passes and compares the modules byte for byte, then plays each seeded game through both hosts and compares the replays byte for byte and the logs line by line. By default it plays the flood-fill bot against the C starter on Arena and Portals, and under toolkit 1.2.2 both modules and all four games came out identical.
+
+## First reads
+
+The one difference is deliberate. The toolkit charges a bot 6 points for every byte it reads from stdin, including the first read a new process makes, which carries the whole starting block. The competition's judge doesn't charge that first read: in 98 first turns of two of our ladder games, its points were the toolkit's less exactly 6 per byte of it. Our bots read through a 1,024-byte buffer, so those games can't tell a free first read from free first 1,024 bytes. For bots that read that way, the two charge the same.
+
+Our judge now charges what the competition's charges, so a dragon's first turn costs what it will online, and `run --charge-first-read` switches back to the toolkit's accounting. `just judge-fidelity` plays with that switch on, so everything else is still compared exactly.
 
 ## Four times faster
 

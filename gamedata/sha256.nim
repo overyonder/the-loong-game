@@ -1,4 +1,5 @@
-## SHA-256, which identifies replays in the public replay manifest.
+## SHA-256, which identifies judge builds in the registry and replays in the
+## public replay manifest.
 
 import std/strutils
 

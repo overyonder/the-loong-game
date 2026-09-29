@@ -15,11 +15,23 @@ const metering = @import("metering.zig");
 const Framer = framer_mod.Framer;
 
 pub const MAX_TURN_POINTS: i64 = 100_000_000;
+/// A turn's cap in inspect mode, where diagnostics run inside the turn: they are
+/// metered, but the bot leaves their points out of its own clock (runtime/).
+pub const INSPECTION_TURN_POINTS: i64 = 100 * MAX_TURN_POINTS;
+/// A stdout line that is a diagnostic record, not gameplay (runtime/gizmos.h).
+const GIZMO_PREFIX = "LOG LOONG_GIZMO ";
 pub const MAX_MEMORY_PAGES: u64 = 768;
 pub const INITIAL_POINTS: i64 = std.math.maxInt(i64);
 const WRITE_SYSCALL_COST: i64 = 2_500_000;
 const WRITE_BYTE_COST: i64 = 4_000;
 const READ_BYTE_COST: i64 = 6;
+/// Whether a new process's first stdin read call is charged. The competition's
+/// judge doesn't charge it: in 98 first turns of two ladder games its points
+/// were ours less exactly 6 per byte of that read. That evidence can't tell
+/// "the first read call is free" from "the first 1,024 bytes are free", since
+/// the bots read through a 1,024-byte buffer. The toolkit charges it, and
+/// `run --charge-first-read` sets this to match the toolkit.
+pub var charge_first_read = false;
 const VIRTUAL_EPOCH_NS: u64 = 1_767_225_600_000_000_000;
 /// Host calls a turn may make before the bot is treated as out of time; points bound
 /// computation, this bounds a bot that only ever yields.
@@ -293,6 +305,7 @@ pub const Instance = struct {
     stdin_closed: bool = false,
     parks: u32 = 0, // times the guest waited on an empty stdin
     parks_snapshot: u32 = 0,
+    has_read: bool = false, // the process has read stdin before
 
     // Annotation bytes bypass gameplay stdout and its 10 KiB framer.
     // A separate finite budget bounds broken observers without charging policy.
@@ -300,6 +313,10 @@ pub const Instance = struct {
     annotation_depth: u32 = 0,
     annotation_policy_remaining: i64 = 0,
     annotation_remaining: i64 = 1_000_000_000,
+    // In inspect mode, the stdout line being assembled, so diagnostic records can be
+    // told from gameplay lines across writes.
+    stdout_line: std.ArrayList(u8) = .empty,
+    gameplay: std.ArrayList(u8) = .empty,
 
     // stdout, framed into turns
     framer: Framer = .{},
@@ -398,6 +415,8 @@ pub const Instance = struct {
         if (self.deferred_trap) |trap| c.wasm_trap_delete(trap);
         self.stdin.deinit(self.allocator);
         self.annotation_output.deinit(self.allocator);
+        self.stdout_line.deinit(self.allocator);
+        self.gameplay.deinit(self.allocator);
         self.allocator.free(self.bindings);
         c.wasmtime_linker_delete(self.linker);
         c.wasmtime_sharedmemory_delete(self.memory);
@@ -928,7 +947,8 @@ pub const Instance = struct {
             total += @intCast(count);
             if (count < length) break;
         }
-        self.charge(@as(i64, total) * READ_BYTE_COST);
+        if (self.has_read or charge_first_read) self.charge(@as(i64, total) * READ_BYTE_COST);
+        self.has_read = true;
         try self.writeU32(out, total);
         return errno.OK;
     }
@@ -937,6 +957,11 @@ pub const Instance = struct {
         var total: u32 = 0;
         var k: u32 = 0;
         while (k < n) : (k += 1) total += try self.readU32(iovs + 8 * k + 4);
+        if (fd != 2 and self.framer_attached and self.module.inspection_enabled) {
+            try self.writeInspected(iovs, n);
+            try self.writeU32(out, total);
+            return errno.OK;
+        }
         try self.chargeWrite(total);
         k = 0;
         while (k < n) : (k += 1) {
@@ -952,18 +977,46 @@ pub const Instance = struct {
         return errno.OK;
     }
 
+    /// Inspect mode's stdout: diagnostic record lines become annotations, uncharged
+    /// and outside the framer; the other lines reach the framer and are charged as
+    /// the judge charges them, so a turn's gameplay output costs what it did in play.
+    fn writeInspected(self: *Instance, iovs: u32, n: u32) HostError!void {
+        self.gameplay.clearRetainingCapacity();
+        var k: u32 = 0;
+        while (k < n) : (k += 1) {
+            const ptr = try self.readU32(iovs + 8 * k);
+            const length = try self.readU32(iovs + 8 * k + 4);
+            for (try self.guest(ptr, length)) |byte| {
+                self.stdout_line.append(self.allocator, byte) catch return error.OutOfMemory;
+                if (byte != '\n') continue;
+                const line = self.stdout_line.items;
+                if (std.mem.startsWith(u8, line, GIZMO_PREFIX)) {
+                    if (line.len + self.annotation_output.items.len > 64 * 1024 * 1024) return error.OutOfMemory;
+                    self.annotation_output.appendSlice(self.allocator, line) catch return error.OutOfMemory;
+                } else {
+                    self.gameplay.appendSlice(self.allocator, line) catch return error.OutOfMemory;
+                }
+                self.stdout_line.clearRetainingCapacity();
+            }
+        }
+        if (self.gameplay.items.len == 0) return;
+        try self.chargeWrite(@intCast(self.gameplay.items.len));
+        if (self.framer.feed(self.gameplay.items)) self.endTurn();
+    }
+
     // ---- driver side --------------------------------------------------------
 
     pub fn arm(self: *Instance) void {
         self.framer.arm();
         self.annotation_output.clearRetainingCapacity();
         self.annotation_remaining = 1_000_000_000;
+        self.stdout_line.clearRetainingCapacity();
     }
 
     /// Feeds a turn; false when the bot has already exited.
     pub fn write(self: *Instance, data: []const u8) !bool {
         if (self.state == .finished) return false;
-        self.budget = MAX_TURN_POINTS;
+        self.budget = if (self.module.inspection_enabled) INSPECTION_TURN_POINTS else MAX_TURN_POINTS;
         self.parks_snapshot = self.parks;
         self.calls = 0;
         try self.stdin.appendSlice(self.allocator, data);

@@ -420,13 +420,16 @@ mapgen *args:
     raise SystemExit(main())
 
 # Build a bot once with the organiser's compilers, into the toolkit's own caches.
+# A judge build is also registered by GUID for the viewer's recovery
+# (harness/build_registry.py), which prints the GUID and the WASM.
 [group("Build")]
 bot-build source mode="judge":
     #!/usr/bin/env -S {{quote(python)}}
+    import json
     import sys
     from pathlib import Path
 
-    from harness import toolkit
+    from harness import build_registry, toolkit
 
 
     def main() -> None:
@@ -443,18 +446,20 @@ bot-build source mode="judge":
         else:
             wasm = clangtool.build(source)
             sandbox.compile_once(sandbox._metered(wasm))
-            print(wasm)
+            guid, _ = build_registry.register(source, wasm)
+            print(json.dumps({"guid": guid, "wasm": str(wasm)}))
 
 
     main()
 
-# Compile loong-gamedata, loong-report and loong-sample-replays into build/bin.
+# Compile loong-gamedata, loong-report, loong-sample-replays and loong-recover into build/bin.
 [group("Build")]
 tools-build:
     mkdir -p ../../build/bin
     nim c -d:release --hints:off --nimcache:../../build/nimcache/gamedata -o:../../build/bin/loong-gamedata ../../gamedata/gamedata.nim
     nim c -d:release --hints:off --nimcache:../../build/nimcache/report -o:../../build/bin/loong-report ../../harness/report/report.nim
     nim c -d:release -d:ssl --hints:off --nimcache:../../build/nimcache/sample-replays -o:../../build/bin/loong-sample-replays ../../replays/collection.nim
+    nim c -d:release --hints:off --nimcache:../../build/nimcache/recover -o:../../build/bin/loong-recover ../../replays/recovery/serve.nim
 
 # Check the Zig judge meters bots and records games exactly as the toolkit does.
 [group("Evaluation")]

@@ -1,10 +1,10 @@
 ## `loong-gamedata`: write a replay's `game` columns (format.md) from the packed
-## Cap'n Proto replay and, for a game the judge played, its `points` file, a
-## game's `result` columns, or a run's merged results, and summarise replays.
-## `Usage` below lists the commands.
+## Cap'n Proto replay and its judge points file, a game's `result` columns, or
+## a run's merged results, and summarise replays. `Usage` below lists the
+## commands.
 
-import std/[os, strutils, tables]
-import columns, capnp_replay, decode, gzip_inflate, result
+import std/[os, sets, strutils, tables]
+import columns, capnp_replay, decode, gzip_inflate, observations, result
 
 const GameVersion = 1'u32
 
@@ -20,8 +20,11 @@ type
     log:           string
 
 proc pointsFileFor(replay: string): string =
-  ## The judge's per-turn points beside the replay (harness/zig_judge/src/run.zig).
-  replay.changeFileExt("points.cols")
+  ## The replay's judge points (harness/zig_judge/src/run.zig): beside it, or
+  ## in its result directory's game store.
+  let beside = replay.changeFileExt("points.cols")
+  let stored = replay.parentDir / "store" / beside.extractFilename
+  if not fileExists(beside) and fileExists(stored): stored else: beside
 
 proc cellOf(message: CapnpMessage, point: CapnpStruct, width: int32): uint32 =
   uint32(message.int32Field(point, 1) * width + message.int32Field(point, 0))
@@ -232,10 +235,13 @@ const Usage = """usage:
       the replay's `game` columns, beside it unless OUTPUT is given
   loong-gamedata result OUTPUT [--game GAME.cols] [--map NAME] [--seed N]
       [--bot-a NAME] [--bot-b NAME] [--exit-code N] [--timed-out]
-      [--elapsed SECONDS]
+      [--elapsed SECONDS] [--slot-seconds SECONDS]
       one game's `result` columns; without --game, a game that left no replay
   loong-gamedata merge-results OUTPUT INPUT...
       every input's rows in one file of the same kind
+  loong-gamedata observations GAME.cols OUTPUT [--dragons ID,ID...] [--lenient]
+      each decision's bot-visible input, for these dragons or every dragon;
+      --lenient takes the first of two possible body headings instead of failing
   loong-gamedata decode REPLAY... [--deaths]
       each replay's sides, map, result and event counts; with --deaths, one
       table of every bot's deaths by the engine's cause"""
@@ -264,9 +270,34 @@ when isMainModule:
       of "--bot-b": facts.bots[1] = value
       of "--exit-code": facts.exitCode = int32(parseInt(value))
       of "--elapsed": facts.elapsedSeconds = float32(parseFloat(value))
+      of "--slot-seconds":
+        facts.slotSeconds = float32(parseFloat(value))
+        facts.hasSlotSeconds = true
       else: quit Usage, 2
       at += 2
     writeResultColumns(game, facts, paramStr(2))
+  of "observations":
+    if paramCount() < 3: quit Usage, 2
+    var dragons: HashSet[int32]
+    var everyDragon = true
+    var lenient = false
+    var at = 4
+    while at <= paramCount():
+      case paramStr(at)
+      of "--lenient": lenient = true
+      of "--dragons":
+        if at + 1 > paramCount(): quit Usage, 2
+        everyDragon = false
+        for identifier in paramStr(at + 1).split(','):
+          if identifier.len > 0: dragons.incl int32(parseInt(identifier))
+        inc at
+      else: quit Usage, 2
+      inc at
+    try:
+      writeObservationColumns(paramStr(2), paramStr(3), dragons, everyDragon, lenient)
+    except BoardFailure as failure:
+      stderr.writeLine failure.msg
+      quit 3
   of "decode":
     var replays: seq[string]
     var deaths = false

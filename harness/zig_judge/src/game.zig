@@ -34,8 +34,8 @@ pub const Turn = struct {
 
 /// Every dragon turn's points and failure.
 pub const Record = struct {
-    turns:    std.ArrayList(Turn) = .empty,
-    failures: std.ArrayList(u8) = .empty,
+    turns:        std.ArrayList(Turn) = .empty,
+    failures:     std.ArrayList(u8) = .empty,
 
     pub fn deinit(self: *Record, allocator: std.mem.Allocator) void {
         self.turns.deinit(allocator);
@@ -73,6 +73,17 @@ pub const Summary = struct {
     }
 };
 
+/// A team whose turns answer with recorded replies instead of running a bot: the
+/// other side of a recorded game, replaying its moves, splits and sonar exactly.
+pub const Script = struct {
+    team:    Team,
+    replies: std.AutoHashMap(u64, []const u8), // round << 32 | dragon, to its reply
+
+    pub fn key(round: i64, dragon: u32) u64 {
+        return (@as(u64, @bitCast(round)) << 32) | dragon;
+    }
+};
+
 pub const Setup = struct {
     engine_module: *const engine.EngineModule,
     modules:       [2]*const bot.BotModule,
@@ -83,6 +94,7 @@ pub const Setup = struct {
     want_replay:   bool,
     record:        ?*Record = null,
     echo:          ?Echo = null,
+    script:        ?*const Script = null,
 };
 
 /// run.py's Progress, printing as it does when stdout is not a terminal.
@@ -136,6 +148,7 @@ const Game = struct {
         const team = teamOf(init);
         const index = @intFromEnum(team);
         self.teams.put(dragon_id, team) catch {};
+        if (self.setup.script) |script| if (script.team == team) return;
         const dragon = bot.Dragon.create(self.allocator, self.setup.modules[index], &self.keys[index], index, dragon_id, init) catch return;
         self.dragons.put(dragon_id, dragon) catch dragon.destroy();
     }
@@ -154,6 +167,12 @@ const Game = struct {
                 var it = self.dragons.keyIterator();
                 while (it.next()) |id| alive[if (self.teams.get(id.*) == .b) 1 else 0] += 1;
                 self.progress.update(echo, round, alive);
+            }
+        }
+        if (self.setup.script) |script| {
+            if (self.teams.get(dragon_id) == script.team) {
+                self.recordTurn(round, dragon_id, 0, null);
+                return script.replies.get(Script.key(round, dragon_id)) orelse "";
             }
         }
         const dragon = self.dragons.get(dragon_id) orelse {

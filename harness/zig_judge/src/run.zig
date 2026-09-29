@@ -29,7 +29,28 @@ const Arguments = struct {
     seed: ?u64 = null,
     /// The team names the replay records; the bot paths when not given.
     teams: [2]?[]const u8 = .{ null, null },
+    /// A team that replays recorded replies from a script file instead of a bot.
+    script: ?struct { team: u8, path: []const u8 } = null,
 };
+
+/// A script file: one reply a line, `ROUND<TAB>DRAGON<TAB>REPLY`, the reply's
+/// lines joined with `|`, such as `MOVE N|SONAR N 42`.
+fn loadScript(allocator: std.mem.Allocator, text: []const u8, team: u8) !game.Script {
+    var script = game.Script{ .team = @enumFromInt(team), .replies = std.AutoHashMap(u64, []const u8).init(allocator) };
+    var lines = std.mem.splitScalar(u8, text, '\n');
+    while (lines.next()) |line| {
+        if (line.len == 0) continue;
+        var fields = std.mem.splitScalar(u8, line, '\t');
+        const round = try std.fmt.parseInt(i64, fields.next() orelse return error.BadScript, 10);
+        const dragon = try std.fmt.parseInt(u32, fields.next() orelse return error.BadScript, 10);
+        const joined = fields.next() orelse "";
+        const reply = try allocator.alloc(u8, joined.len + 1);
+        for (joined, 0..) |ch, at| reply[at] = if (ch == '|') '\n' else ch;
+        reply[joined.len] = '\n';
+        try script.replies.put(game.Script.key(round, dragon), reply);
+    }
+    return script;
+}
 
 fn parse(args: []const [:0]const u8) !Arguments {
     var positional: [3][]const u8 = undefined;
@@ -47,10 +68,17 @@ fn parse(args: []const [:0]const u8) !Arguments {
             i += 1;
             if (i >= args.len) return error.MissingValue;
             parsed.teams[if (arg[arg.len - 1] == 'a') 0 else 1] = args[i];
+        } else if (std.mem.eql(u8, arg, "--script-a") or std.mem.eql(u8, arg, "--script-b")) {
+            i += 1;
+            if (i >= args.len) return error.MissingValue;
+            parsed.script = .{ .team = if (arg[arg.len - 1] == 'a') 0 else 1, .path = args[i] };
         } else if (std.mem.eql(u8, arg, "--seed")) {
             i += 1;
             if (i >= args.len) return error.MissingValue;
             parsed.seed = try std.fmt.parseInt(u64, args[i], 0);
+        } else if (std.mem.eql(u8, arg, "--charge-first-read")) {
+            // The toolkit's accounting, for `just judge-fidelity`; the competition's judge doesn't charge it.
+            bot.charge_first_read = true;
         } else if (std.mem.eql(u8, arg, "--sandbox")) {
             parsed.sandbox = true;
         } else if (std.mem.eql(u8, arg, "--no-replay")) {
@@ -187,7 +215,7 @@ fn pointsPath(allocator: std.mem.Allocator, replay: []const u8) ![]u8 {
 /// Plays the game and returns the process exit code, as `unswbc run` would.
 pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, args: []const [:0]const u8) !u8 {
     const arguments = parse(args) catch |err| {
-        fail("usage: loong-judge --engine E run --sandbox [--seed N] [-o REPLAY | --no-replay] [--no-debug] [--team-a NAME --team-b NAME] MAP A.wasm B.wasm ({s})", .{@errorName(err)});
+        fail("usage: loong-judge --engine E run --sandbox [--seed N] [-o REPLAY | --no-replay] [--no-debug] [--team-a NAME --team-b NAME] [--script-a|--script-b FILE] [--charge-first-read] MAP A.wasm B.wasm ({s})", .{@errorName(err)});
         return 2;
     };
     if (!arguments.sandbox) {
@@ -225,8 +253,14 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
         fail("not found: {s}", .{arguments.map});
         return 1;
     };
+    // A scripted team runs no bot; its bot argument may be `-`.
+    const scripted: ?usize = if (arguments.script) |script| script.team else null;
     var wasm: [2][]u8 = undefined;
     for (arguments.bots, 0..) |path, i| {
+        if (scripted == i) {
+            wasm[i] = &.{};
+            continue;
+        }
         if (!std.mem.endsWith(u8, path, ".wasm")) {
             fail("the judge plays compiled .wasm bots only: {s}", .{path});
             return 1;
@@ -236,8 +270,24 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
             return 1;
         };
     }
-    defer for (wasm) |bytes| allocator.free(bytes);
-
+    defer for (wasm, 0..) |bytes, i| if (scripted != i) allocator.free(bytes);
+    var script: ?game.Script = null;
+    defer if (script) |*loaded| {
+        var replies = loaded.replies.valueIterator();
+        while (replies.next()) |reply| allocator.free(reply.*);
+        loaded.replies.deinit();
+    };
+    if (arguments.script) |file| {
+        const text = cwd.readFileAlloc(io, file.path, allocator, .unlimited) catch {
+            fail("not found: {s}", .{file.path});
+            return 1;
+        };
+        defer allocator.free(text);
+        script = loadScript(allocator, text, file.team) catch |err| {
+            fail("{s}: {s}", .{ file.path, @errorName(err) });
+            return 1;
+        };
+    }
     echo.print("loaded wasm vs wasm in the judge's sandbox\n", .{});
     const seed = arguments.seed orelse blk: {
         var bytes: [8]u8 = undefined;
@@ -259,9 +309,11 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
     defer wt.c.wasm_engine_delete(bot_host);
     var engine_module = try engine.EngineModule.load(engine_host, engine_bytes);
     defer engine_module.deinit();
-    var module_a = try bot.BotModule.load(allocator, bot_host, wasm[0]);
+    // The first team that plays a bot; a scripted team borrows its module unused.
+    const first: usize = if (scripted == 0) 1 else 0;
+    var module_a = try bot.BotModule.load(allocator, bot_host, wasm[first]);
     defer module_a.deinit(allocator);
-    const same = std.mem.eql(u8, arguments.bots[0], arguments.bots[1]);
+    const same = scripted != null or std.mem.eql(u8, arguments.bots[0], arguments.bots[1]);
     var module_b = if (same) module_a else try bot.BotModule.load(allocator, bot_host, wasm[1]);
     defer if (!same) module_b.deinit(allocator);
 
@@ -278,6 +330,7 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
         .want_replay = !arguments.no_replay,
         .record = &record,
         .echo = echo,
+        .script = if (script) |*loaded| loaded else null,
     }) catch |err| {
         fail("{s}: {s}", .{ arguments.map, @errorName(err) });
         return 1;

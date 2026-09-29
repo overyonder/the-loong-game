@@ -16,9 +16,11 @@ what the games leave.
 | Standard summary and ratings | `just report` | `harness/report` |
 | Map generation | `just mapgen` | `harness/mapgen.py` |
 | Local ladder | `just ladder` | `harness/ladder.py` |
-| Game data | `just decode`, `just deaths` | `gamedata` |
+| Game data | `just gamedata`, `just decode`, `just deaths` | `gamedata` |
 | Replay sampling | `just sample-replays` | `replays/collection.nim` |
-| Graphical and headless viewer | `just viewer` | `replays/viewer` |
+| Graphical viewer and decision recovery | `just viewer`, `just decisions`, `just showcase` | `replays/viewer`, `replays/recovery` |
+| Build registry | `just bot-build` | `harness/build_registry.py` |
+| Bot diagnostics runtime | `just showcase-bot` | `runtime` |
 | Nim tools | `just tools-build` | `gamedata`, `harness/report`, `replays` |
 | Profiling | `just profile`, `just native`, `just native-profile` | `examples/performance/justfile` |
 | Zig judge | `just zig-judge-build`, `just zig-judge`, `just judge-fidelity` | `harness/zig_judge` |
@@ -33,9 +35,10 @@ cd examples/tooling
 nix-shell -p odin raylib raygui glfw libGL just --run 'just viewer-build'
 ```
 
-`just tools-build` compiles `loong-gamedata`, `loong-report` and
-`loong-sample-replays` into `build/bin`. The round robin, batch, ladder, verdict,
-report, decode and replay sampling run them, so build them first. They need Nim,
+`just tools-build` compiles `loong-gamedata`, `loong-report`,
+`loong-sample-replays` and `loong-recover` into `build/bin`. The round robin,
+batch, ladder, verdict, report, decode, replay sampling and viewer run them, so
+build them first. They need Nim,
 zlib, SQLite and OpenSSL. With Nix:
 
 ```sh
@@ -48,8 +51,10 @@ it takes from the installed toolkit, and meters each bot with a port of the
 toolkit's metering pass (`harness/zig_judge/src/metering.zig`). Its `run` mode
 takes the arguments `unswbc run --sandbox` takes and writes the same log lines
 and replay, and each dragon turn's judge points beside the replay as
-`REPLAY.points.cols` (`src/run.zig`). The round robin, batch and ladder play in
-it by default. Building it needs Zig 0.16 and the wasmtime C API, named by
+`REPLAY.points.cols` (`src/run.zig`). Like the competition's judge, it leaves a
+new process's first stdin read uncharged, and `run --charge-first-read` charges
+it as the toolkit does. Its `--inspect` mode reruns a bot for the viewer's
+recovery. The round robin, batch and ladder play in it by default. Building it needs Zig 0.16 and the wasmtime C API, named by
 `WASMTIME_INCLUDE` and `WASMTIME_LIB`. With Nix:
 
 ```sh
@@ -72,7 +77,7 @@ judge from Python, one game or a batch on N threads.
 
 `just judge-fidelity` checks that the judge matches the toolkit: it meters each
 bot with both and compares the modules byte for byte, then plays each seeded game
-in both and compares the replays byte for byte and the logs line by line, apart
+in both, the judge charging first reads as the toolkit does, and compares the replays byte for byte and the logs line by line, apart
 from timings. Run it after building the judge and after changing toolkit. By
 default it plays `room-c` and `starter-c` on Arena and Portals.
 
@@ -87,7 +92,9 @@ ladder` take the same `--engine`. Seeded sandbox games are cached in
 `build/game-cache` and reused while the bots, map, toolkit and judge are
 unchanged. `just bot-build` builds a
 bot once into the toolkit's own caches, as the round robin does before it
-plays. An existing `--output` is resumed, playing again only the games that did
+plays, and registers a judge build in `build/registry` under a GUID, which it
+prints with the WASM's path. The viewer reruns a registered build to rebuild its
+dragons' decisions (`just viewer REPLAY --seat A GUID`). An existing `--output` is resumed, playing again only the games that did
 not complete.
 
 Every run's `summary.md` has the same form, rendered by `loong-report`: a
@@ -151,14 +158,17 @@ run these public copies. Run `just check-recipes` in both
 example directories to check their inline Python. The release manifest,
 [tooling-release.json](tooling-release.json), records the source and hash of each
 shared file. Game data, reports, verdicts, replay reconstruction, sampling, map
-generation, the round robin, the ladder, the Zig judge and Odin display are
-copies of their canonical private sources. Public export shows observations;
-private bot-state recovery and competitive models are not included. The viewer
-reads replays with [pycapnp](https://github.com/capnproto/pycapnp), so install
-it into the Python that `LOONG_PYTHON` names, such as the toolkit's. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
+generation, the round robin, the ladder, the Zig judge, the build registry, the
+diagnostics runtime, decision recovery and the Odin viewer are copies of their
+canonical private sources. Competitive bots and models are not included.
+[replays/viewer/README.md](replays/viewer/README.md) describes the viewer and
+[replays/viewer/diagnostics.md](replays/viewer/diagnostics.md) the records a bot
+writes for it. [examples/showcase-bot](examples/showcase-bot/strategy.nim) writes
+every kind, and `just showcase` builds it, plays it against itself and opens the
+game. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
 it requires a display and OpenGL context. A headless Wayland or compatible X11
-server can provide that context. `--no-display --export board.json` exports data
-without a graphics context. Changes to shared code originate in the canonical source and are
-released here together with refreshed hashes.
+server can provide that context. `--no-display` only writes the game's columns.
+Changes to shared code originate in the canonical source and are released here
+together with refreshed hashes.
 
 Screenshots and measurements in the posts describe the recorded experiments.

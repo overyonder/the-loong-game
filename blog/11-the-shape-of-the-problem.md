@@ -1,6 +1,6 @@
 # The shape of the problem
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to match how our bots are built now, from a repertoire of behaviour modules. I reran the first bot's test with the sequential verdict and toolkit 1.2.2 on the new generated maps. On the first generated maps it came out better. On these, which stay within the range of the official maps, it isn't clearly better, so the section ends by looking at how it loses.
+> **Editor's note, 29 September 2026.** I've rewritten this post to be shorter and to match how our bots are built now, from a repertoire of behaviour modules. I reran the first bot's test with the sequential verdict and toolkit 1.2.2 on the new generated maps. On the first generated maps it came out better. On these, which stay within the range of the official maps, it isn't clearly better, so the section ends by looking at how it loses, in a picture retaken in the current viewer.
 
 With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. This game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises decisions, and shows how I lay out a bot so the organisation itself can change.
 

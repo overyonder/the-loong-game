@@ -15,7 +15,7 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 6 | [A ladder of our own](06-a-ladder-of-our-own.md) | Building our tooling | Rating every saved version against every other, and checking the pool for rock-paper-scissors circles. |
 | 7 | [Everyone else's games](07-everyone-elses-games.md) | Building our tooling | A polite sampler that downloads the newest public replays without loading the organisers' site. |
 | 8 | [Reading a replay](08-reading-a-replay.md) | Building our tooling | Decoding the packed replay format, rebuilding each game turn by turn, and counting how dragons die. |
-| 9 | [Through one dragon's eyes](09-through-one-dragons-eyes.md) | Building our tooling | An Odin debug viewer that shows a game through one dragon's window and memory, and why chasing pearls kills. |
+| 9 | [Through one dragon's eyes](09-through-one-dragons-eyes.md) | Building our tooling | An Odin debug viewer that reruns a bot to show each dragon's window, decisions and graded memory, with a showcase bot for every kind of record, and why chasing pearls kills. |
 | 10 | [Where the points go](10-where-the-points-go.md) | Building our tooling | Profiling a bot with the judge's own clock, and following the flood fill down to its instructions with perf. |
 | 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, a repertoire that keeps them swappable, and the first strategy bot assembled from behaviour modules. |
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes as parent states over shared behaviours, each dragon working out its own role by sonar, and the bugs the replays found. |
