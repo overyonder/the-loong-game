@@ -91,7 +91,7 @@ crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:
 
 The judge only takes C, so the profile emits C, one intrinsic per selected instruction. `rakec --verify-native` then compiles that C, disassembles it, and rejects any function containing anything but locals, constants and vector instructions. In the benchmark the Rake masks cost 437 points against 435 for the hand-written intrinsics, and matched on every turn. The code is in [examples/performance/rake](../examples/performance/rake/window_bits.rk), and `just rake` regenerates the C.
 
-## What it does for the bot
+## The fast bot
 
 The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. That's the split [The choice](02-the-choice.md) planned, and it's how our competition bot is built too: strategy in Nim, and C only in hot kernels. On the bundled maps the fast bot plays exactly the same games as the original:
 

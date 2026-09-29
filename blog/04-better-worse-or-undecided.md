@@ -8,11 +8,11 @@ With the [harness](03-the-evaluation-harness.md) we can play as many games as we
 
 A verdict compares a candidate bot with the opponents it plays, or with a baseline version it was changed from. The question it answers is narrow: is the difference we're seeing real, and how big is it? Stated precisely, if the candidate played those opponents forever, would it score more than half its games?
 
-That's a measurement, not a decision about what the bot should contain. A behaviour goes into our bot because there's a sound reason it helps at least some of the time, and a bad first result usually says more about its parameters than about the idea. What the verdict tells us is how far to trust a difference, so we don't talk ourselves into a gain that isn't there or explain away a loss that is.
+What goes into our bot is decided separately. A behaviour goes in because there's a sound reason it helps at least some of the time, and a bad first result usually says more about its parameters than about the idea. The verdict tells us how far to trust a difference, so we don't talk ourselves into a gain that isn't there or explain away a loss that is.
 
 We can never play forever, so every answer is a bet, and there are two ways to lose it. We can call a difference real when it's luck, or miss one that really is there. Statisticians call the chance of the first mistake α, and one minus the chance of the second the test's power. The usual choice, and ours, is α of 5% and power of 80%.
 
-## How many games a question needs
+## Sample size
 
 The third ingredient is the size of the difference we care about. A change that makes the bot win 70% of its games against the baseline is easy to spot. One that wins 51% is real but almost invisible, and chasing it would cost thousands of games. So before playing anything, we decide on the smallest improvement worth detecting, and that sets how many games the test needs:
 
@@ -20,7 +20,7 @@ The third ingredient is the size of the difference we care about. A change that 
 
 We size our verdicts for +70 Elo, which means winning about 60% of games against the baseline. Smaller gains are real, but a test that could see them would cost four times as many games, and on unseen tournament maps a change that small might not survive anyway. For comparison, the verdict we used before this redesign played a fixed schedule of about 3,700 games per candidate, whatever the question.
 
-## Why you can't just keep checking
+## Checking after every game
 
 A fixed-size test has an obvious waste. If a candidate wins its first 20 games in a row, the answer is already clear, and playing the other 130 feels silly. The tempting fix is to check the result after every game and stop as soon as it looks significant.
 
@@ -78,7 +78,7 @@ One more check runs alongside. Ten games against a bot that moves at random are 
 
 ## Reaching the cap
 
-Some changes are too small for either line: they help a little, or on some maps and not others. After 155 games without crossing, the verdict stops and reports no material difference. That's an honest answer, and a useful one. It means the difference is smaller than the test was built to see, and measuring it would take far more games, such as the [ladder](06-a-ladder-of-our-own.md) later in this stage, which plays every pair many times.
+Some changes are too small for either line: they help a little, or on some maps and not others. After 155 games without crossing, the verdict stops and reports no material difference. It means the difference is smaller than the test was built to see, and measuring it would take far more games, such as the [ladder](06-a-ladder-of-our-own.md) later in this stage, which plays every pair many times.
 
 ## A first verdict
 
@@ -97,11 +97,11 @@ The verdict writes a `verdict.md` in the same format as the harness's summary, w
 | --- | --- | --- | --- | --- | --- | --- |
 | `room-pearls` | `room-c` | 2–0–9 | −261 (… to −63) | not better | −1.632 (−1.558, +2.773) | 11, decided at 11 (cap 155) |
 
-It took 11 games. The pearl chaser won 2 and lost 9, and after the eleventh the running number fell to −1.632, past the lower line at −1.558, so the answer is not better. The Elo estimate says worse, not merely no better: its interval stops at −63. That doesn't mean heading for food is a bad idea. It means this rule, which chases the nearest pearl whenever there's room, is losing games, and the next step is to find out how. By the time it decided, 41 games had been played in all, counting the ten upset games and the games already in flight, which is the price of keeping several running at once.
+It took 11 games. The pearl chaser won 2 and lost 9, and after the eleventh the running number fell to −1.632, past the lower line at −1.558, so the answer is not better. The Elo estimate goes further and says worse, with an interval that stops at −63. Heading for food can still be a good idea. This rule, which chases the nearest pearl whenever there's room, is losing games, and the next step is to find out how. By the time it decided, 41 games had been played in all, counting the ten upset games and the games already in flight, which is the price of keeping several running at once.
 
 The upset check found something too. Of its ten games against `starter-c`, the pearl chaser failed to win one, on Colosseum, and the verdict lists it with the `just viewer` command that opens its replay.
 
-The flood-fill bot doesn't lose to a starter, and the pearl chaser did. That's the most useful thing the whole run produced: a specific game, on a specific map, that a decent bot should never lose, with the command to watch it. Why the pearl chaser's dragons die is a question for the replay tools later in this stage, and the answer turns out to be about how long its dragons grow.
+The flood-fill bot doesn't lose to a starter, and the pearl chaser did. That game is the most useful result of the run. A decent bot should never lose it, and the verdict gives the command to watch it. Why the pearl chaser's dragons die is a question for the replay tools later in this stage, and the answer is how long its dragons grow.
 
 ## Checking the whole line
 

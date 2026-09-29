@@ -50,7 +50,7 @@ The turn loop wraps each step in `profile` and logs the totals at the end of eve
 
 ![A terminal running just profile default, which builds the profiled Nim bot and plays one game on the default map. Over 1,144 turns the medians are: Input 329,448 points, ReadWindow 18,444, ChooseMove 48,657, Output 3,038,645, 5 flood fills, and 3,445,130 points for the whole turn.](images/profile-points.png)
 
-## What the profile says
+## The profile
 
 The bot's thinking, the move choice with its flood fills, is a tiny slice of the turn, and almost everything else is overhead:
 

@@ -4,7 +4,7 @@
 
 The organisers have said that every Sprint, Qualifier and Grand Final map will be brand new. That's a problem for anyone who only tests on the maps bundled with the toolkit, because a bot can quietly come to depend on something those maps happen to have in common, and look strong right up until the tournament puts it on a map without it. We can't test on maps nobody has seen, but we can make lots of new ones that look like the real thing. That's the map generator from the wishlist. This post shows how ours works, built on a generator another competitor shared, and then uses it straight away to find a blind spot the bundled maps had been hiding.
 
-## What a plausible map needs
+## Plausible maps
 
 The generator, `just mapgen`, writes maps in the official format. The hard part is making them plausible: varied enough to find surprises, but still recognisably the same game. My first generator mixed a handful of random layouts and threw away the ones that came out unplayable, and it made maps no organiser would ever ship. The one the harness uses now is xCirno's layered world generator, which they shared with everyone in the competition Discord as [a gist](https://gist.github.com/xCirno1/ffdaac4236c1f1085c351af4fdfc1600). It builds each map in stages, and each stage reads what the earlier ones decided:
 
@@ -74,7 +74,7 @@ A dragon running into its own body is strange, because the flood fill is suppose
 
 The replays show a second blind spot as well. Each dragon picks its move on its own, and although the flood fill avoids its teammates' bodies, it never considers where they're about to move. So two of the bot's dragons can choose the same empty tile in the same round, and both die. The engine records that as a lost head-to-head. Teaching the bot how portals work, and to keep out of its teammates' way, are the first jobs for the strategy posts.
 
-## Where the tools fit
+## The tools so far
 
 That's three of the eight tools. The harness plays the games, the statistics tell us what the results mean, and the generator makes sure the results hold on maps nobody has seen:
 

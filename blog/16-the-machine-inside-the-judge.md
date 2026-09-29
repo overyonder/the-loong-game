@@ -4,9 +4,9 @@
 
 We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and point for point, in about a quarter of the time, and every game we play now runs in it, with the toolkit kept as the reference we check it against. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
-This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay, and the harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](../harness/zig_judge/harness.py).
+This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay. The harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](../harness/zig_judge/harness.py).
 
-## What a judge does
+## Engine and host
 
 The rules aren't in the judge. The organisers ship the game engine as a WebAssembly module, `unswbc_engine.wasm`, which owns every rule and writes the replay. The judge hosts it, along with one WebAssembly instance for every dragon. Each turn it gives a dragon its view as text on stdin, runs the bot until the bot finishes its reply with `ENDTURN`, and charges the CPU points the bot spent along the way.
 
@@ -99,7 +99,7 @@ That's one game at a time. What matters on the fleet is how much machine a game 
 
 The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. These timings don't separate the two.
 
-## What the meter sees
+## The metered machine
 
 Underneath the judge is the machine our bots actually run on, and it's a strange one. The meter charges for WebAssembly instructions: 1 point for most arithmetic and local variables, 2 for loads, stores, branches and vector instructions, 3 for division, more for calls. Wasmer compiles those instructions to real machine code before running them, but the price is set by the instructions, whatever the hardware does with them.
 

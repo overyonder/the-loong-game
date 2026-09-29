@@ -4,7 +4,7 @@
 
 In the [wishlist](01-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](07-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 
-## What the bytes are
+## The file format
 
 A replay is a [Cap'n Proto](https://capnproto.org/encoding.html) message. Cap'n Proto lays data out the way a C program holds it in memory: each struct is a block of 8-byte words, plain values at fixed offsets, then pointers to anything variable-sized. That leaves a lot of zero bytes, so the file is *packed*: each word becomes a tag byte, whose bits say which of its eight bytes are non-zero, followed by just those bytes. Here are the first bytes of one of our replays, unpacked by hand:
 
@@ -17,7 +17,7 @@ A replay is a [Cap'n Proto](https://capnproto.org/encoding.html) message. Cap'n 
 
 Those five pointers are the map text, the two bot names, the list of events and the result. Replays downloaded from the site are also gzipped, so they start with `1f 8b` instead.
 
-## Where the schema came from
+## The schema
 
 We also need the schema: which struct holds which fields at which offsets. The toolkit doesn't publish one, but `unswbc vscode` installs the official replay viewer, which includes the classes Cap'n Proto generated from the organisers' schema. Every field has a getter that reads a fixed offset. Here's a dragon splitting, tidied up from the minified original:
 
@@ -96,7 +96,7 @@ elif kind == "dragonUpdate":
 
 An update only says where the head and tail are now, not the whole body. So we add the new head and drop segments from the old tail until it matches. An ordinary move drops one segment and a move that eats a pearl drops none, because the tail stays put, so one rule handles both. The starting board comes from the map text at the top of the replay.
 
-## What one dragon could see
+## One dragon's window
 
 With the board rebuilt, a dragon's view is the 7×7 square around its head, wrapping round the edges of the map:
 

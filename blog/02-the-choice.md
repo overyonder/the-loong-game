@@ -4,7 +4,7 @@
 
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
 
-## What a language costs
+## The cost of a language
 
 To see how much it matters, I wrote the same small strategy in Python and in C. The idea behind it is that a dragon usually dies by running out of room, so each turn it looks for the move that leaves it the most space. For every move, and every follow-up move after that, it flood-fills the visible 7×7 window from where it would end up and counts how many tiles it could still reach. That's up to 16 flood fills a turn, which is enough work to measure. Here's the flood fill in Python:
 
@@ -153,7 +153,7 @@ The fourth language is my own. [Rake](https://rake-lang.org) is a language for w
 
 I'm building it because the usual ways of getting SIMD code leave you checking it by hand. You can write a plain loop and hope the compiler vectorises it, but nothing promises it will, or that it still will after the next edit. You can write intrinsics, one function call per machine instruction, but then the code is tied to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
 
-Rake makes vector code a condition of compiling. A kernel works on racks, where a rack is one vector register holding a lane per element, and every live rack has to stay in its register. If an operation would need a scalar fallback, a helper call or a spill, the program doesn't build, and the error names the operation and the rule it broke. The syntax is built to show those facts. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
+Rake makes vector code a condition of compiling. A kernel works on racks, where a rack is one vector register holding a lane per element, and every live rack has to stay in its register. If an operation would need a scalar fallback, a helper call or a spill, the program doesn't build, and the error says which operation broke which rule. The syntax is built to show those facts. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
 
 ```rake
 crunch occupied_bits(tiles: u8s) -> u32:

@@ -32,11 +32,11 @@ if unmarshal_error := json.unmarshal(data, &game.export, allocator = allocator);
 
 Every string, slice and map in the game ends up in that one arena, including thousands of 49-tile windows, and opening the next game frees all of it with a single `arena_destroy`. There's no way to leak or double-free one of those small allocations. The full source is in [replays/viewer/](../replays/viewer/main.odin).
 
-## What a bot can tell you
+## Indicators and decisions
 
-A replay records what a dragon saw and did, but not why. A bot can say why through its indicator, the short text the viewer shows beside the dragon. The example bots use it to name their role and behaviour each turn. Our competition bot goes further without spending a point during play. The replay records what each dragon observed, and the bot is deterministic, so our viewer re-runs the same build on those observations and gets the same decisions back, this time with every behaviour it considered written out: whether each was eligible, its score and reason, and which one it chose. The viewer draws that as a tree beside the board. A bad move then leads straight to the decision that caused it.
+A replay records what a dragon saw and did, but not why. A bot can say why through its indicator, the short text the viewer shows beside the dragon. The example bots use it to show their role and behaviour each turn. Our competition bot goes further without spending a point during play. The replay records what each dragon observed, and the bot is deterministic, so our viewer re-runs the same build on those observations and gets the same decisions back, this time with every behaviour it considered written out: whether each was eligible, its score and reason, and which one it chose. The viewer draws that as a tree beside the board. A bad move then leads straight to the decision that caused it.
 
-## Why chasing pearls kills
+## Long dragons
 
 Back to the question from the last post: why do the pearl chaser's dragons hit walls and themselves so much more often than the plain flood-fill bot's? Here's one in the viewer, on the bundled Autarky map, just before it dies:
 

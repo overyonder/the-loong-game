@@ -78,11 +78,11 @@ For that to work, a feeder has to know where the champion is, and the champion i
 
 ## Numbers to tune later
 
-The sacrifice has three numbers in it: a feeder starts delivering once it's six segments long, only while it has heard the champion within the last 12 turns, and it only drives in when the champion's head is within two tiles. All three are first guesses. In my first tests, versions with the sacrifice lost more often to the roles bot than versions without it, and my first idea about why, feeders dying against the champion's tail far from its head, made no difference when I tried it. That's a question about those numbers, and about where the champion waits to collect, not a reason to take the sacrifice out, so the tactics bot carries it and the numbers wait until the rest of the bot has settled.
+The sacrifice has three numbers in it: a feeder starts delivering once it's six segments long, only while it has heard the champion within the last 12 turns, and it only drives in when the champion's head is within two tiles. All three are first guesses. In my first tests, versions with the sacrifice lost more often to the roles bot than versions without it, and my first idea about why, feeders dying against the champion's tail far from its head, made no difference when I tried it. That's a question about those numbers, and about where the champion waits to collect, so the tactics bot carries the sacrifice and the numbers wait until the rest of the bot has settled.
 
 Whatever the number one team is doing, it's more careful than this. Perhaps their feeders only sacrifice when the champion is short of food, or perhaps the champion positions itself to collect. It's a good open question, and I'd love to hear from anyone who cracks it.
 
-## What the verdict says
+## The verdict
 
 `just tactics` builds the tactics bot, the coiling champion with feeders that forage and deliver, and runs the verdict against the roles bot:
 

@@ -4,9 +4,9 @@
 
 The [harness](03-the-evaluation-harness.md) plays games side by side on every core of one machine, and for a while that was enough. Then the work got bigger. Playing our bot against a pool of opponents across 120 maps, both sides and several seeds runs to thousands of games, and the games it loses are what tell us what to fix next. My desktop could grind through them overnight, but it's also the machine several of us work on, and every hour spent waiting for games is an hour before the next fault turns up.
 
-So big batches now go to a fleet of cloud machines, and this post explains how it's built. The short version is that a handful of long-lived AWS resources are declared in OpenTofu, everything a run needs is created by the launcher when the run starts, and every run is built to end on its own, even if everything watching it dies.
+So big batches now go to a fleet of cloud machines, and this post explains how it's built. A handful of long-lived AWS resources are declared in OpenTofu, everything a run needs is created by the launcher when the run starts, and every run is built to end on its own, even if everything watching it dies.
 
-![The fleet. Standing resources, declared in OpenTofu: the buckets, which hold run bundles and results, expire objects after 14 days and block public access; the fleet user, which launches, tags and terminates tagged Spot workers and runs queues; and the worker role, which reads the run's bundle, writes results and leases jobs from its queue. Made for each run by the launcher: the launcher packs workers into the vCPU allowance and checks the quota and the $50 ledger, creates one queue per run with a message per game, and starts Spot workers in Hyderabad and Mumbai, which pull games as cores free up, upload each result and shut down at the deadline. A reaper on a system timer, outside every agent, terminates any worker past its deadline.](images/fleet-run.svg)
+![The fleet. Standing resources, declared in OpenTofu: the buckets, which hold run bundles and results, expire objects after 14 days and block public access. The fleet user launches, tags and terminates tagged Spot workers and runs queues. The worker role reads the run's bundle, writes results and leases jobs from its queue. Made for each run by the launcher: the launcher packs workers into the vCPU allowance and checks the quota and the $50 ledger, creates one queue per run with a message per game, and starts Spot workers in Hyderabad and Mumbai, which pull games as cores free up, upload each result and shut down at the deadline. A reaper on a system timer, outside every agent, terminates any worker past its deadline.](images/fleet-run.svg)
 
 ## One run
 
@@ -38,7 +38,7 @@ Every name and region comes from one small JSON file that the launcher reads too
 
 ## Bringing hand-made resources under OpenTofu
 
-The resources already existed, so the definition couldn't create them. OpenTofu's `import` blocks handle this: each one names an existing resource and the definition it should match.
+The resources already existed, so the definition couldn't create them. OpenTofu's `import` blocks handle this: each one points at an existing resource and the definition it should match.
 
 ```hcl main.tf
 import {
@@ -67,7 +67,7 @@ The worker stops taking new games two minutes before the deadline and uploads wh
 
 Spending has its own guard. Every launch is written to a ledger at its worst-case cost, and the launcher refuses any launch that could take the total past $50. The ledger is our own estimate, covering compute, disks and addresses, and not an AWS billing limit, which is why it's deliberately pessimistic.
 
-## What it costs
+## Cost
 
 A two-region test with one small worker in each region, a c8i-flex.large in Hyderabad and another in Mumbai, played 8 games, four per worker, for an estimated $0.0008. Big batches scale that up, but by 26 September, eleven full runs had cost $17.51 between them, which is cheap for tens of thousands of games that would otherwise have tied up a desktop for days. Moving the games into our judge cut the compute again: 1,000 games of our main line against an older version now cost about $0.04, against $0.09 through the toolkit. At that price, downloading the replays the run keeps, about 2 GB compressed at roughly $0.11 a gigabyte, costs more than playing the games.
 

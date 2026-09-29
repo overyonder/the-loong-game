@@ -1,10 +1,10 @@
 # Roles
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to show the roles bot as it's built now, from behaviour modules in a shared repertoire. I reran its tests with the sequential verdict and toolkit 1.2.2 on the new generated maps, recounted the replays, and dropped a chart that screened variants for keeping or dropping, since settings like the champion's berth are parameters to tune rather than reasons to drop a behaviour.
+> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to show the roles bot as it's built now, from behaviour modules in a shared repertoire. I reran its tests with the sequential verdict and toolkit 1.2.2 on the new generated maps, recounted the replays, and dropped a chart that screened variants for keeping or dropping, since settings like the champion's berth are parameters to tune once the rest of the bot settles.
 
 The [first strategy bot](11-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500, and another is two segments long and not worth much alive. This post gives dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its own role.
 
-## Why dragons need different jobs
+## Different jobs
 
 Two of the game's rules pull our dragons in opposite directions, and that's what makes roles worth having. If neither team is wiped out, the winner at round 500 is the team with the longest living dragon, so whichever of our dragons is longest carries the whole team's result. And when two heads meet, both dragons die, however long each of them was:
 

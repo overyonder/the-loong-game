@@ -10,7 +10,7 @@ Hi all! The Loong Game is a little open source series running alongside UNSW Bat
 
 I'm Kieran Hannigan, and I run [over|yonder](https://over-yonder.tech), a performance engineering practice. Before that I spent about ten years as an electrical engineer, working on critical power and integrated control systems, and finished up leading a national renewable energy team as a Principal Engineer.
 
-## What to expect
+## The series
 
 - **Weird bot ideas.** Some will work. Most won't. I'll post both! One I'm keen on is testing ~~my-name-is~~-jev to see how smart this highly hyped 'System 1' model is.
 - **Beginner tips.** Getting a first bot running, reading the 7×7 window properly, and sprinting into our own tails as a rite of passage.

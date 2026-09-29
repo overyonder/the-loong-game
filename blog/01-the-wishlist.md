@@ -40,7 +40,7 @@ This is the trap every bot developer falls into sooner or later: a handful of wi
 
 ![Games needed to detect a better bot at 95% confidence and 80% power, by its true win rate: about 3,900 at 52%, 617 at 55%, 153 at 60%, 37 at 70% and 23 at 75%. A 26-game loop only catches bots that win about 74% of the time or more.](images/games-needed.svg)
 
-So a pile of results can't be read by eye. The games are how we find what's wrong with a bot, the ones it should have won and didn't, but whenever we want to say one version scores better than another, we need a tool that says how far the difference can be trusted, better, worse or not sure yet, and how many more games it would take to be sure.
+So a pile of results can't be read by eye. The games are how we find what's wrong with a bot: the ones it should have won and didn't. But to say one version scores better than another, we need a tool that says how far the difference can be trusted, and how many more games it would take to be sure.
 
 The second item is **statistics**.
 

@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to match how our bots are built now, from a repertoire of behaviour modules. I reran the first bot's test with the sequential verdict and toolkit 1.2.2 on the new generated maps. On the first generated maps it came out better. On these, which stay within the range of the official maps, it isn't clearly better, so the section ends by looking at how it loses.
 
-With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. The short version is that this game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises decisions, and shows how I lay out a bot so the organisation itself can change.
+With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. This game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises decisions, and shows how I lay out a bot so the organisation itself can change.
 
 ## Not a problem to grind
 
@@ -40,7 +40,7 @@ Game AI has settled on a handful of ways to organise an agent's decisions, and r
 
 Choosing one of these and living with it would be a mistake, because we won't know which suits this game until we've tried several. The trick is to write the bot so the architecture can be swapped.
 
-## A repertoire, not a bot
+## The repertoire
 
 I keep a reference layout that sorts code by what kind of thing it is, the way a textbook would. Here is the whole of it. Most files start life as pseudocode notes on a technique, and the dots mark the ones a bot has needed enough to implement:
 
@@ -58,7 +58,7 @@ Our competition bot is built the same way on our own repertoire. Its main line c
 
 ![Our escape behaviour, escape.nim, with boxes over each part. whenTrapped is its eligibility: fewer safe single steps than a minimum. execute is its execution: move away from the nearest enemy head, sprinting. Then one factory per architecture: utilityBehaviour builds a utility definition from the eligibility, a fixed score and the execution. SubsumptionLayer builds a layer that takes over the whole intent. BdiDesire builds a desire that interrupts the current intention and resumes it once safe. And goapGoal and goapAction build a survival goal and an escape step for the planner.](images/composition-behaviour.png)
 
-Two more rules keep the pieces honest. Hard constraints, like illegal or fatal moves, are filtered out before anything is scored, so no behaviour's enthusiasm can outweigh a wall. And each behaviour judges moves by its own objective. The alternative, one big weighted score where a dragon's role only changes the weights, is exactly the kind of bot that's hard to explain when it goes wrong.
+Two more rules apply to every piece. Hard constraints, like illegal or fatal moves, are filtered out before anything is scored, so no behaviour's enthusiasm can outweigh a wall. And each behaviour judges moves by its own objective. The alternative, one big weighted score where a dragon's role only changes the weights, is exactly the kind of bot that's hard to explain when it goes wrong.
 
 ## The first strategy bot
 

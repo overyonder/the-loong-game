@@ -6,7 +6,7 @@ The [debug viewer](09-through-one-dragons-eyes.md) started life reading a JSON e
 
 So all our game data now goes in one binary format, which we call Loong columns. The packed replay from the judge is still the smallest thing on disk, but it's a Cap'n Proto message that has to be walked event by event, as in [Reading a replay](08-reading-a-replay.md). A columns file costs about the same space and needs no parsing at all: a reader maps it into memory and uses the numbers where they lie.
 
-## Why columns
+## Columns
 
 Almost everything in a game is a long table: every event on the board, every dragon turn, every sonar ping. And almost every question we ask reads one field down a whole table, such as every turn's CPU points or every event's kind. So each field is stored as one contiguous array of fixed-size numbers, and a file is a header, those arrays, and a directory saying where each one is.
 

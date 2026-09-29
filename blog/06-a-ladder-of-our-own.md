@@ -4,13 +4,13 @@
 
 The [verdict tool](04-better-worse-or-undecided.md) answers one question at a time: how sure can we be that this candidate scores differently from that opponent? That's a useful question about one change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
 
-## What a rating means
+## Ratings
 
 The online ladder uses Elo ratings, and so will we, because the idea behind them is simple. Each bot gets a rating, and the gap between two ratings predicts how often the stronger bot wins. A gap of 400 points means ten-to-one odds, 200 points about three-to-one, and equal ratings mean an even match. A rating on its own means nothing. It only says something relative to the other bots it was measured against.
 
 ![Win probability against rating gap. The curve rises from an even match at a gap of 0, through about three-to-one at 200 points and ten-to-one at 400 points, towards certainty.](images/rating-odds.svg)
 
-## Why we fit ratings offline
+## Fitting ratings offline
 
 The online ladder updates ratings one game at a time. After each game, the winner takes some points from the loser, more if the win was a surprise, with a factor called K deciding how big each step is. That suits a ladder that never stops, where new games keep arriving forever. It has two side effects we'd rather avoid, though. The ratings depend on the order the games happened in, and the most recent games move them the most, which is exactly the noise the [wishlist](01-the-wishlist.md) complained about.
 
