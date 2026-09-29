@@ -1,6 +1,6 @@
 # Game data in columns
 
-> **Editor's note, 29 September 2026.** The viewer and its recovery are now released in the public repository, so the code quoted here links to it. I've corrected how recovered decisions reach the viewer: they stream into memory rather than landing in a file.
+> **Editor's note, 30 September 2026.** The viewer and its recovery are now released in the public repository, so the code quoted here links to it. I've corrected how recovered decisions reach the viewer: they stream into memory rather than landing in a file. The closing line now describes the final post as it is planned.
 
 The [debug viewer](09-through-one-dragons-eyes.md) started life reading a JSON export of each game, and that was fine for short games. Then we opened a 500-round game, and the viewer sat there for over eight minutes, reaching 6 GB of memory, without ever drawing a frame. The export for a game that long was 552 MB, or 27 MB once we delta-encoded it, and all of it had to be parsed into objects before anything could be drawn.
 
@@ -103,4 +103,4 @@ New columns can appear without breaking anything, because readers look columns u
 
 ## Next up
 
-That's the last of the performance posts for now. The final post in the series, after the tournament, is about the team of agents that runs all of this with me.
+That's the last of the performance posts for now. The final post in the series, after the tournament, is a tour of our whole competition bot.
