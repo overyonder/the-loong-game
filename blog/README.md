@@ -8,7 +8,7 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | ---: | --- | --- | --- |
 | 0 | [Introducing The Loong Game](00-the-loong-game.md) | Understanding the problem | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
 | 1 | [The wishlist](01-the-wishlist.md) | Understanding the problem | Trying to improve a bot with only the stock toolkit, where that falls short, and the eight tools this series builds to fill the gaps. |
-| 2 | [The choice](02-the-choice.md) | Understanding the problem | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim, Odin, Zig and Rake. |
+| 2 | [The choice](02-the-choice.md) | Understanding the problem | Python, C or C++: what the language a bot is written in costs in CPU points, and why this series also uses Nim, Odin, Zig and Rake. |
 | 3 | [The evaluation harness](03-the-evaluation-harness.md) | Building our tooling | A harness that plays every pairing on every map from both sides with shared seeds, runs games side by side, and keeps crashes apart from losses. |
 | 4 | [Better, worse or undecided](04-better-worse-or-undecided.md) | Building our tooling | A sequential test that says how far a difference between two bots can be trusted, and the upset games that turn up faults to watch. |
 | 5 | [Maps nobody has seen](05-maps-nobody-has-seen.md) | Building our tooling | Generating plausible unseen maps with a generator another competitor shared, and the blind spots they find in the flood-fill bot. |
