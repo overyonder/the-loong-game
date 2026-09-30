@@ -1,28 +1,28 @@
 # The Loong Game blog
 
-An open source series running alongside the UNSW Battlecode competition. It covers weird bot ideas, beginner tips, tools for `unswbc` and WASM performance deep dives.
+An open source series running alongside the UNSW Battlecode competition, with weird bot ideas, beginner tips, `unswbc` tools and WASM performance deep dives.
 
 Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/games/loong/). This folder is the only source for them. `tools/build_loong_series.py` in the `over-yonder.tech` repository reads the table below, turns each post into a page, and links files mentioned in posts to this repository on GitHub.
 
 | # | Post | Stage | Summary |
 | ---: | --- | --- | --- |
 | 0 | [Introducing The Loong Game](00-the-loong-game.md) | Understanding the problem | Who I am, what the series is for, the 2026 tournament in brief, and what the official toolkit does and doesn't give you. |
-| 1 | [The wishlist](01-the-wishlist.md) | Understanding the problem | Trying to improve a bot with only the stock toolkit, and the eight tools we'll need along the way. |
+| 1 | [The wishlist](01-the-wishlist.md) | Understanding the problem | Trying to improve a bot with only the stock toolkit, where that falls short, and the eight tools this series builds to fill the gaps. |
 | 2 | [The choice](02-the-choice.md) | Understanding the problem | Python, C or C++: what the language costs in CPU points, and why this series also uses Nim, Odin, Zig and Rake. |
 | 3 | [The evaluation harness](03-the-evaluation-harness.md) | Building our tooling | A harness that plays every pairing on every map from both sides with shared seeds, runs games side by side, and keeps crashes apart from losses. |
 | 4 | [Better, worse or undecided](04-better-worse-or-undecided.md) | Building our tooling | A sequential test that says how far a difference between two bots can be trusted, and the upset games that turn up faults to watch. |
 | 5 | [Maps nobody has seen](05-maps-nobody-has-seen.md) | Building our tooling | Generating plausible unseen maps with a generator another competitor shared, and the blind spots they find in the flood-fill bot. |
-| 6 | [A ladder of our own](06-a-ladder-of-our-own.md) | Building our tooling | Rating every saved version against every other, and checking the pool for rock-paper-scissors circles. |
-| 7 | [Everyone else's games](07-everyone-elses-games.md) | Building our tooling | A polite sampler that downloads the newest public replays without loading the organisers' site. |
-| 8 | [Reading a replay](08-reading-a-replay.md) | Building our tooling | Decoding the packed replay format, rebuilding each game turn by turn, and counting how dragons die. |
-| 9 | [Through one dragon's eyes](09-through-one-dragons-eyes.md) | Building our tooling | An Odin debug viewer that reruns a bot to show each dragon's window, decisions and graded memory, with a showcase bot for every kind of record, and why chasing pearls kills. |
-| 10 | [Where the points go](10-where-the-points-go.md) | Building our tooling | Profiling a bot with the judge's own clock, and following the flood fill down to its instructions with perf. |
-| 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, a repertoire that keeps them swappable, and the first strategy bot assembled from behaviour modules. |
+| 6 | [A ladder of our own](06-a-ladder-of-our-own.md) | Building our tooling | Rating every saved version against every other with a Bradley–Terry fit of all games at once, and checking the pool for rock-paper-scissors circles. |
+| 7 | [Everyone else's games](07-everyone-elses-games.md) | Building our tooling | A polite, paced and resumable sampler that downloads the newest public replays from the ladder without loading the organisers' site. |
+| 8 | [Reading a replay](08-reading-a-replay.md) | Building our tooling | Decoding the packed Cap'n Proto replay format with a reader written in Nim, rebuilding each game turn by turn, and counting how dragons die. |
+| 9 | [Through one dragon's eyes](09-through-one-dragons-eyes.md) | Building our tooling | An Odin debug viewer that reruns a bot to show each dragon's window, decisions and graded memory, and what it shows about why chasing pearls kills. |
+| 10 | [Where the points go](10-where-the-points-go.md) | Building our tooling | Profiling a bot with the judge's own point clock, and following the flood fill's cost down to individual instructions with perf. |
+| 11 | [The shape of the problem](11-the-shape-of-the-problem.md) | Grand strategy | Why this game rewards structure over raw compute, a menu of control architectures, and the first strategy bot built from swappable behaviour modules. |
 | 12 | [Roles](12-roles.md) | Grand strategy | Champions, workers and kamikazes as parent states over shared behaviours, each dragon working out its own role by sonar, and the bugs the replays found. |
-| 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it, the numbers left to tune, and every version on one ladder. |
+| 13 | [Tactics](13-tactics.md) | Tactical ideas and espionage | Coiling the champion and feeding it with smaller dragons that die beside it, the numbers left to tune, and every version on one ladder. |
 | 14 | [Sonar](14-sonar.md) | Tactical ideas and espionage | The 2026 game's special feature, and open questions on encoding, decoding, fingerprinting, echolocation, misinformation and poker. |
-| 15 | [Counting room faster](15-counting-room-faster.md) | Performance | Taking the room count from Nim through bitboards to SIMD, 66 times cheaper in CPU points. |
-| 16 | [The machine inside the judge](16-the-machine-inside-the-judge.md) | Performance | A judge written in Zig that plays the toolkit's games four times faster, why running bots as fibres rules out a race that kills freshly split dragons, and the machine the meter presents to a bot. |
+| 15 | [Counting room faster](15-counting-room-faster.md) | Performance | Taking the room count from Nim through bitboards to SIMD, 66 times cheaper in CPU points, and keeping it vectorised with a Rake kernel. |
+| 16 | [The machine inside the judge](16-the-machine-inside-the-judge.md) | Performance | A Zig judge that plays the toolkit's games four times faster, why running bots as fibres rules out a race that kills new dragons, and the metered machine. |
 | 17 | [Games in the cloud](17-games-in-the-cloud.md) | Performance | Running big batches of games on AWS Spot workers, the standing resources declared in OpenTofu, and how every run ends on its own. |
 | 18 | [Game data in columns](18-game-data-in-columns.md) | Performance | One binary format for all our game data: columns a reader maps into memory and uses without parsing, and a converter that writes them from a replay. |
 
