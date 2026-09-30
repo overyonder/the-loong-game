@@ -124,6 +124,14 @@ draw_gizmo_cells :: proc(gizmo: ^Gizmo, geometry: Board_Geometry) {
 draw_gizmo_overlays :: proc(viewer: ^Viewer_State, geometry: Board_Geometry, frame: i32) {
 	turn, found := focused_dragon_turn(viewer, frame)
 	if !found || !turn.gizmo_reliable {return}
+	// Targets sharing a cell, such as a task's claim and the route's goal, get
+	// one circle and their labels stacked beside it, each once.
+	Target_Label :: struct {
+		text:  string,
+		color: rl.Color,
+	}
+	targets := make(map[i32][dynamic]Target_Label, context.temp_allocator)
+	target_cells := make([dynamic]i32, context.temp_allocator)
 	for &gizmo, index in turn.gizmos {
 		color := gizmo_color(gizmo.color)
 		thickness: f32 = highlighted(viewer, "gizmo", i32(index)) ? 5 : 2
@@ -139,15 +147,14 @@ draw_gizmo_overlays :: proc(viewer: ^Viewer_State, geometry: Board_Geometry, fra
 		case "target":
 			if !viewer.overlays.target_lines {continue}
 			for point in gizmo.points {
-				center := cell_center(geometry, point)
-				rl.DrawCircleLinesV(center, geometry.cell_size * 0.4, color)
-				draw_text(
-					fmt.ctprintf("%s", gizmo.label),
-					i32(center.x + 5),
-					i32(center.y),
-					14,
-					color,
-				)
+				if point not_in targets {
+					targets[point] = make([dynamic]Target_Label, context.temp_allocator)
+					append(&target_cells, point)
+				}
+				labels := &targets[point]
+				repeated := false
+				for label in labels {repeated = repeated || label.text == gizmo.label}
+				if !repeated {append(labels, Target_Label{gizmo.label, color})}
 			}
 		case "table":
 			// Remembered next spawns are drawn graded with the true countdowns
@@ -179,7 +186,15 @@ draw_gizmo_overlays :: proc(viewer: ^Viewer_State, geometry: Board_Geometry, fra
 			if viewer.overlays.search {draw_gizmo_cells(&gizmo, geometry)}
 		case "positions":
 			if !viewer.overlays.positions {continue}
-			if mental_view(viewer, turn, found) {draw_believed_positions(&gizmo, geometry, turn)} else {draw_positions(&gizmo, geometry)}
+			if mental_view(viewer, turn, found) {draw_believed_positions(viewer, &gizmo, geometry, turn)} else {draw_positions(viewer, &gizmo, geometry)}
+		}
+	}
+	for cell in target_cells {
+		labels := targets[cell]
+		center := cell_center(geometry, cell)
+		rl.DrawCircleLinesV(center, geometry.cell_size * 0.4, labels[0].color)
+		for label, line in labels {
+			draw_text(fmt.ctprintf("%s", label.text), i32(center.x + 5), i32(center.y) + i32(line) * 15, 14, label.color)
 		}
 	}
 }
@@ -462,7 +477,50 @@ cell_diagnostic_label :: proc(value, format: string, round: i32, evaluated: bool
 // Each position as the cell where it was last known, outlined, and the cells
 // it may occupy now, hatched with their boundary traced, both fading as the
 // knowledge ages.
-draw_positions :: proc(gizmo: ^Gizmo, geometry: Board_Geometry) {
+// A position shows what the dragon chose to believe, its centre cell, until
+// it is opened: its centre is the cell last clicked, or its dragon is
+// highlighted. Then the cells it may occupy are drawn too.
+position_opened :: proc(viewer: ^Viewer_State, entry: Gizmo_Position) -> bool {
+	if entry.cell == viewer.selected_cell {return true}
+	subject, named := entry.dragon.?
+	return named && highlighted(viewer, "dragon", subject)
+}
+
+// An opened position's cells, hatched strongest where it is likeliest and
+// fading: listed cells by their order, the likeliest first, a radius by
+// distance from the centre. Its boundary is traced as the area's.
+draw_position_extents :: proc(entry: Gizmo_Position, geometry: Board_Geometry, color: rl.Color) {
+	width, height := geometry.width, geometry.height
+	area := position_area(entry, width, height)
+	strength :: proc(rank, count: f32) -> f32 {return 0.45 - 0.37 * rank / max(count, 1)}
+	if len(entry.cells) > 0 {
+		for cell, rank in entry.cells {
+			if cell >= 0 && cell < width * height {draw_hatch(cell_rectangle(geometry, cell), rl.Fade(color, strength(f32(rank), f32(len(entry.cells)))))}
+		}
+	} else {
+		for inside, cell in area {
+			if !inside {continue}
+			dx := abs(i32(cell) % width - entry.cell % width)
+			dy := abs(i32(cell) / width - entry.cell / width)
+			steps := min(dx, width - dx) + min(dy, height - dy)
+			draw_hatch(cell_rectangle(geometry, i32(cell)), rl.Fade(color, strength(f32(steps), f32(entry.radius + 1))))
+		}
+	}
+	draw_position_area(area, geometry, color, hatch = false)
+}
+
+// A believed position's centre: a square for a champion, else a dot.
+draw_position_centre :: proc(entry: Gizmo_Position, geometry: Board_Geometry, color: rl.Color) {
+	r := cell_rectangle(geometry, entry.cell)
+	inset := geometry.cell_size * 0.12
+	if entry.champion {
+		rl.DrawRectangleLinesEx({r.x + inset, r.y + inset, r.width - 2 * inset, r.height - 2 * inset}, 3, color)
+	} else {
+		rl.DrawCircleV(cell_center(geometry, entry.cell), geometry.cell_size * 0.18, color)
+	}
+}
+
+draw_positions :: proc(viewer: ^Viewer_State, gizmo: ^Gizmo, geometry: Board_Geometry) {
 	// The full board isn't otherwise clipped, and a wide area must not cover
 	// the sidebars; the area view already clips.
 	clip := !board_view_clipped(geometry)
@@ -471,12 +529,10 @@ draw_positions :: proc(gizmo: ^Gizmo, geometry: Board_Geometry) {
 	for position in gizmo.positions {
 		color := gizmo_color(position.color != ([4]u8{}) ? position.color : gizmo.color)
 		color = rl.Fade(color, max(0.35, 1 - f32(position.age) / 40))
-		if position.radius > 0 || len(position.cells) > 0 {
-			draw_position_area(position_area(position, geometry.width, geometry.height), geometry, color)
+		if position_opened(viewer, position) && (position.radius > 0 || len(position.cells) > 0) {
+			draw_position_extents(position, geometry, color)
 		}
-		r := cell_rectangle(geometry, position.cell)
-		inset := geometry.cell_size * 0.12
-		rl.DrawRectangleLinesEx({r.x + inset, r.y + inset, r.width - 2 * inset, r.height - 2 * inset}, 2, color)
+		draw_position_centre(position, geometry, color)
 		label := position.age > 0 ? fmt.ctprintf("%s, %d ago", position.label, position.age) : fmt.ctprintf("%s", position.label)
 		if position.label != "" {draw_text_with_backdrop(label, cell_center(geometry, position.cell) + {geometry.cell_size * 0.3, -geometry.cell_size * 0.6}, CELL_TEXT, color)}
 	}
@@ -499,13 +555,13 @@ position_area :: proc(entry: Gizmo_Position, width, height: i32) -> []bool {
 }
 
 // An area of cells, lightly hatched with its boundary traced, since areas
-// overlap.
-draw_position_area :: proc(area: []bool, geometry: Board_Geometry, color: rl.Color) {
+// overlap; without `hatch`, the boundary alone.
+draw_position_area :: proc(area: []bool, geometry: Board_Geometry, color: rl.Color, hatch := true) {
 	width, height := geometry.width, geometry.height
 	for inside, cell in area {
 		if !inside {continue}
 		r := cell_rectangle(geometry, i32(cell))
-		draw_hatch(r, rl.Fade(color, 0.15))
+		if hatch {draw_hatch(r, rl.Fade(color, 0.15))}
 		x, y := i32(cell) % width, i32(cell) / width
 		neighbours := [4]i32{((y + height - 1) % height) * width + x, y * width + (x + 1) % width, ((y + 1) % height) * width + x, y * width + (x + width - 1) % width}
 		sides := [4][2]rl.Vector2{{{r.x, r.y}, {r.x + r.width, r.y}}, {{r.x + r.width, r.y}, {r.x + r.width, r.y + r.height}}, {{r.x, r.y + r.height}, {r.x + r.width, r.y + r.height}}, {{r.x, r.y}, {r.x, r.y + r.height}}}

@@ -1,6 +1,7 @@
 package viewer
 
 import "core:fmt"
+import "core:slice"
 import rl "vendor:raylib"
 
 
@@ -216,12 +217,14 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 	mental := mental_view(viewer, turn, found)
 	if viewer.overlays.pings && !mental && found && focused_decision_phase(viewer) != .Waiting {
 		pings := decision_pings(&viewer.game, turn)
+		// What it read in purple, the echoes of its own sonar in teal, each
+		// ray once: a ray back on its own sender is both.
 		rows := make([dynamic]int, context.temp_allocator)
 		append(&rows, ..pings.received[:])
-		append(&rows, ..pings.echoes[:])
-		for row in rows {
+		for echo in pings.echoes {if !slice.contains(pings.received[:], echo) {append(&rows, echo)}}
+		for row, position in rows {
 			ping := game_ping(&viewer.game, row)
-			draw_ping_ray(geometry, ping)
+			draw_ping_ray(geometry, ping, position < len(pings.received) ? SONAR_RECEIVED : SONAR_ECHO)
 			if ping.decoded != "" {
 				// The sender's own reading of the value, beside the impact.
 				meaning := ping.decoded
@@ -304,8 +307,7 @@ draw_cell_link :: proc(g: Board_Geometry, first, second: i32, color: rl.Color, t
 	}
 }
 
-draw_ping_ray :: proc(g: Board_Geometry, ping: Game_Ping) {
-	color := ping.reflected ? COLOR_SELECTED : rl.Color{155, 189, 181, 125}
+draw_ping_ray :: proc(g: Board_Geometry, ping: Game_Ping, color: rl.Color) {
 	cell := ping.origin
 	direction: i32 = 0
 	if ping.direction == "east" {direction = 1}

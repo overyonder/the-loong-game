@@ -72,7 +72,6 @@ Game_Ping :: struct {
 	id, round, received_round, sender, hit, hit_kind, origin, end: i32,
 	direction, value:                                             string,
 	decoded, acceptance, receiver_meaning, memory_evidence:       string,
-	reflected:                                                     bool,
 }
 
 Loaded_Game :: struct {
@@ -380,7 +379,6 @@ game_ping :: proc(game: ^Loaded_Game, index: int) -> Game_Ping {
 		direction      = DIRECTION_NAMES[view.ping_direction[index] & 3],
 		value          = fmt.tprintf("%d", view.ping_value[index]),
 		acceptance     = "not reported",
-		reflected      = view.ping_hit[index] == view.ping_sender[index],
 	}
 	join_ping(game, &ping)
 	return ping

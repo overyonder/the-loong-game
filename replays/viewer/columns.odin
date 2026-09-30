@@ -1,6 +1,8 @@
 package viewer
 
 import "core:mem/virtual"
+import os "core:os"
+import "core:strings"
 
 // A mapped Loong columns file (gamedata/format.md). Columns are slices
 // into the mapping, used in place; nothing is parsed or copied.
@@ -80,4 +82,83 @@ list_row :: proc(file: ^Columns_File, name: string, starts_name: string, row: in
 // Row `row` of string column `name`, into the mapping.
 string_row :: proc(file: ^Columns_File, name: string, starts_name: string, row: int) -> string {
 	return string(list_row(file, name, starts_name, row, u8))
+}
+
+// A columns file being built, column by column, in the order they are
+// declared. Columns grow on the heap until `write_columns_file`.
+Columns_Writer :: struct {
+	kind:    string,
+	columns: [dynamic]Column_Being_Written,
+}
+
+Column_Being_Written :: struct {
+	name:       string,
+	value_type: u8,
+	size:       int,
+	values:     [dynamic]u8,
+}
+
+// Declare column `name` holding values of type T, so an empty table still
+// has it. The writer keeps its own copy of the name.
+declare_column :: proc(writer: ^Columns_Writer, name: string, $T: typeid) -> ^Column_Being_Written {
+	for &column in writer.columns {if column.name == name {return &column}}
+	append(&writer.columns, Column_Being_Written{name = strings.clone(name), value_type = column_type_code(T), size = size_of(T)})
+	return &writer.columns[len(writer.columns) - 1]
+}
+
+append_column_value :: proc(writer: ^Columns_Writer, name: string, value: $T) {
+	column := declare_column(writer, name, T)
+	value := value
+	bytes := ([^]u8)(&value)[:size_of(T)]
+	append(&column.values, ..bytes)
+}
+
+// Declare the string list `name` and its starts, `name#`.
+declare_string_list :: proc(writer: ^Columns_Writer, name: string) {
+	declare_column(writer, name, u8)
+	starts := declare_column(writer, name_with_starts(name), u64)
+	if len(starts.values) == 0 {append_column_value(writer, name_with_starts(name), u64(0))}
+}
+
+name_with_starts :: proc(name: string) -> string {
+	return strings.concatenate({name, "#"}, context.temp_allocator)
+}
+
+// Append one string to the list `name`.
+append_column_string :: proc(writer: ^Columns_Writer, name, text: string) {
+	declare_string_list(writer, name)
+	values := declare_column(writer, name, u8)
+	append(&values.values, ..transmute([]u8)text)
+	append_column_value(writer, name_with_starts(name), u64(len(values.values)))
+}
+
+// Write the file beside `path` and rename it into place, as format.md asks.
+write_columns_file :: proc(writer: ^Columns_Writer, path: string) -> bool {
+	aligned :: proc(offset: int) -> int {return (offset + 7) &~ 7}
+	offset := COLUMNS_HEADER_BYTES
+	offsets := make([]int, len(writer.columns), context.temp_allocator)
+	for column, position in writer.columns {
+		offsets[position] = offset
+		offset = aligned(offset + len(column.values))
+	}
+	directory := offset
+	length := directory + len(writer.columns) * COLUMNS_DIRECTORY_BYTES
+	data := make([]u8, length, context.temp_allocator)
+	copy(data[0:8], "LOONGCOL")
+	(^u32le)(&data[8])^ = 1
+	(^u32le)(&data[12])^ = u32le(len(writer.columns))
+	(^u64le)(&data[16])^ = u64le(directory)
+	(^u64le)(&data[24])^ = u64le(length)
+	copy(data[32:64], writer.kind)
+	for column, position in writer.columns {
+		copy(data[offsets[position]:], column.values[:])
+		at := directory + position * COLUMNS_DIRECTORY_BYTES
+		copy(data[at:at + COLUMNS_NAME_BYTES], column.name)
+		data[at + 48] = column.value_type
+		(^u64le)(&data[at + 56])^ = u64le(len(column.values) / column.size)
+		(^u64le)(&data[at + 64])^ = u64le(offsets[position])
+	}
+	partial := strings.concatenate({path, ".partial"}, context.temp_allocator)
+	if os.write_entire_file(partial, data) != nil {return false}
+	return os.rename(partial, path) == nil
 }

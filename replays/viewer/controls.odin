@@ -89,11 +89,53 @@ handle_board_wheel :: proc(viewer: ^Viewer_State, board_area: rl.Rectangle) {
 	}
 }
 
+// Every key and gesture the viewer takes, as the Hotkeys button lists them.
+HOTKEYS :: `Timeline
+Left, Right: the focused dragon's previous or next key turn in Turns mode, else one turn or round
+Up, Down: one turn or round back or forward
+Scroll over the board: as Left and Right
+Space: play or pause
+Home, End: the first or last round
+R: switch between Turns and Rounds
+
+Dragons and view
+Tab, Shift+Tab: focus the next or previous dragon
+Right-click a dragon: focus it; right-click an empty cell: clear the selection
+F: zoom onto the focused dragon's area, or back to the whole board
+B: open or close the Brain
+Esc: close the Brain or a dialog, else clear the selection
+
+Selecting on the board
+Click: select a cell or edge; Shift+click: a dragon
+Drag: paint cells, erasing when the first was selected
+Shift+drag: a rectangle of cells; Ctrl+drag: a line of cells
+
+Comment box
+Enter: save the comment; Ctrl+A: clear it; Ctrl+V: paste`
+
+// Turns mode steps through each dragon's turn, Rounds mode whole rounds; the
+// Turns button and R both switch.
+toggle_turns :: proc(viewer: ^Viewer_State) {
+	playback := &viewer.playback
+	playback.substeps = !playback.substeps
+	playback.playing = false
+	if playback.substeps {
+		playback.turn_position = f32(
+			min(
+				turn_count_before_frame(&viewer.game, current_frame(viewer)),
+				max(0, turn_count(&viewer.game) - 1),
+			),
+		)
+		synchronize_active_turn(viewer)
+	}
+}
+
 handle_keyboard_shortcuts :: proc(viewer: ^Viewer_State) {
 	if !viewer.has_game || viewer.comment_editing {
 		return
 	}
 	if rl.IsKeyPressed(.B) {viewer.brain_open = !viewer.brain_open}
+	if rl.IsKeyPressed(.R) {toggle_turns(viewer)}
 	if rl.IsKeyPressed(.F) && viewer.selected_dragon >= 0 {viewer.area_view = !viewer.area_view}
 	playback := &viewer.playback
 	if rl.IsKeyPressed(.SPACE) {
@@ -136,19 +178,7 @@ draw_playback_bar :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 	if button(&x, y, h, ">") {step_playback(viewer, 1)}
 	if button(&x, y, h, ">|") {step_to_frame(viewer, frame_count(viewer) - 1)}
 	x += 6
-	if button(&x, y, h, playback.substeps ? "Turns" : "Rounds") {
-		playback.substeps = !playback.substeps
-		playback.playing = false
-		if playback.substeps {
-			playback.turn_position = f32(
-				min(
-					turn_count_before_frame(&viewer.game, current_frame(viewer)),
-					max(0, turn_count(&viewer.game) - 1),
-				),
-			)
-			synchronize_active_turn(viewer)
-		}
-	}
+	if button(&x, y, h, playback.substeps ? "Turns" : "Rounds") {toggle_turns(viewer)}
 	x += 6
 	rl.GuiSliderBar(
 		{x, y + 4, 72, h - 8},

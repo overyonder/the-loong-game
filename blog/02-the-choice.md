@@ -6,7 +6,7 @@ Before writing any strategy, every team has to pick a language, and it's the har
 
 ## The cost of a language
 
-To see how much it matters, I wrote the same small strategy in Python and in C. The idea behind it is that a dragon usually dies by running out of room, so each turn it looks for the move that leaves it the most space. For every move, and every follow-up move after that, it flood-fills the visible 7×7 window from where it would end up and counts how many tiles it could still reach. That's up to 16 flood fills a turn, which is enough work to measure. Here's the flood fill in Python:
+To see how much it matters, I wrote the same small strategy in Python and in C. The idea behind it is that a dragon usually dies by running out of room, so each turn it looks for the move that leaves it the most space. For every move, and every follow-up move after that, it flood-fills the visible 7×7 window from where it would end up and counts how many tiles it could still reach, a graph search of the kind in chapter 20 of Cormen, Leiserson, Rivest and Stein's *Introduction to Algorithms* (4th edition, 2022). That's up to 16 flood fills a turn, which is enough work to measure. Here's the flood fill in Python:
 
 ```python
 def reachable(window, start, first):

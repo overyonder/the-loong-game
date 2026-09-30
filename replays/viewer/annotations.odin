@@ -132,8 +132,7 @@ draw_annotation_editor :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 			   ) {copy(viewer.comment[length:length + count], encoded[:count]); length += count; viewer.comment[length] = 0}
 		}
 	}
-	rl.GuiTextBox(field, cstring(raw_data(viewer.comment[:])), len(viewer.comment), false)
-	if viewer.comment_editing {rl.DrawRectangleLinesEx(field, 2, COLOR_SELECTED)}
+	draw_comment_field(field, string(cstring(raw_data(viewer.comment[:]))), viewer.comment_editing)
 	if rl.GuiButton(save, "Save comment") ||
 	   viewer.comment_editing && (rl.IsKeyPressed(.ENTER) || rl.IsKeyPressed(.KP_ENTER)) {
 		save_annotation(viewer)
@@ -161,6 +160,28 @@ draw_annotation_editor :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 	}
 	if status := footer_status(viewer); status != "" {draw_text(fmt.ctprintf("%s", status), i32(x), i32(line_y), UI_TEXT - 2, MUTED_TEXT_COLOR)}
 }
+// The comment as typed, in the controls' colours. Text wider than the field
+// scrolls left, so the end being typed and the cursor after it stay in view.
+draw_comment_field :: proc(field: rl.Rectangle, text: string, editing: bool) {
+	rl.DrawRectangleRec(field, COLOR_CELL)
+	rl.DrawRectangleLinesEx(field, editing ? 2 : 1, editing ? COLOR_SELECTED : PANE_BORDER)
+	inner := field.width - 16
+	start := 0
+	for start < len(text) && f32(measure_text(fmt.ctprintf("%s|", text[start:]), UI_TEXT)) > inner {
+		_, size := utf8.decode_rune(text[start:])
+		start += size
+	}
+	shown := fmt.ctprintf("%s", text[start:])
+	y := i32(field.y + (field.height - UI_TEXT) / 2)
+	rl.BeginScissorMode(i32(field.x) + 2, i32(field.y) + 2, i32(field.width) - 4, i32(field.height) - 4)
+	draw_text(shown, i32(field.x) + 8, y, UI_TEXT, TEXT_COLOR)
+	if editing {
+		cursor := field.x + 8 + f32(measure_text(shown, UI_TEXT)) + 1
+		rl.DrawLineEx({cursor, f32(y)}, {cursor, f32(y) + UI_TEXT}, 1.5, COLOR_SELECTED)
+	}
+	rl.EndScissorMode()
+}
+
 // Left-click toggles a cell; shift-click a body toggles that dragon. Edges
 // have precedence within six screen pixels of their actual drawn line.
 highlight_board_item :: proc(viewer: ^Viewer_State, g: Board_Geometry, frame: i32) {

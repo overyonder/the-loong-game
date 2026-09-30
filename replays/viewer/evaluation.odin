@@ -51,6 +51,9 @@ Bceval_Model :: struct {
 Evaluation :: struct {
 	p_a:   f64,
 	parts: [Bceval_Group]f64,
+	// Each side on the board the round leaves: its dragons, its longest and
+	// their total length.
+	dragons, longest, total: [2]i32,
 }
 
 // The evaluation after each round of the game, indexed by round, computed on
@@ -267,7 +270,7 @@ game_evaluation :: proc(game: ^Loaded_Game) -> []Evaluation {
 			if a >= 1 && a <= 500 {
 				features := snapshot(&state, a, &history, rate, rich, hot, landings, distance, label, occupied, &frontier, &next)
 				for i32(len(game.evaluation)) < a - 1 {append(&game.evaluation, Evaluation{p_a = math.nan_f64()})}
-				append(&game.evaluation, evaluate(&model, a, features))
+				append(&game.evaluation, with_sides(evaluate(&model, a, features), features))
 			}
 		case EVENT_TURN_START:
 			current, provisional = a, 0
@@ -306,7 +309,7 @@ game_evaluation :: proc(game: ^Loaded_Game) -> []Evaluation {
 	}
 	// The board after the last round, scored at the model's final knot.
 	features := snapshot(&state, state.round, &history, rate, rich, hot, landings, distance, label, occupied, &frontier, &next)
-	append(&game.evaluation, evaluate(&model, 501, features))
+	append(&game.evaluation, with_sides(evaluate(&model, 501, features), features))
 	return game.evaluation[:]
 }
 
@@ -349,6 +352,77 @@ EVALUATION_CHART_HEIGHT :: 80
 // The evaluation pane, beside the board: both sides' chances after the round, A's
 // chance across the game as a strip chart that scrubs like the timeline, the
 // log-odds each group of features adds for A, and the source.
+// The board's dragons, longest and total length per side, from the features
+// the evaluation counts.
+with_sides :: proc(evaluation: Evaluation, features: [2][Bceval_Feature]f64) -> Evaluation {
+	result := evaluation
+	for side in 0 ..< 2 {
+		result.dragons[side] = i32(features[side][.alive])
+		result.longest[side] = i32(features[side][.longest])
+		result.total[side] = i32(features[side][.total])
+	}
+	return result
+}
+
+SPARKLINE_HEIGHT :: 28
+
+// Each side's dragons, longest dragon and total length after the round, each
+// with a sparkline of both sides over the game, marked at the round.
+draw_side_stats :: proc(viewer: ^Viewer_State, cursor: ^rl.Vector2, width: f32, series: []Evaluation, round: int) {
+	finished := round >= 0 && round < len(series) && !math.is_nan(series[round].p_a)
+	inspector_paragraph(viewer, cursor, width, finished ? fmt.tprintf("Stats r%d", round) : "Stats: no round finished", finished ? UI_ACCENT : MUTED_TEXT_COLOR)
+	Stat :: enum {Dragons, Longest, Total}
+	names := [Stat]string{.Dragons = "Dragons", .Longest = "Longest", .Total = "Length"}
+	value :: proc(evaluation: Evaluation, stat: Stat, side: int) -> i32 {
+		switch stat {
+		case .Dragons:
+			return evaluation.dragons[side]
+		case .Longest:
+			return evaluation.longest[side]
+		case .Total:
+			return evaluation.total[side]
+		}
+		return 0
+	}
+	for stat in Stat {
+		parts := make([dynamic]Stat_Text, context.temp_allocator)
+		append(&parts, Stat_Text{fmt.tprintf("%s ", names[stat]), TEXT_COLOR})
+		if finished {
+			append(&parts, Stat_Text{fmt.tprintf("A %d", value(series[round], stat, 0)), TEAM_BODY_COLORS[0]})
+			append(&parts, Stat_Text{" · ", MUTED_TEXT_COLOR})
+			append(&parts, Stat_Text{fmt.tprintf("B %d", value(series[round], stat, 1)), TEAM_BODY_COLORS[1]})
+		}
+		draw_stat_line(parts[:], cursor.x, cursor.y, width)
+		cursor.y += UI_LINE
+		chart := rl.Rectangle{cursor.x, cursor.y, width, SPARKLINE_HEIGHT}
+		rl.DrawRectangleRec(chart, POINTS_CHART_BACKGROUND)
+		top: i32 = 1
+		for evaluation in series {
+			if math.is_nan(evaluation.p_a) {continue}
+			top = max(top, value(evaluation, stat, 0), value(evaluation, stat, 1))
+		}
+		rounds := f32(max(1, len(series)))
+		span := chart.width - 1
+		for side in 0 ..< 2 {
+			previous: rl.Vector2
+			started := false
+			for evaluation, index in series {
+				if math.is_nan(evaluation.p_a) {continue}
+				point := rl.Vector2{chart.x + f32(index) / rounds * span, chart.y + chart.height * (1 - f32(value(evaluation, stat, side)) / f32(top))}
+				if started {rl.DrawLineEx(previous, point, 1.5, TEAM_BODY_COLORS[side])}
+				previous, started = point, true
+			}
+		}
+		if round >= 0 {
+			marker := chart.x + f32(round) / rounds * span
+			rl.DrawLineEx({marker, chart.y}, {marker, chart.y + chart.height}, 1.5, UI_ACCENT)
+		}
+		scrub_chart(viewer, .Evaluation, chart, span, rounds)
+		cursor.y += chart.height + 6
+	}
+	cursor.y += 4
+}
+
 draw_evaluation_pane :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 	rl.BeginScissorMode(i32(area.x), i32(area.y), i32(area.width), i32(area.height))
 	defer rl.EndScissorMode()
@@ -357,6 +431,7 @@ draw_evaluation_pane :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 	series := game_evaluation(&viewer.game)
 	if len(series) == 0 {return}
 	round := evaluation_round(viewer)
+	draw_side_stats(viewer, &cursor, width, series, round)
 	finished := round >= 0 && round < len(series) && !math.is_nan(series[round].p_a)
 	if finished {
 		evaluation := series[round]

@@ -17,6 +17,9 @@ draw_objective_inspector :: proc(viewer: ^Viewer_State, area: rl.Rectangle, fram
 	// The pane's padding, and room for the scroll bar.
 	cursor := rl.Vector2{area.x + PANE_INSET, area.y + PANE_INSET - viewer.objective_scroll}
 	width := area.width - 2 * PANE_INSET - 8
+	hotkeys := rl.Rectangle{cursor.x, cursor.y, f32(measure_text("Hotkeys", UI_TEXT)) + BUTTON_PADDING, CONTROL_HEIGHT}
+	if rl.GuiButton(hotkeys, "Hotkeys") {open_diagnostic_detail(viewer, "Hotkeys", HOTKEYS)}
+	cursor.y += CONTROL_HEIGHT + 8
 	cursor.y = draw_overlay_controls(viewer, {cursor.x, cursor.y, width, area.height})
 	draw_judge_points(viewer, &cursor, width, frame)
 	draw_team_breakdown(viewer, &cursor, width, frame)

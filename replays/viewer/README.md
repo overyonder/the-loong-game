@@ -26,6 +26,10 @@
 - `--game FILE` chooses where the game columns go (default
   `build/viewer/<stem>.<hash>.cols`), `--no-display` only writes them, and
   `--image FILE` renders a PNG (see [Image output](#image-output)).
+- `--knowledge FILE` opens no window: it rebuilds every dragon the recovery
+  can, writes each round's team knowledge for each rebuilt team as a
+  `knowledge` columns file ([gamedata/format.md](../../gamedata/format.md)), and
+  exits. A whole game takes as long as the viewer's rebuild of it.
 - `--no-recovery` shows only what the replay recorded, and `--registry`
   selects another build registry.
 - `--inbox FILE` is where comments are saved (default
@@ -53,7 +57,8 @@ Right-click a dragon (or Tab), scroll the inspector, and left-click cells or
 edges to highlight them. Shift-click a body to highlight a dragon. Records and
 ping rows in the inspector are also selectable. Type a
 comment and save it with Enter or Save comment, which keeps the field focused for
-the next one: it appends one line to the inbox file. The line names the replay,
+the next one. A comment wider than the field scrolls, keeping its end in view as
+you type. Saving it appends one line to the inbox file. The line names the replay,
 the round (and turn in turn playback), the selected dragon and each highlight,
 with cells and edges as `(x,y)`, then the text, and carries the same context as
 JSON in an HTML comment at its end. Previous/Next saved restores the round,
@@ -142,7 +147,9 @@ and opens in Turns unless `--rounds` is given. The arrow buttons and Up/Down
 step one turn or round in that mode; speed uses its units. Left/Right step
 between the focused dragon's key turns in Turns mode (below), and otherwise
 step like Up/Down. The scroll wheel over the board steps as Left/Right do,
-scrolling down to go forward.
+scrolling down to go forward. R switches between Rounds and Turns, as the button
+does. The Hotkeys button at the top of the left sidebar lists every key and
+gesture (`HOTKEYS` in controls.odin).
 Rounds mode shows each round after every dragon has moved in it, so a head is
 where that round's sonar pings leave from, with the round's deaths marked. Turns
 mode shows the board at the active turn's start, before that dragon moves, and
@@ -176,7 +183,11 @@ Cell numbers sit in a corner of their cell, a size under the board's labels,
 and shrink to fit: evaluated search utility top-left in cream (`?` means not
 evaluated), the bot's remembered timers top-right in teal and the true turns
 until the next spawn attempt bottom-right in gold. Sonar uses dashed rays and
-diamond impacts, distinct from solid planned paths.
+diamond impacts, distinct from the solid gold of planned paths: purple for the
+values the focused decision read, teal for the echoes of its own last sonar.
+A ray that came back to its own sender is drawn once, as read. Targets that
+share a cell, such as a task's claim and its route's goal, share one circle
+with their labels stacked beside it.
 
 Bots observe exact visible countdowns. The hidden per-cell reset distribution is
 uniform, not Poisson. The replay exposes its bounds. The spawn comparison labels
@@ -190,8 +201,12 @@ Paused windows retain their last frame; input polling sleeps between checks and
 watched files are checked every 100 ms. Moves currently switch snapshots without
 animation.
 
-The bar at the board's left edge and the Evaluation pane, the thin sidebar
-between the team information and the board, give each side's chance of winning
+The Evaluation pane, the thin sidebar between the team information and the
+board, opens with Stats: each side's dragons, longest dragon and total length
+after the round on screen, each with a sparkline of both sides over the game
+that seeks on click. The same board pass as the evaluation counts them.
+
+The bar at the board's left edge and the Evaluation pane give each side's chance of winning
 after the round on screen (in Turns mode, the last round finished), from bceval
 0.1.0 by xCirno1 (MIT,
 [github.com/xCirno1/battlecode-eval](https://github.com/xCirno1/battlecode-eval),
@@ -281,18 +296,29 @@ board and, under it, the beliefs strip, the playback bar and comments. At the en
 of the selected turn, the beliefs strip grades each living dragon of one
 team (the focused dragon's when the recovery can rebuild it, else the one it
 can) that has a rebuilt record against the replay, from its latest record: the
-map (edges, pearls, spawn deadlines), where other dragons are, their lengths, and which dragon is each team's champion. Each box
-reads, for example, `Positions 20/27, 93%`: 20 of the 27 graded dragons hold no
-false position, and 93% of all stated positions are right. Click a box for each
-wrong dragon's false facts, how many believers are right about each dragon, and
-where teammates' annotated knowledge disagrees. Where a belief is annotated for
-consensus, the box adds how widely it is shared, `shared 50/500` for 50 facts
-every reporting dragon states of the 500 any of them does, and a belief about
-cells or edges opens as a map: each fact green where every dragon stating it
-agrees, red where any disagree and grey where one dragon alone states it,
-stronger the more dragons state it. Click a cell to list each dragon's value
-for it and its sides, with the source and round it was learned. Our champion
-also compares who each dragon takes for the champion, and how long. The strip's first line says how
+map (edges, pearls, spawn deadlines), where other dragons are, their lengths, and which dragon is each team's champion. Each belief
+is a column. Its box reads, for example, `Positions 20/27, 93%`: 20 of the 27
+graded dragons hold no false position, and 93% of all stated positions are
+right. Under the box are the team's four knowledge measures for the belief
+(diagnostics.md, Team knowledge):
+
+| Row | Reads | Meaning |
+| --- | --- | --- |
+| Connectivity | `54%, 5/9 share` | a stated fact is stated by 54% of the other graded dragons too; 5 of 9 dragons share at least half of what they state |
+| Agreement | `97%, 2 disputing` | 97% of pairs of dragons stating one fact agree; 2 dragons are in a contradiction |
+| Coverage | `31%, each 12%` | the team states 31% of the facts that exist; each dragon 12% of those it could |
+| Validity | `88%, 3/40 misled` | 88% of stated facts are true; 3 of 40 facts two or more dragons state are false for most of them |
+
+Labels and boxes stay neutral, and each figure takes its own colour: green when
+complete, yellow when partial, red at none and muted where nothing was
+measured. Disputing dragons and misled facts read the other way, green at none.
+Click a box for the measures in words, each wrong dragon's false facts, how
+many believers are right about each dragon, and the contradictions in its
+consensus annotations. A belief annotated for consensus about cells or edges
+opens as a map: each fact green where every dragon stating it agrees, red
+where any disagree and grey where one dragon alone states it, stronger the more
+dragons state it. Click a cell to list each dragon's value for it and its
+sides, with the source and round it was learned. The strip's first line says how
 many living dragons are graded and why the rest aren't: yet to take a turn or
 without diagnostics, with the recovery's reason. Beside the team buttons, a dot
 tracks the whole match's rebuilding: amber `Rebuilding 40/45` while dragons are
@@ -307,12 +333,14 @@ inside the cell: remembered kelp solid green, possible kelp dashed orange and
 portals violet with a line to their remembered landing from the selected cell.
 A cell with a wrong claim is red, solid within its 7×7 window and hatched
 beyond it, and a wrongly remembered side is a red line. With Positions on, each
-dragon it believes in is a ring where it thinks the dragon is, a square for a
+dragon it believes in is a dot where it thinks the dragon is, a square for a
 champion, green if the replay's head lies among the cells the dragon says it
-may occupy and red if not, with those cells lightly hatched and outlined.
-Dragons it knows nothing of are grey. Without the mental map, Positions
-outlines the cell where each was last known and hatches the cells it may
-occupy now, both fading with age.
+may occupy and red if not. Dragons it knows nothing of are grey. Without the
+mental map, Positions draws each dot where the dragon was last known or is
+likeliest, fading with age. A position shows only that centre, what the dragon
+chose to believe, until it is opened: click its centre cell, or highlight its
+dragon with Shift-click. Then the cells it may occupy are hatched, strongest
+where the bot lists them likeliest, and outlined.
 
 The Sources tab (the Memory slot) lists where the dragon's memory came from. A
 cell table there leaves out the edge, pearl and spawn beliefs the board draws,

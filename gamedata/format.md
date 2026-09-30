@@ -124,6 +124,32 @@ Each dragon turn's judge points, written beside a sandboxed match's replay as
 | `meta` | `version` u32 | 1 |
 | `turn` | `round` i32 (-1 before round 0), `dragon` u32, `points` u64, `failure` (string: the toolkit's reason the turn gave no reply, such as `exceeded CPU limit`, or empty) | one per dragon turn, in the order played |
 
+## Kind `knowledge`, version 1
+
+How well each team knew its world in one game, round by round, written by the
+viewer's `--knowledge FILE` export (`replays/viewer/knowledge.odin`) once it
+has rebuilt every dragon it can. A row sums one belief over one team's living
+dragons at the end of a round, each judged by its latest usable record,
+counting only facts the replay can grade.
+
+| Table | Columns | Rows |
+| --- | --- | --- |
+| `meta` | `version` u32 | 1 |
+| `row` | `round` i32, `team` u8, `category` u8 (enum `category`, the belief), `kind` u8 (enum `kind`), `alive`, `dragons` (graded), `stating`, `possible` (facts that exist), `each` (facts one dragon could state), `known` (distinct facts stated about what exists), `linkable`, `linked`, `disputing`, `agreed`, `misled` i32, `facts`, `correct`, `covered`, `sharable`, `comparisons`, `conflicts` i64, `shared` f64 | one per round, rebuilt team and belief stated |
+
+Enums: `category` the beliefs in order of first appearance. `kind` Sides (four
+facts a cell), Cells (one a cell), Positions, Lengths, Claim (one for the
+team). `covered` counts stated facts about what exists: a position of a dragon
+no longer alive is stated and false, and left out of `covered` and `known`.
+`sharable` counts stated facts and `linkable` graded dragons, both only where
+two or more dragons are graded. `shared` sums, over those facts, the share of
+the other graded dragons stating the same fact. `linked` counts dragons at
+least half of whose facts another dragon states too. `comparisons` counts pairs of dragons stating one
+fact, `conflicts` those whose values contradict: unequal values, exact lengths
+that differ or undercut a lower bound, or positions with no cell in common.
+`disputing` counts dragons in a contradiction, `agreed` facts two or more
+dragons state and `misled` those of them most of whose holders are wrong.
+
 ## Kind `observations`, version 1
 
 Each decision's bot-visible input, rebuilt from a `game` file by

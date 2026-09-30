@@ -46,7 +46,7 @@ Nothing in the game stops a dragon sending a message in another team's format. A
 
 My favourite sonar idea so far came from the competition Discord: a jester bot that drops to a single dragon, lines up with an enemy, spins in a circle and plays poker over the line between them.
 
-It's a joke, but it describes sonar well: a channel between two programs that don't trust each other and can't see each other's cards. Poker over sonar needs what a serious protocol needs, a way to commit to a card without revealing it, a way to catch cheating, and a way to tell whether a message came from your opponent or from someone listening in.
+It's a joke, but it describes sonar well: a channel between two programs that don't trust each other and can't see each other's cards. Poker over sonar needs what a serious protocol needs: a way to commit to a card without revealing it, a way to catch cheating, and a way to tell whether a message came from your opponent or from someone listening in. Shamir, Rivest and Adleman showed how to deal cards with no trusted dealer in [Mental Poker](https://doi.org/10.1007/978-1-4684-6686-7_5) (1981).
 
 ![Poker over sonar: a single jester dragon and a single opponent on one line of sight, with rays running both ways between them.](images/sonar-poker.svg)
 

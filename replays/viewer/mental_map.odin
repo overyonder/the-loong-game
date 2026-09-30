@@ -287,25 +287,21 @@ draw_radio :: proc(viewer: ^Viewer_State, cursor: ^rl.Vector2, width: f32, turn:
 // occupy and red if not, graded as beliefs.odin grades positions. A champion is
 // a square, any other dragon a ring inside its cell. The cells it may occupy
 // are hatched, since they are out-of-sight beliefs.
-draw_believed_positions :: proc(gizmo: ^Gizmo, geometry: Board_Geometry, turn: ^Dragon_Turn) {
+draw_believed_positions :: proc(viewer: ^Viewer_State, gizmo: ^Gizmo, geometry: Board_Geometry, turn: ^Dragon_Turn) {
 	width, height := geometry.width, geometry.height
 	for entry in gizmo.positions {
 		color := gizmo_color(entry.color != ([4]u8{}) ? entry.color : gizmo.color)
-		area := position_area(entry, width, height)
 		if subject, named := entry.dragon.?; named {
 			if subject == turn.dragon {continue}
+			area := position_area(entry, width, height)
 			right := false
 			for dragon in turn.dragons {if dragon.id == subject && dragon.head >= 0 {right = area[dragon.head]}}
 			color = right ? COLOR_CORRECT : COLOR_WRONG
 		}
-		if entry.radius > 0 || len(entry.cells) > 0 {draw_position_area(area, geometry, color)}
-		r := cell_rectangle(geometry, entry.cell)
-		inset := geometry.cell_size * 0.12
-		if entry.champion {
-			rl.DrawRectangleLinesEx({r.x + inset, r.y + inset, r.width - 2 * inset, r.height - 2 * inset}, 3, color)
-		} else {
-			rl.DrawCircleLinesV(cell_center(geometry, entry.cell), geometry.cell_size * 0.38, color)
-		}
+		// What the dragon chose to believe, its centre, and when opened the
+		// cells it may occupy (gizmos.odin, position_opened).
+		if position_opened(viewer, entry) && (entry.radius > 0 || len(entry.cells) > 0) {draw_position_extents(entry, geometry, color)}
+		draw_position_centre(entry, geometry, color)
 		if entry.label != "" {
 			label := entry.age > 0 ? fmt.ctprintf("%s, %d ago", entry.label, entry.age) : fmt.ctprintf("%s", entry.label)
 			draw_text_with_backdrop(label, cell_center(geometry, entry.cell) + {geometry.cell_size * 0.3, -geometry.cell_size * 0.6}, CELL_TEXT, color)

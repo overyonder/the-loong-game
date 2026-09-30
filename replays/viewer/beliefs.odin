@@ -7,8 +7,9 @@ import rl "vendor:raylib"
 
 // Each dragon's beliefs graded against the replay at the start of its turn
 // (diagnostics.md, Belief correctness), and the team strip that counts, per
-// belief, how many living dragons hold it correctly. Only what a bot states is
-// graded; truth never fills in a belief.
+// belief, how many living dragons hold it correctly and measures the team's
+// knowledge of it (knowledge.odin). Only what a bot states is graded; truth
+// never fills in a belief.
 
 MAX_BELIEF_ERRORS :: 12 // wrong facts described per dragon and belief; all are counted
 
@@ -25,130 +26,38 @@ Belief_Subject :: struct {
 	correct: bool,
 }
 
+// The turn's stated facts, counted belief by belief and kept with the turn.
 grade_beliefs :: proc(game: ^Loaded_Game, turn: ^Dragon_Turn) {
 	if !turn.has_record || !turn.gizmo_reliable {return}
 	allocator := game_allocator(game)
 	grades := make([dynamic]Belief_Grade, allocator)
-	grade_of :: proc(grades: ^[dynamic]Belief_Grade, category: string, allocator := context.allocator) -> ^Belief_Grade {
-		for &grade in grades {if grade.category == category {return &grade}}
-		append(grades, Belief_Grade{category = category, subjects = make([dynamic]Belief_Subject, allocator), errors = make([dynamic]string, allocator)})
-		return &grades[len(grades) - 1]
-	}
-	record :: proc(grade: ^Belief_Grade, correct: bool, text: string, allocator := context.allocator) {
-		if correct {grade.correct += 1; return}
-		grade.wrong += 1
-		if len(grade.errors) < MAX_BELIEF_ERRORS {append(&grade.errors, strings.clone(text, allocator))}
-	}
-	width, height := game.view.width, game.view.height
-	cell_name :: proc(cell, width: i32) -> string {return fmt.tprintf("(%d,%d)", cell % width, cell / width)}
-	// The mental map: a truth column's quantity names its belief, by the
-	// consensus category that annotates the same column or its parts where
-	// there is one.
-	for &gizmo in turn.gizmos {
-		if gizmo.kind != "table" || len(gizmo.truth_columns) == 0 || len(gizmo.row_cells) == 0 {continue}
-		for quantity, column in gizmo.truth_columns {
-			if quantity != "edges" && quantity != "pearl" && quantity != "spawn_due" {continue}
-			name := column < len(gizmo.columns) ? gizmo.columns[column] : quantity
-			// Or the category annotating its parts, such as each side of a cell's
-			// edges in columns named `belief: edges.N` and so on.
-			for field in gizmo.consensus {
-				annotated := int(field.column) < len(gizmo.columns) ? gizmo.columns[field.column] : ""
-				if int(field.column) == column || column < len(gizmo.columns) && strings.has_prefix(annotated, fmt.tprintf("%s.", gizmo.columns[column])) {name = field.category}
-			}
-			grade := grade_of(&grades, name, allocator)
-			switch quantity {
-			case "edges", "pearl":
-				// Graded claim by claim in accuracy.odin.
-				for entry in turn.accuracy.cells {
-					if quantity == "pearl" {
-						if entry[2] != GRADE_UNKNOWN {record(grade, entry[2] == GRADE_CORRECT, "", allocator)}
-						continue
-					}
-					for side in ([4]i32{entry[3], entry[4], entry[5], entry[6]}) {if side != GRADE_UNKNOWN {record(grade, side == GRADE_CORRECT, "", allocator)}}
-				}
-				clear(&grade.errors)
-				for wrong in turn.accuracy.wrong {
-					for reason in strings.split(wrong.reason, "; ", context.temp_allocator) {
-						if strings.has_prefix(reason, "pearl") != (quantity == "pearl") {continue}
-						if len(grade.errors) < MAX_BELIEF_ERRORS {
-							append(&grade.errors, fmt.aprintf("%s %s", cell_name(wrong.cell, width), reason, allocator = allocator))
-						}
-					}
-				}
-			case "spawn_due":
-				for row, index in gizmo.rows {
-					if index >= len(gizmo.row_cells) || column >= len(row) {break}
-					cell, value := gizmo.row_cells[index], row[column]
-					if value == "?" || value == "" {continue}
-					due: i32 = -1
-					for spawn in turn.spawns {if spawn[0] == cell {due = spawn[1]}}
-					spawning := false
-					for rule in game.view.spawn_rules {if rule.cell == cell {spawning = rule.maximum > 0}}
-					if value == "never" {
-						record(grade, !spawning, fmt.tprintf("%s never spawns, replay spawns", cell_name(cell, width)), allocator)
-					} else if stated, ok := parse_int_field(row, i32(column)); ok {
-						if due >= 0 {
-							record(grade, stated == due, fmt.tprintf("%s next spawn r%d, replay r%d", cell_name(cell, width), stated, due), allocator)
-						} else if !spawning {
-							record(grade, false, fmt.tprintf("%s next spawn r%d, replay never spawns", cell_name(cell, width), stated), allocator)
-						}
-					}
-				}
-			}
+	for belief in stated_beliefs(game, turn, true) {
+		grade := Belief_Grade {
+			category = strings.clone(belief.category, allocator),
+			subjects = make([dynamic]Belief_Subject, allocator),
+			errors   = make([dynamic]string, allocator),
 		}
-	}
-	// Dragons: where each is, how long, and which is each team's champion.
-	for &gizmo in turn.gizmos {
-		if gizmo.kind != "positions" {continue}
-		for entry in gizmo.positions {
-			subject, named := entry.dragon.?
-			if !named {continue}
-			truth: Dragon_Fact
-			alive := false
-			for dragon in turn.dragons {if dragon.id == subject {truth, alive = dragon, true}}
-			// A dragon knows its own place and length, but not whether it is
-			// its team's longest, so only its champion belief is graded.
-			own := subject == turn.dragon
-			positions := grade_of(&grades, "Positions", allocator)
-			if own {
-			} else if !alive {
-				record(positions, false, fmt.tprintf("D%d at %s: dead or not yet born", subject, cell_name(entry.cell, width)), allocator)
-				append(&positions.subjects, Belief_Subject{subject, false})
-			} else {
-				// The true head among the cells the believer says it may occupy.
-				right := truth.head >= 0 && position_area(entry, width, height)[truth.head]
-				place := len(entry.cells) > 0 ? fmt.tprintf("in %d cells from %s", len(entry.cells), cell_name(entry.cell, width)) : fmt.tprintf("within %d of %s", entry.radius, cell_name(entry.cell, width))
-				record(positions, right, fmt.tprintf("D%d %s: head at %s", subject, place, cell_name(truth.head, width)), allocator)
-				append(&positions.subjects, Belief_Subject{subject, right})
-			}
-			if length, stated := entry.length.?; stated && alive && !own {
-				right := entry.length_exact ? truth.length == length : truth.length >= length
-				lengths := grade_of(&grades, "Lengths", allocator)
-				record(lengths, right, fmt.tprintf("D%d length %s%d, replay %d", subject, entry.length_exact ? "" : "at least ", length, truth.length), allocator)
-				append(&lengths.subjects, Belief_Subject{subject, right})
-			}
-			if !entry.champion || (entry.team != "ours" && entry.team != "enemy") {continue}
-			team := entry.team == "ours" ? turn.team : 1 - turn.team
-			champion := grade_of(&grades, entry.team == "ours" ? "Our champion" : "Enemy champion", allocator)
-			longest := Dragon_Fact{id = -1}
-			for dragon in turn.dragons {if dragon.team == team && dragon.length > longest.length {longest = dragon}}
-			right := alive && truth.team == team && truth.length == longest.length
-			length, stated := entry.length.?
-			if stated && alive {right = right && (entry.length_exact ? truth.length == length : truth.length >= length)}
-			record(champion, right, fmt.tprintf("D%d%s as champion: replay's longest is D%d, length %d", subject, stated ? fmt.tprintf(", length %s%d", entry.length_exact ? "" : "at least ", length) : "", longest.id, longest.length), allocator)
-			append(&champion.subjects, Belief_Subject{subject, right})
+		about := belief.kind == .Positions || belief.kind == .Lengths || belief.kind == .Claim
+		for fact in belief.facts {
+			if fact.correct {grade.correct += 1} else {grade.wrong += 1}
+			// A champion claim is about the dragon it names.
+			if about {append(&grade.subjects, Belief_Subject{belief.kind == .Claim ? i32(fact.value) : fact.key, fact.correct})}
 		}
+		for error in belief.errors[:min(len(belief.errors), MAX_BELIEF_ERRORS)] {append(&grade.errors, strings.clone(error, allocator))}
+		append(&grades, grade)
 	}
 	turn.beliefs = grades[:]
 }
 
 // One belief across a team's living dragons at the end of a turn, each
-// judged by its latest usable record, and the team's pairwise agreement on it
-// where its table annotates consensus (consensus.odin).
+// judged by its latest usable record: its grades, the team's knowledge of it,
+// and the pairwise agreement its table annotates for consensus (consensus.odin).
 Belief_Row :: struct {
 	category, details:                                   string,
 	correct, wrong, silent:                              i32, // dragons
 	facts_correct, facts_wrong:                          i32,
+	knowledge:                                           Knowledge_Row,
+	measured:                                            bool,
 	agreement:                                           Consensus_Row,
 	compared:                                            bool,
 }
@@ -162,33 +71,12 @@ Unread_Dragons :: struct {
 }
 
 team_beliefs :: proc(game: ^Loaded_Game, index, team: int) -> (rows: []Belief_Row, alive: [dynamic]i32, graded: int, unread: Unread_Dragons) {
-	view := &game.view
-	stop := index + 1 < len(view.turn_event) ? int(view.turn_event[index + 1]) : len(view.event_kind)
+	latest: map[i32]^Dragon_Turn
+	living: int
+	alive, latest, living, unread = team_records(game, index, team)
+	graded = len(latest)
+	stop := index + 1 < len(game.view.turn_event) ? int(game.view.turn_event[index + 1]) : len(game.view.event_kind)
 	board := board_after_events(game, &game.consensus_board, stop, false)
-	alive = make([dynamic]i32, context.temp_allocator)
-	unread = {
-		yet_to_act = make([dynamic]i32, context.temp_allocator),
-		rebuilding = make([dynamic]i32, context.temp_allocator),
-		without    = make([dynamic]i32, context.temp_allocator),
-	}
-	for dragon in board.dragons {if int(dragon.team) == team {append(&alive, dragon.id)}}
-	slice.sort(alive[:])
-	latest := make(map[i32]^Dragon_Turn, context.temp_allocator)
-	for dragon in alive {
-		indices := game.turn_indices_by_dragon[dragon]
-		acted := false
-		for position := len(indices) - 1; position >= 0; position -= 1 {
-			if indices[position] > index {continue}
-			acted = true
-			turn := opened_turn(game, indices[position])
-			if turn.has_record && turn.gizmo_reliable {latest[dragon] = turn}
-			break
-		}
-		if dragon in latest {graded += 1; continue}
-		if !acted {append(&unread.yet_to_act, dragon)
-		} else if game.view.pending_dragons[dragon] {append(&unread.rebuilding, dragon)
-		} else {append(&unread.without, dragon)}
-	}
 	list := make([dynamic]Belief_Row, context.temp_allocator)
 	row_of :: proc(list: ^[dynamic]Belief_Row, category: string) -> ^Belief_Row {
 		for &row in list {if row.category == category {return &row}}
@@ -199,49 +87,13 @@ team_beliefs :: proc(game: ^Loaded_Game, index, team: int) -> (rows: []Belief_Ro
 		turn := latest[dragon] or_continue
 		for grade in turn.beliefs {row_of(&list, grade.category)}
 	}
+	for knowledge in knowledge_rows(game, alive[:], latest, living) {
+		row := row_of(&list, knowledge.category)
+		row.knowledge, row.measured = knowledge, true
+	}
 	for agreement in consensus_rows(game, index, team) {
 		row := row_of(&list, agreement.category)
 		row.agreement, row.compared = agreement, true
-	}
-	// Who our champion is and how long, compared between dragons as the
-	// consensus annotations are, from the dragons' positions records.
-	{
-		stated := make(map[i32]string, context.temp_allocator)
-		for dragon in alive {
-			turn := latest[dragon] or_continue
-			parts := make([dynamic]string, context.temp_allocator)
-			for &gizmo in turn.gizmos {
-				if gizmo.kind != "positions" {continue}
-				for entry in gizmo.positions {
-					subject, named := entry.dragon.?
-					if !named || !entry.champion || entry.team != "ours" {continue}
-					length, has_length := entry.length.?
-					append(&parts, has_length ? fmt.tprintf("D%d length %s%d", subject, entry.length_exact ? "" : "at least ", length) : fmt.tprintf("D%d", subject))
-				}
-			}
-			if len(parts) == 0 {continue}
-			slice.sort(parts[:])
-			stated[dragon] = strings.join(parts[:], ", ", context.temp_allocator)
-		}
-		if len(stated) > 0 {
-			row := row_of(&list, "Our champion")
-			agreement := Consensus_Row{category = "Our champion", reporters = i32(len(stated)), alive = i32(len(alive)), pairs = i32(len(alive) * (len(alive) - 1) / 2)}
-			reporters := make([dynamic]i32, context.temp_allocator)
-			for dragon in stated {append(&reporters, dragon)}
-			slice.sort(reporters[:])
-			witnesses := strings.builder_make(context.temp_allocator)
-			for dragon in reporters {fmt.sbprintf(&witnesses, "D%d: %s\n", dragon, stated[dragon])}
-			for first, position in reporters {
-				for second in reporters[position + 1:] {
-					agreement.overlapping_pairs += 1
-					agreement.comparisons += 1
-					if stated[first] != stated[second] {agreement.conflicts += 1}
-				}
-			}
-			agreement.status = agreement.conflicts > 0 ? "DISAGREE" : len(stated) != len(alive) ? "INCOMPLETE" : "AGREE"
-			agreement.details = strings.to_string(witnesses)
-			row.agreement, row.compared = agreement, true
-		}
 	}
 	for &row in list {
 		details := strings.builder_make(context.temp_allocator)
@@ -276,6 +128,7 @@ team_beliefs :: proc(game: ^Loaded_Game, index, team: int) -> (rows: []Belief_Ro
 		fmt.sbprintf(&details, "%s at the end of this turn, against the replay:\n", row.category)
 		fmt.sbprintf(&details, "%d of %d rebuilt dragons hold it correctly, %d hold a false belief, %d state nothing", row.correct, graded, row.wrong, row.silent)
 		fmt.sbprintf(&details, ".\n%d of %d stated facts are correct.\n", row.facts_correct, row.facts_correct + row.facts_wrong)
+		if row.measured {fmt.sbprintf(&details, "\n%s\n", knowledge_text(row.knowledge))}
 		if len(about) > 0 {
 			subjects := make([dynamic]i32, context.temp_allocator)
 			for subject in about {append(&subjects, subject)}
@@ -293,28 +146,29 @@ team_beliefs :: proc(game: ^Loaded_Game, index, team: int) -> (rows: []Belief_Ro
 		if len(silent) > 0 {fmt.sbprintf(&details, "States nothing: %s\n", strings.join(silent[:], ", ", context.temp_allocator))}
 		if line := unread_summary(game, unread); line != "" {fmt.sbprintf(&details, "Not graded: %s\n", line)}
 		if row.compared {
+			// The annotated columns, which may include facts the replay can't
+			// grade: the contradictions themselves, and the counts where the
+			// belief has no graded facts to measure.
 			agreement := row.agreement
-			fmt.sbprintf(
-				&details,
-				"\nAgreement between dragons: %s. %d/%d pairs overlap, %d pair-fact comparisons, %d conflicts. Each pair compares the facts both state; unknown facts are not compared.\n%s",
-				agreement.status,
-				agreement.overlapping_pairs,
-				agreement.pairs,
-				agreement.comparisons,
-				agreement.conflicts,
-				agreement.details,
-			)
-			if meaning := game.consensus_meanings[row.category]; meaning != "" {fmt.sbprintf(&details, "\nSource meaning: %s", meaning)}
-			if agreement.known_any > 0 {
-				fmt.sbprintf(&details, "\nKnown to any reporting dragon: %d facts. Known to all %d: %d. Each holds %d%% of them on average.", agreement.known_any, agreement.reporters, agreement.known_all, int(100 * agreement.mean_share + 0.5))
+			fmt.sbprintf(&details, "\nConsensus annotations: %s.", agreement.status)
+			if !row.measured {
+				fmt.sbprintf(&details, " %d/%d pairs overlap, %d pair-fact comparisons, %d conflicts. Each pair compares the facts both state; unknown facts are not compared.", agreement.overlapping_pairs, agreement.pairs, agreement.comparisons, agreement.conflicts)
 			}
+			fmt.sbprintf(&details, "\n%s", agreement.details)
+			if meaning := game.consensus_meanings[row.category]; meaning != "" {fmt.sbprintf(&details, "\nSource meaning: %s", meaning)}
 		}
 		row.details = strings.to_string(details)
 	}
 	return list[:], alive, graded, unread
 }
 
-// The strip under the timeline: one box per belief of the chosen team.
+// The four measures' rows in the strip, under the beliefs' boxes.
+KNOWLEDGE_MEASURES :: [4]string{"Connectivity", "Agreement", "Coverage", "Validity"}
+KNOWLEDGE_LABEL_WIDTH :: 112
+
+// The strip under the timeline: one column per belief of the chosen team, its
+// box counting the dragons that hold it without a false fact, then the team's
+// connectivity, agreement, coverage and validity for it (knowledge.odin).
 draw_beliefs_panel :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 	index := active_turn_index(viewer)
 	if index < 0 {index = turn_count_before_frame(&viewer.game, current_frame(viewer) + 1) - 1}
@@ -349,23 +203,58 @@ draw_beliefs_panel :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 		if graded > 0 {clipped_text("No graded beliefs stated", x + 6, y + 3, area.x + area.width - x - 12, MUTED_TEXT_COLOR)}
 		return
 	}
-	// Each box: the graded dragons holding the belief without a false fact, and
-	// the share of their stated facts that are correct.
-	// Every belief on one line, so the strip stays two lines tall.
+	for measure, line in KNOWLEDGE_MEASURES {
+		clipped_text(measure, x + 6, y + CONTROL_HEIGHT + 4 + f32(line) * UI_LINE, KNOWLEDGE_LABEL_WIDTH - 12, MUTED_TEXT_COLOR)
+	}
+	x += KNOWLEDGE_LABEL_WIDTH
 	width := (area.x + area.width - 6 - x) / f32(len(rows))
 	for row, position in rows {
 		left := x + f32(position) * width
-		color := row.wrong > 0 ? WARNING_COLOR : row.correct == i32(graded) ? UI_ACCENT : MUTED_TEXT_COLOR
 		box := rl.Rectangle{left, y, width - 6, CONTROL_HEIGHT}
-		rl.DrawRectangleLinesEx(box, 1, color)
+		rl.DrawRectangleLinesEx(box, 1, PANE_BORDER)
+		// The label stays neutral and each figure takes its own colour.
 		facts := row.facts_correct + row.facts_wrong
-		text := fmt.tprintf("%s %d/%d", row.category, row.correct, graded)
-		if facts > 0 {text = fmt.tprintf("%s, %d%%", text, int(100 * i64(row.facts_correct) / i64(facts)))}
-		// Facts every reporting dragon holds, of those any holds.
-		if row.compared && row.agreement.known_any > 0 && !viewer.game.consensus_singletons[row.category] {
-			text = fmt.tprintf("%s, shared %d/%d", text, row.agreement.known_all, row.agreement.known_any)
+		parts := make([dynamic]Stat_Text, context.temp_allocator)
+		append(&parts, Stat_Text{fmt.tprintf("%s ", row.category), TEXT_COLOR})
+		append(&parts, Stat_Text{fmt.tprintf("%d/%d", row.correct, graded), share_color(share_of(f64(row.correct), f64(graded)))})
+		if facts > 0 {
+			append(&parts, Stat_Text{", ", TEXT_COLOR})
+			share := share_of(f64(row.facts_correct), f64(facts))
+			append(&parts, Stat_Text{percent_text(share), share_color(share)})
 		}
-		clipped_text(text, left + 6, y + (CONTROL_HEIGHT - UI_TEXT) / 2 - 1, box.width - 12, color)
+		draw_stat_line(parts[:], left + 6, y + (CONTROL_HEIGHT - UI_TEXT) / 2 - 1, box.width - 12)
+		// Each measure, then its second figure: the dragons sharing most of
+		// what they state, those in a contradiction, each dragon's coverage,
+		// and the shared facts false for most holders.
+		if row.measured {
+			knowledge := row.knowledge
+			measures := knowledge_measures(knowledge)
+			lines := [4][3]Stat_Text {
+				{
+					{percent_text(measures.connectivity), share_color(measures.connectivity)},
+					{", ", TEXT_COLOR},
+					{fmt.tprintf("%d/%d share", knowledge.linked, knowledge.linkable), share_color(measures.linked)},
+				},
+				{
+					{percent_text(measures.agreement), share_color(measures.agreement)},
+					{", ", TEXT_COLOR},
+					{fmt.tprintf("%d disputing", knowledge.disputing), share_color(measures.disputing, fewer = true)},
+				},
+				{
+					{percent_text(measures.coverage), share_color(measures.coverage)},
+					{", each ", TEXT_COLOR},
+					{percent_text(measures.each), share_color(measures.each)},
+				},
+				{
+					{percent_text(measures.validity), share_color(measures.validity)},
+					{", ", TEXT_COLOR},
+					{fmt.tprintf("%d/%d misled", knowledge.misled, knowledge.agreed), share_color(measures.misled, fewer = true)},
+				},
+			}
+			for &pieces, line in lines {
+				draw_stat_line(pieces[:], left + 6, y + CONTROL_HEIGHT + 4 + f32(line) * UI_LINE, box.width - 12)
+			}
+		}
 		if rl.IsMouseButtonPressed(.LEFT) && rl.CheckCollisionPointRec(rl.GetMousePosition(), box) {
 			open_diagnostic_detail(viewer, row.category, row.details)
 			// A belief about cells or edges opens as a map of who states what.
@@ -377,8 +266,33 @@ draw_beliefs_panel :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
 	}
 }
 
+// A piece of a strip line with its own colour.
+Stat_Text :: struct {
+	text:  string,
+	color: rl.Color,
+}
+
+// A share's colour: green when complete, yellow when partial, red at none,
+// muted where nothing was measured. `fewer` is for counts where less is
+// better, such as dragons in a contradiction.
+share_color :: proc(share: f64, fewer := false) -> rl.Color {
+	if share < 0 {return MUTED_TEXT_COLOR}
+	value := fewer ? 1 - share : share
+	return value >= 1 ? REBUILT_COLOR : value <= 0 ? COLOR_WRONG : UI_ACCENT
+}
+
+// Pieces drawn one after another, the last clipped to `width`.
+draw_stat_line :: proc(parts: []Stat_Text, x, y, width: f32) {
+	cursor := x
+	for part in parts {
+		if cursor >= x + width {break}
+		clipped_text(part.text, cursor, y, x + width - cursor, part.color)
+		cursor += f32(measure_text(fmt.ctprintf("%s", part.text), UI_TEXT))
+	}
+}
+
 // One cell's next spawn as the decision stated it (a `spawn_due` truth column),
-// graded as `grade_beliefs` grades it against the replay at the turn's start.
+// graded as `stated_beliefs` grades it against the replay at the turn's start.
 Remembered_Spawn :: struct {
 	stated:         i32,
 	never, correct: bool,
@@ -386,25 +300,9 @@ Remembered_Spawn :: struct {
 
 remembered_spawns :: proc(game: ^Loaded_Game, turn: ^Dragon_Turn) -> map[i32]Remembered_Spawn {
 	spawns := make(map[i32]Remembered_Spawn, context.temp_allocator)
-	due := make(map[i32]i32, context.temp_allocator)
-	for spawn in turn.spawns {due[spawn[0]] = spawn[1]}
-	spawning := make(map[i32]bool, context.temp_allocator)
-	for rule in game.view.spawn_rules {spawning[rule.cell] = rule.maximum > 0}
-	for &gizmo in turn.gizmos {
-		if gizmo.kind != "table" {continue}
-		for quantity, column in gizmo.truth_columns {
-			if quantity != "spawn_due" {continue}
-			for row, index in gizmo.rows {
-				if index >= len(gizmo.row_cells) || column >= len(row) {break}
-				cell := gizmo.row_cells[index]
-				truth, timed := due[cell]
-				if row[column] == "never" {
-					spawns[cell] = {never = true, correct = !spawning[cell]}
-				} else if stated, ok := parse_int_field(row, i32(column)); ok && stated >= 0 {
-					if timed {spawns[cell] = {stated = stated, correct = stated == truth}
-					} else if !spawning[cell] {spawns[cell] = {stated = stated}}
-				}
-			}
+	for belief in stated_beliefs(game, turn, false, only = "spawn_due") {
+		for fact in belief.facts {
+			spawns[fact.key] = fact.value < 0 ? {never = true, correct = fact.correct} : {stated = i32(fact.value), correct = fact.correct}
 		}
 	}
 	return spawns

@@ -43,7 +43,7 @@ is intentionally a straight connection between its two explicit endpoints.
 | Kind | Fields and meaning |
 | --- | --- |
 | `line` | `points: [from, to]` |
-| `target` | `points: [cell]`; the label is drawn beside the target |
+| `target` | `points: [cell]`; the label is drawn beside the target, stacked with any other target's on the same cell |
 | `path` | `points: [cell, ...]`, in traversal order |
 | `search` | `cells` and optional `edges`; rendered on the board |
 | `map` | `cells` and optional `edges`; rendered on a separate initially blank inspector map |
@@ -219,9 +219,11 @@ example round kelp. Without it, `radius` says it may be up to that many steps
 from `cell` on the torus, 0 when known exactly; the bot decides how it grows.
 `age` is the rounds since it was last known exactly. Both are whole numbers up
 to 4096. `source` and `label` are the bot's own words, and `color` defaults to
-the record's. The Positions overlay outlines each `cell` and hatches the cells
-it may occupy, tracing their boundary, fading with age and labelled with the
-age, and the inspector lists them. The viewer infers no position itself.
+the record's. The Positions overlay marks each `cell`, fading with age and
+labelled with the age, and hatches the cells it may occupy only once the
+entry is opened by clicking its cell or highlighting its dragon. List `cells`
+likeliest first: the hatch fades along the list. The inspector lists every
+entry. The viewer infers no position itself.
 
 An entry about a dragon may also say who it is and what the believer holds
 about it: `dragon` (its ID), `team` (`ours` or `enemy`), `length` (whole number
@@ -314,12 +316,14 @@ the expression; an absent result is labelled not evaluated.
 
 The beliefs strip grades the beliefs of each living dragon whose latest turn
 has a usable record against the replay at the start of that turn, for our team:
-the focused dragon's when the recovery can rebuild it, else the team it can. Each box is one belief: how many graded dragons
-hold it without a false fact, and the share of all their stated facts that is
-correct. A click lists every dragon's wrong facts, who states nothing, who is
-not graded and, for dragons as subjects, how many believers are right about
-each one. The strip says why each ungraded dragon isn't graded: it has yet to
-take a turn, it is not rebuilt yet, or its turn has no usable diagnostics.
+the focused dragon's when the recovery can rebuild it, else the team it can. Each column is one belief. Its box counts the graded dragons
+holding it without a false fact, and the share of all their stated facts that is
+correct, and under it are the team's connectivity, agreement, coverage and
+validity for the belief (Team knowledge). A click lists the measures, every
+dragon's wrong facts, who states nothing, who is not graded and, for dragons as
+subjects, how many believers are right about each one. The strip says why each
+ungraded dragon isn't graded: it has yet to take a turn, it is not rebuilt yet,
+or its turn has no usable diagnostics.
 
 - Map beliefs come from a retained cell table's `truth_columns` and are graded
   as in Mental map accuracy: `edges` and `pearl`, and `spawn_due`, the round of
@@ -337,11 +341,43 @@ take a turn, it is not rebuilt yet, or its turn has no usable diagnostics.
   `length_exact` is false.
 - Our champion and Enemy champion: an entry with `champion` is correct when that
   dragon is alive on the stated team and no teammate of it is longer, and its
-  length is right. A dragon's entry for itself is graded here only. The strip
-  also compares, dragon against dragon, which dragon each takes for our
-  champion and its length.
+  length is right. A dragon's entry for itself is graded here only.
 
 Unstated values, `?` and empty cells are never graded.
+
+## Team knowledge
+
+For each belief, the strip measures the team's knowledge over the facts its
+graded dragons state that the replay can grade (`knowledge.odin`). Agreement
+and validity are the properties a consensus protocol must meet, and coverage
+stands where its third, termination, does: every process decides (Lynch,
+Distributed Algorithms, 1996, chapters 5 and 6). Connectivity measures how far
+each fact has spread through the team, as epidemic dissemination does (Demers
+et al., Epidemic Algorithms for Replicated Database Maintenance, 1987). A fact is one side of one cell,
+one cell's pearl or next spawn, one other dragon's position or length, or the
+team's champion. Every measure is a ratio of counts, and the viewer's
+`--knowledge FILE` export writes the counts for every round
+(`gamedata/format.md`, kind `knowledge`).
+
+- Connectivity: over stated facts, the share of the other graded dragons
+  stating each one too. Beside it, the dragons at least half of whose facts
+  another dragon states. Two dragons with overlapping maps in a team of ten
+  score low on both.
+- Agreement: of the pairs of dragons stating one fact, the share whose values
+  don't contradict. Values contradict when they differ, when exact lengths
+  differ or one undercuts a lower bound, or when two positions share no cell.
+  Beside it, the dragons in a contradiction.
+- Coverage: the facts any graded dragon states, of those that exist: four sides
+  and one pearl and spawn a cell, every living dragon, one champion. Beside it,
+  each dragon's mean share of the facts it could state.
+- Validity: the share of stated facts that are true. Beside it, of the facts
+  two or more dragons state, those false for most of their holders. A team
+  that agrees on the wrong champion scores high agreement, low validity and one
+  of one misled.
+
+The consensus annotations below remain the source of the belief maps and of
+the contradictions listed in a belief's detail, and give their counts for a
+belief with no graded facts.
 
 ## Team consensus annotations
 

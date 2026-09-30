@@ -43,3 +43,7 @@ TEAM_HEAD_COLORS := [2]rl.Color{{255, 122, 61, 255}, {243, 236, 223, 255}}
 // A true countdown the focused dragon remembers correctly, and other
 // remembered timer columns.
 CORRECT_TIMER_COLOR :: rl.Color{80, 210, 230, 255}
+// Sonar the focused dragon read, and its own sonar coming back as echoes,
+// both dashed, apart from the solid gold of a planned path.
+SONAR_RECEIVED :: rl.Color{170, 150, 230, 255}
+SONAR_ECHO :: rl.Color{155, 189, 181, 150}

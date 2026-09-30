@@ -20,7 +20,8 @@ TOP_BAR_HEIGHT :: 8
 // The beliefs, playback and comment panes stacked under the board, with their
 // margins.
 BOTTOM_BAR_HEIGHT :: BELIEFS_PANE_HEIGHT + PLAYBACK_PANE_HEIGHT + COMMENT_PANE_HEIGHT + 3 * PANEL_PADDING
-BELIEFS_PANE_HEIGHT :: 66
+// The header, the beliefs' boxes and the four knowledge measures under them.
+BELIEFS_PANE_HEIGHT :: 150
 PLAYBACK_PANE_HEIGHT :: 38
 COMMENT_PANE_HEIGHT :: 52
 // Every top-level pane has a one-pixel border and this much space inside it.
@@ -66,7 +67,7 @@ apply_startup_settings :: proc(viewer: ^Viewer_State, startup: Startup_Settings)
 main :: proc() {
 	if len(os.args) < 2 {
 		fmt.eprintln(
-			"usage: viewer GAME.cols [--recover LOONG_RECOVER --replay REPLAY --registry DIR --judge LOONG_JUDGE] [--inbox PATH --replay-name NAME] [--position FILE | --dragon N --round R --turn T --whole-board --rounds] [--play] [--speed S] [--watch] [--image PNG] [--size WxH]   (run it through `just viewer`)",
+			"usage: viewer GAME.cols [--recover LOONG_RECOVER --replay REPLAY --registry DIR --judge LOONG_JUDGE] [--inbox PATH --replay-name NAME] [--position FILE | --dragon N --round R --turn T --whole-board --rounds] [--play] [--speed S] [--watch] [--image PNG] [--size WxH] [--knowledge FILE]   (run it through `just viewer`)",
 		)
 		os.exit(2)
 	}
@@ -104,6 +105,9 @@ main :: proc() {
 	}
 	watch_export := false
 	image_path := ""
+	// `--knowledge FILE` writes the team knowledge of every round and exits,
+	// with no window (knowledge.odin).
+	knowledge_path := ""
 	// The window's starting size; `--size 1440x900` also sizes `--image` renders.
 	start_width, start_height: i32 = 1600, 960
 	startup := Startup_Settings{dragon = -2, round = -1, turn = -1, frames_per_second = 4}
@@ -117,6 +121,7 @@ main :: proc() {
 	for argument, index in os.args[2:] {
 		value := os.args[index + 3] if index + 3 < len(os.args) else ""
 		if argument == "--image" {image_path = value}
+		if argument == "--knowledge" {knowledge_path = value}
 		if argument == "--recover" {recover = value}
 		if argument == "--replay" {replay = value}
 		if argument == "--registry" {registry = value}
@@ -161,6 +166,15 @@ main :: proc() {
 	defer delete(position_path)
 	last_position: string
 	defer delete(last_position)
+
+	if len(knowledge_path) > 0 {
+		if !export_knowledge(&viewer, knowledge_path) {
+			fmt.eprintfln("Could not write %s", knowledge_path)
+			os.exit(1)
+		}
+		fmt.eprintfln("wrote %s", knowledge_path)
+		return
+	}
 
 	if len(image_path) > 0 {rl.SetConfigFlags({.WINDOW_HIDDEN})}
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT, .VSYNC_HINT, .WINDOW_HIGHDPI})

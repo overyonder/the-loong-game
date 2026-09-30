@@ -28,15 +28,15 @@ Game AI has settled on a handful of ways to organise an agent's decisions, and r
 
 | Architecture | How it decides | Strengths | Weaknesses |
 | --- | --- | --- | --- |
-| **State machine** | The agent is in one state, and transitions move it between states. Hierarchical versions nest states inside states, as in Harel's [statecharts](https://doi.org/10.1016/0167-6423(87)90035-9). | Simple, cheap and easy to trace. | Transitions multiply as states are added. |
-| **Behaviour tree** | A tree of priorities and sequences, re-evaluated from the root each turn. | Modular and reactive. | Priorities are fixed in the tree's shape. |
-| **Utility system** | Every option gets a score, and the best one wins. | Handles trade-offs smoothly. | Scores need tuning, and odd choices can be hard to explain. |
-| **Subsumption** | Layers of reactive control, where higher layers override lower ones. | Several behaviours act at once, and reflexes win. | Hard to plan with. |
-| **Belief, desire, intention** | Desires compete, and the chosen one becomes an intention held until it's done or impossible. | The agent commits instead of dithering. | Deciding when to drop an intention is subtle. |
-| **Goal-oriented planning** | A planner searches for a sequence of actions that reaches a goal. | Finds new combinations of actions. | Replanning costs compute whenever the world changes. |
-| **Hierarchical task network** | Tasks break down into subtasks using authored methods. | Plans with the designer's knowledge built in. | The methods take a lot of authoring. |
-| **Search** | Minimax or Monte Carlo tree search looks ahead over moves. | Strong with a good model and enough budget. | Hidden information and many agents make the tree huge. |
-| **Learned policy** | A trained model maps what the agent sees to an action. | Finds patterns nobody wrote down. | Needs a stable environment and lots of data. |
+| **State machine** | The agent is in one state, and transitions move it between states. Hierarchical versions nest states inside states, as in Harel's [statecharts](https://doi.org/10.1016/0167-6423(87)90035-9) (1987) and chapter 5 of Millington and Funge's *Artificial Intelligence for Games* (2nd edition, 2009). | Simple, cheap and easy to trace. | Transitions multiply as states are added. |
+| **Behaviour tree** | A tree of priorities and sequences, re-evaluated from the root each turn, as in Colledanchise and Ögren's [Behavior Trees in Robotics and AI](https://arxiv.org/abs/1709.00084) (2018). | Modular and reactive. | Priorities are fixed in the tree's shape. |
+| **Utility system** | Every option gets a score, and the best one wins, as in Dave Mark's *Behavioral Mathematics for Game AI* (2009) and his GDC lectures of 2013 and 2015. | Handles trade-offs smoothly. | Scores need tuning, and odd choices can be hard to explain. |
+| **Subsumption** | Layers of reactive control, where higher layers override lower ones, from Brooks's [A robust layered control system for a mobile robot](https://doi.org/10.1109/JRA.1986.1087032) (1986). | Several behaviours act at once, and reflexes win. | Hard to plan with. |
+| **Belief, desire, intention** | Desires compete, and the chosen one becomes an intention held until it's done or impossible, as in Rao and Georgeff's *BDI agents: from theory to practice* (1995). | The agent commits instead of dithering. | Deciding when to drop an intention is subtle. |
+| **Goal-oriented planning** | A planner searches for a sequence of actions that reaches a goal, as in Orkin's *Three States and a Plan: The A.I. of F.E.A.R.* (2006). | Finds new combinations of actions. | Replanning costs compute whenever the world changes. |
+| **Hierarchical task network** | Tasks break down into subtasks using authored methods, as in Erol, Hendler and Nau's *HTN planning: complexity and expressivity* (1994). | Plans with the designer's knowledge built in. | The methods take a lot of authoring. |
+| **Search** | Minimax, with Knuth and Moore's [alpha-beta pruning](https://doi.org/10.1016/0004-3702(75)90019-3) (1975), or [Monte Carlo tree search](https://doi.org/10.1109/TCIAIG.2012.2186810) (Browne and colleagues' survey, 2012) looks ahead over moves. | Strong with a good model and enough budget. | Hidden information and many agents make the tree huge. |
+| **Learned policy** | A trained model maps what the agent sees to an action, as in Sutton and Barto's [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html) (2nd edition, 2018). | Finds patterns nobody wrote down. | Needs a stable environment and lots of data. |
 
 Choosing one of these and living with it would be a mistake, because we won't know which suits this game until we've tried several. The trick is to write the bot so the architecture can be swapped.
 

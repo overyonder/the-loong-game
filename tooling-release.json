@@ -14,16 +14,16 @@
     {
       "source": "replays/viewer/board_drawing.odin",
       "path": "replays/viewer/board_drawing.odin",
-      "sha256": "92ecbfa84e7c4fab7f43bdd095c837fb9828e9586a79ccdaeec23564f66a8c71",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "92ecbfa84e7c4fab7f43bdd095c837fb9828e9586a79ccdaeec23564f66a8c71"
+      "sha256": "64c2535903fdcf940b33779cb2ff757c3714301b18e15843a1b53b2d18bf2ab2",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "64c2535903fdcf940b33779cb2ff757c3714301b18e15843a1b53b2d18bf2ab2"
     },
     {
       "source": "replays/viewer/controls.odin",
       "path": "replays/viewer/controls.odin",
-      "sha256": "a27766f484546ff49c5de65c48bdcc0b544fb7d69710396096f51cc9a499f594",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "a27766f484546ff49c5de65c48bdcc0b544fb7d69710396096f51cc9a499f594"
+      "sha256": "6cf5075737762be71d2f31e3bf34b06766d45214432bdae1c2b5abceb173d7d8",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "6cf5075737762be71d2f31e3bf34b06766d45214432bdae1c2b5abceb173d7d8"
     },
     {
       "source": "replays/viewer/inspector_drawing.odin",
@@ -35,16 +35,16 @@
     {
       "source": "replays/viewer/main.odin",
       "path": "replays/viewer/main.odin",
-      "sha256": "93c4fe304ea2582a597e8c627aa25c09cc3b27f620f59c7ab2a804fabda5e7bd",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "8004b3e08bb032c3ed8ecb89988340f77189f3f663e057c17866d0372c1713aa"
+      "sha256": "672966696f638488124f8737f78aa7b2e40344580385ee48dd26daa2f971f99a",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "b597a738c6788503a17b2ff2c16c794161a014d7f5a90978427978be0924a7d1"
     },
     {
       "source": "replays/viewer/palette.odin",
       "path": "replays/viewer/palette.odin",
-      "sha256": "ebb3a7642c985342f3e4684869a18af2de06e2c53a3fd15f85d367ca7d564f14",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "ebb3a7642c985342f3e4684869a18af2de06e2c53a3fd15f85d367ca7d564f14"
+      "sha256": "9ba42105e551e73a7b0b17c5c58926fc3c78d1be41b65056188b256584cd476b",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "9ba42105e551e73a7b0b17c5c58926fc3c78d1be41b65056188b256584cd476b"
     },
     {
       "source": "replays/viewer/types.odin",
@@ -82,9 +82,9 @@
     {
       "source": "replays/viewer/annotations.odin",
       "path": "replays/viewer/annotations.odin",
-      "sha256": "ce70f21f6c4643f2e50d94cc3007b5df13539eb162ebe0fdbfdf9d24196fb709",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "2be5109d4f585e6cb4113678cd84771f0dfd8709abdbaa8a004fb7acdbcd860f"
+      "sha256": "b850cf141c136b0041b314e324a90dea411ef805e1cbb29bde586edb2882b9b9",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "aa6683c500efda8af5e8e428ec547ddf15c1dbe6b25956a9c9f7163cc4cf62e9"
     },
     {
       "source": "replays/viewer/typography.odin",
@@ -257,9 +257,9 @@
     {
       "source": "gamedata/format.md",
       "path": "gamedata/format.md",
-      "sha256": "68f9994c85bf9a9f0e6cf7dd7222f7ee5acf97d3e9bf5158658c49218c90f779",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "1414b7b9a77d29e97ac3c7d42a615e197ac8c8483134700d6f3feb5a4963dd8c"
+      "sha256": "63723f57df33754fafb225d68322ae630c4d40832e6be0bfea4bb590eed3df07",
+      "source_revision": "7f4dee97ce1ec7bf39771232a84c727c889a664a",
+      "source_sha256": "b3e2d32f3db4f8deafd7e9d1ca8269016051d7397b03a9d1e246b186728156d4"
     },
     {
       "source": "evaluation/report/report.nim",
@@ -458,9 +458,9 @@
     {
       "source": "replays/viewer/README.md",
       "path": "replays/viewer/README.md",
-      "sha256": "bba9ce46929abdd05ed9f2d516526051210acb2805217e65c34aa6afae2fd29e",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "349bb11a7412d8389b2d7da48a71b794784b8a478963d23663e0272de4aebe70"
+      "sha256": "61f6e37920d0369f84e9575bf9c5eba4beca96a4a36700872d5c86cd4dbb3468",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "5b79f56bfaa71c9221abd1dd24c6713888d395257aba84bb9ddbc19f2ce73408"
     },
     {
       "source": "replays/viewer/accuracy.odin",
@@ -479,9 +479,9 @@
     {
       "source": "replays/viewer/beliefs.odin",
       "path": "replays/viewer/beliefs.odin",
-      "sha256": "1397b1ecd26c7002b2ada273fdf8b990eac0ad5a2c10d7ac13cbc6311c5f1dff",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "94729eb10e6b51e650aa2c759d34e05862e2096efb533f0ab9f88669ba14ac38"
+      "sha256": "99253ad8b4f01e31fc69839c5a69e7bf53d8611bdcb42a1d3595feb17a3254bb",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "99253ad8b4f01e31fc69839c5a69e7bf53d8611bdcb42a1d3595feb17a3254bb"
     },
     {
       "source": "replays/viewer/board_replay.odin",
@@ -500,9 +500,9 @@
     {
       "source": "replays/viewer/columns.odin",
       "path": "replays/viewer/columns.odin",
-      "sha256": "7e7517d155b257154cecfa6ea0956fc18a6c1d6f7206233759d6e9baa374f915",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "1ac49212e38ea72324d7b5173df0eaf4d2c9813fa501262d3cdc3d284e94b67b"
+      "sha256": "c95e7bbdd905fc71a712c6934ff4ec3e79210c270e6eec7306625d077e864788",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "407c32754d3d835ef408123d2de37c1e7ab985e95362e315addeafa8e0c148ea"
     },
     {
       "source": "replays/viewer/consensus.odin",
@@ -521,23 +521,23 @@
     {
       "source": "replays/viewer/diagnostics.md",
       "path": "replays/viewer/diagnostics.md",
-      "sha256": "cf5748bbf7c7c0d95c98777c774aa65eb985851334c156b79884b5b7676acb74",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "3b4fa4d6030780df27ea63b2213760857d5917dd434a68c59c3fdab3434a2b76"
+      "sha256": "0ebac59f8a88b1e3ccbec68b2472a746597877390c7c0a4c451b11501425f84e",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "c1919fa255616d6255b7585b99cfc511fb9ce79daae132066d0bd38848d4c209"
     },
     {
       "source": "replays/viewer/evaluation.odin",
       "path": "replays/viewer/evaluation.odin",
-      "sha256": "7f9956266b5d5f2625bdb3961e2dc23deb2130936f85ff4a8736f6fb489a020f",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "7f9956266b5d5f2625bdb3961e2dc23deb2130936f85ff4a8736f6fb489a020f"
+      "sha256": "10a5d9d72df32bb9345337fb7ebc123791a4acfd3945978af3a58aa8415cf81c",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "10a5d9d72df32bb9345337fb7ebc123791a4acfd3945978af3a58aa8415cf81c"
     },
     {
       "source": "replays/viewer/game_data.odin",
       "path": "replays/viewer/game_data.odin",
-      "sha256": "070d5b4d2789ad25afccbf39d992c63fbedb43214c9559802ef3eb6660339dc4",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "856b5521876696d29a626427c21029e6d3c66d4b1e28ee18d304e6b240bb163d"
+      "sha256": "f2fdacb6e3a8083a812cbd3e14450d0413dd50c81f2ba721bf85b77994fe6258",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "abfca8b0792b4010647025e4ca3a52885bc06c009b6b3465782dc5c8f109dafd"
     },
     {
       "source": "replays/viewer/gizmo_inspector.odin",
@@ -549,9 +549,9 @@
     {
       "source": "replays/viewer/gizmos.odin",
       "path": "replays/viewer/gizmos.odin",
-      "sha256": "311477ddbf808a5bbe88a3fd5811fd9765d4988ab015dafc6aec565e29d9c201",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "311477ddbf808a5bbe88a3fd5811fd9765d4988ab015dafc6aec565e29d9c201"
+      "sha256": "05d4f603031667f4a5cdae57e9b3ba5e64eb1e1a2f6292a43e4006de86bacf2e",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "05d4f603031667f4a5cdae57e9b3ba5e64eb1e1a2f6292a43e4006de86bacf2e"
     },
     {
       "source": "replays/viewer/issues.odin",
@@ -570,16 +570,16 @@
     {
       "source": "replays/viewer/mental_map.odin",
       "path": "replays/viewer/mental_map.odin",
-      "sha256": "10260bfc9ba180e2de05910974968cdfcf0a8519e11e8b9338620cba408ce96a",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "10260bfc9ba180e2de05910974968cdfcf0a8519e11e8b9338620cba408ce96a"
+      "sha256": "0e3d6ba3cfde24952543c1bf94c25d7b19d5630a4bf2fd352f6c141e26935022",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "0e3d6ba3cfde24952543c1bf94c25d7b19d5630a4bf2fd352f6c141e26935022"
     },
     {
       "source": "replays/viewer/objective_inspector.odin",
       "path": "replays/viewer/objective_inspector.odin",
-      "sha256": "0573afb2af8ec3a82b36f9689f2e8087f28178adf69a9a1e1e1a3ae9aca283a1",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "0573afb2af8ec3a82b36f9689f2e8087f28178adf69a9a1e1e1a3ae9aca283a1"
+      "sha256": "0f53846fe03fe961694dfae8743b51189e911b9aa4d8194b3a4f737faaad7677",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "0f53846fe03fe961694dfae8743b51189e911b9aa4d8194b3a4f737faaad7677"
     },
     {
       "source": "replays/viewer/position.odin",
@@ -696,9 +696,9 @@
     {
       "source": "replays/viewer/scroll_sections.odin",
       "path": "replays/viewer/scroll_sections.odin",
-      "sha256": "03fb86d8c252d1f95f5e5704d75521e6a94cbe6ea9c57c71a8689be64205a7b9",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "03fb86d8c252d1f95f5e5704d75521e6a94cbe6ea9c57c71a8689be64205a7b9"
+      "sha256": "8ba6642f4ca4a3525b6ff00585a096153ee2a998d53e16734b91c82f8e271b8a",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "8ba6642f4ca4a3525b6ff00585a096153ee2a998d53e16734b91c82f8e271b8a"
     },
     {
       "source": "replays/viewer/turn_playback.odin",
@@ -825,6 +825,13 @@
       "sha256": "4a973eb378ec532bedefdb09ce6014e3650bccca47cc4fd7122417c7c146da56",
       "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
       "source_sha256": "1b590f77d26b9e1c1f1abf7173cffaa90d906c14ff56c2206a32bb1cd0bb5e0a"
+    },
+    {
+      "source": "replays/viewer/knowledge.odin",
+      "path": "replays/viewer/knowledge.odin",
+      "sha256": "7bffe985ab247922c8512806163d92d289595b3ab9bb263615a8f979daf39d55",
+      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
+      "source_sha256": "bdb29a6183c93dce3aa2feb156bbbc787cdb842991243c70a68844d8873dc953"
     }
   ]
 }
