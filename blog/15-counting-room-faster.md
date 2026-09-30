@@ -93,7 +93,7 @@ The judge only takes C, so the profile emits C, one intrinsic per selected instr
 
 ## The fast bot
 
-The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. That's the split [The choice](02-the-choice.md) planned, and it's how our competition bot is built too: strategy in Nim, and C only in hot kernels. On the bundled maps the fast bot plays exactly the same games as the original:
+The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. That's the split [The choice](02-the-choice.md) planned: strategy in Nim, and hot code in a kernel it calls. This example's kernel is hand-written C. Our competition bot writes any hot kernel in Rake, like the masks above. On the bundled maps the fast bot plays exactly the same games as the original:
 
 ![A terminal running just fast. The first bot and the fast bot each play room-c on the default map with seed 0x42. Both games have the same five deaths and end with team B winning on length after 500 rounds. The first bot's median turn costs 3.2 million points, and the fast bot's 3.0 million.](images/fast-bot.png)
 

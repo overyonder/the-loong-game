@@ -107,9 +107,9 @@ ARC frees each object the moment nothing refers to it, so no garbage collector p
 
 Nim's [standard library](https://nim-lang.org/docs/lib.html) is another reason it suits competitions. It has the collections and algorithms you'd otherwise spend precious time writing, from hash tables and priority queues to sorting and binary search, and [ARC](https://nim-lang.org/docs/mm.html) lets us use them without a tracing garbage collector. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, with none of the build-time date or time macros the judge rejects.
 
-Nim doesn't replace hand-written C. The generated C is correct and fast, but nobody tuned it, and the hottest parts of a serious bot, like the inner loop of a search, still want hand-optimised C. So the split is Nim for strategy, which we write and change constantly, and C for the kernels where every point counts. Our competition bot is built exactly this way.
+Nim doesn't make every loop fast. The generated C is correct and fast, but nobody tuned it, and the hottest parts of a serious bot, like the inner loop of a search, still want vector code written for the job. So the split is Nim for strategy, which we write and change constantly, and [Rake](#rake-for-vector-kernels) for the kernels where every point counts. Rake's WebAssembly profile emits C, which Nim calls like any other C. Our competition bot follows this split.
 
-![How a Nim bot reaches the judge. strategy.nim, the strategy in Nim, goes through nim c with compileOnly for wasm32, which writes C into gen/. Hand-written hot kernels in kernels.c join it. The judge's clang compiles every .c file to WebAssembly, and bot.wasm is metered and run for each dragon, each turn.](images/nim-build.svg)
+![How a Nim bot reaches the judge. strategy.nim, the strategy in Nim, goes through nim c with compileOnly for wasm32, which writes C into gen/. Hot kernels in Rake, kernels.rk, join it as the C that rakec emits for the judge. The judge's clang compiles every .c file to WebAssembly, and bot.wasm is metered and run for each dragon, each turn.](images/nim-rake-build.svg)
 
 ### Odin for tools
 
