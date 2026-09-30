@@ -26,7 +26,7 @@ Two things stand out. The `set` has already become a single 64-bit word with one
 
 ## Bitboards
 
-The rest of the cost is the flood fill's shape: one tile at a time, with a test at every step. The window is 49 tiles, which fits in one 64-bit word, so we can move every reached tile at once. With bit `row × 7 + column` for each tile, a step north is a shift right by 7 and a step east a shift left by 1. A mask per direction marks the tiles with an open side that way:
+The rest of the cost is the flood fill's shape: one tile at a time, with a test at every step. The window is 49 tiles, which fits in one 64-bit word, so we can move every reached tile at once, as chess programs have kept boards in 64-bit words since Slate and Atkin's [CHESS 4.5](https://doi.org/10.1007/978-1-4612-5515-4_4) (1977). With bit `row × 7 + column` for each tile, a step north is a shift right by 7 and a step east a shift left by 1. A mask per direction marks the tiles with an open side that way:
 
 ```c
 static uint64_t FloodFill(WindowBits const* bits, uint64_t reach, uint64_t allowed)

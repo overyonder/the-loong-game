@@ -6,7 +6,7 @@ The [verdict tool](04-better-worse-or-undecided.md) answers one question at a ti
 
 ## Ratings
 
-The online ladder uses Elo ratings, and so will we, because the idea behind them is simple. Each bot gets a rating, and the gap between two ratings predicts how often the stronger bot wins. A gap of 400 points means ten-to-one odds, 200 points about three-to-one, and equal ratings mean an even match. A rating on its own means nothing. It only says something relative to the other bots it was measured against.
+The online ladder uses Elo ratings, from Arpad Elo's *The Rating of Chessplayers, Past and Present* (1978), and so will we, because the idea behind them is simple. Each bot gets a rating, and the gap between two ratings predicts how often the stronger bot wins. A gap of 400 points means ten-to-one odds, 200 points about three-to-one, and equal ratings mean an even match. A rating on its own means nothing. It only says something relative to the other bots it was measured against.
 
 ![Win probability against rating gap. The curve rises from an even match at a gap of 0, through about three-to-one at 200 points and ten-to-one at 400 points, towards certainty.](images/rating-odds.svg)
 
@@ -20,7 +20,7 @@ Offline we're in a better position. The harness plays every game first, so we ha
 
 ## Fitting all the games at once
 
-The fit is in [harness/report/rating.nim](../harness/report/rating.nim), and `loong-report ratings` runs it. It looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
+The fit is in [harness/report/rating.nim](../harness/report/rating.nim), and `loong-report ratings` runs it. It fits Bradley and Terry's model of paired comparisons ([Rank Analysis of Incomplete Block Designs](https://doi.org/10.2307/2334029), 1952): it looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
 
 ```nim
 for i in 0 ..< size:

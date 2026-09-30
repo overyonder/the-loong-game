@@ -18,7 +18,7 @@ So a long dragon should avoid enemy heads and a short one should seek them out, 
 
 ## One program, three roles
 
-Every dragon runs the same program as a separate process with its own memory, and nothing tells a dragon it's the champion. It has to work that out for itself, and the only way to learn about teammates out of sight is sonar. So each turn every dragon announces its length, and each one remembers the longest teammate it has heard from in the last 12 turns and picks its role from that:
+Every dragon runs the same program as a separate process with its own memory, and nothing tells a dragon it's the champion. It has to work that out for itself. Robot soccer players in Stone and Veloso's [locker-room agreement](https://doi.org/10.1016/S0004-3702(99)00025-9) (1999) settle their roles the same way, from rules agreed before the game and what they learn of the team during it. The only way to learn about teammates out of sight is sonar. So each turn every dragon announces its length, and each one remembers the longest teammate it has heard from in the last 12 turns and picks its role from that:
 
 ![How a dragon picks its role. It listens for the longest teammate heard in the last 12 turns. If it is at least that long, it is the champion. Otherwise, if it has three segments or fewer, it is a kamikaze, and if not, a worker.](images/roles-rule.svg)
 

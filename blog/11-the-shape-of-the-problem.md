@@ -28,7 +28,7 @@ Game AI has settled on a handful of ways to organise an agent's decisions, and r
 
 | Architecture | How it decides | Strengths | Weaknesses |
 | --- | --- | --- | --- |
-| **State machine** | The agent is in one state, and transitions move it between states. Hierarchical versions nest states inside states. | Simple, cheap and easy to trace. | Transitions multiply as states are added. |
+| **State machine** | The agent is in one state, and transitions move it between states. Hierarchical versions nest states inside states, as in Harel's [statecharts](https://doi.org/10.1016/0167-6423(87)90035-9). | Simple, cheap and easy to trace. | Transitions multiply as states are added. |
 | **Behaviour tree** | A tree of priorities and sequences, re-evaluated from the root each turn. | Modular and reactive. | Priorities are fixed in the tree's shape. |
 | **Utility system** | Every option gets a score, and the best one wins. | Handles trade-offs smoothly. | Scores need tuning, and odd choices can be hard to explain. |
 | **Subsumption** | Layers of reactive control, where higher layers override lower ones. | Several behaviours act at once, and reflexes win. | Hard to plan with. |

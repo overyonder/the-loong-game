@@ -10,7 +10,7 @@ So all our game data now goes in one binary format, which we call Loong columns.
 
 ## Columns
 
-Almost everything in a game is a long table: every event on the board, every dragon turn, every sonar ping. And almost every question we ask reads one field down a whole table, such as every turn's CPU points or every event's kind. So each field is stored as one contiguous array of fixed-size numbers, and a file is a header, those arrays, and a directory saying where each one is.
+Almost everything in a game is a long table: every event on the board, every dragon turn, every sonar ping. And almost every question we ask reads one field down a whole table, such as every turn's CPU points or every event's kind. So each field is stored as one contiguous array of fixed-size numbers, as column stores such as Stonebraker and colleagues' *C-Store* (2005) keep their tables, and a file is a header, those arrays, and a directory saying where each one is.
 
 ![A columns file: a 64-byte header holding the magic, version, column count, directory offset, file length and kind, then one array per column, such as turn.round, turn.dragon and turn.points, then a directory of 80-byte entries giving each column's name, type, count and offset. Each column is 8-byte aligned.](images/gamedata-layout.svg)
 

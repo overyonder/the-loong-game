@@ -39,7 +39,7 @@ with self._stdin.cv:
 
 ## Fibres instead of threads
 
-Our judge never had this bug, because no bot ever runs on a thread of its own. wasmtime can run a WebAssembly call asynchronously, as a fibre: a call stack that can be paused and resumed on the same thread. When a bot's read would block, the host call returns a pending continuation instead of waiting. The instance pauses, and the judge's own loop decides when to resume it, which is only ever on that dragon's turn.
+Our judge never had this bug, because no bot ever runs on a thread of its own. wasmtime can run a WebAssembly call asynchronously, as a fibre: a call stack that can be paused and resumed on the same thread, the coroutine of Conway's [Design of a separable transition-diagram compiler](https://doi.org/10.1145/366663.366704) (1963). When a bot's read would block, the host call returns a pending continuation instead of waiting. The instance pauses, and the judge's own loop decides when to resume it, which is only ever on that dragon's turn.
 
 The park count only rises inside the judge's loop, when it resumes a bot and finds it still waiting for input:
 
