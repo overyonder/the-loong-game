@@ -103,4 +103,4 @@ New columns can appear without breaking anything, because readers look columns u
 
 ## Next up
 
-That's the last of the performance posts for now. The final post in the series, after the tournament, is a tour of our whole competition bot.
+That's the last of the performance posts for now. The final stage, behind the bot, has two posts: after the Sprint, how we played the ladder, and after the tournament, a tour of our whole competition bot.
