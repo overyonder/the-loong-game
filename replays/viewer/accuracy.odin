@@ -90,7 +90,7 @@ grade_turn :: proc(game: ^Loaded_Game, turn: ^Dragon_Turn) {
 		if edges_column >= 0 || pearl_column >= 0 {table = &gizmo; break search}
 	}
 	if table == nil {return}
-	allocator := game_allocator(game)
+	allocator := turn_allocator(game)
 	truth := map_truth(game)
 	area := len(truth.kinds)
 	pearls := make(map[i32]bool, context.temp_allocator)

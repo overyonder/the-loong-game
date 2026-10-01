@@ -164,8 +164,11 @@ canonical private sources. Competitive bots and models are not included.
 [replays/viewer/README.md](replays/viewer/README.md) describes the viewer and
 [replays/viewer/diagnostics.md](replays/viewer/diagnostics.md) the records a bot
 writes for it. [examples/showcase-bot](examples/showcase-bot/strategy.nim) writes
-every kind, and `just showcase` builds it, plays it against itself and opens the
-game. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
+every kind, exposes its typed state from WebAssembly memory, and gives its roles
+and tasks colours, head icons and body patterns. Recovery keeps full records in
+a moving round window, resumes from memory-bounded checkpoints, and keeps a
+small role-and-task summary for the whole-game chart. `just showcase` builds the
+bot, plays it against itself and opens the game. `just viewer REPLAY --image board.png` saves the Odin display as a PNG;
 it requires a display and OpenGL context. A headless Wayland or compatible X11
 server can provide that context. `--no-display` only writes the game's columns.
 Changes to shared code originate in the canonical source and are released here

@@ -187,7 +187,10 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 		rl.DrawRectangleRec(cell_rectangle(geometry, cell), cell_background(viewer, cell))
 		if viewer.overlays.grid {rl.DrawRectangleLinesEx(cell_rectangle(geometry, cell), 1, COLOR_GRID)}
 	}
-	for pearl in board.pearls {rl.DrawCircleV(cell_center(geometry, pearl), geometry.cell_size * 0.23, COLOR_PEARL)}
+	// The mental map draws the pearls the dragon believes in instead.
+	if !mental_view(viewer, turn, found) {
+		for pearl in board.pearls {rl.DrawCircleV(cell_center(geometry, pearl), geometry.cell_size * 0.23, COLOR_PEARL)}
+	}
 	// True countdowns sit bottom-right: cyan where the focused dragon remembers
 	// the same next spawn, otherwise gold, with a wrong memory in red above.
 	if viewer.overlays.timers {
@@ -205,9 +208,7 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 		}
 	}
 	if viewer.overlays.edges {draw_board_edges(export, geometry)}
-	// A dragon without diagnostics is followed on the replay alone, so its
-	// portals show where each leads.
-	if viewer.overlays.edges && found && !turn.has_record && !turn.recovery_pending {draw_portal_links(export, geometry)}
+	if viewer.overlays.edges {draw_portal_links(export, geometry)}
 	if found && turn.gizmo_reliable {draw_mental_map(viewer, geometry, turn)}
 	if found {
 		if viewer.overlays.vision_windows {draw_vision_window(geometry, turn.head, COLOR_SELECTED)}
@@ -244,7 +245,8 @@ draw_board_frame :: proc(viewer: ^Viewer_State, area: rl.Rectangle, frame: i32) 
 			rl.DrawLineEx({r.x, r.y}, {r.x + r.width, r.y + r.height}, 3, COLOR_DEATH)
 		}
 	}
-	draw_dragon_bodies(viewer, board, geometry, mental ? turn : nil)
+	if viewer.overlays.mirror && !mental {draw_mirror_ghosts(viewer, board, geometry)}
+	draw_dragon_bodies(viewer, board, geometry, mental ? turn : nil, found && turn.gizmo_reliable ? turn : nil)
 	if found && viewer.overlays.fog && !mental {
 		for cell in 0 ..< export.width * export.height {
 			dx := abs(cell % export.width - turn.head % export.width)
@@ -380,33 +382,108 @@ faded :: proc(color: rl.Color) -> rl.Color {
 }
 
 // With a mental map's turn, dragons it doesn't know of are drawn in the
-// unknown colour.
-draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_Geometry, mental: ^Dragon_Turn = nil) {
+// unknown colour. The team the breakdown chart shows is drawn by its latest
+// turn the board shows, as its producer names it in the breakdown
+// (breakdown.odin): with Colours on, each dragon in its colour, with Icons on,
+// each head in its shape, and with Patterns on, each body in its pattern. The
+// viewer itself draws the enemy's true champion, red with a crown holding the
+// `believer`'s enemy champion (the focused decision's).
+draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_Geometry, mental: ^Dragon_Turn = nil, believer: ^Dragon_Turn = nil) {
 	width, height := rl.GetScreenWidth(), rl.GetScreenHeight()
 	if dragon_body_layer.texture.width != width || dragon_body_layer.texture.height != height {
 		if dragon_body_layer.id != 0 {rl.UnloadRenderTexture(dragon_body_layer)}
 		dragon_body_layer = rl.LoadRenderTexture(width, height)
 	}
+	breakdown: ^Team_Breakdown
+	if viewer.overlays.colors || viewer.overlays.icons || viewer.overlays.patterns {breakdown = our_breakdown(viewer)}
+	shown := shown_turns(viewer)
+	// The enemy's true champion is its longest dragon on the board, every one
+	// when they tie, as beliefs are graded (knowledge.odin).
+	enemy := enemy_team(viewer)
+	longest := 0
+	for dragon in board.dragons {if dragon.team == enemy {longest = max(longest, len(dragon.body))}}
+	// The dragon the believer names as the enemy champion, written in the true
+	// champion's head: green where the claim holds (knowledge.odin), else
+	// yellow, and a yellow `?` where it names none. A believer without a
+	// positions record shows nothing, and the head keeps its own ID.
+	belief_label: string
+	belief_color: rl.Color
+	if believer != nil {
+		for &gizmo in believer.gizmos {
+			if gizmo.kind != "positions" {continue}
+			if belief_label == "" {belief_label, belief_color = "?", UI_ACCENT}
+			for entry in gizmo.positions {
+				subject, named := entry.dragon.?
+				if !named || !entry.champion || entry.team != "enemy" {continue}
+				right, _ := champion_claim_holds(believer, entry)
+				belief_label, belief_color = fmt.tprintf("%d", subject), right ? REBUILT_COLOR : UI_ACCENT
+			}
+		}
+	}
+	champions := make([]bool, len(board.dragons), context.temp_allocator)
+	colors := make([]rl.Color, len(board.dragons), context.temp_allocator)
+	icons := make([]Head_Icon, len(board.dragons), context.temp_allocator)
+	patterns := make([]Body_Pattern, len(board.dragons), context.temp_allocator)
+	for &dragon, position in board.dragons {
+		color := TEAM_BODY_COLORS[dragon.team]
+		known := mental == nil || dragon_known(mental, g, &dragon)
+		if breakdown != nil && known {
+			if pair := shown_breakdown_pair(&viewer.game, breakdown, dragon.id, shown); pair >= 0 {
+				look_color, icon, pattern := pair_look(breakdown, pair)
+				if viewer.overlays.colors {color = look_color}
+				if viewer.overlays.icons {icons[position] = icon}
+				if viewer.overlays.patterns {patterns[position] = pattern}
+			}
+		}
+		// Red with a crown, and a grey crown where the mental map's dragon
+		// doesn't know it.
+		if dragon.team == enemy && longest > 0 && len(dragon.body) == longest {
+			color = ENEMY_CHAMPION_COLOR
+			icons[position] = .Crown
+			champions[position] = true
+		}
+		if !known {color = UNKNOWN_DRAGON_COLOR}
+		if dragon_awaits_turn(viewer, dragon.id) {color = faded(color)}
+		colors[position] = color
+	}
 	// The layer is drawn whole; the area view clips it when it is composited.
 	if board_view_clipped(g) {rl.EndScissorMode()}
 	rl.BeginTextureMode(dragon_body_layer)
 	rl.ClearBackground(rl.BLANK)
-	for &dragon in board.dragons {
-		color := TEAM_BODY_COLORS[dragon.team]
-		if mental != nil && !dragon_known(mental, g, &dragon) {color = UNKNOWN_DRAGON_COLOR}
-		if dragon_awaits_turn(viewer, dragon.id) {color = faded(color)}
+	for &dragon, position in board.dragons {
+		color := colors[position]
 		for cell, index in dragon.body {
 			rl.DrawCircleV(cell_center(g, cell), g.cell_size * 0.25, color)
 			if index == 0 {continue}
 			previous := dragon.body[index - 1]
 			dx := abs(previous % g.width - cell % g.width)
 			dy := abs(previous / g.width - cell / g.width)
-			// Keep caps at portal discontinuities; wrap links stop at the board seam.
+			// Wrap links stop at the board seam. A link through a portal runs
+			// square into the portal on both sides, so a dragon about to enter
+			// or leave one shows it.
 			if dx + dy == 1 || (dy == 0 && dx == g.width - 1) || (dx == 0 && dy == g.height - 1) {
 				draw_cell_link(g, previous, cell, color, g.cell_size * 0.5)
+			} else if exit, entry, found := portal_link(&viewer.game.view, cell, previous); found {
+				for end in ([2]struct {
+						cell:   i32,
+						offset: rl.Vector2,
+					}{{cell, exit}, {previous, entry}}) {
+					centre := cell_center(g, end.cell)
+					rl.DrawLineEx(centre, centre + end.offset * g.cell_size, g.cell_size * 0.5, color)
+				}
 			}
 		}
 	}
+	// Each cell holds one dragon's segment and the halves of its links, so a
+	// pattern over its cells, multiplied into what is drawn, marks only its
+	// body. The head, drawn over it afterwards, stays plain.
+	rl.BeginBlendMode(.MULTIPLIED)
+	spacing := max(4, g.cell_size * 0.18)
+	for &dragon, position in board.dragons {
+		if patterns[position] == .Solid {continue}
+		for cell in dragon.body {draw_body_pattern(cell_rectangle(g, cell), patterns[position], spacing, BODY_MARKS)}
+	}
+	rl.EndBlendMode()
 	rl.EndTextureMode()
 	if board_view_clipped(g) {begin_board_view_clip(g)}
 	rl.DrawTextureRec(
@@ -415,13 +492,10 @@ draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_
 		{0, 0},
 		rl.Fade(rl.WHITE, 0.85),
 	)
-	for &dragon in board.dragons {
+	for &dragon, position in board.dragons {
 		if len(dragon.body) == 0 {continue}
 		center := cell_center(g, dragon.body[0])
-		head_color := TEAM_HEAD_COLORS[dragon.team]
-		if mental != nil && !dragon_known(mental, g, &dragon) {head_color = UNKNOWN_DRAGON_COLOR}
-		if dragon_awaits_turn(viewer, dragon.id) {head_color = faded(head_color)}
-		rl.DrawCircleV(center, g.cell_size * 0.36, head_color)
+		draw_head(center, g.cell_size * 0.36, icons[position], colors[position], head_facing(&dragon, g.width, g.height))
 		if dragon.id == viewer.selected_dragon {
 			rl.DrawRing(
 				center,
@@ -433,17 +507,68 @@ draw_dragon_bodies :: proc(viewer: ^Viewer_State, board: ^Board_Frame, g: Board_
 				TEAM_HEAD_COLORS[1],
 			)
 		}
-		if viewer.overlays.dragon_ids {
+		if champions[position] && belief_label != "" {
+			label := fmt.ctprintf("%s", belief_label)
+			x, y := i32(center.x) - measure_text(label, 13) / 2, i32(center.y - 7 * font_scale)
+			draw_text(label, x + 1, y + 1, 13, BACKGROUND)
+			draw_text(label, x, y, 13, belief_color)
+		} else if viewer.overlays.dragon_ids {
 			label := fmt.ctprintf("%d", dragon.id)
 			draw_text(
 				label,
 				i32(center.x) - measure_text(label, 13) / 2,
 				i32(center.y - 7 * font_scale),
 				13,
-				COLOR_CELL,
+				label_color(colors[position]),
 			)
 		}
 	}
+}
+
+// Where a body link through a portal leaves `from` and enters `to`: the unit
+// offsets from each cell's centre to the midpoint of its portal edge, which
+// share a portal number. False when no portal pair joins the two cells.
+portal_link :: proc(export: ^Game_View, from, to: i32) -> (exit, entry: rl.Vector2, found: bool) {
+	for edge, index in export.edges {
+		if edge.kelp {continue}
+		exit_offset, leaves := edge_offset(edge, from, export.width, export.height)
+		if !leaves {continue}
+		for other, other_index in export.edges {
+			if other_index == index || other.kelp || other.portal != edge.portal {continue}
+			if entry_offset, enters := edge_offset(other, to, export.width, export.height); enters {
+				return exit_offset, entry_offset, true
+			}
+		}
+	}
+	return
+}
+
+// The unit offset from a cell's centre to the midpoint of one of its four
+// edges, false when the edge isn't one of them. An edge lies on the north
+// (side 0) or west (side 1) of its own cell, and so on the south or east of
+// the neighbour across it.
+edge_offset :: proc(edge: Board_Edge, cell, width, height: i32) -> (rl.Vector2, bool) {
+	x, y := cell % width, cell / width
+	if edge.side == 0 && edge.x == x {
+		if edge.y == y {return {0, -0.5}, true}
+		if edge.y == (y + 1) % height {return {0, 0.5}, true}
+	}
+	if edge.side == 1 && edge.y == y {
+		if edge.x == x {return {-0.5, 0}, true}
+		if edge.x == (x + 1) % width {return {0.5, 0}, true}
+	}
+	return {}, false
+}
+
+// The team opposite ours (controls.odin, our_team).
+enemy_team :: proc(viewer: ^Viewer_State) -> i32 {
+	return i32(1 - our_team(viewer))
+}
+
+// Dark text on a light head, light text on a dark one.
+label_color :: proc(head: rl.Color) -> rl.Color {
+	luminance := 0.2126 * f32(head.r) + 0.7152 * f32(head.g) + 0.0722 * f32(head.b)
+	return luminance > 128 ? COLOR_CELL : TEXT_COLOR
 }
 
 draw_dashed_segment :: proc(a, b: rl.Vector2, color: rl.Color) {
@@ -511,7 +636,8 @@ draw_cell_text :: proc(
 	draw_text(label, i32(x), i32(y), size, color)
 }
 
-// A line joining the two edges of each portal pair, from the replay.
+// A thin line joining the two edges of each portal pair, from the replay, so
+// where each portal leads shows under the dragons.
 draw_portal_links :: proc(export: ^Game_View, geometry: Board_Geometry) {
 	middle :: proc(geometry: Board_Geometry, edge: Board_Edge) -> rl.Vector2 {
 		corner := cell_rectangle(geometry, edge.y * geometry.width + edge.x)
@@ -522,9 +648,7 @@ draw_portal_links :: proc(export: ^Game_View, geometry: Board_Geometry) {
 		for other in export.edges[index + 1:] {
 			if other.kelp || other.portal != edge.portal {continue}
 			a, b := middle(geometry, edge), middle(geometry, other)
-			rl.DrawLineEx(a, b, 1.5, rl.Fade(COLOR_PORTAL, 0.6))
-			rl.DrawCircleV(a, 3, COLOR_PORTAL)
-			rl.DrawCircleV(b, 3, COLOR_PORTAL)
+			rl.DrawLineEx(a, b, 1, PORTAL_LINK)
 		}
 	}
 }

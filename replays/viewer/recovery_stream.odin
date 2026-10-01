@@ -6,12 +6,21 @@ import os "core:os"
 import "core:slice"
 import "core:strconv"
 import "core:strings"
+import "core:sys/linux"
+import "core:time"
 
-// The recovery process beside the viewer (replays/recovery/serve.nim,
+// The recovery process beside the viewer (replays/viewer/recovery/serve.nim,
 // `loong-recover`), which reruns dragons' registered builds over their
 // recorded observations and streams each turn's record as it is recovered.
-// The viewer keeps every record in memory, so seeking needs no rerun; nothing
-// is written to disk. Its protocol is in serve.nim's header.
+// Only the turns in a window of rounds around the current one come with their
+// diagnostics, and every other turn brings only its breakdown, so memory holds
+// one window's records. Moving out of the window moves it, and the dragons in
+// the new one are rebuilt for it. Nothing is written to disk. Its protocol is
+// in serve.nim's header.
+
+
+// How long a frame keeps reading while the recovery keeps writing.
+READ_BUDGET :: 8 * time.Millisecond
 Recovery_Process :: struct {
 	// How to start it, from the command line; empty when the viewer has no
 	// replay to recover from.
@@ -31,16 +40,25 @@ Recovery_Process :: struct {
 	asked_frame:   i32,
 	// Whether it ended with dragons still to rebuild.
 	stopped_early: bool,
+	// Dragons asked to be rebuilt again showing their state.
+	stated:        map[i32]bool,
+	// Whether the recovery has said it took the last window asked for.
+	window_acknowledged: bool,
+	// The rounds kept either side of the current one, so stepping a few
+	// rounds needs no rebuild (`--buffer`).
+	buffer:        i32,
 }
 
 // Start the recovery for the loaded game, focused on the selected dragon,
-// ending any earlier one.
-start_recovery :: proc(viewer: ^Viewer_State) {
+// ending any earlier one: its window around the current round, or every round
+// when `whole`.
+start_recovery :: proc(viewer: ^Viewer_State, whole := false) {
 	stop_recovery(viewer)
 	recovery := &viewer.recovery
 	clear(&recovery.rebuilding)
 	clear(&recovery.waiting)
 	recovery.asked_all, recovery.asked_dragon, recovery.asked_frame = false, -1, -1
+	clear(&recovery.stated)
 	recovery.stopped_early = false
 	clear(&recovery.unread)
 	if len(recovery.command) == 0 || !viewer.has_game {return}
@@ -48,11 +66,22 @@ start_recovery :: proc(viewer: ^Viewer_State) {
 	if input_error != nil {return}
 	output, child_output, output_error := os.pipe()
 	if output_error != nil {os.close(child_input); os.close(input); return}
+	// The recovery waits whenever this pipe is full, so it gets the most room
+	// the system allows.
+	_, _ = linux.fcntl(linux.Fd(os.fd(output)), linux.F_SETPIPE_SZ, i32(1 << 20))
 	command := make([dynamic]string, context.temp_allocator)
 	// Rebuilding runs on the workstation, so it yields to everything else.
 	append(&command, "nice", "-n", "10")
 	append(&command, ..recovery.command)
 	append(&command, "--game", viewer.game.source_path)
+	view := &viewer.game.view
+	frame := current_frame(viewer)
+	view.window_first, view.window_last = max(frame - recovery.buffer, 0), frame + recovery.buffer
+	if whole {view.window_first, view.window_last = 0, max(i32)
+	} else {append(&command, "--rounds", fmt.tprintf("%d-%d", view.window_first, view.window_last))}
+	recovery.window_acknowledged = true
+	clear(&view.recoverable)
+	clear(&view.kept)
 	if viewer.selected_dragon >= 0 {append(&command, "--focus", fmt.tprintf("%d", viewer.selected_dragon))}
 	process, error := os.process_start({command = command[:], stdin = child_input, stdout = child_output, stderr = os.stderr})
 	os.close(child_input)
@@ -94,14 +123,56 @@ request_recovery :: proc(viewer: ^Viewer_State, dragons: []i32) {
 	_, _ = os.write_string(viewer.recovery.input, fmt.tprintf("recover%s\n", strings.to_string(line)))
 }
 
+// Whether a turn of a dragon the recovery can rebuild lies outside the
+// window, so it has only its breakdown until the window comes to it. A kept
+// dragon's turns all come whole.
+outside_window :: proc(view: ^Game_View, dragon, round: i32) -> bool {
+	return view.recoverable[dragon] && !view.kept[dragon] && (round < view.window_first || round > view.window_last)
+}
+
+// Whether the dragon has a turn in the window.
+has_turn_in_window :: proc(game: ^Loaded_Game, dragon: i32) -> bool {
+	for index in game.turn_indices_by_dragon[dragon] {
+		round := i32(game.view.turn_round[index])
+		if round >= game.view.window_first && round <= game.view.window_last {return true}
+	}
+	return false
+}
+
+// Centre the window on `frame`. The last window's rebuilt records and every
+// turn opened from them are freed; a dragon's own recorded ones stay. Each
+// dragon with a turn in the new window waits to be rebuilt for it, apart from
+// those whose recovery failed.
+move_window :: proc(viewer: ^Viewer_State, frame: i32) {
+	game := &viewer.game
+	view := &game.view
+	view.window_first, view.window_last = max(frame - viewer.recovery.buffer, 0), frame + viewer.recovery.buffer
+	_, _ = os.write_string(viewer.recovery.input, fmt.tprintf("window %d %d\n", view.window_first, view.window_last))
+	viewer.recovery.window_acknowledged = false
+	rebuilt := make([dynamic]int, context.temp_allocator)
+	for row in view.records {if .Lasting not_in view.turn_evidence[row] {append(&rebuilt, row)}}
+	for row in rebuilt {delete_key(&view.records, row)}
+	clear(&game.turn_cache)
+	free_all(turn_allocator(game))
+	for dragon in game.turn_indices_by_dragon {
+		if !view.recoverable[dragon] || view.kept[dragon] || strings.has_prefix(view.dragon_builds[dragon].status, "Recovery failed") {continue}
+		if has_turn_in_window(game, dragon) {view.pending_dragons[dragon] = true}
+	}
+	// Everything is asked for again, the focused dragon first even while playing.
+	viewer.recovery.asked_all, viewer.recovery.asked_frame, viewer.recovery.asked_dragon = false, -1, -1
+}
+
 // The rebuild order: the focused dragon, then the other dragons on the board
 // this round, then every other dragon in the match. Everything is queued once
-// the recovery has listed the dragons. Whenever the focus or round changes,
-// that dragon and the round's dragons move back to the front, except the
-// round's while playing.
+// the recovery has listed the dragons, and again whenever the window moves.
+// Whenever the focus or round changes, that dragon and the round's dragons
+// move back to the front, except the round's while playing.
 prioritise_recovery :: proc(viewer: ^Viewer_State) {
 	recovery := &viewer.recovery
 	if !recovery.running || viewer.game.view.recovery_starting {return}
+	if frame := current_frame(viewer); frame < viewer.game.view.window_first || frame > viewer.game.view.window_last {
+		move_window(viewer, frame)
+	}
 	if !recovery.asked_all {
 		everyone := make([dynamic]i32, context.temp_allocator)
 		for dragon, pending in viewer.game.view.pending_dragons {if pending {append(&everyone, dragon)}}
@@ -119,6 +190,13 @@ prioritise_recovery :: proc(viewer: ^Viewer_State) {
 	}
 	if viewer.selected_dragon >= 0 {request_recovery(viewer, {viewer.selected_dragon})}
 	recovery.asked_dragon = viewer.selected_dragon
+	// A focused dragon rebuilt without its state is rebuilt again with it. The
+	// recovery ignores one whose bot shows none, or that already shows it.
+	dragon := viewer.selected_dragon
+	if dragon >= 0 && !viewer.game.view.pending_dragons[dragon] && !recovery.stated[dragon] {
+		recovery.stated[dragon] = true
+		_, _ = os.write_string(recovery.input, fmt.tprintf("state %d\n", dragon))
+	}
 }
 
 // Take every message the recovery has written since the last frame; true
@@ -126,16 +204,25 @@ prioritise_recovery :: proc(viewer: ^Viewer_State) {
 poll_recovery :: proc(viewer: ^Viewer_State) -> (changed: bool) {
 	recovery := &viewer.recovery
 	if !recovery.running {return false}
-	buffer: [65536]u8
+	buffer: [65536]u8 = ---
 	ended := false
+	// While the recovery is writing, more follows at once, so a frame that
+	// reads anything keeps reading for up to READ_BUDGET.
+	started := time.tick_now()
 	for {
 		ready, error := os.pipe_has_data(recovery.output)
 		if error == .Broken_Pipe {ended = true; break}
-		if !ready || error != nil {break}
+		if error != nil {break}
+		if !ready {
+			if !changed || time.tick_since(started) > READ_BUDGET {break}
+			time.sleep(200 * time.Microsecond)
+			continue
+		}
 		count, read_error := os.read(recovery.output, buffer[:])
 		if count <= 0 || read_error != nil {break}
 		changed = true
 		append(&recovery.unread, ..buffer[:count])
+		if time.tick_since(started) > READ_BUDGET {break}
 	}
 	consumed := 0
 	for {
@@ -171,14 +258,45 @@ poll_recovery :: proc(viewer: ^Viewer_State) -> (changed: bool) {
 	return changed
 }
 
+// Count a rebuilt turn once, however often it arrives.
+count_rebuilt :: proc(view: ^Game_View, row: int, reliable: bool) {
+	team := int(view.turn_team[row]) & 1
+	evidence := &view.turn_evidence[row]
+	if .Rebuilt not_in evidence^ {view.rebuilt_turns[team] += 1}
+	if .Matched in evidence^ {view.matching_turns[team] -= 1}
+	evidence^ += {.Rebuilt}
+	evidence^ -= {.Matched}
+	if reliable {
+		view.matching_turns[team] += 1
+		evidence^ += {.Matched}
+	}
+}
+
+// Keep a turn's record: one from the dragon's own log or a kept dragon for
+// good, any other while its round is in the window.
 receive_record :: proc(game: ^Loaded_Game, row: int, record: string) {
-	if row < 0 || row >= len(game.view.turn_dragon) {return}
-	game.view.records[row] = strings.clone(record, game_allocator(game))
-	team := int(game.view.turn_team[row]) & 1
-	game.view.rebuilt_turns[team] += 1
-	if strings.contains(record, `"gizmo_reliable":true`) {game.view.matching_turns[team] += 1}
-	append(&game.issue_rows, row)
-	forget_unrecorded_turns(game, i32(game.view.turn_dragon[row]))
+	view := &game.view
+	if row < 0 || row >= len(view.turn_dragon) {return}
+	dragon := i32(view.turn_dragon[row])
+	count_rebuilt(view, row, strings.contains(record, `"gizmo_reliable":true`))
+	lasting := view.kept[dragon] || strings.contains(record, `"gizmo_source":"recorded"`)
+	if !lasting && outside_window(view, dragon, i32(view.turn_round[row])) {return}
+	_, again := view.records[row]
+	if lasting {view.turn_evidence[row] += {.Lasting}}
+	view.records[row] = strings.clone(record, lasting ? game_allocator(game) : turn_allocator(game))
+	if again {
+		// A dragon rebuilt again, showing its state: its turns come again from
+		// its first, so every turn opened is rebuilt from the new records.
+		if indices, known := game.turn_indices_by_dragon[dragon]; known {
+			for index in indices {delete_key(&game.turn_cache, index)}
+		}
+		return
+	}
+	if .Tallied not_in view.turn_evidence[row] {
+		view.turn_evidence[row] += {.Tallied}
+		append(&game.issue_rows, row)
+	}
+	forget_unrecorded_turns(game, dragon)
 }
 
 receive_message :: proc(viewer: ^Viewer_State, header: string, fields: []string) {
@@ -199,21 +317,24 @@ receive_message :: proc(viewer: ^Viewer_State, header: string, fields: []string)
 			status  = strings.clone(status, allocator),
 		}
 		view.pending_dragons[dragon] = fields[3] == "1"
+		view.recoverable[dragon] = fields[3] == "1"
 		if fields[3] == "1" {
 			view.recoverable_dragons += 1
 			view.recoverable_teams[number(fields[2]) & 1] = true
 		}
 	case "breakdown":
-		// breakdown ROW JSON
-		if len(fields) < 3 {return}
+		// breakdown ROW RELIABLE JSON
+		if len(fields) < 4 {return}
 		row := int(number(fields[1]))
-		_, _, text := strings.partition(header, fields[1])
-		entries: []struct {
-			level, value: string,
-		}
-		if json.unmarshal_string(strings.trim_space(text), &entries, allocator = context.temp_allocator) != nil {return}
+		if row < 0 || row >= len(view.turn_team) {return}
+		start := strings.index_byte(header, '[')
+		if start < 0 {return}
+		entries: []Breakdown_Entry
+		if json.unmarshal_string(header[start:], &entries, allocator = context.temp_allocator) != nil {return}
 		if len(entries) == 0 {return}
-		add_breakdown(&viewer.game, row, entries[0].level, entries[0].value, len(entries) > 1 ? entries[1].level : "", len(entries) > 1 ? entries[1].value : "")
+		reliable := fields[2] == "1"
+		count_rebuilt(view, row, reliable)
+		add_breakdown(&viewer.game, row, reliable, entries[:min(len(entries), 2)])
 	case "queue":
 		// The first queue follows every dragon's announcement.
 		if view.recovery_starting {
@@ -227,9 +348,27 @@ receive_message :: proc(viewer: ^Viewer_State, header: string, fields: []string)
 		}
 		clear(&recovery.waiting)
 		for field in fields[min(2, len(fields)):] {append(&recovery.waiting, number(field))}
+	case "kept":
+		// Every turn of this dragon comes whole: its records stay for the game.
+		if len(fields) < 2 {return}
+		dragon := number(fields[1])
+		view.kept[dragon] = true
+		for index in viewer.game.turn_indices_by_dragon[dragon] {
+			record, found := view.records[index]
+			if !found || .Lasting in view.turn_evidence[index] {continue}
+			view.records[index] = strings.clone(record, allocator)
+			view.turn_evidence[index] += {.Lasting}
+		}
+	case "window":
+		if len(fields) == 3 && number(fields[1]) == view.window_first && number(fields[2]) == view.window_last {
+			viewer.recovery.window_acknowledged = true
+		}
 	case "done", "failed":
 		if len(fields) < 2 {return}
 		dragon := number(fields[1])
+		// Said of the last window, about a dragon the recovery rebuilds again
+		// for this one.
+		if !viewer.recovery.window_acknowledged && has_turn_in_window(&viewer.game, dragon) {return}
 		view.pending_dragons[dragon] = false
 		if fields[0] == "failed" {
 			view.failed_dragons += 1
@@ -268,9 +407,11 @@ recovery_state :: proc(viewer: ^Viewer_State, dragon: i32) -> Recovery_State {
 	return .Not_Requested
 }
 
-// What the inspector says in place of a dragon's decisions until they arrive.
-recovery_notice :: proc(viewer: ^Viewer_State, dragon: i32) -> string {
+// What the inspector says in place of a turn's decisions until they arrive.
+recovery_notice :: proc(viewer: ^Viewer_State, turn: ^Dragon_Turn) -> string {
+	dragon := turn.dragon
 	if viewer.game.view.recovery_starting {return "Starting the recovery: reading the replay..."}
+	if outside_window(&viewer.game.view, dragon, turn.round) {return "Rebuilt once the view comes to this round..."}
 	switch recovery_state(viewer, dragon) {
 	case .Recovering:
 		return "Rebuilding this dragon's decisions..."

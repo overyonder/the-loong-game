@@ -21,6 +21,8 @@ Game_View :: struct {
 	// Each cell's maximum reset gap, 0 where it never spawns and -1 where the
 	// replay records no rule for it.
 	spawn_maximum:                           []i32,
+	// The map's symmetry, from the starting bodies (mirror.odin).
+	mirror:                                  Mirror_Transform,
 	point_limit:                            i64,
 	points_recorded:                         bool,
 	event_kind:                              []u8,
@@ -40,19 +42,39 @@ Game_View :: struct {
 	// turn waits for it.
 	recovery_starting:                       bool,
 	records:                                 map[int]string,       // game turn row to its record (JSON)
+	// The rounds whose turns the recovery rebuilds with diagnostics; the rest
+	// bring only their breakdown (recovery_stream.odin).
+	window_first, window_last:               i32,
+	recoverable:                             map[i32]bool,         // dragons the recovery can rebuild
+	kept:                                    map[i32]bool,         // dragons whose every record stays (`kept`)
 	pending_dragons:                         map[i32]bool,         // recoverable, not recovered yet
 	recoverable_dragons:                     int,                  // how many the recovery announced it can rebuild
 	recoverable_teams:                       [2]bool,              // the teams with a build it can rebuild
 	failed_dragons:                          int,                  // how many of those its rebuild failed
 	// Per team, the rebuilt turns received and those whose action and sonar
-	// match the replay, the evidence that the build is the one that played.
+	// match the replay, the evidence that the build is the one that played,
+	// each counted once from the turn's evidence.
 	rebuilt_turns, matching_turns:           [2]int,
+	turn_evidence:                           []bit_set[Turn_Evidence;u8],
 	dragon_builds:                           map[i32]Dragon_Build, // each dragon's recorded build
 	breakdowns:                              [dynamic]Team_Breakdown,
+	// Per game turn row, its place in its team's breakdown (breakdown.odin).
+	turn_breakdown:                          []Turn_Breakdown,
 	// Where the viewer opens (command line).
 	selected_dragon, start_frame:            i32,
 	start_playing:                           bool,
 	start_frames_per_second:                 f32,
+}
+
+// What has arrived for a game turn row: it was rebuilt, its rebuilt action
+// matched the replay, its record stays for the game, coming from the dragon's
+// own log or a kept dragon, and its record was tallied into the match's
+// issues.
+Turn_Evidence :: enum u8 {
+	Rebuilt,
+	Matched,
+	Lasting,
+	Tallied,
 }
 
 // A dragon's recorded build identity and whether it could be resolved.
@@ -63,7 +85,7 @@ Dragon_Build :: struct {
 // Where a saved comment goes and the replay it names (annotations.odin), from
 // the command line.
 Comment_Context :: struct {
-	inbox_path: string, // --inbox
+	inbox_path: string, // Markdown file selected with --inbox
 	replay:     string,
 }
 
@@ -82,6 +104,8 @@ Loaded_Game :: struct {
 	first_turn_of_round:    []int,
 	first_ping_of_round:    []int,
 	turn_cache:             map[int]^Dragon_Turn, // turns opened so far
+	// Rebuilt records and every turn opened, freed when the window moves.
+	turn_arena:             virtual.Arena,
 	// Every turn record received, in arrival order, and how many are tallied
 	// into the match's issues (issues.odin).
 	issue_rows:             [dynamic]int,
@@ -113,6 +137,10 @@ game_allocator :: proc(game: ^Loaded_Game) -> mem.Allocator {
 	return virtual.arena_allocator(&game.arena)
 }
 
+turn_allocator :: proc(game: ^Loaded_Game) -> mem.Allocator {
+	return virtual.arena_allocator(&game.turn_arena)
+}
+
 // Replace the game, keeping the old one if the new files don't open. The
 // files are mapped and checked first; the old game is destroyed only then, and
 // the new one is built inside `viewer.game`, so everything that grows later
@@ -132,10 +160,11 @@ load_game_into_viewer :: proc(viewer: ^Viewer_State, path: string) -> (status: s
 	if viewer.has_game {
 		close_columns_file(&viewer.game.view.columns)
 		virtual.arena_destroy(&viewer.game.arena)
+		virtual.arena_destroy(&viewer.game.turn_arena)
 	}
 	viewer.game = {}
 	game := &viewer.game
-	if virtual.arena_init_growing(&game.arena) != nil {
+	if virtual.arena_init_growing(&game.arena) != nil || virtual.arena_init_growing(&game.turn_arena) != nil {
 		viewer.has_game = false
 		return strings.clone("Could not reserve memory for the game")
 	}
@@ -145,9 +174,14 @@ load_game_into_viewer :: proc(viewer: ^Viewer_State, path: string) -> (status: s
 	game.source_path = strings.clone(path, allocator)
 	read_game_columns(game, allocator)
 	view.records = make(map[int]string, allocator)
+	view.recoverable = make(map[i32]bool, allocator)
+	view.kept = make(map[i32]bool, allocator)
 	view.pending_dragons = make(map[i32]bool, allocator)
+	view.turn_evidence = make([]bit_set[Turn_Evidence;u8], len(view.turn_team), allocator)
 	view.dragon_builds = make(map[i32]Dragon_Build, allocator)
 	view.breakdowns = make([dynamic]Team_Breakdown, allocator)
+	view.turn_breakdown = make([]Turn_Breakdown, len(view.turn_team), allocator)
+	for &entry in view.turn_breakdown {entry.pair = -1}
 
 	view.selected_dragon = previous_settings.selected_dragon
 	view.start_frame = previous_settings.start_frame
@@ -239,6 +273,7 @@ read_game_columns :: proc(game: ^Loaded_Game, allocator: mem.Allocator) {
 	for rule in view.spawn_rules {
 		if rule.cell >= 0 && int(rule.cell) < len(view.spawn_maximum) {view.spawn_maximum[rule.cell] = rule.maximum}
 	}
+	view.mirror = infer_mirror(view)
 
 	rounds := len(view.round_event)
 	game.first_turn_of_round = make([]int, rounds + 2, allocator)
@@ -293,7 +328,7 @@ turn_count_before_frame :: proc(game: ^Loaded_Game, frame: i32) -> int {
 // loaded game, until a record arrives for a turn opened without one.
 game_turn :: proc(game: ^Loaded_Game, index: int) -> ^Dragon_Turn {
 	if cached, found := game.turn_cache[index]; found {return cached}
-	allocator := game_allocator(game)
+	allocator := turn_allocator(game)
 	view := &game.view
 	turn := new(Dragon_Turn, allocator)
 	if record, found := view.records[index]; found {
@@ -302,7 +337,8 @@ game_turn :: proc(game: ^Loaded_Game, index: int) -> ^Dragon_Turn {
 		}
 		turn.has_record = true
 	} else {
-		pending := view.recovery_starting || view.pending_dragons[i32(view.turn_dragon[index])]
+		dragon, round := i32(view.turn_dragon[index]), i32(view.turn_round[index])
+		pending := view.recovery_starting || view.pending_dragons[dragon] || outside_window(view, dragon, round)
 		turn.gizmo_reliable = true
 		turn.recovery_pending = pending
 		turn.gizmo_status = pending ? "Not recovered yet" : "No diagnostics recorded for this turn"
@@ -391,9 +427,19 @@ ping_rows_of_rounds :: proc(game: ^Loaded_Game, first, last: i32) -> (start, sto
 }
 
 // A runner may record a bot by its directory path, such as
-// results/ladder/bots/room-c; its name is the last part. Details
-// keeps the recorded path.
+// /work/out/results/ladder/bots/room-c. A bot version's path, ending in
+// <line>/<kind>/<nnnn>[-purpose], gives its identifier, such as
+// A registered identifier is kept as written; any path gives its last part. Details keeps the
+// recorded path.
 bot_name :: proc(recorded: string) -> string {
 	trimmed := strings.trim_right(recorded, "/")
-	return trimmed[strings.last_index_byte(trimmed, '/') + 1:]
+	parts := strings.split(trimmed, "/", context.temp_allocator)
+	if len(parts) >= 3 {
+		line, kind, version := parts[len(parts) - 3], parts[len(parts) - 2], parts[len(parts) - 1]
+		numbered := len(version) >= 4 && strings.trim_left(version[:4], "0123456789") == ""
+		if (kind == "main" || kind == "test" || kind == "utils") && numbered {
+			return fmt.tprintf("%s-%s-%s", line, kind, version)
+		}
+	}
+	return parts[len(parts) - 1]
 }

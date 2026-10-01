@@ -6,7 +6,7 @@ import "core:strings"
 
 // Where the viewer is and everything selected in it, as JSON in
 // GAME.cols.position, rewritten whenever it changes while playback is paused.
-// `just viewer-restart` reopens a viewer from it with `--position`, and anyone
+// A caller can reopen a viewer from it with `--position`, and anyone
 // following the review, such as an agent, reads it. Cells are `y * width + x`.
 Viewer_Position :: struct {
 	replay:      string,
@@ -31,6 +31,8 @@ Viewer_Position :: struct {
 	dialog:      string,
 	dialog_cell: i32,
 	overlays:    Overlay_Toggles,
+	// The team the viewer treats as ours, -1 when not yet settled.
+	our_team:    i32,
 	// The comment being typed and not yet saved.
 	comment:     string,
 }
@@ -61,6 +63,7 @@ viewer_position :: proc(viewer: ^Viewer_State) -> Viewer_Position {
 		dialog = viewer.detail_open ? viewer.detail_title : "",
 		dialog_cell = viewer.detail_open ? viewer.detail_map.cell : -1,
 		overlays = viewer.overlays,
+		our_team = viewer.our_team,
 		comment = string(cstring(raw_data(viewer.comment[:]))),
 	}
 }
@@ -77,6 +80,7 @@ read_position :: proc(path: string, overlays: Overlay_Toggles) -> (position: Vie
 	data, read_error := os.read_entire_file(path, context.allocator)
 	if read_error != nil {return}
 	position.overlays = overlays
+	position.our_team = -1
 	if json.unmarshal(data, &position) != nil {return}
 	return position, true
 }
@@ -102,6 +106,7 @@ restore_selections :: proc(viewer: ^Viewer_State, position: Viewer_Position) {
 	viewer.generic_memory_tab = position.tab == "memory"
 	viewer.brain_open = position.brain_open
 	viewer.overlays = position.overlays
+	viewer.our_team = position.our_team
 	viewer.comment = {}
 	copy(viewer.comment[:len(viewer.comment) - 1], position.comment)
 }

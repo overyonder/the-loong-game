@@ -323,7 +323,9 @@ draw_gizmo :: proc(
 			inspector_paragraph(viewer, cursor, width, fmt.tprintf("At (%d,%d)", point % viewer.game.view.width, point / viewer.game.view.width), gizmo_color(gizmo.color), "cell", point)
 		}
 	}
-	if gizmo.kind == "map" {
+	// A belief the Mental map draws on the board lists only the selected
+	// cell's entry here, below.
+	if gizmo.kind == "map" && gizmo.display_overlay != "mental" {
 		geometry := board_geometry_for_area(
 			&viewer.game.view,
 			{cursor.x, cursor.y, width, 220},
@@ -351,8 +353,9 @@ draw_gizmo :: proc(
 			}
 		}
 		for edge in gizmo.edges {
-			if edge.cell ==
-			   viewer.selected_cell {inspector_paragraph(viewer, cursor, width, fmt.tprintf("Edge %d: %s", edge.direction, edge.label))}
+			// A side cleared by resending it has no label.
+			if edge.cell == viewer.selected_cell &&
+			   edge.label != "" {inspector_paragraph(viewer, cursor, width, fmt.tprintf("Edge %d: %s", edge.direction, edge.label))}
 		}
 	}
 	// A long table's own attachments, such as a map of its cells, come before

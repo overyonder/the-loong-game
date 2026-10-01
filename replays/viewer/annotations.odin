@@ -34,7 +34,7 @@ describe_highlight :: proc(viewer: ^Viewer_State, item: Highlight) -> string {
 	return fmt.tprintf("%s %d", item.kind, item.id)
 }
 
-// A comment appends one line to the inbox, a Markdown file (--inbox):
+// A comment appends one line to the Markdown inbox selected by the caller:
 // the replay, round, turn, dragon and highlights in words, the text, and the
 // same context as JSON in an HTML comment, which Previous/Next saved restores.
 INBOX_MARKER :: " <!-- viewer "
@@ -212,7 +212,7 @@ highlight_board_item :: proc(viewer: ^Viewer_State, g: Board_Geometry, frame: i3
 	toggle_highlight(viewer, "cell", cell)
 }
 
-// This replay's comments still in the inbox; ones moved out have left it.
+// This replay's comments still in the inbox; routed ones have left it.
 load_annotations :: proc(viewer: ^Viewer_State) {
 	clear(&viewer.annotations)
 	data, err := os.read_entire_file(viewer.comment_context.inbox_path, context.temp_allocator)
@@ -277,7 +277,7 @@ match_line :: proc(viewer: ^Viewer_State) -> string {
 }
 
 // A team's build and how far it is established: none, asserted by the caller
-// (--seat or --build), and confirmed by
+// or an available manifest, and confirmed by
 // rebuilt turns matching the replay.
 build_evidence :: proc(viewer: ^Viewer_State, team: int) -> string {
 	view := &viewer.game.view

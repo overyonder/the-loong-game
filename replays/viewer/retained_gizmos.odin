@@ -1,7 +1,5 @@
 package viewer
 
-import virtual "core:mem/virtual"
-
 // Rebuild a turn's retained records (`retain`), which the bot emits as the
 // entries that changed since the record's previous appearance for that dragon,
 // by rebuilding that appearance first. The first rebuild walks back through
@@ -10,7 +8,7 @@ expand_retained_gizmos :: proc(game: ^Loaded_Game, indices: []int, position: int
 	turn := game_turn(game, indices[position])
 	if turn.retained_expanded {return}
 	turn.retained_expanded = true
-	allocator := virtual.arena_allocator(&game.arena)
+	allocator := turn_allocator(game)
 	for &gizmo in turn.gizmos {
 		if !gizmo.retain {continue}
 		previous: ^Gizmo

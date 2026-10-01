@@ -8,6 +8,7 @@
 import std/tables
 from ../repertoire/games/loong/controller import nil
 from ../repertoire/games/loong/window import nil
+from ../repertoire/techniques/introspection/inspect import nil
 from gizmos import nil
 from memory import nil
 from options import nil
@@ -18,12 +19,48 @@ when defined(loongDiagnostics):
 proc currentPoints(): uint64 {.importc: "loong_current_points", cdecl.}
   ## Points spent so far, less those spent on diagnostics (runtime/points.c).
 
-type Stage = enum Young, Grown, Parent
+type
+  Role = enum Scout, Forager, Parent
+  DecisionState = object
+    round, dragon, length: int
+    role: Role
+    task: options.Option
+    hasSplit: bool
 
 var hasSplit = false
+var decisionState: DecisionState
 
-proc stageOf(length: int): Stage =
-  if hasSplit: Parent elif length >= 6: Grown else: Young
+proc roleOf(length: int): Role =
+  if hasSplit: Parent elif length >= 6: Forager else: Scout
+
+when defined(loongDiagnostics):
+  proc brain(role: Role, chosen: options.Option,
+      evaluations: array[options.Option, options.Evaluation]): string =
+    ## One compact summary is kept on every turn, including turns outside the
+    ## viewer's detailed recovery window.
+    var nodes = @[%*{"id": "dragon", "label": "Dragon", "parent": ""}]
+    for option in options.Option:
+      let evaluation = evaluations[option]
+      var node = %*{"id": $option, "label": $option, "parent": "dragon",
+        "eligible": evaluation.eligible, "reason": options.purpose(option) & ". " & evaluation.reason,
+        "active": option == chosen}
+      if evaluation.eligible:
+        node["score"] = %evaluation.score
+        node["objective"] = %"utility"
+      nodes.add node
+    let roleLook = case role
+      of Scout: %*{"level": "Role", "value": "Scout", "color": [72, 170, 123, 255], "icon": "magnifier"}
+      of Forager: %*{"level": "Role", "value": "Forager", "color": [232, 200, 114, 255], "icon": "arrow"}
+      of Parent: %*{"level": "Role", "value": "Parent", "color": [105, 150, 214, 255], "icon": "crown"}
+    let pattern = case chosen
+      of options.Flee: "crosshatch"
+      of options.Eat: "stripes"
+      of options.Split: "dots"
+      of options.Explore: "dither"
+    $ %*{"version": 1, "kind": "state", "layout": "tree",
+      "label": "Options", "slot": "brain", "id": "brain", "nodes": nodes,
+      "reason": $chosen & " has the highest utility of the eligible options",
+      "breakdown": [roleLook, %*{"level": "Task", "value": $chosen, "pattern": pattern}]}
 
 proc turn(ct: ptr controller.Controller, game: ptr controller.Game) =
   var points: seq[(string, uint64)]
@@ -59,7 +96,12 @@ proc turn(ct: ptr controller.Controller, game: ptr controller.Game) =
     side = options.best(evaluations[chosen])
   lap "decide"
 
-  let stage = stageOf(length)
+  let role = roleOf(length)
+  decisionState = DecisionState(round: round, dragon: id, length: length,
+    role: role, task: chosen, hasSplit: hasSplit)
+  inspect.show("decision", decisionState)
+  when defined(loongDiagnostics):
+    inspect.summary(brain(role, chosen, evaluations))
   var action: string
   if chosen == options.Split:
     let child = length div 2
@@ -76,22 +118,6 @@ proc turn(ct: ptr controller.Controller, game: ptr controller.Game) =
 
   gizmos.diagnosticBlock:
     memory.emit(round, int(game.width))
-
-    # Brain: every option in a fixed tree, with its eligibility, score and reason.
-    var nodes = @[%*{"id": "dragon", "label": "Dragon", "parent": ""}]
-    for option in options.Option:
-      let evaluation = evaluations[option]
-      var node = %*{"id": $option, "label": $option, "parent": "dragon",
-        "eligible": evaluation.eligible, "reason": options.purpose(option) & ". " & evaluation.reason,
-        "active": option == chosen}
-      if evaluation.eligible:
-        node["score"] = %evaluation.score
-        node["objective"] = %"utility"
-      nodes.add node
-    gizmos.emitGizmoJson($ %*{"version": 1, "kind": "state", "layout": "tree",
-      "label": "Options", "slot": "brain", "id": "brain", "nodes": nodes,
-      "reason": $chosen & " has the highest utility of the eligible options",
-      "breakdown": [{"level": "Stage", "value": $stage}, {"level": "Option", "value": $chosen}]})
 
     # Under each option: how it scored, and each first step by its own measure.
     for option in options.Option:
@@ -181,14 +207,14 @@ proc turn(ct: ptr controller.Controller, game: ptr controller.Game) =
     gizmos.emitGizmoJson($ %*{"version": 1, "kind": "positions", "label": "Known dragons",
       "positions": known})
 
-    # A graph laid out by the bot: this dragon's stage of life.
-    gizmos.emitGizmoJson($ %*{"version": 1, "kind": "state", "label": "Stage",
-      "reason": "Grown at length 6; Parent after its first split",
-      "nodes": [{"id": "young", "label": "Young", "x": 0.1, "y": 0.5, "active": stage == Young},
-        {"id": "grown", "label": "Grown", "x": 0.5, "y": 0.5, "active": stage == Grown},
-        {"id": "parent", "label": "Parent", "x": 0.9, "y": 0.5, "active": stage == Parent}],
-      "links": [{"from": "young", "to": "grown", "label": "length 6"},
-        {"from": "grown", "to": "parent", "label": "split"}]})
+    # A graph laid out by the bot: this dragon's current role.
+    gizmos.emitGizmoJson($ %*{"version": 1, "kind": "state", "label": "Roles",
+      "reason": "Forager at length 6; Parent after its first split",
+      "nodes": [{"id": "scout", "label": "Scout", "x": 0.1, "y": 0.5, "active": role == Scout},
+        {"id": "forager", "label": "Forager", "x": 0.5, "y": 0.5, "active": role == Forager},
+        {"id": "parent", "label": "Parent", "x": 0.9, "y": 0.5, "active": role == Parent}],
+      "links": [{"from": "scout", "to": "forager", "label": "length 6"},
+        {"from": "forager", "to": "parent", "label": "split"}]})
 
     # Where this turn's points went, from the clock the bot budgets with.
     var spent: seq[JsonNode]
@@ -200,6 +226,7 @@ proc play() =
   var ct: ptr controller.Controller
   var game: ptr controller.Game
   controller.unswbc_init(ct.addr, game.addr)
+  inspect.announceSwitch()
   while controller.unswbc_update(ct, game) != 0:
     turn(ct, game)
     controller.unswbc_end_turn()

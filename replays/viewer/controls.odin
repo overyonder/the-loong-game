@@ -96,14 +96,16 @@ Up, Down: one turn or round back or forward
 Scroll over the board: as Left and Right
 Space: play or pause
 Home, End: the first or last round
-R: switch between Turns and Rounds
+T: switch between Turns and Rounds
 
 Dragons and view
 Tab, Shift+Tab: focus the next or previous dragon
 Right-click a dragon: focus it; right-click an empty cell: clear the selection
 F: zoom onto the focused dragon's area, or back to the whole board
+M: show or hide the Mental map overlay, the focused dragon's view graded against the truth
+R: show or hide the Mirror overlay, each dragon's image under the map's symmetry
 B: open or close the Brain
-Esc: close the Brain or a dialog, else clear the selection
+Esc: close the Brain or a dialog, else clear the selection and defocus the dragon
 
 Selecting on the board
 Click: select a cell or edge; Shift+click: a dragon
@@ -114,7 +116,7 @@ Comment box
 Enter: save the comment; Ctrl+A: clear it; Ctrl+V: paste`
 
 // Turns mode steps through each dragon's turn, Rounds mode whole rounds; the
-// Turns button and R both switch.
+// Turns button and T both switch.
 toggle_turns :: proc(viewer: ^Viewer_State) {
 	playback := &viewer.playback
 	playback.substeps = !playback.substeps
@@ -135,8 +137,10 @@ handle_keyboard_shortcuts :: proc(viewer: ^Viewer_State) {
 		return
 	}
 	if rl.IsKeyPressed(.B) {viewer.brain_open = !viewer.brain_open}
-	if rl.IsKeyPressed(.R) {toggle_turns(viewer)}
+	if rl.IsKeyPressed(.T) {toggle_turns(viewer)}
 	if rl.IsKeyPressed(.F) && viewer.selected_dragon >= 0 {viewer.area_view = !viewer.area_view}
+	if rl.IsKeyPressed(.M) {viewer.overlays.mental_map = !viewer.overlays.mental_map}
+	if rl.IsKeyPressed(.R) {viewer.overlays.mirror = !viewer.overlays.mirror}
 	playback := &viewer.playback
 	if rl.IsKeyPressed(.SPACE) {
 		playback.playing = !playback.playing
@@ -151,7 +155,14 @@ handle_keyboard_shortcuts :: proc(viewer: ^Viewer_State) {
 		cycle_selected_dragon(viewer, rl.IsKeyDown(.LEFT_SHIFT) || rl.IsKeyDown(.RIGHT_SHIFT))
 	}
 	if rl.IsKeyPressed(.ESCAPE) {
-		if viewer.brain_open {viewer.brain_open = false} else {clear_viewer_selections(viewer)}
+		if viewer.brain_open {viewer.brain_open = false} else {
+			clear_viewer_selections(viewer)
+			// As the Defocus button, remembering the dragon to return to.
+			if viewer.selected_dragon >= 0 {
+				viewer.last_focused = viewer.selected_dragon
+				viewer.selected_dragon = -1
+			}
+		}
 	}
 }
 
@@ -258,6 +269,10 @@ draw_overlay_controls :: proc(viewer: ^Viewer_State, area: rl.Rectangle) -> f32 
 		{"Path", &overlays.path},
 		{"Mental map", &overlays.mental_map},
 		{"Positions", &overlays.positions},
+		{"Mirror", &overlays.mirror},
+		{"Colours", &overlays.colors},
+		{"Icons", &overlays.icons},
+		{"Patterns", &overlays.patterns},
 	}
 	index := 0
 	for checkbox in checkboxes {
@@ -323,4 +338,30 @@ scrub_chart :: proc(viewer: ^Viewer_State, which: Scrub_Chart, chart: rl.Rectang
 	if viewer.scrubbing != which {return}
 	if !rl.IsMouseButtonDown(.LEFT) {viewer.scrubbing = .None; return}
 	if clamp(frame, 0, frame_count(viewer) - 1) != current_frame(viewer) {step_to_frame(viewer, frame)}
+}
+
+// The team the whole viewer treats as ours: the breakdown chart and the board's
+// looks, the enemy's true champion and the beliefs strip all follow it. The Us
+// button sets it. Until then it is the one team the recovery can rebuild, else
+// the focused dragon's, else team A, settled once the recovery has said which
+// teams it can rebuild, so focusing another dragon later never moves it.
+our_team :: proc(viewer: ^Viewer_State) -> int {
+	if viewer.our_team >= 0 {return int(viewer.our_team) & 1}
+	view := &viewer.game.view
+	team := 0
+	if view.recoverable_teams[0] != view.recoverable_teams[1] {
+		team = view.recoverable_teams[1] ? 1 : 0
+	} else if indices, found := viewer.game.turn_indices_by_dragon[viewer.selected_dragon]; found && len(indices) > 0 {
+		team = int(view.turn_team[indices[0]]) & 1
+	}
+	if !view.recovery_starting {viewer.our_team = i32(team)}
+	return team
+}
+
+// The Us button: which team is ours, by its side and bot, and a click swaps it.
+draw_us_button :: proc(viewer: ^Viewer_State, area: rl.Rectangle) {
+	view := &viewer.game.view
+	team := our_team(viewer)
+	label := fmt.ctprintf("Us: %c, %s", 'A' + team, bot_name(team == 0 ? view.bot_a : view.bot_b))
+	if rl.GuiButton(area, label) {viewer.our_team = i32(1 - team)}
 }

@@ -1,16 +1,18 @@
 # Through one dragon's eyes
 
-> **Editor's note, 29 September 2026.** I've rewritten this post around the current viewer, which reruns a bot's own build to show why each dragon did what it did, and grades what the bot remembers against the replay. A new example, the showcase bot, emits every kind of record the viewer draws. The long-dragon examples are retaken in the new viewer.
+> **Editor's note, 2 October 2026.** I've brought the public viewer up to the version we use. It now shows roles and tasks on the board, reads a bot's state straight from memory, reconstructs the deeper reasoning behind a decision, keeps comments with their exact context, and rebuilds only the part of a game being inspected. The showcase bot demonstrates the new public contract.
 
 When a dragon does something stupid, the official visualiser shows the whole board. But the dragon only saw the 7×7 square around its head, and a move that looks absurd from above can look sensible from inside that square. So the debugging question is never "what was on the board?" but "what could this dragon see, and what did it make of it?" The seventh tool answers both: a debug viewer that shows a game through one dragon's eyes, written in [Odin](https://odin-lang.org) for the reasons in [The choice](02-the-choice.md) and built on the [decoder](08-reading-a-replay.md).
 
-![The viewer on a showcase game at round 178, focused on dragon 0. The left sidebar has the overlay switches, the dragon's judge points and a chart of the team's decisions. Beside it the Evaluation pane opens with Stats, sparklines of each side's dragons, longest dragon and total length, then gives team A a 65% chance of winning. The board is zoomed on the dragon, with its 7×7 window outlined in yellow, a route to a pearl, a red line to the nearest enemy head, and dots where it believes other dragons are. The right sidebar's Brain tab shows its four options: Flee and Split ineligible, Eat selected with utility 6, Explore eligible with utility 1. Under the board, the beliefs strip grades what team A's eight dragons know, one column per belief, and under that are the playback bar and the comment field.](images/viewer-overview.png)
+![The viewer on a showcase game at round 178, focused on dragon 0 after all 68 dragons have rebuilt. The left sidebar charts the team's roles and tasks. Scouts are green with magnifying-glass heads, foragers are gold with arrow heads, and parents are blue with crowns. Body patterns show the task. The board is zoomed on the dragon, with its 7×7 window outlined in yellow, a route to a pearl, a red line to the nearest enemy head, and dots where it believes other dragons are. The Brain tab shows Eat selected with utility 6. Under the board, the beliefs strip grades what team A's eight dragons know.](images/viewer-overview.png)
 
 ## The window
 
 The board in the middle shows the replay's truth at the moment the focused dragon decides, with its window outlined. Everything the dragon couldn't see is shaded, and `f` zooms to the 15×15 cells round its head. The left sidebar holds the overlay switches, the dragon's judge points against the 100M limit across its whole life, and a chart of the team's decisions by round. The right sidebar is the dragon's own view: what it decided and why, the messages it sent and received, and what it remembers.
 
 Playback moves in turns or in rounds. In Turns mode each dragon's turn is a step, and the left and right arrows jump between the focused dragon's own turns, first with the board as it saw it and then with the result of its move. Rounds mode shows each round after every dragon has moved.
+
+The `Us` button chooses which team the charts, beliefs and role drawings describe. Mirror lays each dragon's reflected path over the matching half of a symmetric map, which lets me compare the two openings on the same ground. Comments belong to the view as much as the overlays do: saving one records the replay, exact turn, focused dragon, highlighted cells and edges, and the words I typed. Previous and Next saved return to that exact context.
 
 Two views read the replay alone. The Evaluation pane gives each side's chance of winning after every round, from [bceval](https://github.com/xCirno1/battlecode-eval) by xCirno1, a logistic model over 23 features of the whole board, such as bodies, pearls eaten, fights and the ground nearer each team. The viewer ports it to Odin. The Spawn gaps overlay tints each cell by how fast pearls come back to it, so the rich ground stands out under everything else.
 
@@ -64,7 +66,7 @@ The rest lay out in the right sidebar.
 
 ![Records the inspector lays out. A state tree shows each option with its eligibility, score and reason, and the chosen one opens its children. A state graph places nodes at the bot's own coordinates, fills the active one and labels links with their conditions. A candidate has a score and what it measures, and scores from different objectives are never compared. A table marks rows selected, eligible or ineligible, and a row can open records of its own. A calculation shows the bot's expression, operands and result, and the viewer evaluates nothing. A sonar table joins the sender's meaning with the receiver's reading and outcome, on the ping the replay recorded.](images/gizmo-inspector.svg)
 
-One record fills the Brain tab. The showcase bot sends its options as a tree, each with whether it was eligible, its utility and the reason, and it marks which one it took. The `breakdown` field gives the left sidebar its chart of the team's decisions, here by the dragon's stage of life and then by option:
+One record fills the Brain tab. The showcase bot sends its options as a tree, each with whether it was eligible, its utility and the reason, and it marks which one it took. The `breakdown` field gives the left sidebar its chart of the team's decisions, here by role and then task. It also gives each role a colour and head icon, and each task a body pattern:
 
 ```nim
 var nodes = @[%*{"id": "dragon", "label": "Dragon", "parent": ""}]
@@ -77,23 +79,48 @@ for option in options.Option:
     node["score"] = %evaluation.score
     node["objective"] = %"utility"
   nodes.add node
-gizmos.emitGizmoJson($ %*{"version": 1, "kind": "state", "layout": "tree",
+let roleLook = case role
+  of Scout: %*{"level": "Role", "value": "Scout",
+    "color": [72, 170, 123, 255], "icon": "magnifier"}
+  of Forager: %*{"level": "Role", "value": "Forager",
+    "color": [232, 200, 114, 255], "icon": "arrow"}
+  of Parent: %*{"level": "Role", "value": "Parent",
+    "color": [105, 150, 214, 255], "icon": "crown"}
+let pattern = case chosen
+  of Flee: "crosshatch"
+  of Eat: "stripes"
+  of Split: "dots"
+  of Explore: "dither"
+inspect.summary($ %*{"version": 1, "kind": "state", "layout": "tree",
   "label": "Options", "slot": "brain", "id": "brain", "nodes": nodes,
   "reason": $chosen & " has the highest utility of the eligible options",
-  "breakdown": [{"level": "Stage", "value": $stage}, {"level": "Option", "value": $chosen}]})
+  "breakdown": [roleLook,
+    %*{"level": "Task", "value": $chosen, "pattern": pattern}]})
 ```
 
 Any record can give a parent, another record or a node of the tree, and clicking a node opens its children underneath. Under Eat, this dragon's calculation shows the utility of 6, then each move it could make, scored by the moves left to the pearl, then the move it made:
 
 ![The Brain tab with Eat opened. Its reason reads: take the nearest pearl we can reach, a pearl is 2 moves away. Under it, a calculation, utility = 8 − moves with moves 2 and result 6, then two candidates, Move N and Move W, each scored −1 by moves to the pearl, Move N chosen, and the action MOVE N.](images/viewer-brain.png)
 
-The Signals tab starts with sonar. The showcase bot sends one table of what it transmitted and another of what it received, each row with what the value meant to it. The viewer joins both ends on the pings the replay recorded, so a message shows the sender's meaning beside the receiver's reading of it, what the receiver did about it, and its memory of the cells involved before and after. A message that no ping bears out is listed as a fault. Then come the echoes of the dragon's own last pings, and the rest of its records, such as a table of the four first steps and the stage of life it has reached, as a small state graph.
+The Signals tab starts with sonar. The showcase bot sends one table of what it transmitted and another of what it received, each row with what the value meant to it. The viewer joins both ends on the pings the replay recorded, so a message shows the sender's meaning beside the receiver's reading of it, what the receiver did about it, and its memory of the cells involved before and after. A message that no ping bears out is listed as a fault. Then come the echoes of the dragon's own last pings, and the rest of its records, such as a table of the four first steps and the role it has reached, as a small state graph.
 
 ![The Signals tab at round 178. Echoes of dragon 0's round-177 sonar: north hit kelp, east hit an enemy body, south hit kelp, west hit an allied head, each sent as D0's head, length 6. Then a ping received from dragon 2: the sender's meaning, D2's head, length 7; the receiver's reading, the same; its outcome, position of D2 updated; and the receiver's memory of that cell, unchanged. Below starts the table of values it sent.](images/viewer-signals.png)
 
 `just decisions` prints the same records as text, dragon by dragon and turn by turn, for reading a whole stretch of a game at once or searching it:
 
-![just decisions for dragon 0 at round 178. It says the build was taken from --seat A and that 179 of 179 rebuilt turns match the replay. Then the turn: MOVE N, the breakdown Stage Parent, Option Eat, the tree of four options with their states and reasons, the sonar sent and received, and the utility calculations and candidates under each option.](images/viewer-decisions.png)
+![just decisions for dragon 0 at round 178. It says the build was taken from --seat A and that 179 of 179 rebuilt turns match the replay. Then the turn: MOVE N, the breakdown Role Parent, Task Eat, the tree of four options with their states and reasons, the sonar sent and received, and the utility calculations and candidates under each option.](images/viewer-decisions.png)
+
+## State from memory
+
+Writing a second description of a bot's state is an easy way to make a debugger lie. The public introspection helper takes another route. The bot gives the judge the address of a small region table and a schema made from its Nim types. While the bot is paused in that write, the judge copies those regions from WebAssembly memory. Objects become tables, enums keep their names, references are followed once, and arrays laid over the board become cell or edge records. The bot does not list its fields by hand.
+
+The showcase bot exposes the record it just used to decide. Here the Sources tab has reflected its round, dragon, length, role, task and whether it has split. The Mental map above it is still the ordinary retained record the bot chose to emit.
+
+![The Sources tab for dragon 0 at round 178. Under its Mental map is State, read from the bot's memory: round 178, dragon 0, length 7, role Parent, task Eat and hasSplit true. The board and the role-and-task chart remain beside it, and all 68 dragons have rebuilt.](images/viewer-state.png)
+
+The same capture can include the state at the start and end of a turn. The released recovery adapter uses those two views to lay out a role-and-task bot's full Brain: the suitability and eligibility of every role, the utility calculation for every offered task, the task's states and phases, and the checks that made each active or inactive. Claims, task claims, orders, right-of-way rays and movement choices attach beneath the decision that used them. The viewer still knows none of those concepts. The adapter turns the bot's recorded structures into the same generic trees, tables and calculations as the showcase bot emits.
+
+Capturing all of that for every turn would make a long game slow and large. The viewer asks for detailed records only in a window around the round on screen. Every other turn runs with diagnostics off, except for a small role-and-task summary used by the chart, and every action is still checked. When I move outside the window, recovery resumes the bot from a memory-bounded checkpoint before the new one. Focusing a dragon also asks for its state, rebuilding that dragon if its earlier pass did not capture it. `--buffer` changes the window, and `--memory` or `--memory-share` sets the checkpoint allowance.
 
 ## Graded memory
 

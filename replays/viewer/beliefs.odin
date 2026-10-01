@@ -29,7 +29,7 @@ Belief_Subject :: struct {
 // The turn's stated facts, counted belief by belief and kept with the turn.
 grade_beliefs :: proc(game: ^Loaded_Game, turn: ^Dragon_Turn) {
 	if !turn.has_record || !turn.gizmo_reliable {return}
-	allocator := game_allocator(game)
+	allocator := turn_allocator(game)
 	grades := make([dynamic]Belief_Grade, allocator)
 	for belief in stated_beliefs(game, turn, true) {
 		grade := Belief_Grade {
@@ -336,15 +336,4 @@ rebuild_progress :: proc(viewer: ^Viewer_State) -> (text: string, color: rl.Colo
 	if waiting > 0 {return fmt.tprintf("Rebuilding %d/%d", done, view.recoverable_dragons), WARNING_COLOR}
 	if view.failed_dragons > 0 {return fmt.tprintf("%d of %d rebuilt, %d failed", done - view.failed_dragons, done, view.failed_dragons), COLOR_DEATH}
 	return fmt.tprintf("All %d rebuilt", view.recoverable_dragons), REBUILT_COLOR
-}
-
-// The team whose beliefs the strip grades: ours, the focused dragon's when the
-// recovery can rebuild its team, else the first team it can rebuild.
-our_team :: proc(viewer: ^Viewer_State) -> int {
-	view := &viewer.game.view
-	if indices, found := viewer.game.turn_indices_by_dragon[viewer.selected_dragon]; found && len(indices) > 0 {
-		team := int(view.turn_team[indices[0]]) & 1
-		if view.recoverable_teams[team] {return team}
-	}
-	return view.recoverable_teams[1] && !view.recoverable_teams[0] ? 1 : 0
 }

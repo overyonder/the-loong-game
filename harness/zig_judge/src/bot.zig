@@ -11,27 +11,45 @@ const std = @import("std");
 const wt = @import("wasmtime.zig");
 const c = wt.c;
 const framer_mod = @import("framer.zig");
+const state_mod = @import("state.zig");
 const metering = @import("metering.zig");
 const Framer = framer_mod.Framer;
 
 pub const MAX_TURN_POINTS: i64 = 100_000_000;
 /// A turn's cap in inspect mode, where diagnostics run inside the turn: they are
-/// metered, but the bot leaves their points out of its own clock (runtime/).
+/// metered, but the bot leaves their points out of its own clock (runtime).
 pub const INSPECTION_TURN_POINTS: i64 = 100 * MAX_TURN_POINTS;
 /// A stdout line that is a diagnostic record, not gameplay (runtime/gizmos.h).
 const GIZMO_PREFIX = "LOG LOONG_GIZMO ";
+/// A stdout line saying where an inspected bot keeps its state: the region
+/// table's address, then its schema's address and bytes, in decimal
+/// (replays/viewer/diagnostics.md, "State from memory").
+const STATE_PREFIX = "LOG LOONG_STATE ";
+/// The same at the end of a turn, for what the turn decided: its trace.
+const TRACE_PREFIX = "LOG LOONG_TRACE ";
+/// In inspect mode, the address of the bot's diagnostics switch
+/// (runtime/gizmos.h's `loong_diagnostics_enabled`), in decimal, which
+/// an inspection sets before each turn to skip diagnostics until the turns it
+/// wants (inspection.zig's `loud_from`).
+const SWITCH_PREFIX = "LOG LOONG_SWITCH ";
+/// The address of a bot's summary switch, which an inspection sets on so that
+/// turns played with diagnostics off still say their role and task.
+const SUMMARY_PREFIX = "LOG LOONG_SUMMARY ";
 pub const MAX_MEMORY_PAGES: u64 = 768;
 pub const INITIAL_POINTS: i64 = std.math.maxInt(i64);
 const WRITE_SYSCALL_COST: i64 = 2_500_000;
 const WRITE_BYTE_COST: i64 = 4_000;
 const READ_BYTE_COST: i64 = 6;
-/// Whether a new process's first stdin read call is charged. The competition's
-/// judge doesn't charge it: in 98 first turns of two ladder games its points
-/// were ours less exactly 6 per byte of that read. That evidence can't tell
-/// "the first read call is free" from "the first 1,024 bytes are free", since
-/// the bots read through a 1,024-byte buffer. The toolkit charges it, and
+/// Whether a new process's first stdin read call is charged. The ladder's judge
+/// doesn't charge it: in 98 first turns of ladder games 475975 and 475976 its
+/// points were ours less exactly 6 per byte of that read
+/// (results/local/ladder-fidelity-20260928). That evidence can't tell "the
+/// first read call is free" from "the first 1,024 bytes are free", since our
+/// bots read through a 1,024-byte buffer. The toolkit charges it, and
 /// `run --charge-first-read` sets this to match the toolkit.
 pub var charge_first_read = false;
+/// Whether modules load with a profile's counters (`run --profile`).
+pub var profiling = false;
 const VIRTUAL_EPOCH_NS: u64 = 1_767_225_600_000_000_000;
 /// Host calls a turn may make before the bot is treated as out of time; points bound
 /// computation, this bounds a bot that only ever yields.
@@ -172,6 +190,23 @@ const Rng = struct {
     }
 };
 
+/// A profiled bot's points: per team, `metering.classes.len` counters per
+/// defined function in code-section order, then its stdin reads and stdout
+/// writes, summed over the team's instances from their first turn on, as the
+/// judge counts points.
+pub const Profile = struct {
+    layout: metering.Profile,
+    teams: [2][]i64,
+
+    pub const READS = 0;
+    pub const WRITES = 1;
+
+    /// How many function counters come before the host's.
+    pub fn functionCounters(self: *const Profile) usize {
+        return self.layout.functions * metering.classes.len;
+    }
+};
+
 /// A compiled, metered bot shared by every dragon that runs it.
 pub const BotModule = struct {
     engine: *c.wasm_engine_t,
@@ -181,6 +216,7 @@ pub const BotModule = struct {
     memory_min: u64,
     memory_max: u64,
     inspection_enabled: bool = false,
+    profile: ?*Profile = null,
 
     const ImportSpec = struct {
         module_name: []const u8,
@@ -192,7 +228,9 @@ pub const BotModule = struct {
 
     /// Compiles a bot, metering it first unless it already carries the meter.
     pub fn load(allocator: std.mem.Allocator, engine: *c.wasm_engine_t, bytes: []const u8) !BotModule {
-        const metered = if (metering.isMetered(bytes)) bytes else try metering.instrument(allocator, bytes);
+        var layout: metering.Profile = .{};
+        if (profiling and metering.isMetered(bytes)) return error.ProfilingMetered;
+        const metered = if (metering.isMetered(bytes)) bytes else if (profiling) try metering.instrumentProfiled(allocator, bytes, &layout) else try metering.instrument(allocator, bytes);
         defer if (metered.ptr != bytes.ptr) allocator.free(metered);
         const module = try wt.compileModule(engine, metered);
         var imports: c.wasm_importtype_vec_t = undefined;
@@ -229,6 +267,13 @@ pub const BotModule = struct {
                 else => {},
             }
         }
+        var profile: ?*Profile = null;
+        if (profiling) {
+            const counters = layout.functions * metering.classes.len + 2;
+            profile = try allocator.create(Profile);
+            profile.?.* = .{ .layout = layout, .teams = .{ try allocator.alloc(i64, counters), try allocator.alloc(i64, counters) } };
+            for (profile.?.teams) |totals| @memset(totals, 0);
+        }
         return .{
             .engine = engine,
             .module = module,
@@ -236,10 +281,15 @@ pub const BotModule = struct {
             .functions = try functions.toOwnedSlice(allocator),
             .memory_min = memory_min,
             .memory_max = memory_max,
+            .profile = profile,
         };
     }
 
     pub fn deinit(self: *BotModule, allocator: std.mem.Allocator) void {
+        if (self.profile) |profile| {
+            for (profile.teams) |totals| allocator.free(totals);
+            allocator.destroy(profile);
+        }
         allocator.free(self.functions);
         c.wasm_importtype_vec_delete(&self.imports);
         c.wasmtime_module_delete(self.module);
@@ -317,6 +367,18 @@ pub const Instance = struct {
     // told from gameplay lines across writes.
     stdout_line: std.ArrayList(u8) = .empty,
     gameplay: std.ArrayList(u8) = .empty,
+    // In inspect mode, the bot's state regions as last captured, and this
+    // turn's capture as JSON (state.zig).
+    regions: state_mod.Regions = .{},
+    state_output: std.ArrayList(u8) = .empty,
+    trace_regions: state_mod.Regions = .{},
+    trace_output: std.ArrayList(u8) = .empty,
+    capture_state: bool = false,
+    /// The bot named its state this turn, captured or not.
+    state_offered: bool = false,
+    /// Where the bot's diagnostics and summary switches lie, once it has said.
+    switch_address: ?u32 = null,
+    summary_address: ?u32 = null,
 
     // stdout, framed into turns
     framer: Framer = .{},
@@ -338,6 +400,10 @@ pub const Instance = struct {
     slept_ns: u64 = 0,
     live_points: i64 = 0,
     live_memory: u64 = 0,
+    /// The team whose profile totals this instance's points go to.
+    profile_team: u8,
+    /// Its counters' start-up points have left the team's totals.
+    profiled: bool = false,
 
     exit_code: ?i32 = null,
     exit_requested: ?i32 = null,
@@ -345,7 +411,7 @@ pub const Instance = struct {
     unsupported: ?[]const u8 = null,
     message: [256]u8 = undefined,
 
-    pub fn create(allocator: std.mem.Allocator, module: *const BotModule, key: []const u8, name: []const u8) !*Instance {
+    pub fn create(allocator: std.mem.Allocator, module: *const BotModule, key: []const u8, name: []const u8, team: u8) !*Instance {
         const self = try allocator.create(Instance);
         errdefer allocator.destroy(self);
         self.* = .{
@@ -361,6 +427,7 @@ pub const Instance = struct {
             .exhausted = null,
             .bindings = &.{},
             .rng = Rng.init(key, name),
+            .profile_team = team,
         };
 
         self.store = c.wasmtime_store_new(module.engine, null, null) orelse return error.Wasmtime;
@@ -411,12 +478,17 @@ pub const Instance = struct {
     }
 
     pub fn destroy(self: *Instance) void {
+        if (self.profiled) self.tallyProfile(1);
         if (self.future) |future| c.wasmtime_call_future_delete(future);
         if (self.deferred_trap) |trap| c.wasm_trap_delete(trap);
         self.stdin.deinit(self.allocator);
         self.annotation_output.deinit(self.allocator);
         self.stdout_line.deinit(self.allocator);
         self.gameplay.deinit(self.allocator);
+        self.regions.deinit(self.allocator);
+        self.state_output.deinit(self.allocator);
+        self.trace_regions.deinit(self.allocator);
+        self.trace_output.deinit(self.allocator);
         self.allocator.free(self.bindings);
         c.wasmtime_linker_delete(self.linker);
         c.wasmtime_sharedmemory_delete(self.memory);
@@ -551,6 +623,9 @@ pub const Instance = struct {
             const now_points = self.meterGet();
             if (self.first) {
                 self.first = false;
+                // Start-up is free, so its points leave the profile too.
+                self.profiled = true;
+                self.tallyProfile(-1);
             } else {
                 self.spent_total += self.last - now_points;
             }
@@ -594,6 +669,31 @@ pub const Instance = struct {
         if (self.meter == null) return;
         const left = self.meterGet();
         self.meterSet(@max(0, left - points));
+        self.tallyHost(Profile.READS, left - @max(0, left - points));
+    }
+
+    /// Adds this instance's profile counters to its team's totals, or with
+    /// `sign` -1 takes them away.
+    fn tallyProfile(self: *Instance, sign: i64) void {
+        const profile = self.module.profile orelse return;
+        const totals = profile.teams[self.profile_team];
+        var name_buffer: [24]u8 = undefined;
+        for (0..profile.functionCounters()) |k| {
+            // By name: finding the nth export walks the exports before it.
+            const name = std.fmt.bufPrint(&name_buffer, "p{d}", .{k}) catch unreachable;
+            var item: c.wasmtime_extern_t = undefined;
+            if (!c.wasmtime_instance_export_get(self.context, &self.instance, name.ptr, name.len, &item)) return;
+            var value: c.wasmtime_val_t = undefined;
+            c.wasmtime_global_get(self.context, &item.of.global, &value);
+            totals[k] += sign * value.of.i64;
+        }
+    }
+
+    /// Adds points a host call charged, once the instance's turns have begun.
+    fn tallyHost(self: *Instance, which: usize, points: i64) void {
+        if (!self.profiled) return;
+        const profile = self.module.profile orelse return;
+        profile.teams[self.profile_team][profile.functionCounters() + which] += points;
     }
 
     /// Charged before the bytes go out, so an unaffordable write never reaches stdout.
@@ -602,6 +702,7 @@ pub const Instance = struct {
         const cost = WRITE_SYSCALL_COST + @as(i64, total) * WRITE_BYTE_COST;
         const left = self.meterGet();
         self.meterSet(left - cost);
+        self.tallyHost(Profile.WRITES, cost);
         if (!self.first) self.mark();
         if (left < cost) {
             if (self.exhausted) |global| {
@@ -993,6 +1094,16 @@ pub const Instance = struct {
                 if (std.mem.startsWith(u8, line, GIZMO_PREFIX)) {
                     if (line.len + self.annotation_output.items.len > 64 * 1024 * 1024) return error.OutOfMemory;
                     self.annotation_output.appendSlice(self.allocator, line) catch return error.OutOfMemory;
+                } else if (std.mem.startsWith(u8, line, STATE_PREFIX)) {
+                    try self.captureState(line[STATE_PREFIX.len..], &self.regions, &self.state_output);
+                } else if (std.mem.startsWith(u8, line, TRACE_PREFIX)) {
+                    try self.captureState(line[TRACE_PREFIX.len..], &self.trace_regions, &self.trace_output);
+                } else if (std.mem.startsWith(u8, line, SWITCH_PREFIX)) {
+                    const text = std.mem.trim(u8, line[SWITCH_PREFIX.len..], " \r\n");
+                    self.switch_address = std.fmt.parseInt(u32, text, 10) catch null;
+                } else if (std.mem.startsWith(u8, line, SUMMARY_PREFIX)) {
+                    const text = std.mem.trim(u8, line[SUMMARY_PREFIX.len..], " \r\n");
+                    self.summary_address = std.fmt.parseInt(u32, text, 10) catch null;
                 } else {
                     self.gameplay.appendSlice(self.allocator, line) catch return error.OutOfMemory;
                 }
@@ -1004,11 +1115,37 @@ pub const Instance = struct {
         if (self.framer.feed(self.gameplay.items)) self.endTurn();
     }
 
+    /// Forget the state as last captured, so the next capture is whole and
+    /// carries the schema again, as for a resumed checkpoint's new reader.
+    pub fn forgetState(self: *Instance) void {
+        self.regions.deinit(self.allocator);
+        self.regions = .{};
+        self.trace_regions.deinit(self.allocator);
+        self.trace_regions = .{};
+    }
+
+    /// Capture the state a STATE_PREFIX or TRACE_PREFIX line points at, now,
+    /// while the guest waits in this write. A malformed line captures nothing.
+    fn captureState(self: *Instance, text: []const u8, regions: *state_mod.Regions, output: *std.ArrayList(u8)) HostError!void {
+        self.state_offered = true;
+        if (!self.capture_state) return;
+        var numbers: [3]u32 = undefined;
+        var fields = std.mem.tokenizeAny(u8, text, " \r\n");
+        for (&numbers) |*number| {
+            const field = fields.next() orelse return;
+            number.* = std.fmt.parseInt(u32, field, 10) catch return;
+        }
+        regions.capture(self.allocator, self.memoryBytes(), numbers[0], .{ numbers[1], numbers[2] }, output) catch return error.OutOfMemory;
+    }
+
     // ---- driver side --------------------------------------------------------
 
     pub fn arm(self: *Instance) void {
         self.framer.arm();
         self.annotation_output.clearRetainingCapacity();
+        self.state_output.clearRetainingCapacity();
+        self.trace_output.clearRetainingCapacity();
+        self.state_offered = false;
         self.annotation_remaining = 1_000_000_000;
         self.stdout_line.clearRetainingCapacity();
     }
@@ -1065,6 +1202,8 @@ pub const Dragon = struct {
     written: usize = 0,
     is_new: bool = true,
     error_reason: ?[]const u8 = null,
+    /// Whether an inspection captures the state the bot shows (state.zig).
+    capture_state: bool = false,
     /// The last turn's CPU points as the toolkit's match wrapper records them: the
     /// sandbox's figures when the turn ended, and none for a turn killed at the wall.
     points: i64 = 0,
@@ -1101,6 +1240,21 @@ pub const Dragon = struct {
     }
 
     /// One turn: the reply, or an empty reply with `error_reason` set.
+    /// Whether the bot has said where its diagnostics switch lies.
+    pub fn switchable(self: *Dragon) bool {
+        const inst = self.instance orelse return false;
+        return inst.switch_address != null;
+    }
+
+    /// Turn the bot's diagnostics on or off for its next turns, when it has
+    /// said where its switch lies; a bot that hasn't keeps them on.
+    pub fn diagnose(self: *Dragon, on: bool) void {
+        const inst = self.instance orelse return;
+        if (inst.summary_address) |summary| inst.writeU32(summary, 1) catch {};
+        const address = inst.switch_address orelse return;
+        inst.writeU32(address, if (on) 1 else 0) catch {};
+    }
+
     pub fn ask(self: *Dragon, block: []const u8) []const u8 {
         self.skipped_points = null;
         const out = self.answer(block);
@@ -1158,7 +1312,8 @@ pub const Dragon = struct {
 
     fn fresh(self: *Dragon) void {
         self.stop();
-        self.instance = Instance.create(self.allocator, self.module, self.key, self.dragonName()) catch null;
+        self.instance = Instance.create(self.allocator, self.module, self.key, self.dragonName(), self.team) catch null;
+        if (self.instance) |instance| instance.capture_state = self.capture_state;
         self.written = 0;
         self.is_new = true;
     }

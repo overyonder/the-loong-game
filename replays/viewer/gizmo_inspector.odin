@@ -162,7 +162,7 @@ draw_generic_inspector :: proc(viewer: ^Viewer_State, area: rl.Rectangle, turn: 
 		)
 	} else {
 		if turn.recovery_pending {
-			inspector_paragraph(viewer, &cursor, body.width - 18, recovery_notice(viewer, turn.dragon), UI_ACCENT)
+			inspector_paragraph(viewer, &cursor, body.width - 18, recovery_notice(viewer, turn), UI_ACCENT)
 		} else if len(turn.gizmos) == 0 {
 			inspector_paragraph(viewer, &cursor, body.width - 18, "No diagnostics recorded", MUTED_TEXT_COLOR)
 			// The recovery's note on this dragon's build, such as a refusal to recover it.

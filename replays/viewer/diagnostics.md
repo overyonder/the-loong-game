@@ -7,21 +7,24 @@ runtime that writes the protocol below. Shared C and Nim helpers are provided in
 
 ## Build identity
 
-A bot announces no build identity while it plays: nothing in a game identifies
-the build. Which build played each side is the caller's word: `--seat A|B GUID`
-on `just viewer` or `just decisions`.
+A bot announces no build identity while it plays, so a replay alone cannot
+identify the artifact that made it. Pass each known side to `just viewer` or
+`just decisions` as `--seat A GUID` or `--seat B GUID`. A GUID recorded by an
+older replay remains a fallback.
 
-`just bot-build SOURCE` builds a C, C++ or prepared Nim bot's one judge WASM and
-registers it (`harness/build_registry.py`). The same artifact plays games and
-is inspected. A GUID identifies the immutable build.
+`just bot-build SOURCE OUTPUT` builds and registers a bot's one judge WASM for
+C/C++ and source-only Nim. The same artifact plays games and is inspected. A
+GUID identifies the immutable set of artifacts.
 
-`build/registry/GUID/manifest.json` records the compiled sources, the compiler
-settings and the WASM's hash. Lookups verify the retained files and never
-rebuild from current source. `LOONG_BUILD_REGISTRY` or the viewer's
-`--registry` selects another local registry. Copy the complete GUID directory
-to transport a build. Keep it with any replay you want to inspect again:
-deleting the registry makes recovery unavailable. Python bots aren't
-registered, but can still emit recorded gizmos using the wire contract.
+`build/registry/GUID/manifest.json` records original source, shared runtime,
+compiler settings, staged submission source and every artifact's hash. Lookups verify
+the retained files and never rebuild from current source. `LOONG_BUILD_REGISTRY`
+or the viewer's `--registry` selects another local registry. Copy the complete
+GUID directory to transport a build. Preserve it with retained replay evidence;
+deleting the registry makes recovery unavailable. Nothing automatically uploads
+source or artifacts. `judge-source/` contains the staged C source for submission,
+including generated C for Nim. Native and Python build paths remain unregistered;
+Python and custom runtimes can still emit recorded gizmos using the wire contract.
 
 ## Primitive records
 
@@ -102,19 +105,23 @@ inspected turn may spend up to 100 times the normal turn budget, so diagnostic
 work never times a dragon out. In Nim builds the outermost `diagnosticBlock`
 times itself and `loong_current_points` leaves those points out, so a bot's
 budget-sensitive decisions see the same clock with diagnostics on as off
-(`runtime/points.c`). C diagnostic blocks aren't timed. Matching decisions
+(`runtime/entry.c`). C diagnostic blocks aren't timed. Matching decisions
 are still required, since the flag checks and timing add a small instruction
 cost. The inspection subprocess has a 120-second wall limit for the supplied
 observation sequence, and normal bot memory limits remain.
+
+Builds registered before this scheme carry a separate `inspection.wasm` that
+uses `loong_inspection.begin/end` imports. The recovery still inspects them
+without the marker.
 
 Recorded gizmos describe the actual process that played, even if its build is
 unavailable locally. The viewer says so separately from build verification.
 For judge replays, the viewer's recovery (`loong-recover`,
 `replays/recovery/serve.nim`) feeds each dragon's recorded observations
-through its build's registered artifact with the `LOONG_INSPECT` marker, the build its seat names
+through its build's registered artifact with the `LOONG_INSPECT` marker, the build the caller selects
 (see [Build identity](#build-identity)), and streams each turn's validated
-records to the viewer as they are produced. Because the build comes from the
-caller rather than from the game, the rerun is the check: it compares each
+records to the viewer as they are produced. Because the build comes from our
+records rather than from the game, the rerun is the check: it compares each
 rebuilt action and observable sonar output with the replay, retains mismatch
 taint for the rest of that dragon's life, and the viewer hides unreliable
 overlays. `just decisions` leads each dragon with how many rebuilt turns match
@@ -126,15 +133,158 @@ evidence prevents child recovery. `just viewer --no-recovery` displays only
 recorded diagnostics. A missing build never selects current source.
 `replays/recovery/gizmos.nim` is the contract's validator.
 
+## Counted work
+
+A bot whose cutoffs answer from counted work instead of the clock plays the
+same turns with diagnostics on as off, so its recovery matches by
+construction. Such a bot emits a `Turn work` table each turn, with columns
+`Work`, `Units` and `Points`: a row per kind of work with its units this turn
+and their estimated points, then a `counted` row with empty units and the
+turn's estimate. Its reason contains `braked` when the clock's emergency brake
+stopped optional work, the one place the clock still decides. `just work-costs
+RESULT_DIR BOT [--fix KIND=COST]...` rebuilds BOT's side of each game in the
+result set (`loong-recover work`) and fits each kind's cost to the judge's
+points per turn by non-negative least squares (`loong-recover costs`,
+`replays/recovery/costs.nim`). Each process's first turn, braked and
+diverged turns, and turns without judge points are left out. `--fix` holds a
+kind too rare in the games to fit at a cost measured otherwise.
+
+## State from memory
+
+A bot can show its state straight from its memory instead of emitting it. In
+inspect mode it keeps two things in its memory: a region table, and a JSON
+schema that describes each type once. The table is a little-endian u32 count,
+then five u32s per region: its address, bytes, schema type, element count and
+the address of the field that refers to it (0 for a root). At the point its
+state is worth seeing, the bot writes and flushes
+`LOG LOONG_STATE TABLE SCHEMA BYTES`, giving the table's address, the schema's
+address and the schema's length in decimal. The Zig judge copies every region
+then, while the bot waits in that write (`harness/zig_judge/src/state.zig`).
+It captures only when the inspection request asks (`"state": true`). Otherwise
+the turn's record says `"state_offered": true`.
+
+A captured turn's inspection record carries `state`: the schema the first
+time, `regions` as `[address, bytes, type, count, owner]`, and `changes` as
+`[address, offset, base64]`. A change covers the 64-byte blocks that differ
+from the last capture, or all of a region new at its address.
+
+A bot can let the judge switch its diagnostics off for turns nobody will
+look at. Once, while its diagnostics are on, it writes and flushes
+`LOG LOONG_SWITCH ADDRESS`, the decimal address of the runtime's
+`loong_diagnostics_enabled` (`runtime/gizmos.h`). An inspection request
+names its first and last wanted observations as `loud_from` and `loud_until`.
+Before each observation the judge writes 1 there for those and 0 for the rest,
+so the bot plays the other turns as fast as in a game and records only the
+wanted ones. Its memory and decisions are the same either way, since its
+diagnostics never decide anything, and the recovery still checks every action.
+A retained record on a turn after unrecorded ones carries every entry it
+holds, since nobody saw what changed meanwhile. Each inspection record says
+whether its turn played with diagnostics on (`traced`). A bot that never
+writes the line keeps its diagnostics on throughout, as it does on its first
+turn, before the judge knows the address. `loong-recover decisions --rounds`
+asks for its rounds this way, and the viewer for a window around its current
+round.
+
+The bot can also write `LOG LOONG_SUMMARY ADDRESS`, the address of a word the
+judge sets to 1 for the whole inspection. The bot then emits its Brain root on
+every turn, with diagnostics on or off, so each turn's breakdown reaches the
+viewer's chart. The supplied introspection helper exposes this as `inspect.summary`.
+A summary's points are kept off the clock the bot reads, as a diagnostic
+block's are.
+
+At the end of its turn a bot can show a second set of roots, what the turn
+decided rather than what it knew, with `LOG LOONG_TRACE TABLE SCHEMA BYTES`.
+The judge captures them the same way, with their own last copies, and the
+turn's record carries them as `trace`.
+
+The schema is `{"version": 1, "roots": [{"name", "type"}], "ends": [...],
+"types": [...]}`, where a type's ID is its place in `types`. A bot names
+several roots: its turn loop's state, and any state a module or behaviour
+holds outside it. `ends` names the end-of-turn roots. A root's region has no
+owner, and the regions with no owner come in the order of `roots`, or of
+`ends` in a `trace` capture. A ref reached twice is listed for each field that
+refers to it and its contents are sent once, so a cycle such as a state
+pointing to its parent ends.
+
+| `kind` | Fields |
+| --- | --- |
+| `object` | `size`, `fields`: `name`, `offset`, `type`, and optionally `transient: true` or `draw` |
+| `variant` | `size`, `fields` every branch has with the tag among them, `tag` naming it, and `branches` as `[tag value, fields]` |
+| `array` | `size`, `count`, `element` |
+| `seq`, `string` | `element` |
+| `ref`, `alias` | `target` |
+| `enum` | `size`, `names` as `[ordinal, name]` |
+| `set` | `size`, `low` |
+| `int`, `uint`, `float`, `bool`, `char`, `opaque` | `size` |
+
+A `transient` field is working memory the bot recomputes within a turn or
+round, and its contents aren't captured. `draw` is `cells` for a sequence with
+an element per board cell, or `edges` for one with each cell's north then west
+side, numbered `cell * 2 + axis`.
+
+The recovery (`replays/recovery/state.nim`) keeps each region's bytes and
+turns the state into table records in the Memory slot, beneath the bot's own
+Memory root: a State table with a row for each root that is a plain value, and
+each other root beneath it. Each object's plain fields become one table, and
+each object or sequence it reaches becomes a table beneath it. The sequences one object lays
+over the board become a single retained cell table, whose rows are the cells
+whose text changed. The viewer's focused dragon shows its state, and a dragon
+focused after it was rebuilt without it is rebuilt again with it. `just
+decisions --state` shows it for the dragons asked for. The generic helper is
+`examples/repertoire/techniques/introspection/inspect.nim`.
+
+## Brain from memory
+
+The released recovery includes an adapter for a role-and-task bot that emits
+only its Brain root: a `state` tree with its breakdown, its reason and one
+`decision` node. Everything else it decides stays in memory. The recovery
+(`replays/recovery/brain.nim`) builds the rest of the Brain from the two
+captures, beneath that node. Only the dragon whose state is captured pays for it.
+
+Every calculation and condition that bot writes with its explained-value and
+explained-check helpers is traced. Each
+call site's expression and operand names are registered once, in the root
+`explained sites`. The end root `explained trace` holds each evaluation as a
+working: its site, its result and its first operand. Each operand's value is a
+float32 that is NaN when evaluation never reached it, and a link names the
+working an operand's own evaluation showed.
+
+| Brain node | Records it is built from |
+| --- | --- |
+| `role` and one child per role | `remembered.roster` (start), `roles: decided` (end): each member's suitability or the check that barred it, and the check or value that gave each role its places |
+| `team-picture` table | `remembered.roster` |
+| `utility` and one child per offered behaviour | `utility: structure` (start), `utility: decision` (end): every pair's score and its working, and each behaviour's checks while offering its targets |
+| `state-…` nodes | `utility: interrupts and task` (end), with each interrupt's eligibility checks from `utility: decision` |
+| `phase-…` nodes under the task | `task phases` (end), each phase's eligibility checks, and the acting state's own checks under the node that acted |
+| `claims` and `task-claims` | `utility: claims ledger` (end), each teammate claim's binding in `utility: decision` |
+| `orders` | the orders and right-of-way rays in `utility: decision` |
+
+The same captures give the records outside the Brain:
+
+| Record | Built from |
+| --- | --- |
+| `Movement: PURPOSE` table, a row per option, its route and target | `movement: queries` (end) and `movement: safety classes` (start): each option's safety classes, utility and the working behind it and its objective |
+| `Radio` sent table and `Rays not sent` | `radio: transmission` (end) and `radio: rule` (start) |
+| `Sonar received` table | `remembered.memory.heard` (start), which the memory fills only while the turn is traced |
+| `Turn points` and `Turn work` tables | `budget: turn` (end), which `just work-costs` reads |
+| `Believed positions`, the retained `Believed kelp` and `Believed pearls` maps, and an `Echo` path per ray | `remembered.belief` and `remembered.memory` (start): each tracked dragon's head chances, each side's kind chances, each cell's pearl chance, and the echoes the belief keeps while the turn is traced |
+| `Coil` path, on a turn the coil task follows or leaves its cycle | `coil: task` (end): the cycle's cells in order and each cell's place in it, walked from our head (start) in the task's direction |
+
+A working becomes a `calculation`: its expression, then each operand, with an
+operand that showed a working followed by that working's own operands. An
+operand not reached, or a value that isn't finite, is named in the
+calculation's `reason` instead. A behaviour or state shows its last eight
+checks, since the one that decided comes last. Names, expressions, enum values
+and rules come from the bot. The recovery adds how the generic architectures
+read: how role slots fill, how the best pair wins, and how each state came to
+act or not.
+
 ## Save and view
 
-```sh
-just showcase
-```
-
-builds the [showcase bot](../../examples/showcase-bot), which emits every
-record kind below, plays it against itself and opens the game with both sides
-rebuilt.
+Build and register a bot with `just bot-build`, run a game with that immutable
+artifact, then pass its GUID back with `--seat`. The viewer retains its current
+selection in the position file beside the game columns, which can be restored
+with `--position` after a rebuild.
 
 ## Tables, retained cell records and numeric transport
 
@@ -226,7 +376,7 @@ likeliest first: the hatch fades along the list. The inspector lists every
 entry. The viewer infers no position itself.
 
 An entry about a dragon may also say who it is and what the believer holds
-about it: `dragon` (its ID), `team` (`ours` or `enemy`), `length` (whole number
+about it: `dragon` (its ID, which passes 4096 in a game of many splits), `team` (`ours` or `enemy`), `length` (whole number
 to 4096), `length_exact` (false makes `length` a lower bound) and `champion`
 (true when the believer takes it for its team's champion). The viewer grades
 these against the replay (see Belief correctness).
@@ -312,11 +462,16 @@ A `calculation` gizmo carries a required `expression`, optional
 Names are unique. The renderer displays these supplied values without evaluating
 the expression; an absent result is labelled not evaluated.
 
+Every decision shows why as well as what. The record that holds its options
+states the rule that turned them into the choice, and each score comes with its
+calculation. On a table of options, `objective` carries the rule and `reason`
+this turn's outcome.
+
 ## Belief correctness
 
 The beliefs strip grades the beliefs of each living dragon whose latest turn
-has a usable record against the replay at the start of that turn, for our team:
-the focused dragon's when the recovery can rebuild it, else the team it can. Each column is one belief. Its box counts the graded dragons
+has a usable record against the replay at the start of that turn, for our team,
+the one the Us button names (README.md). Each column is one belief. Its box counts the graded dragons
 holding it without a false fact, and the share of all their stated facts that is
 correct, and under it are the team's connectivity, agreement, coverage and
 validity for the belief (Team knowledge). A click lists the measures, every
@@ -355,9 +510,8 @@ Distributed Algorithms, 1996, chapters 5 and 6). Connectivity measures how far
 each fact has spread through the team, as epidemic dissemination does (Demers
 et al., Epidemic Algorithms for Replicated Database Maintenance, 1987). A fact is one side of one cell,
 one cell's pearl or next spawn, one other dragon's position or length, or the
-team's champion. Every measure is a ratio of counts, and the viewer's
-`--knowledge FILE` export writes the counts for every round
-(`gamedata/format.md`, kind `knowledge`).
+team's champion. Every measure is a ratio of counts, and `just knowledge`
+writes the counts for every round (gamedata/format.md, kind `knowledge`).
 
 - Connectivity: over stated facts, the share of the other graded dragons
   stating each one too. Beside it, the dragons at least half of whose facts
@@ -416,11 +570,19 @@ gives pair and fact counts, snapshot rounds and up to 30 disagreement
 witnesses; all disagreements are counted. Disjoint knowledge is never fabricated
 as agreement. No replay-truth cell values enter these comparisons.
 
-### Map markers
+### Map records
 
 A `map` primitive may set `display_overlay: "markers"` to draw its annotated cells
 on the main board as well as in its inspector preview. The viewer treats labels,
 colours and reasons as producer data and does not infer enemy positions itself.
+
+A `map` with `display_overlay: "mental"` holds what the dragon believes beyond
+what it remembers, for the Mental map: each edge is drawn as a line just
+inside its cell and each cell as a dot, in its own colour, whose opacity should
+be the dragon's confidence in it. A retained one updates cell by cell and side
+by side, so a producer clears an entry by resending it with opacity 0. The
+inspector lists the selected cell's entries rather than drawing it as a map,
+and the replay's own pearls stay hidden while the Mental map is on.
 
 ### Brain placement
 
@@ -436,18 +598,34 @@ reconstructed from an AST or inferred from other diagnostics.
 
 The Brain root may carry `breakdown`: one or two entries, coarsest first, that
 decompose the turn's decision however the bot's design cares to show it. The
-utility adapter, for example, gives its role and then its behaviour:
+utility adapter, for example, gives its role and then its behaviour, and says
+how dragons classed under each are drawn:
 
 ```json
-"breakdown":[{"level":"Role","value":"harvester"},{"level":"Behaviour","value":"farm"}]
+"breakdown":[{"level":"Role","value":"scout","color":[25,158,112,255],"icon":"magnifier"},
+             {"level":"Behaviour","value":"farm","pattern":"stripes"}]
 ```
 
 Each bot names its own levels and values as nonempty labels. There is no fixed
 vocabulary. The viewer counts each team's turns per round by the first value,
-and within it by the second, draws them as a stacked chart titled with the
-levels, and attaches no meaning to either. Only the Brain root may carry it.
-The recovery sends it beside each turn's record, so the whole game's tallies
-need no record parsed.
+and within it by the second, and draws them as a stacked chart titled with the
+levels. An entry may also name its dragons' look:
+
+- `color`, `[r, g, b]` or `[r, g, b, a]` from 0 to 255: the value's swatch in
+  the chart and the dragon's colour on the board.
+- `icon`, the head's shape: `plain`, `crown`, `hollow_crown`, `arrow` (pointing
+  the way the dragon moved), `magnifier`, `shield` or `inverted_shield`.
+- `pattern`, the body's marks: `solid`, `stripes`, `crosshatch`, `dots` or
+  `dither`.
+
+The board draws the chart's team's dragons by each one's latest turn, each part
+of the look from the coarsest entry that names it. A group no entry colours
+takes a palette slot by first appearance, and a head or body no entry names is
+plain or solid. Unknown names and malformed colours name nothing. The viewer
+attaches no meaning to the values themselves: the only presentations it fixes
+are the enemy team's colour and the enemy's true champion (README.md). Only the
+Brain root may carry it. The recovery sends it beside each turn's record, so
+the whole game's tallies need no record parsed.
 
 An `action` primitive requires the usual version and label, and optionally
 objective and reason. It needs no nodes, score, or calculation. Graph nodes can

@@ -19,6 +19,8 @@ draw_objective_inspector :: proc(viewer: ^Viewer_State, area: rl.Rectangle, fram
 	width := area.width - 2 * PANE_INSET - 8
 	hotkeys := rl.Rectangle{cursor.x, cursor.y, f32(measure_text("Hotkeys", UI_TEXT)) + BUTTON_PADDING, CONTROL_HEIGHT}
 	if rl.GuiButton(hotkeys, "Hotkeys") {open_diagnostic_detail(viewer, "Hotkeys", HOTKEYS)}
+	cursor.y += CONTROL_HEIGHT + 6
+	draw_us_button(viewer, {cursor.x, cursor.y, width, CONTROL_HEIGHT})
 	cursor.y += CONTROL_HEIGHT + 8
 	cursor.y = draw_overlay_controls(viewer, {cursor.x, cursor.y, width, area.height})
 	draw_judge_points(viewer, &cursor, width, frame)

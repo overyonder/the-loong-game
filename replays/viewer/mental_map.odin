@@ -136,6 +136,34 @@ draw_mental_map :: proc(viewer: ^Viewer_State, geometry: Board_Geometry, turn: ^
 			}
 		}
 	}
+	// Pearls as the dragon holds them: those its table remembers in its window
+	// now, then its beliefs out of sight.
+	for &gizmo in turn.gizmos {
+		if gizmo.kind != "table" || gizmo.label != turn.accuracy.table {continue}
+		column := -1
+		for quantity, index in gizmo.truth_columns {if quantity == "pearl" {column = index}}
+		if column < 0 {continue}
+		for row, index in gizmo.rows {
+			if index >= len(gizmo.row_cells) || column >= len(row) || row[column] != "1" {continue}
+			cell := gizmo.row_cells[index]
+			if cell >= 0 && cell < area && in_sight(geometry, turn.head, cell) {rl.DrawCircleV(cell_center(geometry, cell), geometry.cell_size * 0.23, COLOR_PEARL)}
+		}
+	}
+	// Maps the bot marks for the mental map hold what it believes out of
+	// sight, drawn in its own colours so their opacity is its confidence:
+	// each edge a line inside its cell, each cell a dot.
+	for &gizmo in turn.gizmos {
+		if gizmo.kind != "map" || gizmo.display_overlay != "mental" {continue}
+		for edge in gizmo.edges {
+			if edge.cell < 0 || edge.cell >= area || edge.direction < 0 || edge.direction > 3 {continue}
+			line := side_line(cell_rectangle(geometry, edge.cell), inset, int(edge.direction))
+			rl.DrawLineEx(line[0], line[1], max(2, geometry.cell_size / 10), gizmo_color(edge.color))
+		}
+		for cell in gizmo.cells {
+			if cell.cell < 0 || cell.cell >= area {continue}
+			rl.DrawCircleV(cell_center(geometry, cell.cell), geometry.cell_size * 0.23, gizmo_color(cell.color))
+		}
+	}
 	// Sides the replay proves wrong, over the beliefs.
 	for entry in turn.accuracy.cells {
 		if entry[0] < 0 || entry[0] >= area {continue}
@@ -296,7 +324,9 @@ draw_believed_positions :: proc(viewer: ^Viewer_State, gizmo: ^Gizmo, geometry: 
 			area := position_area(entry, width, height)
 			right := false
 			for dragon in turn.dragons {if dragon.id == subject && dragon.head >= 0 {right = area[dragon.head]}}
-			color = right ? COLOR_CORRECT : COLOR_WRONG
+			// Graded, at the opacity the bot gave its confidence.
+			graded := right ? COLOR_CORRECT : COLOR_WRONG
+			color = {graded.r, graded.g, graded.b, color.a}
 		}
 		// What the dragon chose to believe, its centre, and when opened the
 		// cells it may occupy (gizmos.odin, position_opened).

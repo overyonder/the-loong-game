@@ -64,6 +64,10 @@ viewer *args:
       --no-recovery           show only what the replay recorded
       --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or build/registry)
       --inbox FILE            where comments are appended (default build/viewer/comments.md)
+      --memory-share R        the share of the viewer's and recovery's own memory
+                              its checkpoints may hold (default 1)
+      --memory MB             or the megabytes they may hold (0 for none)
+      --buffer N              rounds rebuilt whole either side of the current one (default 5)
     USAGE
     }
     root=$(realpath ../..)
@@ -77,6 +81,7 @@ viewer *args:
     judge=${LOONG_JUDGE:-$root/build/zig-judge/bin/loong-judge}
     inbox=$root/build/viewer/comments.md
     seats=()
+    recovery_arguments=()
     viewer_arguments=()
     while (($#)); do
         case "$1" in
@@ -87,9 +92,10 @@ viewer *args:
             --size) size=$2; shift ;;
             --registry) registry=$2; shift ;;
             --inbox) inbox=$2; shift ;;
+            --memory|--memory-share) recovery_arguments+=("$1" "$2"); shift ;;
             --no-display) display=false ;;
             --no-recovery) recover=false ;;
-            --dragon|--round|--turn|--speed) viewer_arguments+=("$1" "$2"); shift ;;
+            --dragon|--round|--turn|--speed|--buffer) viewer_arguments+=("$1" "$2"); shift ;;
             --position) viewer_arguments+=(--position "$(realpath "$2")"); shift ;;
             --play|--whole-board|--rounds) viewer_arguments+=("$1") ;;
             -*) echo "unknown option $1" >&2; usage >&2; exit 2 ;;
@@ -110,7 +116,7 @@ viewer *args:
     arguments=("$(realpath "$game")" --inbox "$(realpath -m "$inbox")" --replay-name "$replay" "${viewer_arguments[@]}")
     if "$recover"; then
         [[ -x "$judge" ]] || { echo "No judge at $judge: run just zig-judge-build" >&2; exit 2; }
-        arguments+=(--recover "$root/build/bin/loong-recover" --replay "$(realpath "$replay")" --registry "$(realpath "$registry")" --judge "$(realpath "$judge")" "${seats[@]}")
+        arguments+=(--recover "$root/build/bin/loong-recover" --replay "$(realpath "$replay")" --registry "$(realpath "$registry")" --judge "$(realpath "$judge")" "${seats[@]}" "${recovery_arguments[@]}")
     fi
     if [[ -n "$image" ]]; then
         mkdir -p "$(dirname "$image")"
@@ -125,7 +131,7 @@ decisions *args:
     set -euo pipefail
     usage() {
         cat <<'USAGE'
-    usage: just decisions REPLAY --seat A|B GUID... (--dragon D... | --team A|B | --all) [--rounds A-B] [--json]
+    usage: just decisions REPLAY --seat A|B GUID... (--dragon D... | --team A|B | --all) [--rounds A-B] [--json] [--state]
 
     Rebuilds each dragon's decisions through its side's registered build, as the
     viewer does, and prints each turn in the rounds asked for, dragon by dragon:
@@ -133,6 +139,7 @@ decisions *args:
     and reason, then the other records, and what changed in memory. Each dragon's
     turns follow a line giving its build and how many rebuilt turns match the
     replay, with the first divergence. --json prints one JSON object a turn.
+    --state adds the state a bot exposes from memory, as tables.
       --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or build/registry)
     USAGE
     }
@@ -146,7 +153,7 @@ decisions *args:
             -h|--help) usage; exit ;;
             --seat) options+=(--seat "$2" "$3" "$2"); shift 2 ;;
             --dragon|--rounds|--team) options+=("$1" "$2"); shift ;;
-            --json|--all) options+=("$1") ;;
+            --json|--all|--state) options+=("$1") ;;
             --registry) registry=$2; shift ;;
             -*) echo "unknown option $1" >&2; usage >&2; exit 2 ;;
             *) replay=$1 ;;

@@ -131,24 +131,37 @@ proc validatePrimitive*(record: JsonNode, area: int) =
   if not record.keysWithin(Allowed): fail "Unknown diagnostic fields"
   let kind = record["kind"].getStr
   if kind == "map" and record.has("display_overlay"):
-    if record["display_overlay"] != %"markers": fail "Unsupported map overlay"
+    if record["display_overlay"] notin [%"markers", %"mental"]: fail "Unsupported map overlay"
   for key in ["label", "objective", "reason", "id", "parent", "expression"]:
     if record.has(key): label(record[key])
   if record.has("slot") and (record["slot"] notin [%"brain", %"memory"] or truthy(record{"parent"})):
     fail "Display slot must be brain or memory on a root gizmo"
   if not truthy(record{"label"}): fail "Every primitive needs a label"
   if record.has("breakdown"):
-    # One or two level/value labels, on the Brain root only.
+    # One or two level/value labels, on the Brain root only, each with how
+    # the viewer draws it: an RGB or RGBA colour, an icon and a pattern.
     let entries = record["breakdown"]
     var valid = record{"slot"} == %"brain" and entries.kind == JArray and entries.len in 1 .. 2
     if valid:
       for entry in entries:
-        valid = valid and entry.kind == JObject and entry.len == 2 and entry.has("level") and
+        valid = valid and entry.kind == JObject and entry.has("level") and
           entry.has("value") and truthy(entry["level"]) and truthy(entry["value"])
+        if valid:
+          for key, value in entry:
+            valid = valid and key in ["level", "value", "color", "icon", "pattern"]
     if not valid: fail "Breakdown must be one or two level/value labels on the Brain root"
     for entry in entries:
       label(entry["level"])
       label(entry["value"])
+      for key in ["icon", "pattern"]:
+        if entry.has(key): label(entry[key])
+      if entry.has("color"):
+        let shade = entry["color"]
+        if shade.kind != JArray or shade.len notin 3 .. 4:
+          fail "Breakdown color must be three RGB or four RGBA bytes"
+        for item in shade:
+          if item.kind != JInt or item.getBiggestInt notin 0 .. 255:
+            fail "Breakdown color must be three RGB or four RGBA bytes"
   if record.has("color"): color(record["color"])
   if record.has("score"): number(record["score"])
   if record.has("selected") and record["selected"].kind != JBool: fail "Selected must be a boolean"
@@ -165,9 +178,14 @@ proc validatePrimitive*(record: JsonNode, area: int) =
       if entry["cells"].kind != JArray or entry["cells"].len > area:
         fail "Position cells list at most every cell once"
       for possible in entry["cells"]: cell(possible, area)
-    for key in ["radius", "age", "length", "dragon"]:
+    for key in ["radius", "age", "length"]:
       if entry.has(key) and (entry[key].kind != JInt or entry[key].getBiggestInt notin 0'i64 .. 4096'i64):
-        fail "Position radius, age, length and dragon are whole numbers to 4096"
+        fail "Position radius, age and length are whole numbers to 4096"
+    # The engine numbers every dragon a game creates, so a game of many
+    # splits passes 4096.
+    if entry.has("dragon") and (entry["dragon"].kind != JInt or
+        entry["dragon"].getBiggestInt notin 0'i64 .. int64(high(int32))):
+      fail "Position dragon is a whole number"
     if entry.has("team") and entry["team"] notin [%"ours", %"enemy"]:
       fail "Position team is ours or enemy"
     for key in ["length_exact", "champion"]:

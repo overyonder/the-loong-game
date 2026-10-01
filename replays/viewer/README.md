@@ -1,14 +1,12 @@
 # Replay viewer
 
-`just viewer REPLAY [OPTIONS]` opens a replay in the Odin display, from
-`examples/tooling`. `just viewer --help` lists the options:
+`just viewer REPLAY [OPTIONS]` opens a replay in the Odin display. Give each
+side whose decisions you want to inspect a registered build with `--seat A GUID`
+or `--seat B GUID`. `just viewer --help` lists the options:
 
-- `--seat A|B GUID` names the registered build that played that side (`just
-  bot-build` prints it). Its dragons' decisions are rebuilt (see
-  [Decision and memory inspection](#decision-and-memory-inspection)). A side
-  with no seat shows the replay alone.
 - `--dragon N` and `--round R` set the initial focus. That dragon's decisions
-  are rebuilt first.
+  are rebuilt first (see
+  [Generic decision and memory inspection](#generic-decision-and-memory-inspection)).
 - `--turn T` opens Turns mode at that turn index, overriding `--round`.
 - A `--dragon` with `--round` or `--turn` opens zoomed on its area, as F does,
   unless `--whole-board` is given. The button at the board's top-right corner
@@ -19,30 +17,32 @@
   (`Viewer_Position` in `position.odin`): the replay, round, Turns mode and
   turn index, focused dragon, zoom, selected cell, each highlight with its
   description, the inspector's selected record, tab and Brain view, the open
-  dialog's title and belief-map cell, the overlays, and the comment being
-  typed. `--position GAME.cols.position` restores all of it but the dialog.
+  dialog's title and belief-map cell, the overlays, which team is ours, and
+  the comment being typed. Pass that file back with `--position` to restore
+  everything except the open dialog.
 - `--rounds` opens in Rounds mode rather than Turns.
 - `--play` starts playback, at `--speed` turns or rounds per second.
 - `--game FILE` chooses where the game columns go (default
   `build/viewer/<stem>.<hash>.cols`), `--no-display` only writes them, and
   `--image FILE` renders a PNG (see [Image output](#image-output)).
-- `--knowledge FILE` opens no window: it rebuilds every dragon the recovery
-  can, writes each round's team knowledge for each rebuilt team as a
-  `knowledge` columns file ([gamedata/format.md](../../gamedata/format.md)), and
-  exits. A whole game takes as long as the viewer's rebuild of it.
 - `--no-recovery` shows only what the replay recorded, and `--registry`
   selects another build registry.
-- `--inbox FILE` is where comments are saved (default
-  `build/viewer/comments.md`).
+- `--seat A|B GUID` rebuilds that side's dragons with a registered build.
+- `--inbox FILE` selects the Markdown file that receives saved comments
+  (default `build/viewer/comments.md`).
+- `--memory-share R` sets how much memory the rebuild's checkpoints may hold
+  together, as a share of what the viewer, the recovery and its judges hold at
+  most (1 by default); `--memory MB` sets it in megabytes instead (0 for none).
+  `--buffer N` sets how many rounds either side of the current one are rebuilt
+  whole (5 by default).
 
-`just showcase` builds the [showcase bot](../../examples/showcase-bot), plays it
-against itself on Default and opens the game with both sides rebuilt. The bot
-exists to emit every kind of record the viewer draws.
-
-Games follow the [diagnostic contract](diagnostics.md). Each dragon is rerun
-over its recorded observations through its side's registered build; its
-rebuilt actions are checked against the replay, and its overlays hide after
-divergence. The viewer has no strategy-specific adapters.
+Games follow the [public diagnostic contract](diagnostics.md). Each side's
+build comes from `--seat` (see [Build identity](diagnostics.md#build-identity)).
+Each dragon is rerun over
+its recorded observations through that registered build; its rebuilt actions
+are checked against the replay, and its overlays hide after divergence. The
+viewer has no strategy-specific adapters. A side with no supplied build opens
+as replay truth with no recovered decisions.
 
 The board shows recorded truth immediately before the selected dragon's
 **same-round** decision. The yellow 7×7 outline is that decision's recorded
@@ -58,63 +58,69 @@ edges to highlight them. Shift-click a body to highlight a dragon. Records and
 ping rows in the inspector are also selectable. Type a
 comment and save it with Enter or Save comment, which keeps the field focused for
 the next one. A comment wider than the field scrolls, keeping its end in view as
-you type. Saving it appends one line to the inbox file. The line names the replay,
-the round (and turn in turn playback), the selected dragon and each highlight,
-with cells and edges as `(x,y)`, then the text, and carries the same context as
-JSON in an HTML comment at its end. Previous/Next saved restores the round,
-dragon, highlights and exact text of this replay's comments while they are
-still in the inbox. The line under the field names the match: the replay's
-name, each side's bot by the last part of its recorded path with the build
-shown for it and how far that build is established, the map, the rounds and
-the winner, then the latest message. A side reads `no build`, or the build's
-first eight characters and where it came from, `asserted` until a turn is
-rebuilt, then how many rebuilt turns match the replay. Its `i` button opens
-the replay path, the full bot paths and the build the recovery gives each
-team. Beside it, Issues lists what the viewer can't use in the records of
-every dragon rebuilt so far, amber with the number of kinds when there is any:
-records the recovery rejected, sonar records the replay doesn't bear out,
-rebuilt actions that diverged, and memories that name no source
+you type. Saving it appends one line to the Markdown file selected with `--inbox`
+(`build/viewer/comments.md` by default). The line names the replay, the round (and turn in
+turn playback), the selected dragon and each highlight, with cells and edges as
+`(x,y)`, then the text, and carries the same context as JSON in an HTML comment
+at its end. Previous/Next saved restores the round, dragon, highlights and exact
+text of this replay's comments while they are still in the inbox. The line under
+the field names the match: the replay's name, each side's bot by its
+identifier, or else the last part of its recorded path, with the build shown
+for it and how far that build is
+established, the map, the rounds and the winner, then the latest message. A
+side reads `no build`, or the build's first eight characters and the record it
+came from, `asserted` until a turn is rebuilt, then how many rebuilt turns
+match the replay, for example `showcase (94f3b00c from --seat, 1183/1183 rebuilt turns match)`.
+Its `i` button opens the replay path, the full bot paths and the build
+the recovery gives each team. Beside it, Issues lists what the viewer can't use in the
+records of every dragon rebuilt so far, amber with the number of kinds when
+there is any: records the recovery rejected, sonar records the replay doesn't
+bear out, rebuilt actions that diverged, and memories that name no source
 (diagnostics.md, Tables). Each record is checked once as it arrives, and each
 kind is listed with its turns, dragons and first appearance, then the focused
 decision's own issues. Ctrl-A clears the comment;
 Ctrl-V pastes. Text−/Text+ scales the embedded DejaVu Sans font. Raylib's default
 font is a small bitmap font; this viewer instead embeds a 48px font atlas and
-uses filtered scalable drawing. All overlays except Mental map start enabled.
+uses filtered scalable drawing. All overlays except Mental map and Mirror start enabled.
 
 ## Decisions as text
 
 `just decisions REPLAY --seat A|B GUID... (--dragon D... | --team A|B | --all)
-[--rounds A-B] [--json]` rebuilds dragons' decisions as the viewer does (`loong-recover decisions`,
-replays/recovery/decisions.nim) and prints a block per turn in those
+[--rounds A-B] [--json] [--state]` rebuilds dragons' decisions as the viewer
+does (`loong-recover decisions`, `replays/recovery/decisions.nim`) and prints a block per turn in those
 rounds, dragon by dragon, each dragon and its ancestors rebuilt once: the action, the Brain's breakdown and reason, every alternative it
 weighed with its eligibility, score and reason, then the dragon's other records
 in its own order (option tables, target, route, sonar sent and received, costs),
 and what changed in its retained memory this turn. Each dragon's
-turns follow a line giving where its build came from, how many rebuilt turns
+turns follow a line naming where its build came from, how many rebuilt turns
 match the replay, and the round it first diverged, after which its turns are
 marked UNRELIABLE and are not the bot's decisions. It lays out the contract's
 record kinds and knows nothing of any strategy. `--json` prints one object a
 turn, the record as streamed and with retained records rebuilt, for scripts.
 It stops recovering once past the last round asked for. A dragon it can't show,
-such as one without a registered build, is listed with the reason.
+such as one without a registered build, is named with the reason.
 
 ## Image output
 
 The same Odin renderer produces PNG images:
 
 ```sh
-just viewer REPLAY --seat A GUID --dragon 0 --round 178 --image viewer.png --size 1440x900
+just viewer-build
+just viewer /absolute/game.replay --seat A GUID --dragon 0 --round 178 \
+  --image /absolute/viewer.png --size 1440x900
 ```
 
 `--size WIDTHxHEIGHT` sets the starting window size, and so the image's
 (default 1600x960). Interface text is 12 pt (16 px) throughout, from the
 constants in `typography.odin`; board labels scale with the board instead.
 
-The binary creates a hidden raylib window, renders one frame, saves it and
-exits. With a seat, it first waits up to two minutes for the focused dragon's
-decisions. It requires a working display and graphics context even though the
-window is hidden. Use an existing display, a headless Wayland compositor, or
-an X server such as Xvfb with an X11-capable raylib build and software OpenGL.
+Selection and initial round come from `--dragon` and `--round`. The binary creates a hidden
+raylib window, renders one frame, saves it and exits. With the recovery
+options, as `just viewer --image` passes them, it first waits up to two minutes
+for the focused dragon's decisions. It requires a working
+display and graphics context even though the window is hidden. Use an existing
+display, a headless Wayland compositor, or an X server such as Xvfb with an
+X11-capable raylib build and software OpenGL. Xvfb was not tested here.
 
 ## Game data
 
@@ -130,15 +136,26 @@ after start.
 Decisions come from `loong-recover` (`replays/recovery/serve.nim`), which
 the viewer starts beside itself over pipes and stops when it closes. It reruns
 each dragon the viewer asks for through that dragon's registered build and
-streams every turn's validated record as the judge answers, and the viewer keeps
-them all in memory. Nothing is written to disk but the game columns: the
-decisions' recorded inputs, needed only while they load, go to `/dev/shm`. A
-dragon's retained records (`retain`, such as its memory table and map) arrive as
-what changed since its previous turn, and the viewer rebuilds a turn's records
-when it first opens it. What the viewer derives from the records is computed for
+streams each validated record in a window of rounds, five either side of the
+current one, as the judge answers. Every other turn brings only its breakdown
+for the chart, so the viewer holds one window's records. Nothing is written to
+disk but the game columns: the decisions' recorded inputs, needed only while
+they load, go to `/dev/shm`. The focused dragon's records also carry the state
+its bot shows from its memory, and a dragon focused after it was rebuilt
+without it is rebuilt again with it
+([diagnostics.md](diagnostics.md#state-from-memory)). A dragon's retained
+records (`retain`, such as its memory table and map) arrive whole on the
+window's first turn and then as what changed since its previous turn, and the
+viewer rebuilds a turn's records when it first opens it. What the viewer derives from the records is computed for
 the turn on screen: the mental map's grades against the replay, the join of
 both ends' sonar records with each ping, and the team's beliefs graded against
 the replay.
+
+The packed replay decoder exposes lazy event mappings, materialising only fields
+that a consumer reads. `just test-replay REPLAY...` compares every event, including
+absent fields and active union members, against pycapnp's materialised values.
+The economy summary and the head-to-head audit use the same decoder's raw-reader
+entry point.
 
 ## Turn playback and inspection
 
@@ -147,7 +164,7 @@ and opens in Turns unless `--rounds` is given. The arrow buttons and Up/Down
 step one turn or round in that mode; speed uses its units. Left/Right step
 between the focused dragon's key turns in Turns mode (below), and otherwise
 step like Up/Down. The scroll wheel over the board steps as Left/Right do,
-scrolling down to go forward. R switches between Rounds and Turns, as the button
+scrolling down to go forward. T switches between Rounds and Turns, as the button
 does. The Hotkeys button at the top of the left sidebar lists every key and
 gesture (`HOTKEYS` in controls.odin).
 Rounds mode shows each round after every dragon has moved in it, so a head is
@@ -164,8 +181,8 @@ inspection selections. Defocus in the playback bar drops the focus for the team
 view, and becomes Focus D14 to return to that dragon. Tab and Shift-Tab cycle forward/backward within the current team.
 Selecting another dragon seeks its turn within the current round in Turns mode.
 Focusing a dragon with no diagnostics, such as an enemy's, follows it on the
-replay alone: its pings, the replay's spawn countdowns and, with Edges on, a
-line joining each portal pair.
+replay alone: its pings and the replay's spawn countdowns. With Edges on, a
+thin faded magenta line joins the two edges of each portal pair.
 
 The left sidebar owns replay truth, selected-cell information, spawn comparisons,
 filters and the legend. The right sidebar owns only the selected dragon's
@@ -225,7 +242,7 @@ against the 100M limit, and its whole life as a strip chart: orange from 90%,
 red where the turn failed, with the toolkit's reason. Click the chart to seek,
 or drag along it to scrub, as on the timeline.
 It also names the team's costliest dragon this round. Points come from the
-`.points.cols` that the Zig judge (`harness/zig_judge/src/run.zig`)
+`.points.cols` that a sandboxed match through `harness/toolkit.py`
 writes beside its replay, carried into the game columns; other replays say they have none. A bot that wants its
 own per-stage breakdown emits it as an ordinary table gizmo, read from its
 monotonic clock, which the sandbox runs in points.
@@ -240,11 +257,20 @@ are drawn top-right in cyan unless it chooses a colour or corner.
 Spawn gaps tints each cell's background towards yellow by the maximum of its
 true reset range, so fast-spawning ground shows how dense the farming is under
 everything drawn on it. The bands, strongest first, are a maximum of at most
-10, 20, 100 and 200 rounds, where the bundled maps' maxima cluster (`SPAWN_BANDS` in
+10, 20, 100 and 200 rounds, where our maps' maxima cluster (`SPAWN_BANDS` in
 `palette.odin`). Slower cells, cells that never spawn and replays that record
 no ranges stay plain.
 
-## Decision and memory inspection
+Mirror (or R) draws every dragon's image under the map's symmetry as a ghost in
+its own team's colour: small dots and links for the body, a ring for the head,
+under the dragons actually there. Each team starts on the image of the other's
+start, so on either half the ghosts are what the other team did from the
+matching start, and two openings can be compared move by move on the same
+ground. The game columns don't name the symmetry, so `mirror.odin` finds it from
+the starting bodies: the reflection or half turn that carries every team A body
+onto a team B body. Where none does, Mirror draws nothing.
+
+## Generic decision and memory inspection
 
 The right sidebar renders the bot's generic decision records. A fixed state tree
 shows every alternative and its stable parentage. Supplied active/eligibility
@@ -255,24 +281,72 @@ with a bar above it, when it is wider than the sidebar. Selecting an alternative
 in place. No function-call Modules or duplicate Catalog view is maintained.
 The viewer never reconstructs a scoring formula or infers a role hierarchy.
 
-The left sidebar charts the focused dragon's team (else the first team that
-reports one) by its Brain roots' `breakdown`, such as role and then behaviour:
+The whole viewer treats one team as ours, which the Us button under Hotkeys
+names by side and bot, such as `Us: B, showcase`. A click swaps it,
+and the breakdown chart, the board's looks, the enemy's true champion and the
+beliefs strip all follow at once. Until the button is used, ours is the one team
+the recovery can rebuild, else the focused dragon's, else team A, settled once
+the recovery has said which teams it can rebuild, so focusing another dragon
+never moves it. The saved position keeps it across a restart with `--position`.
+
+The left sidebar charts our team by its Brain roots' `breakdown`, such as role
+and then behaviour:
 a stacked strip of each round's turns by the first level, which seeks on click,
 then this round's count for each first-level value and, beneath it, for each
 second-level value. It says how many of the team's turns this round reported
 one, since dragons are rebuilt one at a time. The
 producer names the levels and values ([diagnostics.md](diagnostics.md#brain-placement)).
 
+The board draws the same team by each dragon's latest turn it shows: the
+round's own turn in Rounds mode, and in Turns mode the last before the active
+turn. Its look is the one its breakdown entries name (diagnostics.md, Brain
+placement), so each bot decides how its roles and tasks appear. With Colours
+on, the dragon takes its colour, the chart's swatch for its group, and its ID
+turns light on a dark colour. With Icons on, its head takes its shape: a
+crown, a hollow crown, an arrowhead pointing where it moved, a magnifying
+glass, a shield or a shield turned over. A shaped head has a dark outline so
+it shows against its own body, and the chart's list draws each group's swatch
+in its head's shape. With Patterns on, its body takes stripes, crosshatch,
+dots or dither, and under the chart a legend lists the values each pattern
+marks. A dragon whose turn isn't rebuilt yet, or whose rebuild diverged from
+the replay, keeps the team colour, the round head and a solid body, and so
+does one whose bot names no look. All three overlays start on.
+
+Whatever the overlays, the enemy's true champion is red with a red crown: its
+longest dragon on the board, every one when they tie, as the beliefs strip
+grades champions. Where the Mental map's dragon doesn't know it, it is grey
+with a grey crown. The enemy is the team opposite ours.
+Its head holds the ID of the dragon the focused decision names as the enemy
+champion, green when that belief holds as the beliefs strip grades it and
+yellow when it doesn't, or a yellow `?` when the decision names none. A
+decision without believed positions, such as one whose state wasn't captured,
+leaves the champion's own ID.
+
+A body passing through a portal runs square into the portal edge on both sides,
+where elsewhere it ends in a round cap, so a dragon about to enter or leave a
+portal shows it.
+
 Recovery reruns a dragon's build, marked for inspection, over its recorded observations from
-its birth, about 10 ms a turn, and a child after its parent, at low CPU
-priority (`nice -n 10`), with half the processor's threads rebuilding a dragon
-each (`loong-recover --workers`). It queues every dragon in the match:
-the focused dragon (`--dragon`, else the first to move) first, then the other
-dragons on the board that round, then the rest. Focusing a dragon moves it to
-the front, and reaching a new round, except while playing, moves that round's
-dragons in behind it. Every turn stays in memory once it
-arrives, so seeking back or forward needs no rerun. Until a turn's decisions
-arrive, the inspector says whether its dragon is being rebuilt or waiting and
+its birth, a child after its parent, with several dragons rebuilt concurrently
+(`loong-recover --workers`). A bot that lets the judge switch its diagnostics
+off plays the turns outside the window without them, close to its in-game cost
+([diagnostics.md](diagnostics.md#state-from-memory)). It queues every dragon in
+the match: the focused dragon (`--dragon`, else the first to move) first, then
+the other dragons on the board that round, then the rest. Focusing a dragon
+moves it to the front, and reaching a new round, except while playing, moves
+that round's dragons in behind it. A dragon's first rebuild runs its whole
+life, so every turn's breakdown arrives once. Stepping within the window needs
+no rerun. Leaving it centres the window on the new round: the viewer frees the
+last window's records, and each dragon with a turn in the new window is
+rebuilt again as far as its last round. Each rebuild resumes from a checkpoint
+the recovery kept just before the window, or from an earlier one, rather than
+replaying the dragon's life (serve.nim's header has the checkpoints and their
+budget). The buffer trades a wider immediately available range for more traced
+turns per rebuild, while the checkpoint allowance trades memory for a shorter
+resume. A bot built before the switch traces
+every turn anyway, so its dragons' records all arrive whole from that first
+rebuild and stay, as every record did before the window. `--knowledge` asks for every round.
+Until a turn's decisions arrive, the inspector says whether its dragon is being rebuilt or waiting and
 how many are ahead of it. Under the breakdown chart, a line lists the round's dragons as
 rebuilt, rebuilding, waiting, not asked or without diagnostics, the last with
 the recovery's note on their build. The arrow left of the Brain tab expands the
@@ -293,9 +367,8 @@ action and sends change it.
 
 The window has six panes, each with a one-pixel border: the two sidebars, the
 board and, under it, the beliefs strip, the playback bar and comments. At the end
-of the selected turn, the beliefs strip grades each living dragon of one
-team (the focused dragon's when the recovery can rebuild it, else the one it
-can) that has a rebuilt record against the replay, from its latest record: the
+of the selected turn, the beliefs strip grades each living dragon of our
+team that has a rebuilt record against the replay, from its latest record: the
 map (edges, pearls, spawn deadlines), where other dragons are, their lengths, and which dragon is each team's champion. Each belief
 is a column. Its box reads, for example, `Positions 20/27, 93%`: 20 of the 27
 graded dragons hold no false position, and 93% of all stated positions are
@@ -326,16 +399,21 @@ queued, green `All 45 rebuilt` once every dragon the recovery can rebuild is
 done, and red if any failed or the recovery ended first. Refused builds aren't
 counted. The rules are in diagnostics.md, Belief correctness.
 
-The Mental map overlay turns the board into the focused dragon's view, graded
-against the replay, and hides the replay's own sonar, deaths and fog. Cells it
-has no record of are black. Each side is drawn as the dragon believes it, just
-inside the cell: remembered kelp solid green, possible kelp dashed orange and
-portals violet with a line to their remembered landing from the selected cell.
-A cell with a wrong claim is red, solid within its 7×7 window and hatched
-beyond it, and a wrongly remembered side is a red line. With Positions on, each
-dragon it believes in is a dot where it thinks the dragon is, a square for a
-champion, green if the replay's head lies among the cells the dragon says it
-may occupy and red if not. Dragons it knows nothing of are grey. Without the
+The Mental map overlay (or M) turns the board into the focused dragon's view, graded
+against the replay, and hides the replay's own pearls, sonar, deaths and fog.
+Cells it has no record of are black. Each side it remembers is drawn as it
+remembers it, just inside the cell: kelp solid green, possible kelp dashed
+orange and portals violet with a line to their remembered landing from the
+selected cell. Pearls it remembers in its window are gold dots. What it
+believes beyond that comes from the maps the bot marks for the mental map
+(diagnostics.md, Map records), drawn in the bot's colours at the opacity of
+its confidence. A cell with a wrong claim is red, solid
+within its 7×7 window and hatched beyond it, and a wrongly remembered side is a
+red line. With Positions on, each dragon it believes in is a dot where it
+thinks the dragon is, a square for a champion, green if the replay's head lies
+among the cells the dragon says it may occupy and red if not, at the opacity
+the bot gives it, such as its chance of being alive. Dragons it knows nothing
+of are grey. Without the
 mental map, Positions draws each dot where the dragon was last known or is
 likeliest, fading with age. A position shows only that centre, what the dragon
 chose to believe, until it is opened: click its centre cell, or highlight its

@@ -21,6 +21,8 @@ SPAWN_BANDS := [?]struct {
 COLOR_GRID :: rl.Color{243, 236, 223, 18}
 COLOR_KELP :: rl.Color{127, 176, 105, 255}
 COLOR_PORTAL :: rl.Color{232, 200, 114, 255}
+// The faded magenta line joining a portal pair.
+PORTAL_LINK :: rl.Color{255, 0, 255, 90}
 COLOR_PEARL :: rl.Color{232, 200, 114, 255}
 COLOR_SELECTED :: rl.Color{232, 200, 114, 255}
 COLOR_DEATH :: rl.Color{251, 73, 52, 255}
@@ -40,6 +42,8 @@ BOARD_TEXT :: rl.Color{243, 236, 223, 170}
 TEAM_BODY_COLORS := [2]rl.Color{{255, 122, 61, 255}, {243, 236, 223, 255}}
 @(rodata)
 TEAM_HEAD_COLORS := [2]rl.Color{{255, 122, 61, 255}, {243, 236, 223, 255}}
+// The enemy's true champion, a red apart from team A's orange.
+ENEMY_CHAMPION_COLOR :: rl.Color{225, 29, 42, 255}
 // A true countdown the focused dragon remembers correctly, and other
 // remembered timer columns.
 CORRECT_TIMER_COLOR :: rl.Color{80, 210, 230, 255}

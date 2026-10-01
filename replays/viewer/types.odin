@@ -86,6 +86,10 @@ Overlay_Toggles :: struct {
 	fog:                                                           bool,
 	pings, timers, search, path, mental_map, positions:            bool,
 	spawn_gaps:                                                    bool,
+	mirror:                                                        bool,
+	// Our dragons' colours, head icons and body patterns as their breakdown's
+	// producer names them (breakdown.odin).
+	colors, icons, patterns:                                       bool,
 }
 Playback_State :: struct {
 	substeps:          bool,
@@ -124,6 +128,9 @@ Viewer_State :: struct {
 	wheel_steps: f32,
 	// The dragon Defocus left, for the Focus button to return to.
 	last_focused: i32,
+	// The team the whole viewer treats as ours, -1 until settled (controls.odin,
+	// our_team).
+	our_team: i32,
 	// The sidebar chart being dragged to seek, if any.
 	scrubbing: Scrub_Chart,
 	area_view:                                                                                      bool, // `f`: the 15×15 area round the focused head

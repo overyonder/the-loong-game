@@ -45,6 +45,28 @@ fn cost(code: u32) i64 {
     };
 }
 
+/// The operator classes a profile splits points into, in its counters' order.
+pub const classes = [_][]const u8{ "arithmetic", "locals", "memory", "simd", "calls", "control", "other" };
+const MEMORY: u64 = 2;
+pub const SIMD: u64 = 3;
+
+/// The class of an instruction, by its place in `classes`.
+fn classOf(code: u32) u64 {
+    return switch (code >> 16) {
+        0xFD => SIMD,
+        0xFC => if (code & 0xFFFF <= 7) 0 else MEMORY,
+        0xFE => 6,
+        else => switch (code) {
+            0x10...0x15 => 4,
+            0x00...0x0F, 0x18, 0x19, 0x1F => 5,
+            0x1A...0x1C, 0x20...0x24 => 1,
+            0x25, 0x26, 0x28...0x40 => MEMORY,
+            0x41...0xC4 => 0,
+            else => 6,
+        },
+    };
+}
+
 fn endsBlock(code: u32) bool {
     return switch (code) {
         0x03, 0x04, 0x05, 0x07...0x15, 0x18 => true,
@@ -237,6 +259,29 @@ const Out = struct {
         try self.uleb(rem);
     }
 
+    /// Add `points` to the profile counter `global`.
+    fn tally(self: *Out, global: u64, points: i64) Error!void {
+        try self.byte(0x23);
+        try self.uleb(global);
+        try self.byte(0x42);
+        try self.sleb(points);
+        try self.bytes("\x7c\x24");
+        try self.uleb(global);
+    }
+
+    /// Add a bulk operation's length charge, as `chargeLength` takes it, to
+    /// the profile counter `global`.
+    fn tallyLength(self: *Out, global: u64, scratch: u64) Error!void {
+        try self.byte(0x23);
+        try self.uleb(global);
+        try self.byte(0x23);
+        try self.uleb(scratch);
+        try self.bytes("\xad\x42");
+        try self.sleb(BULK_BYTES_PER_POINT_SHIFT);
+        try self.bytes("\x88\x7c\x24");
+        try self.uleb(global);
+    }
+
     fn chargeLength(self: *Out, rem: u64, scratch: u64) Error!void {
         try self.byte(0x24);
         try self.uleb(scratch);
@@ -253,7 +298,10 @@ const Out = struct {
     }
 };
 
-fn instrumentBody(out: *Out, blob: []const u8, start: usize, end: usize, rem: u64, exh: u64, scratch: u64) Error!void {
+/// Meter one function body. With `profile`, its first profile counter's
+/// global, each block's points also go to the counter of each class they
+/// were spent in; the meter charges exactly what it charges without.
+fn instrumentBody(out: *Out, blob: []const u8, start: usize, end: usize, rem: u64, exh: u64, scratch: u64, profile: ?u64) Error!void {
     var r = Reader{ .b = blob[0..end], .i = start };
     const locals = try r.uleb();
     for (0..locals) |_| {
@@ -263,15 +311,26 @@ fn instrumentBody(out: *Out, blob: []const u8, start: usize, end: usize, rem: u6
     try out.bytes(blob[start..r.i]);
     try out.check(rem, exh);
     var acc: i64 = 0;
+    var by_class: [classes.len]i64 = @splat(0);
     while (r.i < end) {
         const at = r.i;
         const code = try r.op();
         acc += cost(code);
+        by_class[classOf(code)] += cost(code);
         if (endsBlock(code) and acc > 0) {
             try out.charge(rem, acc);
             acc = 0;
+            if (profile) |first| {
+                for (by_class, 0..) |points, class| {
+                    if (points > 0) try out.tally(first + class, points);
+                }
+            }
+            by_class = @splat(0);
         }
-        if (bulkLength(code)) try out.chargeLength(rem, scratch);
+        if (bulkLength(code)) {
+            try out.chargeLength(rem, scratch);
+            if (profile) |first| try out.tallyLength(first + MEMORY, scratch);
+        }
         try out.bytes(blob[at..r.i]);
         if (code == LOOP) try out.check(rem, exh);
     }
@@ -307,12 +366,63 @@ fn importedGlobals(blob: []const u8, start: usize, end: usize) Error!u64 {
     return total;
 }
 
+/// Functions an import section brings in.
+fn importedFunctions(blob: []const u8, start: usize, end: usize) Error!usize {
+    var total: usize = 0;
+    var r = Reader{ .b = blob[0..end], .i = start };
+    const n = try r.uleb();
+    for (0..n) |_| {
+        try r.skip(@intCast(try r.uleb()));
+        try r.skip(@intCast(try r.uleb()));
+        switch (try r.byte()) {
+            0 => {
+                total += 1;
+                _ = try r.uleb();
+            },
+            1 => {
+                try r.skip(1);
+                const limits = try r.byte();
+                _ = try r.uleb();
+                if (limits != 0) _ = try r.uleb();
+            },
+            2 => {
+                const limits = try r.byte();
+                _ = try r.uleb();
+                if (limits & 1 != 0) _ = try r.uleb();
+            },
+            3 => try r.skip(2),
+            else => _ = try r.uleb(),
+        }
+    }
+    return total;
+}
+
 fn orderOf(id: u8) usize {
     return std.mem.indexOfScalar(u8, &SECTION_ORDER, id) orelse 0;
 }
 
+/// Where a profiled module keeps its counters: `classes.len` i64 globals per
+/// defined function, function by function in code-section order, exported
+/// as `p0`, `p1` and on.
+pub const Profile = struct {
+    /// Defined functions.
+    functions: usize = 0,
+    /// Imported functions, which come first in the index space.
+    imported_functions: usize = 0,
+};
+
 /// The metered module; the caller frees it.
 pub fn instrument(allocator: std.mem.Allocator, blob: []const u8) Error![]u8 {
+    return instrumentWith(allocator, blob, null);
+}
+
+/// The metered module with a profile's counters, as `profile` then describes;
+/// the caller frees it. Its meter charges exactly what `instrument`'s does.
+pub fn instrumentProfiled(allocator: std.mem.Allocator, blob: []const u8, profile: *Profile) Error![]u8 {
+    return instrumentWith(allocator, blob, profile);
+}
+
+fn instrumentWith(allocator: std.mem.Allocator, blob: []const u8, profile: ?*Profile) Error![]u8 {
     const all = try sections(allocator, blob);
     defer allocator.free(all);
     var found: [13]?Section = @splat(null);
@@ -331,14 +441,21 @@ pub fn instrument(allocator: std.mem.Allocator, blob: []const u8) Error![]u8 {
     const rem = imported + defined;
     const exh = rem + 1;
     const scratch = rem + 2;
+    const code = found[10] orelse return error.NoCodeSection;
+    const functions: u64 = blk: {
+        var r = Reader{ .b = blob[0..code.end], .i = code.body };
+        break :blk try r.uleb();
+    };
+    const counters: u64 = if (profile != null) functions * classes.len else 0;
 
     var globals_section = Out{ .allocator = allocator };
     defer globals_section.list.deinit(allocator);
-    try globals_section.uleb(defined + 3);
+    try globals_section.uleb(defined + 3 + counters);
     try globals_section.bytes(gbody);
     try globals_section.bytes("\x7e\x01\x42");
     try globals_section.sleb(INITIAL_POINTS);
     try globals_section.bytes("\x0b\x7f\x01\x41\x00\x0b\x7f\x01\x41\x00\x0b");
+    for (0..counters) |_| try globals_section.bytes("\x7e\x01\x42\x00\x0b");
 
     var exported: u64 = 0;
     var ebody: []const u8 = "";
@@ -349,7 +466,7 @@ pub fn instrument(allocator: std.mem.Allocator, blob: []const u8) Error![]u8 {
     }
     var exports_section = Out{ .allocator = allocator };
     defer exports_section.list.deinit(allocator);
-    try exports_section.uleb(exported + 2);
+    try exports_section.uleb(exported + 2 + counters);
     try exports_section.bytes(ebody);
     try exports_section.uleb(REMAINING.len);
     try exports_section.bytes(REMAINING);
@@ -359,8 +476,19 @@ pub fn instrument(allocator: std.mem.Allocator, blob: []const u8) Error![]u8 {
     try exports_section.bytes(EXHAUSTED);
     try exports_section.byte(0x03);
     try exports_section.uleb(exh);
+    var name_buffer: [24]u8 = undefined;
+    for (0..counters) |counter| {
+        const name = std.fmt.bufPrint(&name_buffer, "p{d}", .{counter}) catch unreachable;
+        try exports_section.uleb(name.len);
+        try exports_section.bytes(name);
+        try exports_section.byte(0x03);
+        try exports_section.uleb(scratch + 1 + counter);
+    }
+    if (profile) |layout| layout.* = .{
+        .functions = functions,
+        .imported_functions = if (found[2]) |s| try importedFunctions(blob, s.body, s.end) else 0,
+    };
 
-    const code = found[10] orelse return error.NoCodeSection;
     var code_section = Out{ .allocator = allocator };
     defer code_section.list.deinit(allocator);
     var body = Out{ .allocator = allocator };
@@ -368,11 +496,12 @@ pub fn instrument(allocator: std.mem.Allocator, blob: []const u8) Error![]u8 {
     var r = Reader{ .b = blob[0..code.end], .i = code.body };
     const n = try r.uleb();
     try code_section.uleb(n);
-    for (0..n) |_| {
+    for (0..n) |index| {
         const size: usize = @intCast(try r.uleb());
         if (r.i + size > code.end) return error.Truncated;
         body.list.clearRetainingCapacity();
-        try instrumentBody(&body, blob, r.i, r.i + size, rem, exh, scratch);
+        try instrumentBody(&body, blob, r.i, r.i + size, rem, exh, scratch,
+            if (profile != null) scratch + 1 + index * classes.len else null);
         try code_section.uleb(body.list.items.len);
         try code_section.bytes(body.list.items);
         r.i += size;

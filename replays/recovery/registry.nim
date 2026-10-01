@@ -1,8 +1,8 @@
-## A registered build's directory, checked as harness/
+## A registered build's directory, checked as replays/viewer/
 ## build_registry.py's resolve_build checks it: the manifest's identity names
 ## its GUID, and every file the manifest lists has the recorded SHA-256.
 
-import std/[algorithm, json, os, sequtils, sha1, strutils, unicode]
+import std/[algorithm, json, os, sha1, strutils, unicode]
 import ../../gamedata/sha256
 
 proc pythonDumps(node: JsonNode, output: var string) =
@@ -91,6 +91,14 @@ proc resolveBuild*(registry, guid: string): (string, JsonNode) =
   let manifest = parseFile(directory / "manifest.json")
   if manifest{"version"}.getInt != 1 or manifest{"guid"}.getStr != guid:
     raise newException(ValueError, "Build manifest identity/version mismatch")
+  # An entry registered from a judge wasm alone, as the foil's builds were
+  # before it built from source, is named by the wasm's hash.
+  if manifest{"opaque"}.getBool:
+    let judge = sha256Hex(readFile(directory / "judge.wasm"))
+    if judge != manifest["artifacts"]["judge"].getStr or
+        uuid5("loong-build-opaque-v1:" & judge) != guid:
+      raise newException(ValueError, "Opaque build hash mismatch")
+    return (directory, manifest)
   if buildIdentity(manifest["files"], manifest["settings"]) != guid:
     raise newException(ValueError, "Build manifest content identity mismatch")
   var expected: seq[(string, string)]

@@ -1,11 +1,12 @@
-// The viewer's display. `just viewer` writes the replay's game columns this
-// maps, and the recovery (replays/recovery/serve.nim) re-runs the build that
-// played each side and streams its decisions in:
+// The viewer's display. replays/viewer/recovery.py chooses the game, identifies the
+// build that played it, re-runs that build and writes the export this opens:
 //
-//   just viewer game.replay --seat A GUID
+//   just viewer game.replay --seat A BUILD_GUID
+//   just viewer 250734
 //
 // Everything shown about a rebuilt dragon is the bot's own state, recovered by
-// that re-run. A side with no build shows the replay alone.
+// that re-run. Where the build could not be identified the export says so and
+// the inspector shows observations instead, labelled as observations.
 package viewer
 
 import "core:fmt"
@@ -74,7 +75,9 @@ main :: proc() {
 	viewer := Viewer_State {
 		selected_dragon = -1,
 		last_focused = -1,
+		our_team = -1,
 		playback = {frames_per_second = 4, substeps = true},
+		recovery = {buffer = 5},
 		selected_cell = -1,
 		overlays = {
 			target_lines = true,
@@ -90,6 +93,9 @@ main :: proc() {
 			search = true,
 			path = true,
 			positions = true,
+			colors = true,
+			icons = true,
+			patterns = true,
 			// Dims every cell the dragon has no record of, so it starts off.
 			mental_map = false,
 		},
@@ -116,7 +122,8 @@ main :: proc() {
 	// that say where to open.
 	restored: Viewer_Position
 	has_position := false
-	// Passed on to the recovery: each team's build.
+	// Passed on to the recovery: where the ladder's records are, and a build
+	// for a team whose dragons recorded no GUID.
 	passed := make([dynamic]string, context.temp_allocator)
 	for argument, index in os.args[2:] {
 		value := os.args[index + 3] if index + 3 < len(os.args) else ""
@@ -126,8 +133,8 @@ main :: proc() {
 		if argument == "--replay" {replay = value}
 		if argument == "--registry" {registry = value}
 		if argument == "--judge" {judge = value}
-		if argument == "--build" || argument == "--build-team" {append(&passed, argument, value)}
-		// --seat SIDE GUID BOT: the build that played a side.
+		if argument == "--ladder" || argument == "--build" || argument == "--build-team" || argument == "--memory" || argument == "--memory-share" {append(&passed, argument, value)}
+		// --seat SIDE GUID BOT: a build the game's result record names.
 		if argument == "--seat" && index + 5 < len(os.args) {append(&passed, argument, os.args[index + 3], os.args[index + 4], os.args[index + 5])}
 		if argument == "--inbox" {viewer.comment_context.inbox_path = value}
 		if argument == "--replay-name" {viewer.comment_context.replay = value}
@@ -136,6 +143,7 @@ main :: proc() {
 			if argument == "--dragon" {startup.dragon = i32(number)}
 			if argument == "--round" {startup.round = i32(number)}
 			if argument == "--turn" {startup.turn = number}
+			if argument == "--buffer" {viewer.recovery.buffer = i32(max(number, 0))}
 		}
 		if speed, ok := strconv.parse_f32(value); ok && argument == "--speed" {startup.frames_per_second = speed}
 		startup.playing = startup.playing || argument == "--play"

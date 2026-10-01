@@ -190,18 +190,36 @@ stated_beliefs :: proc(game: ^Loaded_Game, turn: ^Dragon_Turn, describe: bool, o
 				state(lengths, fact, describe, fmt.tprintf("D%d length %s%d, replay %d", subject, entry.length_exact ? "" : "at least ", length, truth_dragon.length))
 			}
 			if !entry.champion || (entry.team != "ours" && entry.team != "enemy") {continue}
-			team := entry.team == "ours" ? turn.team : 1 - turn.team
 			champion := belief_of(&beliefs, entry.team == "ours" ? "Our champion" : "Enemy champion", .Claim, allocator)
-			longest := Dragon_Fact{id = -1}
-			for dragon in turn.dragons {if dragon.team == team && dragon.length > longest.length {longest = dragon}}
-			right := alive && truth_dragon.team == team && truth_dragon.length == longest.length
+			right, longest := champion_claim_holds(turn, entry)
 			length, stated := entry.length.?
-			if stated && alive {right = right && (entry.length_exact ? truth_dragon.length == length : truth_dragon.length >= length)}
 			fact := Stated_Fact{key = 0, value = i64(subject), correct = right}
 			state(champion, fact, describe, fmt.tprintf("D%d%s as champion: replay's longest is D%d, length %d", subject, stated ? fmt.tprintf(", length %s%d", entry.length_exact ? "" : "at least ", length) : "", longest.id, longest.length))
 		}
 	}
 	return beliefs
+}
+
+// Whether an entry naming its dragon as its team's champion holds against the
+// replay at the turn's start: that dragon is alive on the team it states, no
+// teammate of it is longer, and a stated length is right. Also that team's
+// longest, which says what the truth was.
+champion_claim_holds :: proc(turn: ^Dragon_Turn, entry: Gizmo_Position) -> (right: bool, longest: Dragon_Fact) {
+	longest = {id = -1}
+	subject, named := entry.dragon.?
+	if !named || (entry.team != "ours" && entry.team != "enemy") {return}
+	team := entry.team == "ours" ? turn.team : 1 - turn.team
+	truth: Dragon_Fact
+	alive := false
+	for dragon in turn.dragons {
+		if dragon.id == subject {truth, alive = dragon, true}
+		if dragon.team == team && dragon.length > longest.length {longest = dragon}
+	}
+	right = alive && truth.team == team && truth.length == longest.length
+	if length, stated := entry.length.?; stated && alive {
+		right = right && (entry.length_exact ? truth.length == length : truth.length >= length)
+	}
+	return
 }
 
 // One belief's knowledge across a team at one turn. The raw counts are kept
@@ -469,7 +487,7 @@ knowledge_rows :: proc(game: ^Loaded_Game, alive: []i32, latest: map[i32]^Dragon
 export_knowledge :: proc(viewer: ^Viewer_State, path: string) -> bool {
 	game := &viewer.game
 	view := &game.view
-	start_recovery(viewer)
+	start_recovery(viewer, whole = true)
 	defer stop_recovery(viewer)
 	asked := false
 	reported := time.tick_now()

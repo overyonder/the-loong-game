@@ -47,6 +47,7 @@ draw_compact_legend :: proc(origin: rl.Vector2, width: f32) -> f32 {
 		Dashes,
 		Box,
 		Dot,
+		Crown,
 	}
 	entries := [?]struct {
 		label: string,
@@ -67,6 +68,7 @@ draw_compact_legend :: proc(origin: rl.Vector2, width: f32) -> f32 {
 		{"Outside vision", {55, 61, 69, 255}, .Box},
 		{"Team A", TEAM_HEAD_COLORS[0], .Dot},
 		{"Team B", TEAM_HEAD_COLORS[1], .Dot},
+		{"Enemy champion", ENEMY_CHAMPION_COLOR, .Crown},
 	}
 	for entry in entries {
 		x := origin.x + 4
@@ -81,6 +83,8 @@ draw_compact_legend :: proc(origin: rl.Vector2, width: f32) -> f32 {
 			rl.DrawRectangleRec({x, y, 20, 16}, entry.color)
 		case .Dot:
 			rl.DrawCircleV({x + 10, y + 7}, 6, entry.color)
+		case .Crown:
+			draw_head({x + 10, y + 10}, 5, .Crown, entry.color, {0, -1})
 		}
 		clipped_text(entry.label, x + 30, y, width - 40, MUTED_TEXT_COLOR)
 		y += UI_LINE
