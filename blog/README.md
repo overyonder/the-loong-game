@@ -25,8 +25,12 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 16 | [The machine inside the judge](16-the-machine-inside-the-judge.md) | Performance | A Zig judge that plays the toolkit's games four times faster, why running bots as fibres rules out a race that kills new dragons, and the metered machine. |
 | 17 | [Games in the cloud](17-games-in-the-cloud.md) | Performance | Running big batches of games on AWS Spot workers, the standing resources declared in OpenTofu, and how every run ends on its own. |
 | 18 | [Game data in columns](18-game-data-in-columns.md) | Performance | One binary format for all our game data: columns a reader maps into memory and uses without parsing, and a converter that writes them from a replay. |
+| 19 | [Playing the ladder](19-playing-the-ladder.md) | Behind the bot | How we played the ranked ladder: picking opponents by expected gain, judging a bot before release, when to swap bots, and the unusual opponents we met. |
+| 20 | [Modelling other teams](20-modelling-other-teams.md) | Behind the bot | What research on modelling other agents offers a public ladder, and what we did: a census of techniques, imitation, sonar decoding and determinism. |
+| 21 | [Planning to play](21-planning-to-play.md) | Behind the bot | The planning line: its world model, sonar, roles, utility selection, twenty behaviours, state machines and tactical search. |
+| 22 | [Learning to play](22-learning-to-play.md) | Behind the bot | The learned line: a large teacher trained by self-play, a league of past selves, and distillation into an integer student that fits the judge. |
 
-Next up: how we built our bot.
+Next up: a tour of our bot.
 
 ## Stages
 
@@ -37,3 +41,4 @@ The series runs through these stages in order. The site shows them as a stepper 
 3. Grand strategy
 4. Tactical ideas and espionage
 5. Performance
+6. Behind the bot

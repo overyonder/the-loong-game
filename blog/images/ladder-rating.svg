@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 812" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Our ladder rating and the five bot stages behind it</title>
+<defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="820" height="812" fill="#ede5d5"/>
+<text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">Our ladder rating</text>
+<text x="40" y="62" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">Recorded every half hour, Sydney time. Numbered labels mark each change of approach;</text>
+<text x="40" y="80" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">the dashed continuation is our plan, not ladder history. Thin ticks mark individual releases.</text>
+<path d="M80 371.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="375.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1500</text>
+<path d="M80 334.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="338.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1550</text>
+<path d="M80 297.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="301.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1600</text>
+<path d="M80 260.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="264.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1650</text>
+<path d="M80 223.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="227.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1700</text>
+<path d="M80 186.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="190.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1750</text>
+<path d="M80 149.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="153.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1800</text>
+<path d="M80 112.0H780" stroke="#b9ad99" stroke-width="1" opacity=".5"/>
+<text x="70" y="116.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">1850</text>
+<path d="M174.3853302713581 112V408" stroke="#b9ad99" stroke-dasharray="3 4"/>
+<text x="178.3853302713581" y="428" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">27 Sep</text>
+<path d="M282.5088557075086 112V408" stroke="#b9ad99" stroke-dasharray="3 4"/>
+<text x="286.5088557075086" y="428" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">28 Sep</text>
+<path d="M390.6323811436591 112V408" stroke="#b9ad99" stroke-dasharray="3 4"/>
+<text x="394.6323811436591" y="428" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">29 Sep</text>
+<path d="M498.75590657980956 112V408" stroke="#b9ad99" stroke-dasharray="3 4"/>
+<text x="502.75590657980956" y="428" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">30 Sep</text>
+<path d="M606.87943201596 112V408" stroke="#b9ad99" stroke-dasharray="3 4"/>
+<text x="610.87943201596" y="428" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 Oct</text>
+<path d="M80.0 371.0 L80.0 371.0 L80.5 371.0 L80.7 360.6 L81.2 356.9 L81.3 356.9 L81.4 356.9 L81.5 356.9 L81.8 356.9 L82.2 356.9 L82.3 356.9 L82.9 356.9 L83.4 356.9 L84.6 356.9 L86.4 356.2 L86.8 359.2 L88.0 355.5 L88.9 355.5 L89.1 355.5 L89.1 355.5 L96.9 337.0 L97.3 337.0 L98.0 339.2 L98.5 339.2 L99.6 335.5 L99.9 335.5 L102.6 335.5 L103.1 338.4 L104.6 354.7 L104.9 354.7 L105.0 354.7 L106.0 354.7 L106.5 350.3 L107.1 350.3 L107.4 348.8 L108.3 348.8 L108.3 351.8 L109.4 347.3 L110.5 347.3 L111.7 339.9 L112.8 349.5 L113.9 351.0 L115.0 355.5 L116.2 355.5 L117.3 355.5 L118.4 357.7 L119.6 357.7 L120.7 357.7 L121.6 357.7 L122.4 357.7 L122.9 360.6 L132.9 360.6 L133.2 360.6 L134.1 297.7 L136.4 279.2 L137.7 280.0 L138.7 282.9 L140.9 282.9 L142.3 277.8 L143.2 280.0 L143.4 280.0 L144.9 280.0 L145.4 280.0 L146.8 280.0 L147.7 280.0 L150.0 280.0 L151.3 276.3 L152.2 276.3 L154.4 276.3 L155.8 276.3 L156.7 276.3 L158.9 276.3 L160.3 278.5 L161.2 278.5 L163.4 278.5 L164.8 278.5 L165.7 278.5 L167.9 278.5 L169.3 285.2 L170.2 285.2 L172.4 285.2 L173.8 285.2 L174.7 285.2 L176.9 285.2 L178.4 282.2 L179.3 282.2 L181.5 282.2 L195.4 297.7 L204.0 291.1 L208.5 291.1 L209.8 291.1 L213.0 285.2 L222.0 283.7 L223.3 282.2 L230.5 282.2 L231.0 284.4 L233.3 285.9 L235.5 285.9 L237.8 285.9 L240.0 285.9 L242.3 279.2 L244.5 279.2 L246.8 279.2 L249.1 279.2 L251.3 285.9 L253.5 285.9 L255.8 283.7 L258.0 283.7 L260.2 283.7 L260.3 282.2 L260.4 282.2 L262.6 282.2 L264.8 270.4 L267.1 270.4 L269.3 274.8 L271.6 281.5 L273.8 281.5 L276.1 281.5 L278.3 286.6 L280.6 288.1 L282.8 288.1 L285.1 288.1 L287.3 291.8 L298.6 303.7 L298.7 303.7 L299.1 303.7 L300.4 303.7 L300.6 298.5 L300.7 300.0 L300.8 299.2 L303.1 305.9 L305.4 299.2 L307.6 304.4 L309.9 305.9 L314.4 309.6 L316.6 311.8 L318.9 302.9 L321.6 305.1 L323.4 305.1 L325.6 300.7 L330.1 303.7 L332.4 307.4 L334.8 306.6 L337.0 314.0 L339.1 314.0 L341.4 308.8 L343.6 311.1 L345.9 305.1 L348.2 315.5 L350.4 319.2 L352.7 329.6 L354.9 329.6 L357.2 329.6 L359.4 322.2 L361.7 325.9 L363.9 325.9 L366.2 325.9 L368.4 326.6 L373.0 374.7 L375.2 376.9 L377.4 359.2 L379.7 346.6 L381.9 348.8 L384.2 353.2 L386.5 340.7 L389.1 342.1 L391.8 345.8 L393.6 338.4 L395.4 327.3 L397.7 329.6 L399.9 339.2 L402.2 339.2 L404.5 345.8 L406.7 354.0 L409.0 354.7 L411.2 346.6 L413.5 351.0 L415.7 347.3 L418.0 347.3 L420.2 347.3 L422.5 346.6 L424.7 342.1 L427.0 339.2 L429.2 345.8 L431.5 340.7 L433.7 342.9 L436.0 357.7 L438.2 348.8 L440.5 341.4 L442.7 329.6 L445.0 325.9 L447.3 299.2 L449.5 302.9 L451.8 311.1 L454.0 311.1 L456.3 279.2 L458.5 242.2 L460.8 251.1 L463.0 255.6 L465.3 228.9 L467.5 214.1 L469.8 211.2 L472.0 225.2 L474.3 223.7 L476.5 209.7 L478.8 178.6 L481.1 185.3 L483.3 191.2 L485.6 191.2 L487.8 188.2 L490.1 183.8 L492.3 196.4 L494.6 190.4 L496.8 175.6 L499.1 175.6 L501.3 175.6 L503.6 171.2 L505.8 180.8 L508.1 181.6 L510.3 177.1 L512.6 178.6 L514.8 187.5 L515.0 187.5 L517.1 126.8 L519.3 148.3 L520.5 148.3 L521.6 148.3 L523.8 155.7 L526.1 155.7 L528.3 150.5 L530.6 150.5 L532.9 155.7 L533.9 154.9 L535.1 160.1 L537.4 161.6 L537.7 161.6 L539.6 160.1 L541.9 154.2 L544.1 150.5 L546.4 157.9 L548.6 159.4 L549.6 159.4 L550.9 166.0 L552.6 166.0 L553.1 155.7 L555.4 166.8 L557.6 162.3 L559.9 160.8 L560.4 160.8 L562.2 172.7 L564.4 145.3 L566.6 146.0 L568.9 141.6 L571.1 156.4 L573.4 149.7 L575.7 142.3 L577.9 142.3 L580.2 140.1 L582.4 142.3 L584.7 142.3 L586.9 143.8 L589.2 143.8 L591.4 141.6 L593.7 141.6 L596.4 143.8 L598.2 143.8 L600.4 127.5 L602.7 149.7 L604.9 149.7 L607.2 149.7 L609.4 141.6 L611.7 141.6 L613.9 134.9 L616.2 134.9 L618.4 135.7 L620.7 135.7 L623.0 141.6 L625.2 140.9 L627.5 132.0 L629.7 144.6 L632.0 139.4 L634.2 140.9 L636.5 142.3 L638.0 142.3 L638.7 142.3 L640.1 134.9 L641.0 137.2 L648.3 140.1 L648.3 140.1 L650.0 122.4" fill="none" stroke="#263d31" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M371.5 408v10" stroke="#b53b13" stroke-width="2"/>
+<path d="M371.8 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M372.0 408v10" stroke="#b53b13" stroke-width="2"/>
+<path d="M372.2 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M395.1 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M400.4 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M405.4 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M412.7 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M420.7 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M436.4 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M444.8 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M451.6 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M453.3 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M462.3 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M472.5 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M481.5 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M487.7 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M494.6 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M515.0 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M520.5 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M526.5 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M532.6 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M532.9 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M533.9 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M535.3 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M537.7 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M549.6 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M550.0 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M552.6 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M560.4 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M595.6 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M620.0 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M633.1 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M633.1 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M635.3 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M637.9 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M639.9 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M640.1 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M642.2 408v10" stroke="#a8801a" stroke-width="2"/>
+<path d="M643.1 408v10" stroke="#a8801a" stroke-width="2"/>
+<circle cx="99.6" cy="335.5" r="11" fill="#ede5d5" stroke="#b53b13" stroke-width="2.5"/>
+<text x="99.58737754776189" y="339.48" font-size="12" font-weight="bold" fill="#b53b13" text-anchor="middle">1</text>
+<circle cx="144.9" cy="280.0" r="11" fill="#ede5d5" stroke="#b53b13" stroke-width="2.5"/>
+<text x="144.90414957431145" y="283.98" font-size="12" font-weight="bold" fill="#b53b13" text-anchor="middle">2</text>
+<circle cx="375.2" cy="376.9" r="11" fill="#ede5d5" stroke="#b53b13" stroke-width="2.5"/>
+<text x="375.20367770214955" y="380.92" font-size="12" font-weight="bold" fill="#b53b13" text-anchor="middle">3</text>
+<circle cx="517.1" cy="126.8" r="5" fill="#a8801a"/>
+<text x="517.0888613393191" y="114.80000000000001" font-size="12.5" font-weight="bold" fill="#20251f" text-anchor="middle">1830 · rank 40</text>
+<path d="M660 112V408" stroke="#b9ad99" stroke-dasharray="4 5"/>
+<text x="666" y="126" font-size="11.5" font-weight="bold" fill="#66675e" text-anchor="start">proposed</text>
+<path d="M650.0 122.36000000000001 L715 186.0" fill="none" stroke="#66675e" stroke-width="2" stroke-dasharray="7 5" stroke-linejoin="round" marker-end="url(#dim)"/>
+<circle cx="715" cy="186.0" r="11" fill="#ede5d5" stroke="#66675e" stroke-width="2.5"/>
+<text x="715" y="190.0" font-size="12" font-weight="bold" fill="#66675e" text-anchor="middle">4</text>
+<path d="M727 186.0 L764 149.0" fill="none" stroke="#66675e" stroke-width="2" stroke-dasharray="7 5" stroke-linejoin="round" marker-end="url(#dim)"/>
+<text x="776" y="156.0" font-size="22" font-weight="bold" fill="#b53b13" text-anchor="middle">?</text>
+<rect x="40" y="454" width="355" height="86" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><circle cx="62" cy="477" r="11" fill="#263d31"/><text x="62" y="481" font-size="12" font-weight="bold" fill="#ede5d5" text-anchor="middle">1</text><text x="82" y="482" font-size="14.5" font-weight="bold" fill="#20251f" text-anchor="start">Basic flood fill</text><text x="54" y="505" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">Our first bot held between 1500 and 1550.</text>
+<rect x="425" y="454" width="355" height="86" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><circle cx="447" cy="477" r="11" fill="#263d31"/><text x="447" y="481" font-size="12" font-weight="bold" fill="#ede5d5" text-anchor="middle">2</text><text x="467" y="482" font-size="14.5" font-weight="bold" fill="#20251f" text-anchor="start">Basic planning agent</text><text x="439" y="505" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">It jumped to about 1625, then drifted back</text><text x="439" y="522" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">towards 1550 as the rest of the field improved.</text>
+<rect x="40" y="558" width="740" height="102" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><circle cx="62" cy="581" r="11" fill="#b53b13"/><text x="62" y="585" font-size="12" font-weight="bold" fill="#ede5d5" text-anchor="middle">3</text><text x="82" y="586" font-size="14.5" font-weight="bold" fill="#20251f" text-anchor="start">More complex planning agent</text><text x="54" y="609" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">Its first live result took us down to 1492. Replay review, revised logic and</text><text x="54" y="626" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">hand-crafted human ideas improved the design and heuristics to 1830: rank 40.</text>
+<rect x="40" y="678" width="355" height="104" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><circle cx="62" cy="701" r="11" fill="#66675e"/><text x="62" y="705" font-size="12" font-weight="bold" fill="#ede5d5" text-anchor="middle">4</text><text x="82" y="706" font-size="14.5" font-weight="bold" fill="#20251f" text-anchor="start">RL bot: proposed trial</text><text x="54" y="729" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">The 1750 dip is the planned first live test,</text><text x="54" y="746" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">not a recorded point. Sprint: 54th seed,</text><text x="54" y="763" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">eliminated in the round of 64.</text>
+<rect x="425" y="678" width="355" height="104" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><circle cx="447" cy="701" r="11" fill="#b53b13"/><text x="447" y="705" font-size="12" font-weight="bold" fill="#ede5d5" text-anchor="middle">?</text><text x="467" y="706" font-size="14.5" font-weight="bold" fill="#20251f" text-anchor="start">Final over|yonder</text><text x="439" y="729" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">Our holdout combines classical AI and planning</text><text x="439" y="746" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">with machine-learning optimisations. We will</text><text x="439" y="763" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">publish it after the Grand Final.</text>
+</svg>

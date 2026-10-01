@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 1239" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">The reinforcement-learning pipeline and every paper reviewed for its design</title>
+<defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="820" height="1239" fill="#ede5d5"/>
+<text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">The reinforcement-learning pipeline</text>
+<text x="40" y="64" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">Numbers in brackets point to the complete literature map below.</text>
+<rect x="40" y="96" width="216" height="100" rx="8" fill="#f6f1e7" stroke="#a8801a" stroke-width="1.5"/><text x="54" y="121" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Generated maps</text><text x="54" y="142" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">4,096 training maps</text><text x="54" y="160" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">level replay chooses each reset</text><text x="54" y="178" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">official maps stay held out [11,12]</text>
+<rect x="302" y="96" width="216" height="100" rx="8" fill="#2f7f79" stroke="#2f7f79" stroke-width="1.5"/><text x="316" y="121" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="start">GPU engine</text><text x="316" y="142" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">2,048 games in parallel</text><text x="316" y="160" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">761,000 dragon-turns/s</text><text x="316" y="178" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">new seed and map at reset</text>
+<rect x="564" y="96" width="216" height="100" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><text x="578" y="121" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">League</text><text x="578" y="142" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">past selves, exploiters, mimics</text><text x="578" y="160" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">hard opponents sampled more</text><text x="578" y="178" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">often [8-10,28]</text>
+<path d="M258 146 L298 146" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<path d="M410 200 L410 228" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<path d="M672 200 L672 216 L540 216 L540 280 L522 280" fill="none" stroke="#b53b13" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#back)"/>
+<rect x="40" y="252" width="216" height="126" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><text x="54" y="277" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Ladder demonstrations</text><text x="54" y="298" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">recorded foil and mimic turns</text><text x="54" y="316" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">encoded as recurrent chunks</text><text x="54" y="334" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">DAPG and kickstarting [31-35]</text>
+<rect x="302" y="232" width="216" height="166" rx="8" fill="#263d31" stroke="#263d31" stroke-width="1.5"/><text x="316" y="257" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="start">Teacher: 44.0M weights</text><text x="316" y="278" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">residual crop and overview [15-17]</text><text x="316" y="296" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">top-2 experts and GRU [18-22]</text><text x="316" y="314" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">sonar set encoder [23]</text><text x="316" y="332" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">roles, claims, action heads [29,30]</text>
+<rect x="564" y="252" width="216" height="126" rx="8" fill="#dcd0bb" stroke="#b9ad99" stroke-width="1.5"/><text x="578" y="277" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Privileged critic</text><text x="578" y="298" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">true board once per team/round</text><text x="578" y="316" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">PPO, GAE and MAPPO [1-5]</text><text x="578" y="334" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">result plus safe shaping [6]</text>
+<path d="M258 315 L298 315" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<path d="M560 315 L522 315" fill="none" stroke="#b53b13" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#back)"/>
+<rect x="40" y="454" width="216" height="126" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><text x="54" y="479" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Teacher snapshots</text><text x="54" y="500" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">atomic latest checkpoint</text><text x="54" y="518" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">league snapshots and rollbacks</text><text x="54" y="536" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">AdamW and local SGD [13,14,40]</text>
+<rect x="302" y="434" width="216" height="166" rx="8" fill="#2f7f79" stroke="#2f7f79" stroke-width="1.5"/><text x="316" y="459" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="start">Student sidecar</text><text x="316" y="480" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">plays its own on-policy games</text><text x="316" y="498" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">teacher labels those turns [36-39]</text><text x="316" y="516" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">routed expert pair and n-tuples</text><text x="316" y="534" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">quantisation-aware finish [19,41-43]</text>
+<rect x="564" y="454" width="216" height="126" rx="8" fill="#263d31" stroke="#263d31" stroke-width="1.5"/><text x="578" y="479" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="start">Submitted bot</text><text x="578" y="500" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">Nim shell and remembered map</text><text x="578" y="518" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">8-bit Rake kernels in WASM</text><text x="578" y="536" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">turn-by-turn parity in the judge</text>
+<path d="M298 340 L276 340 L276 517 L260 517" fill="none" stroke="#b53b13" stroke-width="2.2" stroke-dasharray="7 5" stroke-linejoin="round" marker-end="url(#back)"/>
+<path d="M410 402 L410 430" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<path d="M522 517 L560 517" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<text x="40" y="638" font-size="18" font-weight="bold" fill="#20251f" text-anchor="start">The papers behind the diagram</text>
+<text x="40" y="660" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">The article links every full paper and says which ideas were adopted, deferred or rejected.</text>
+<text x="40" y="692" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">1. Schulman et al. (2017), Proximal Policy Optimization</text>
+<text x="40" y="707" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">Algorithms</text>
+<text x="40" y="726" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">2. Schulman et al. (2016), Generalized Advantage</text>
+<text x="40" y="741" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">Estimation</text>
+<text x="40" y="760" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">3. Yu et al. (2022), MAPPO</text>
+<text x="40" y="779" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">4. Huang et al. (2022), The 37 Implementation Details</text>
+<text x="40" y="794" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">of PPO</text>
+<text x="40" y="813" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">5. Pinto et al. (2018), Asymmetric Actor Critic</text>
+<text x="40" y="832" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">6. Ng, Harada and Russell (1999), policy-invariant</text>
+<text x="40" y="847" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">reward shaping</text>
+<text x="40" y="866" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">7. Shao et al. (2024), DeepSeekMath and GRPO</text>
+<text x="40" y="885" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">8. Vinyals et al. (2019), AlphaStar</text>
+<text x="40" y="904" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">9. Jaderberg et al. (2017), Population Based Training</text>
+<text x="40" y="923" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">10. Jaderberg et al. (2019), population training in</text>
+<text x="40" y="938" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">Quake III</text>
+<text x="40" y="957" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">11. Jiang et al. (2021), Prioritized Level Replay</text>
+<text x="40" y="976" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">12. Cobbe et al. (2020), Procgen</text>
+<text x="40" y="995" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">13. Lin et al. (2020), local SGD</text>
+<text x="40" y="1014" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">14. Douillard et al. (2023), DiLoCo</text>
+<text x="40" y="1033" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">15. He et al. (2016), residual networks</text>
+<text x="40" y="1052" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">16. Wu and He (2018), Group Normalization</text>
+<text x="40" y="1071" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">17. Perez et al. (2018), FiLM</text>
+<text x="40" y="1090" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">18. Shazeer et al. (2017), sparsely-gated mixture of</text>
+<text x="40" y="1105" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">experts</text>
+<text x="40" y="1124" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">19. Fedus, Zoph and Shazeer (2022), Switch Transformers</text>
+<text x="40" y="1143" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">20. Obando-Ceron et al. (2024), mixtures of experts for</text>
+<text x="40" y="1158" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">deep RL</text>
+<text x="40" y="1177" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">21. Cho et al. (2014), the GRU</text>
+<text x="40" y="1196" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">22. Ba, Kiros and Hinton (2016), Layer Normalization</text>
+<text x="430" y="692" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">23. Zaheer et al. (2017), Deep Sets</text>
+<text x="430" y="711" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">24. Parisotto and Salakhutdinov (2018), Neural Map</text>
+<text x="430" y="730" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">25. Jaderberg et al. (2017), UNREAL auxiliary tasks</text>
+<text x="430" y="749" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">26. Lee et al. (2025), SimBa</text>
+<text x="430" y="768" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">27. Nauman et al. (2024), BRO</text>
+<text x="430" y="787" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">28. Berner et al. (2019), OpenAI Five</text>
+<text x="430" y="806" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">29. Bacon, Harb and Precup (2017), Option-Critic</text>
+<text x="430" y="825" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">30. Vezhnevets et al. (2017), FeUdal Networks</text>
+<text x="430" y="844" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">31. Ross, Gordon and Bagnell (2011), DAgger</text>
+<text x="430" y="863" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">32. Rajeswaran et al. (2018), DAPG</text>
+<text x="430" y="882" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">33. Hester et al. (2018), DQfD</text>
+<text x="430" y="901" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">34. Kapturowski et al. (2019), R2D2</text>
+<text x="430" y="920" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">35. Schmitt et al. (2018), kickstarting</text>
+<text x="430" y="939" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">36. Rusu et al. (2016), policy distillation</text>
+<text x="430" y="958" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">37. Teh et al. (2017), Distral</text>
+<text x="430" y="977" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">38. Agarwal et al. (2024), on-policy distillation</text>
+<text x="430" y="996" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">39. Warrington et al. (2021), A2D</text>
+<text x="430" y="1015" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">40. Loshchilov and Hutter (2019), AdamW</text>
+<text x="430" y="1034" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">41. Jacob et al. (2018), integer quantisation-aware</text>
+<text x="430" y="1049" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">training</text>
+<text x="430" y="1068" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">42. Buro (1999), pattern evaluation functions</text>
+<text x="430" y="1087" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">43. Szubert and Jaskowski (2014), n-tuple networks for</text>
+<text x="430" y="1102" font-size="10.5" font-weight="normal" fill="#20251f" text-anchor="start">2048</text>
+</svg>

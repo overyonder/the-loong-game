@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 554" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">textbook-main-0025's role slots in the order they fill</title>
+<defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="820" height="554" fill="#ede5d5"/>
+<text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">Role slots, filled in order</text>
+<text x="40" y="64" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">Each dragon runs this on its own picture of the team. Holding a role adds 3</text>
+<text x="40" y="82" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">to its suitability, and a role is kept for 20 rounds unless it stops being valid.</text>
+<text x="250" y="114" font-size="12" font-weight="bold" fill="#66675e" text-anchor="start">when</text>
+<text x="530" y="114" font-size="12" font-weight="bold" fill="#66675e" text-anchor="start">goes to</text>
+<rect x="40" y="124" width="740" height="72" rx="8" fill="#f6f1e7" stroke="#263d31" stroke-width="2"/>
+<rect x="40" y="124" width="10" height="72" rx="3" fill="#263d31"/>
+<text x="66" y="152" font-size="16" font-weight="bold" fill="#20251f" text-anchor="start">1. Champion</text>
+<text x="66" y="174" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">one</text>
+<text x="250" y="148" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">length 6 or more; from round 420</text>
+<text x="250" y="167" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">any length, if the picture holds</text>
+<text x="250" y="186" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">the whole team</text>
+<text x="530" y="148" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">the longest</text>
+<rect x="40" y="206" width="740" height="72" rx="8" fill="#f6f1e7" stroke="#263d31" stroke-width="2"/>
+<rect x="40" y="206" width="10" height="72" rx="3" fill="#263d31"/>
+<text x="66" y="234" font-size="16" font-weight="bold" fill="#20251f" text-anchor="start">2. Understudy</text>
+<text x="66" y="256" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">one</text>
+<text x="250" y="230" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">from round 350, with a champion</text>
+<text x="250" y="249" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">and 3 or more units</text>
+<text x="530" y="230" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">the next longest,</text>
+<text x="530" y="249" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">8 or more</text>
+<rect x="40" y="288" width="740" height="72" rx="8" fill="#f6f1e7" stroke="#2f7f79" stroke-width="2"/>
+<rect x="40" y="288" width="10" height="72" rx="3" fill="#2f7f79"/>
+<text x="66" y="316" font-size="16" font-weight="bold" fill="#20251f" text-anchor="start">3. Escort</text>
+<text x="66" y="338" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">one</text>
+<text x="250" y="312" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">with a champion and 4 or more</text>
+<text x="250" y="331" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">units</text>
+<text x="530" y="312" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">the nearest, 4 or more</text>
+<text x="530" y="331" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">shorter than the champion</text>
+<rect x="40" y="370" width="740" height="72" rx="8" fill="#f6f1e7" stroke="#a8801a" stroke-width="2"/>
+<rect x="40" y="370" width="10" height="72" rx="3" fill="#a8801a"/>
+<text x="66" y="398" font-size="16" font-weight="bold" fill="#20251f" text-anchor="start">4. Scouts</text>
+<text x="66" y="420" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">a third</text>
+<text x="250" y="394" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">while unseen board is left,</text>
+<text x="250" y="413" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">with 2 or more units</text>
+<text x="530" y="394" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">the shortest</text>
+<rect x="40" y="452" width="740" height="72" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="2"/>
+<rect x="40" y="452" width="10" height="72" rx="3" fill="#b9ad99"/>
+<text x="66" y="480" font-size="16" font-weight="bold" fill="#20251f" text-anchor="start">5. Harvesters</text>
+<text x="66" y="502" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">the rest</text>
+<text x="250" y="476" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">always</text>
+<text x="530" y="476" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="start">everyone left</text>
+</svg>

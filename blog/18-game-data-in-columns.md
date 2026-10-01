@@ -103,4 +103,4 @@ New columns can appear without breaking anything, because readers look columns u
 
 ## Next up
 
-That's the last of the performance posts for now. The final stage, behind the bot, starts after the Sprint with how we played the ladder, and ends after the tournament with how we modelled other teams and a tour of our whole competition bot.
+That's the last of the performance posts for now. The final stage starts with [how we played the ladder](19-playing-the-ladder.md) and [what we learned by modelling other teams](20-modelling-other-teams.md). Then it opens the bot itself in two parts: [the planning design](21-planning-to-play.md) and [the learned design](22-learning-to-play.md). The combined holdout follows after the Grand Final.

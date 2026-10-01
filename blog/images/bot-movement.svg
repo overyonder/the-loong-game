@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 832 638" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">How textbook-main-0025's movement ranks the moves a task leaves it</title>
+<defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="832" height="638" fill="#ede5d5"/>
+<text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">How movement picks a move</text>
+<rect x="40" y="64" width="236" height="112" rx="8" fill="#263d31" stroke="#263d31" stroke-width="1.5"/><text x="54" y="89" font-size="15" font-weight="bold" fill="#ede5d5" text-anchor="start">Legal options</text><text x="54" y="110" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">steps across edges held</text><text x="54" y="128" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">passable for certain; sprints</text><text x="54" y="146" font-size="12.5" font-weight="normal" fill="#ede5d5" text-anchor="start">of up to 3, a beam of 64</text>
+<path d="M278 120 L296 120" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<rect x="298" y="64" width="236" height="112" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/><text x="312" y="89" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Assess each</text><text x="312" y="110" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">exits, heads that can meet</text><text x="312" y="128" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">ours, survival, the squeeze,</text><text x="312" y="146" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">the duel, sealed allies</text>
+<path d="M536 120 L554 120" fill="none" stroke="#263d31" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#flow)"/>
+<rect x="556" y="64" width="236" height="112" rx="8" fill="#dcd0bb" stroke="#b9ad99" stroke-width="1.5"/><text x="570" y="89" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Rank</text><text x="570" y="110" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">11 safety classes first, then</text><text x="570" y="128" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">the task's utility less soft</text><text x="570" y="146" font-size="12.5" font-weight="normal" fill="#66675e" text-anchor="start">costs, both in pearls</text>
+<text x="40" y="214" font-size="15" font-weight="bold" fill="#20251f" text-anchor="start">Safety classes, compared first, in order</text>
+<rect x="40" y="228" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="246.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">1. an exit after the move</text>
+<rect x="40" y="260" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="278.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">2. assessed within the budget</text>
+<rect x="40" y="292" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="310.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">3. fewest heads that can meet ours, when last or outnumbered</text>
+<rect x="40" y="324" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="342.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">4. survives the horizon</text>
+<rect x="40" y="356" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="374.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">5. steps survived, when short of it</text>
+<rect x="40" y="388" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="406.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">6. fewest allied heads sealed in</text>
+<rect x="40" y="420" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="438.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">7. no squeeze now, unless trading</text>
+<rect x="40" y="452" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="470.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">8. the duel shows no forced loss</text>
+<rect x="40" y="484" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="502.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">9. fewest heads that can meet ours, the rest</text>
+<rect x="40" y="516" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="534.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">10. not pinned to one contested exit</text>
+<rect x="40" y="548" width="752" height="27" rx="6" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.5"/>
+<text x="54" y="566.5" font-size="13.5" font-weight="normal" fill="#20251f" text-anchor="start">11. lands on a cycle</text>
+<text x="40" y="600" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">A task's target and utility only break ties within one safety class, so a task</text>
+<text x="40" y="618" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">can step away from its target when a safer step exists.</text>
+</svg>

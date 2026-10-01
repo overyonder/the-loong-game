@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 594" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Each release's performance rating and its share of battles lost to weaker teams</title>
+<defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
+<rect width="820" height="594" fill="#ede5d5"/>
+<text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">Each release's strength and upsets</text>
+<text x="40" y="62" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">Performance rating over its rated games, and, of its battles from 29 September,</text>
+<text x="40" y="80" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">the ones lost to teams rated below that performance.</text>
+<text x="160" y="112" font-size="12.5" font-weight="bold" fill="#66675e" text-anchor="start">performance</text>
+<text x="560" y="112" font-size="12.5" font-weight="bold" fill="#66675e" text-anchor="start">battles lost to weaker teams</text>
+<text x="40" y="141" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">control 27a</text>
+<rect x="160" y="128" width="74.2" height="18" rx="3" fill="#263d31"/>
+<text x="242.16" y="142" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1553 over 140</text>
+<rect x="560" y="128" width="13.6" height="18" rx="3" fill="#b53b13"/>
+<text x="581.5714285714286" y="142" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 28</text>
+<text x="40" y="171" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29a</text>
+<rect x="160" y="158" width="41.8" height="18" rx="3" fill="#263d31"/>
+<text x="209.76" y="172" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1508 over 50</text>
+<rect x="560" y="158" width="0.0" height="18" rx="3" fill="#b53b13"/>
+<text x="568.0" y="172" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">0 of 10</text>
+<text x="40" y="201" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29b</text>
+<rect x="160" y="188" width="95.8" height="18" rx="3" fill="#263d31"/>
+<text x="263.76" y="202" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1583 over 60</text>
+<rect x="560" y="188" width="31.7" height="18" rx="3" fill="#b53b13"/>
+<text x="599.6666666666666" y="202" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 12</text>
+<text x="40" y="231" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29c</text>
+<rect x="160" y="218" width="85.0" height="18" rx="3" fill="#263d31"/>
+<text x="252.95999999999998" y="232" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1568 over 120</text>
+<rect x="560" y="218" width="15.8" height="18" rx="3" fill="#b53b13"/>
+<text x="583.8333333333334" y="232" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 24</text>
+<text x="40" y="261" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29e</text>
+<rect x="160" y="248" width="97.9" height="18" rx="3" fill="#263d31"/>
+<text x="265.92" y="262" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1586 over 60</text>
+<rect x="560" y="248" width="31.7" height="18" rx="3" fill="#b53b13"/>
+<text x="599.6666666666666" y="262" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 12</text>
+<text x="40" y="291" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29g</text>
+<rect x="160" y="278" width="224.6" height="18" rx="3" fill="#263d31"/>
+<text x="392.64" y="292" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1762 over 90</text>
+<rect x="560" y="278" width="63.3" height="18" rx="3" fill="#b53b13"/>
+<text x="631.3333333333334" y="292" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">3 of 18</text>
+<text x="40" y="321" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29j</text>
+<rect x="160" y="308" width="209.5" height="18" rx="3" fill="#263d31"/>
+<text x="377.52" y="322" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1741 over 130</text>
+<rect x="560" y="308" width="87.7" height="18" rx="3" fill="#b53b13"/>
+<text x="655.6923076923077" y="322" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">6 of 26</text>
+<text x="40" y="351" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29k</text>
+<rect x="160" y="338" width="252.7" height="18" rx="3" fill="#263d31"/>
+<text x="420.72" y="352" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1801 over 130</text>
+<rect x="560" y="338" width="73.1" height="18" rx="3" fill="#b53b13"/>
+<text x="641.0769230769231" y="352" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">5 of 26</text>
+<text x="40" y="381" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29l</text>
+<rect x="160" y="368" width="203.8" height="18" rx="3" fill="#263d31"/>
+<text x="371.76" y="382" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1733 over 65</text>
+<rect x="560" y="368" width="58.5" height="18" rx="3" fill="#b53b13"/>
+<text x="626.4615384615385" y="382" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">2 of 13</text>
+<text x="40" y="411" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29n</text>
+<rect x="160" y="398" width="207.4" height="18" rx="3" fill="#263d31"/>
+<text x="375.36" y="412" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1738 over 65</text>
+<rect x="560" y="398" width="58.5" height="18" rx="3" fill="#b53b13"/>
+<text x="626.4615384615385" y="412" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">2 of 13</text>
+<text x="40" y="441" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-29o</text>
+<rect x="160" y="428" width="231.1" height="18" rx="3" fill="#263d31"/>
+<text x="399.12" y="442" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1771 over 140</text>
+<rect x="560" y="428" width="122.1" height="18" rx="3" fill="#b53b13"/>
+<text x="690.1428571428571" y="442" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">9 of 28</text>
+<text x="40" y="471" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-30a</text>
+<rect x="160" y="458" width="255.6" height="18" rx="3" fill="#263d31"/>
+<text x="423.6" y="472" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1805 over 65</text>
+<rect x="560" y="458" width="29.2" height="18" rx="3" fill="#b53b13"/>
+<text x="597.2307692307693" y="472" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 13</text>
+<text x="40" y="501" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-30b</text>
+<rect x="160" y="488" width="248.4" height="18" rx="3" fill="#263d31"/>
+<text x="416.4" y="502" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1795 over 50</text>
+<rect x="560" y="488" width="38.0" height="18" rx="3" fill="#b53b13"/>
+<text x="606.0" y="502" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 10</text>
+<text x="40" y="531" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-30c</text>
+<rect x="160" y="518" width="229.0" height="18" rx="3" fill="#263d31"/>
+<text x="396.96" y="532" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1768 over 60</text>
+<rect x="560" y="518" width="31.7" height="18" rx="3" fill="#b53b13"/>
+<text x="599.6666666666666" y="532" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1 of 12</text>
+<text x="40" y="561" font-size="13" font-weight="normal" fill="#20251f" text-anchor="start">foil 09-30d</text>
+<rect x="160" y="548" width="267.8" height="18" rx="3" fill="#263d31"/>
+<text x="435.84" y="562" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">1822 over 35</text>
+<rect x="560" y="548" width="162.9" height="18" rx="3" fill="#b53b13"/>
+<text x="730.8571428571429" y="562" font-size="12" font-weight="normal" fill="#66675e" text-anchor="start">3 of 7</text>
+</svg>
