@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 635" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Both engines receive the same replies until the first difference</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="760" height="635" fill="#ede5d5"/>
+<text x="380" y="40" font-size="24" fill="#20251f" text-anchor="middle" font-weight="bold">Same map and seed</text>
+<path d="M380 56 L380 80 L185 80 L185 117" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M380 56 L380 80 L575 80 L575 117" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="35" y="120" width="300" height="110" rx="8" fill="#263d31" stroke="#b9ad99" stroke-width="1.6"/><text x="49" y="145" font-size="24" fill="#ede5d5" text-anchor="start" font-weight="bold">Official engine</text><text x="49" y="180" font-size="20" fill="#d9d2c3" text-anchor="start" font-weight="normal">WebAssembly</text>
+<rect x="425" y="120" width="300" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="439" y="145" font-size="24" fill="#20251f" text-anchor="start" font-weight="bold">CPU port</text><text x="439" y="180" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Fixed-array simulation</text>
+<path d="M185 230 L185 342 L212 342" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M575 230 L575 342 L548 342" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="215" y="282" width="330" height="136" rx="8" fill="#f6f1e7" stroke="#b53b13" stroke-width="1.6"/><text x="229" y="307" font-size="24" fill="#20251f" text-anchor="start" font-weight="bold">Compare turn blocks</text><text x="229" y="342" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Different: stop here</text><text x="229" y="368" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Same: choose a reply</text>
+<path d="M380 418 L380 473" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="180" y="476" width="400" height="80" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="194" y="501" font-size="23" fill="#20251f" text-anchor="start" font-weight="bold">One deterministic reply to both</text>
+<path d="M180 516 L10 516 L10 175 L33 175" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M580 516 L750 516 L750 175 L727 175" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="380" y="608" font-size="22" fill="#66675e" text-anchor="middle" font-weight="normal">At termination: compare the results too</text>
+</svg>

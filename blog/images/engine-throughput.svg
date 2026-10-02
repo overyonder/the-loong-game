@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 267" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">GPU engine throughput and its design target</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="760" height="267" fill="#ede5d5"/>
+<text x="20" y="35" font-size="23" fill="#20251f" text-anchor="start" font-weight="bold">Measured · 2,048 games · RTX 5070 Ti</text>
+<rect x="20" y="58" width="560" height="34" rx="4" fill="#263d31"/>
+<text x="596" y="84" font-size="24" fill="#20251f" text-anchor="start" font-weight="normal">761,000</text>
+<text x="20" y="137" font-size="23" fill="#66675e" text-anchor="start" font-weight="normal">Design target</text>
+<rect x="20" y="160" width="73.6" height="34" rx="4" fill="none" stroke="#66675e" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="110" y="186" font-size="24" fill="#66675e" text-anchor="start" font-weight="normal">100,000</text>
+<text x="20" y="241" font-size="21" fill="#66675e" text-anchor="start" font-weight="normal">Dragon-turns/s, including observation construction</text>
+</svg>

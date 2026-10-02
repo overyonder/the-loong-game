@@ -5,6 +5,7 @@
     python3 tools/banner.py cloud blog/images/banner-games-in-the-cloud.svg
     python3 tools/banner.py pearls blog/images/banner-pearls-from-the-seed.svg
     python3 tools/banner.py lines blog/images/banner-three-lines.svg
+    python3 tools/banner.py gpu blog/images/banner-an-engine-on-the-gpu.svg
 
 They use the map banners' board: a 24-pixel grid, kelp in green, pearls in yellow, our dragons
 in orange and the enemy's in white. The sonar banner adds dashed rays, and the machine banner
@@ -229,9 +230,32 @@ def three_lines():
     return parts
 
 
+def gpu():
+    """Independent little game boards across a GPU-like grid."""
+    rng = random.Random(20)
+    parts = board()
+    blocked = set()
+    shapes = []
+    for row in range(4):
+        for column in range(6):
+            x0, y0 = 3 + column * 9, 4 + row * 8
+            shapes.append(f"M{x0 * CELL} {y0 * CELL}h{7 * CELL}v{6 * CELL}h{-7 * CELL}z")
+            body = [(x0 + 2, y0 + 2), (x0 + 2, y0 + 3), (x0 + 3, y0 + 3), (x0 + 4, y0 + 3)]
+            if (row + column) % 2:
+                body.reverse()
+            parts.append(dragon(body, OURS if column % 3 else THEIRS))
+            blocked.update(body)
+            for dx, dy in ((1, 4), (5, 1), (5, 4)):
+                x, y = centre(x0 + dx, y0 + dy)
+                parts.append(f'<circle cx="{x}" cy="{y}" r="3.2" fill="{PEARL}"/>')
+    parts.insert(3, f'<path d="{"".join(shapes)}" stroke="{KELP}" stroke-width="2.5" fill="none"/>')
+    parts += pearls(rng, 25, blocked)
+    return parts
+
+
 def main():
     parts = {"sonar": sonar, "machine": machine, "cloud": cloud,
-             "pearls": pearl_seed, "lines": three_lines}[sys.argv[1]]()
+             "pearls": pearl_seed, "lines": three_lines, "gpu": gpu}[sys.argv[1]]()
     parts.append("</svg>")
     with open(sys.argv[2], "w") as output:
         output.write("\n".join(parts) + "\n")

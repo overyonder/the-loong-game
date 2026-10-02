@@ -1003,7 +1003,112 @@ def frozen_versions():
     ]
     return svg(1020, 386, "How bot versions and library pieces become immutable", parts)
 
+def engine_two_targets():
+    parts = [
+        card(205, 20, 350, 128, "One simulation", ["Fixed-array game state", "Shared rule functions"], dark=True,
+             title_size=24, body_size=20, line_height=24),
+        arrow([(380, 148), (380, 182), (185, 182), (185, 223)]),
+        arrow([(380, 148), (380, 182), (575, 182), (575, 223)]),
+        card(20, 225, 330, 156, "CPU build", ["Turn text and replies", "Official-engine comparison"],
+             title_size=24, body_size=20, line_height=26),
+        card(410, 225, 330, 156, "CUDA build", ["Batched game state", "Policy input tensors"], accent=SIGNAL,
+             title_size=24, body_size=20, line_height=26),
+        text(380, 425, "Shared rules, separate wrappers to check", 22, MUTED, "middle"),
+    ]
+    return svg(760, 450, "One simulation compiled for the CPU and GPU", parts)
+
+
+def engine_body_links():
+    parts = [text(380, 36, "A body linked through board cells", 24, INK, "middle", "bold")]
+    for x, cell, label, head, tail in ((30, 17, "tail", 18, -1), (280, 18, "body", 19, 17),
+                                     (530, 19, "head", -1, 18)):
+        parts.append(card(x, 80, 200, 160, f"Cell {cell} · {label}",
+                          ["owner: slot 4", f"towardHead: {head}", f"towardTail: {tail}"],
+                          title_size=22, body_size=19, line_height=26, accent=SIGNAL if label == "head" else RULE))
+    for x in (230, 480):
+        parts.append(arrow([(x, 145), (x + 47, 145)], SIGNAL))
+        parts.append(arrow([(x + 50, 207), (x + 3, 207)]))
+    parts.append(text(380, 292, "Dragon slot 4: tail 17, head 19, length 3", 22, INK, "middle"))
+    parts.append(text(380, 329, "A collision reads the destination's owner directly", 20, MUTED, "middle"))
+    return svg(760, 356, "A three-segment dragon in board arrays", parts)
+
+
+def engine_batched_decisions():
+    parts = [text(380, 35, "One batch, three independent next decisions", 24, INK, "middle", "bold")]
+    for index, (round_number, dragon) in enumerate(((40, 7), (13, 2), (211, 19))):
+        y = 76 + index * 150
+        parts.extend([
+            text(20, y + 28, f"Game {index}", 23, INK, weight="bold"),
+            text(20, y + 61, f"Round {round_number}", 19, MUTED),
+            text(20, y + 89, f"Dragon {dragon}", 19, MUTED),
+            card(170, y, 325, 128, "Observe · 128 threads", ["Thread 0: next decision", "Block: write observation"],
+                 title_size=22, body_size=20, line_height=26),
+            card(545, y, 190, 128, "Apply", ["One thread", "per game"], dark=True,
+                 title_size=23, body_size=20, line_height=26),
+        ])
+    parts.append(text(380, 558, "Illustrative rounds and IDs; games keep their own turn order", 19, MUTED, "middle"))
+    return svg(760, 583, "Observation blocks and action threads for independent games", parts)
+
+
+def engine_device_loop():
+    parts = [
+        card(20, 16, 720, 72, "Host: map templates, seeds and scheduling", title_size=23),
+        f'<rect x="20" y="115" width="720" height="298" rx="8" fill="{CARD}" stroke="{RULE}" stroke-width="1.6"/>',
+        text(380, 149, "GPU state and tensors", 24, INK, "middle", "bold"),
+        arrow([(135, 88), (135, 178)]),
+        text(165, 172, "Reset selected finished rows", 18, MUTED),
+        card(35, 185, 200, 110, "Observe", ["Write inputs"], title_size=24, body_size=20),
+        arrow([(235, 240), (272, 240)]),
+        card(275, 185, 200, 110, "Policy", ["Choose actions"], dark=True, title_size=24, body_size=20),
+        arrow([(475, 240), (512, 240)]),
+        card(515, 185, 200, 110, "Apply", ["Update games"], title_size=24, body_size=20),
+        arrow([(615, 295), (615, 353), (135, 353), (135, 298)]),
+        text(380, 389, "Next decision", 21, MUTED, "middle"),
+        text(380, 449, "Operations ordered on the policy's CUDA stream", 21, MUTED, "middle"),
+    ]
+    return svg(760, 475, "The device-resident rollout loop", parts)
+
+
+def engine_lockstep():
+    parts = [
+        text(380, 40, "Same map and seed", 24, INK, "middle", "bold"),
+        arrow([(380, 56), (380, 80), (185, 80), (185, 117)]),
+        arrow([(380, 56), (380, 80), (575, 80), (575, 117)]),
+        card(35, 120, 300, 110, "Official engine", ["WebAssembly"], dark=True,
+             title_size=24, body_size=20),
+        card(425, 120, 300, 110, "CPU port", ["Fixed-array simulation"], title_size=24, body_size=20),
+        arrow([(185, 230), (185, 342), (212, 342)]),
+        arrow([(575, 230), (575, 342), (548, 342)]),
+        card(215, 282, 330, 136, "Compare turn blocks", ["Different: stop here", "Same: choose a reply"], accent=SIGNAL,
+             title_size=24, body_size=20, line_height=26),
+        arrow([(380, 418), (380, 473)]),
+        card(180, 476, 400, 80, "One deterministic reply to both", title_size=23),
+        arrow([(180, 516), (10, 516), (10, 175), (33, 175)]),
+        arrow([(580, 516), (750, 516), (750, 175), (727, 175)]),
+        text(380, 608, "At termination: compare the results too", 22, MUTED, "middle"),
+    ]
+    return svg(760, 635, "Both engines receive the same replies until the first difference", parts)
+
+
+def engine_throughput():
+    parts = [text(20, 35, "Measured · 2,048 games · RTX 5070 Ti", 23, INK, weight="bold"),
+             f'<rect x="20" y="58" width="560" height="34" rx="4" fill="{FOREST}"/>',
+             text(596, 84, "761,000", 24, INK),
+             text(20, 137, "Design target", 23, MUTED),
+             (f'<rect x="20" y="160" width="{560 * 100_000 / 761_000:.1f}" height="34" rx="4"'
+              f' fill="none" stroke="{MUTED}" stroke-width="2" stroke-dasharray="6 4"/>'),
+             text(110, 186, "100,000", 24, MUTED),
+             text(20, 241, "Dragon-turns/s, including observation construction", 21, MUTED)]
+    return svg(760, 267, "GPU engine throughput and its design target", parts)
+
+
 FIGURES = {
+    "engine-two-targets": engine_two_targets,
+    "engine-body-links": engine_body_links,
+    "engine-batched-decisions": engine_batched_decisions,
+    "engine-device-loop": engine_device_loop,
+    "engine-lockstep": engine_lockstep,
+    "engine-throughput": engine_throughput,
     "textbook-hierarchy": textbook_hierarchy,
     "collector-retention": collector_retention,
     "points-profile": points_profile,

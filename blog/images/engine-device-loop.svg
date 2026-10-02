@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 475" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">The device-resident rollout loop</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="760" height="475" fill="#ede5d5"/>
+<rect x="20" y="16" width="720" height="72" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="41" font-size="23" fill="#20251f" text-anchor="start" font-weight="bold">Host: map templates, seeds and scheduling</text>
+<rect x="20" y="115" width="720" height="298" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/>
+<text x="380" y="149" font-size="24" fill="#20251f" text-anchor="middle" font-weight="bold">GPU state and tensors</text>
+<path d="M135 88 L135 178" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="165" y="172" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">Reset selected finished rows</text>
+<rect x="35" y="185" width="200" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="49" y="210" font-size="24" fill="#20251f" text-anchor="start" font-weight="bold">Observe</text><text x="49" y="245" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Write inputs</text>
+<path d="M235 240 L272 240" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="275" y="185" width="200" height="110" rx="8" fill="#263d31" stroke="#b9ad99" stroke-width="1.6"/><text x="289" y="210" font-size="24" fill="#ede5d5" text-anchor="start" font-weight="bold">Policy</text><text x="289" y="245" font-size="20" fill="#d9d2c3" text-anchor="start" font-weight="normal">Choose actions</text>
+<path d="M475 240 L512 240" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="515" y="185" width="200" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="529" y="210" font-size="24" fill="#20251f" text-anchor="start" font-weight="bold">Apply</text><text x="529" y="245" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Update games</text>
+<path d="M615 295 L615 353 L135 353 L135 298" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="380" y="389" font-size="21" fill="#66675e" text-anchor="middle" font-weight="normal">Next decision</text>
+<text x="380" y="449" font-size="21" fill="#66675e" text-anchor="middle" font-weight="normal">Operations ordered on the policy&#x27;s CUDA stream</text>
+</svg>

@@ -167,4 +167,4 @@ The judge stops our bots at WebAssembly. At [over|yonder](https://over-yonder.te
 
 ## Next up
 
-[Games in the cloud](21-games-in-the-cloud.md): running big batches of games on AWS Spot workers, and how every run ends on its own.
+[An engine on the GPU](20-an-engine-on-the-gpu.md): porting the simulation to fixed arrays and CUDA, checking the same games turn by turn, and keeping the training loop on the card.

@@ -4,8 +4,6 @@ Hi all! The Loong Game is a little open source series running alongside UNSW Bat
 
 ## Who I am
 
-<!-- namecard -->
-
 I'm Kieran Hannigan, and I run [over|yonder](https://over-yonder.tech), a performance engineering practice. Before that I spent about ten years as an electrical engineer, working on critical power and integrated control systems, and finished up leading a national renewable energy team as a Principal Engineer.
 
 ## The series
@@ -42,3 +40,5 @@ The toolkit gets you as far as playing a game and watching it. It won't tell you
 ![Two cards. What the toolkit gives you: unswbc init for a starter bot in C, C++ or Python, unswbc run --sandbox for a game played as the judge plays it, --seed for the same game again, unswbc submit for an upload to the ladder, and the website's docs, visualiser and public games. What it doesn't tell you: whether a change made the bot better, why a dragon died and what it could see, how other teams' bots play, and where the CPU budget went. These are what the tools posts build.](images/toolkit-gaps.svg)
 
 Building those tools is the next stage of the series, and the [next post](02-the-wishlist.md) works out which ones we need. After that the series turns to strategy, and eventually to squeezing more out of that CPU budget.
+
+<!-- namecard -->
