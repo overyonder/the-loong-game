@@ -113,7 +113,7 @@ for dy in -3 .. 3:
 
 The [observations](../gamedata/observations.nim) that the viewer's recovery feeds back to a bot are built from these cells, exactly as the engine wrote them to it.
 
-There is one gap in site replays downloaded since 27 September: they no longer record pearl countdown events, and every tile's minimum and maximum spawn gaps are zero. The bot still received the live countdown in its window. The planned article *Pearls from the seed* shows how the match seed and the engine's pearl generator recover those hidden timings, including the variants the site serves under familiar map names.
+There is one gap in site replays downloaded since 27 September: they no longer record pearl countdown events, and every tile's minimum and maximum spawn gaps are zero. The bot still received the live countdown in its window. [Pearls from the seed](10-pearls-from-the-seed.md) shows how the match seed and the engine's pearl generator constrain those hidden timings, including the variants the site serves under familiar map names. A replay that no candidate explains stays unresolved.
 
 Here is round 238 of another public game, on a 32×32 map, from a three-segment dragon in the middle of it:
 
@@ -135,4 +135,4 @@ The pearl chaser's dragons run into walls twice as often and into themselves nea
 
 ## Next up
 
-[Through one dragon's eyes](11-through-one-dragons-eyes.md): the debug viewer, and what it shows about those deaths.
+[Pearls from the seed](10-pearls-from-the-seed.md): what the replay leaves out about pearl timing, and how to reconstruct it without guessing.

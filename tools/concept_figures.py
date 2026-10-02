@@ -54,15 +54,15 @@ def text(x, y, value, size=14, fill=INK, anchor="start", weight="normal"):
             f' font-weight="{weight}">{html.escape(str(value))}</text>')
 
 
-def card(x, y, w, h, title, lines=(), dark=False, accent=RULE, centre=False, title_size=15, body_size=12.5):
+def card(x, y, w, h, title, lines=(), dark=False, accent=RULE, centre=False, title_size=15, body_size=12.5, line_height=18):
     """A rounded card: a bold title, which may run to two lines with \n, then body lines."""
     fill, title_fill, line_fill = (FOREST, PAPER, DARK_LINE) if dark else (CARD, INK, MUTED)
     tx, anchor = (x + w / 2, "middle") if centre else (x + 14, "start")
     titles = title.split("\n")
     parts = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{fill}" stroke="{accent}" stroke-width="1.6"/>']
     parts += [text(tx, y + 25 + 19 * i, t, title_size, title_fill, anchor, "bold") for i, t in enumerate(titles)]
-    top = y + 46 + 19 * (len(titles) - 1)
-    parts += [text(tx, top + 18 * index, line, body_size, line_fill, anchor) for index, line in enumerate(lines)]
+    top = y + (60 if body_size >= 18 else 46) + 19 * (len(titles) - 1)
+    parts += [text(tx, top + line_height * index, line, body_size, line_fill, anchor) for index, line in enumerate(lines)]
     return "".join(parts)
 
 
@@ -825,19 +825,104 @@ def rl_compute_topology():
 
 
 def pearl_reconstruction():
-    parts = [
-        card(20, 36, 220, 120, "Site replay", ["map name", "match seed", "pearl gaps are zero"], dark=True),
-        card(280, 36, 220, 120, "Engine draws", ["one seeded random stream", "every attempt consumes a draw", "occupied cells still count"]),
-        card(540, 36, 220, 120, "Fitted gap table", ["first spawns constrain gaps", "later spawns reject choices", "one table explains the game"]),
-        card(800, 36, 220, 120, "Regenerated game", ["same spawn attempts", "same actions and points", "same final state"], accent=SIGNAL),
+    return vertical_flow("From a replay to a checked reconstruction", [
+        ("Replay and match seed", ["Observed pearls and occupancy", "Named map, but gaps are zero"]),
+        ("Seeded engine draws", ["Mirrored tiles share a countdown", "Occupied attempts still take a draw"]),
+        ("Candidate gap table", ["Check appearances and missing pearls", "Keep unresolved games unresolved"]),
+        ("Reconstruction check", ["Compare state and our bot's actions", "Stop at the first difference"]),
+    ])
+
+
+def vertical_flow(title, stages):
+    """Short, legible stages for article figures that also fit a phone."""
+    parts = []
+    for index, (heading, lines) in enumerate(stages):
+        y = 20 + index * 136
+        parts.append(card(20, y, 480, 108, heading, lines, dark=index == 0,
+                          accent=SIGNAL if index == len(stages) - 1 else RULE,
+                          title_size=23, body_size=21, line_height=26))
+        if index:
+            parts.append(arrow([(260, y - 28), (260, y - 2)]))
+    return svg(520, 20 + len(stages) * 136 - 8, title, parts)
+
+
+def textbook_hierarchy():
+    return vertical_flow("The textbook bot's roles, tasks, states and movement", [
+        ("Observed world and sonar", ["Local beliefs, no central controller", "What does this dragon know?"]),
+        ("Role: objective and need", ["Scout, champion, guard, assassin", "How many dragons does the job need?"]),
+        ("Task: behaviour and target", ["Role duties offer eligible choices", "Utility selects; a margin retains"]),
+        ("Task state machine", ["Ordered guards select the phase", "Commit, interrupt and resume"]),
+        ("Movement and action", ["Check safety and available fallbacks", "Compare by the active objective"]),
+    ])
+
+
+def collector_retention():
+    return vertical_flow("How the capped replay store chooses what to retain", [
+        ("Select indexed games", ["Our games → top teams → pins", "Then recent teams rated above us"]),
+        ("One manifest", ["Highest qualifying priority wins", "Keep identifiers, pins and file sizes"]),
+        ("Make room under the cap", ["Remove unselected files first", "Then lower-priority, older files"]),
+        ("Keep the useful files", ["Default storage cap: 100 GB", "The index survives file eviction"]),
+    ])
+
+
+def points_profile():
+    parts = [card(20, 20, 480, 108, "One registered build", [
+        "WebAssembly and a name sidecar", "The exact staged source and flags"],
+        dark=True, title_size=23, body_size=21, line_height=26)]
+    reports = [
+        ("Judge: charged work", ["Counters by function and class", "Input and output have separate rows"]),
+        ("Clang: vectorisation remarks", ["Loop and SLP transformations", "Reasons for loops left scalar"]),
     ]
-    for x in (240, 500, 760):
-        parts.append(arrow([(x, 96), (x + 38, 96)]))
+    for index, (heading, lines) in enumerate(reports):
+        y = 160 + index * 136
+        parts.append(card(58, y, 442, 108, heading, lines,
+                          title_size=23, body_size=20, line_height=26))
+        parts.append(arrow([(38, 128), (38, y + 54), (56, y + 54)]))
+        parts.append(arrow([(500, y + 54), (510, y + 54), (510, 486), (502, 486)]))
+    parts.append(card(20, 432, 480, 108, "Join by function name", [
+        "Start with the costliest functions", "Change, check actions, profile again"],
+        accent=SIGNAL, title_size=23, body_size=21, line_height=26))
+    return svg(520, 562, "Join charged function costs to compiler vectorisation remarks", parts)
+
+
+def judge_modes():
+    modes = [
+        ("Ordinary game", ["Official engine; metered bot instances", "100M points per dragon turn"]),
+        ("Inspection", ["Recorded observations into a bot", "Actions, annotations and memory"]),
+        ("Served team", ["Local socket to an external process", "Its work is not metered"]),
+        ("Lockstep", ["Official engine and CPU reference", "Same replies; first differing input"]),
+    ]
+    parts = [card(20, 20, 480, 70, "One judge host", dark=True, title_size=23)]
+    for index, (heading, lines) in enumerate(modes):
+        y = 120 + index * 128
+        parts.append(card(58, y, 442, 108, heading, lines, title_size=23, body_size=20, line_height=26))
+        parts.append(arrow([(38, 90), (38, y + 54), (56, y + 54)]))
+    return svg(520, 640, "Four workflows through the same judge host", parts)
+
+
+def inspection_accounting():
+    return vertical_flow("Inspection temporarily switches from policy metering to observer metering", [
+        ("Policy work", ["Gameplay instructions remain charged", "Action output: charged, 10 KiB limit"]),
+        ("Enter observer scope", ["Save and pause the policy meter", "Clock sees frozen policy time"]),
+        ("Explain the decision", ["Separate 1B-point observer allowance", "Separate 64 MiB annotation path"]),
+        ("Leave observer scope", ["Restore the saved policy meter", "No gameplay I/O inside the observer"]),
+    ])
+
+
+def rake_program():
+    parts = [text(260, 32, "Two routes to the same judge", 23, INK, "middle", "bold")]
     parts += [
-        text(20, 202, "The replay tells us when pearls appeared. The engine source tells us which random draw made each attempt.", 13, MUTED),
-        text(20, 224, "Together they recover the hidden table without using it to choose how the bot plays.", 13, MUTED),
+        card(20, 58, 480, 108, "Our current split", ["Nim strategy + Rake kernels", "Each compiler emits C"], dark=True,
+             title_size=23, body_size=21, line_height=26),
+        card(20, 200, 480, 134, "A whole Rake program", ["slow: setup, state and ordinary code", "run: traversals over racks", "crunch: lane-wise vector work"],
+             title_size=23, body_size=21, line_height=26),
+        card(20, 388, 480, 108, "C and the starter API", ["Link the chosen route with C helpers", "The judge's clang makes bot.wasm"], accent=SIGNAL,
+             title_size=23, body_size=21, line_height=26),
+        arrow([(500, 112), (510, 112), (510, 442), (502, 442)]),
+        arrow([(260, 334), (260, 386)]),
+        text(260, 532, "Same protocol. Measure points separately.", 21, MUTED, "middle"),
     ]
-    return svg(1040, 246, "Rebuilding hidden pearl countdowns from a replay and its seed", parts)
+    return svg(520, 558, "Nim with Rake kernels, or whole-program Rake, both emit C for the judge", parts)
 
 
 def map_variant_counts():
@@ -848,8 +933,17 @@ def map_variant_counts():
         ("Schooltime", 23, FOREST),
         ("Slithery Fight, unresolved", 19, SIGNAL),
     ]
-    return bars("Games out of 40 that the published gap table did not explain", rows, "games", width=1000,
-                log=False, note="Trauma, Default, Trophy, Portals and Autarky: 0 of 40. Read from stored games on 1 October.")
+    parts = [text(20, 30, "Games the published gaps didn't explain", 23, INK, weight="bold"),
+             text(20, 58, "40 stored games per map · 1 October 2026", 21, MUTED)]
+    for index, (label, value, colour) in enumerate(rows):
+        y = 90 + index * 64
+        parts.append(text(20, y, label, 22, INK))
+        parts.append(f'<rect x="20" y="{y + 12}" width="400" height="20" rx="4" fill="{PALE}"/>')
+        parts.append(f'<rect x="20" y="{y + 12}" width="{400 * value / 40}" height="20" rx="4" fill="{colour}"/>')
+        parts.append(text(498, y + 28, f"{value} / 40", 21, MUTED, "end"))
+    parts += [text(20, 428, "Trauma, Default, Trophy, Portals", 21, MUTED),
+              text(20, 454, "and Autarky: 0 of 40 each", 21, MUTED)]
+    return svg(520, 478, "Games out of 40 that the published gap table did not explain", parts)
 
 
 def three_bot_lines():
@@ -910,6 +1004,12 @@ def frozen_versions():
     return svg(1020, 386, "How bot versions and library pieces become immutable", parts)
 
 FIGURES = {
+    "textbook-hierarchy": textbook_hierarchy,
+    "collector-retention": collector_retention,
+    "points-profile": points_profile,
+    "judge-modes": judge_modes,
+    "inspection-accounting": inspection_accounting,
+    "rake-program": rake_program,
     "bot-assembly": bot_assembly,
     "frozen-versions": frozen_versions,
     "three-bot-lines": three_bot_lines,

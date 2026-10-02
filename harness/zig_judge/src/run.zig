@@ -1,8 +1,10 @@
-//! `loong-judge --engine E run ...`: one sandboxed game from the toolkit's
-//! `unswbc run --sandbox` arguments, with the same log lines and replay, and each
-//! dragon turn's judge points in `points` columns beside the replay
-//! (gamedata/format.md). The harness plays its games through here, and
-//! `just judge-fidelity` checks it against the toolkit.
+//! `loong-judge --engine E run ...`: one sandboxed game from the
+//! toolkit's `unswbc run --sandbox` arguments, recorded as toolkit.py's match wrapper
+//! records it: the same log lines, the replay, and each dragon turn's judge points
+//! in `points` columns beside the replay (gamedata/format.md). Every game we
+//! play goes through here; `just judge-fidelity` checks it against the toolkit.
+//! With `--profile`, each team's points by function and operator class go
+//! beside the replay too (`writeProfile`).
 
 const std = @import("std");
 const wt = @import("wasmtime.zig");
@@ -10,6 +12,7 @@ const engine = @import("engine.zig");
 const bot = @import("bot.zig");
 const game = @import("game.zig");
 const sync = @import("sync.zig");
+const metering = @import("metering.zig");
 
 const DEBUG_LOGS: i32 = 1;
 const DEBUG_INDICATOR: i32 = 2;
@@ -31,6 +34,7 @@ const Arguments = struct {
     teams: [2]?[]const u8 = .{ null, null },
     /// A team that replays recorded replies from a script file instead of a bot.
     script: ?struct { team: u8, path: []const u8 } = null,
+    profile: bool = false,
 };
 
 /// A script file: one reply a line, `ROUND<TAB>DRAGON<TAB>REPLY`, the reply's
@@ -77,8 +81,11 @@ fn parse(args: []const [:0]const u8) !Arguments {
             if (i >= args.len) return error.MissingValue;
             parsed.seed = try std.fmt.parseInt(u64, args[i], 0);
         } else if (std.mem.eql(u8, arg, "--charge-first-read")) {
-            // The toolkit's accounting, for `just judge-fidelity`; the competition's judge doesn't charge it.
+            // The toolkit's accounting, for `just judge-fidelity`; the ladder doesn't charge it.
             bot.charge_first_read = true;
+        } else if (std.mem.eql(u8, arg, "--profile")) {
+            parsed.profile = true;
+            bot.profiling = true;
         } else if (std.mem.eql(u8, arg, "--sandbox")) {
             parsed.sandbox = true;
         } else if (std.mem.eql(u8, arg, "--no-replay")) {
@@ -136,7 +143,7 @@ fn percentile(ordered: []const i64, q: i64) i64 {
     return ordered[@intCast(@max(0, rank))];
 }
 
-/// The `points` columns: each dragon turn's judge points and failure.
+/// The `points` columns toolkit.py's `write_points` writes, byte for byte.
 fn writePoints(allocator: std.mem.Allocator, io: std.Io, path: []const u8, record: *const game.Record) !void {
     const Column = struct { name: []const u8, code: u8, count: u64, data: []const u8 };
     var rounds: std.ArrayList(u8) = .empty;
@@ -204,18 +211,97 @@ fn writePoints(allocator: std.mem.Allocator, io: std.Io, path: []const u8, recor
     try cwd.rename(partial, cwd, path, io);
 }
 
-/// `replay`'s points file: the replay path with its suffix replaced by `.points.cols`.
-fn pointsPath(allocator: std.mem.Allocator, replay: []const u8) ![]u8 {
-    const base = std.fs.path.basename(replay);
+/// `path` with its suffix replaced by `suffix`, as toolkit.py's `points_path` does.
+fn besidePath(allocator: std.mem.Allocator, path: []const u8, suffix: []const u8) ![]u8 {
+    const base = std.fs.path.basename(path);
     const dot = std.mem.lastIndexOfScalar(u8, base, '.') orelse base.len;
-    const stem_end = replay.len - base.len + dot;
-    return std.fmt.allocPrint(allocator, "{s}.points.cols", .{replay[0..stem_end]});
+    const stem_end = path.len - base.len + dot;
+    return std.fmt.allocPrint(allocator, "{s}{s}", .{ path[0..stem_end], suffix });
+}
+
+/// Each team's points by function and operator class, as tab-separated rows
+/// beside the replay (`.profile.tsv`): team, function index, name (from the
+/// bot's `.names` file beside its wasm, which the registry writes as
+/// `judge.names`), a column per `metering.classes`, then the total. Host calls'
+/// points follow as rows of their own with only a total. Rows run from the most
+/// points down. The echo gives each team's total beside the points its turns
+/// recorded, which it equals less the work each sandbox did after its last turn.
+fn writeProfile(allocator: std.mem.Allocator, io: std.Io, echo: game.Echo, path: []const u8, bots: [2][]const u8, modules: [2]*const bot.BotModule, turn_points: [2][]i64, scripted: ?usize) !void {
+    const cwd = std.Io.Dir.cwd();
+    var out: std.ArrayList(u8) = .empty;
+    defer out.deinit(allocator);
+    try out.appendSlice(allocator, "team\tfunction\tname");
+    for (metering.classes) |class| try out.print(allocator, "\t{s}", .{class});
+    try out.appendSlice(allocator, "\ttotal\n");
+    const width = metering.classes.len;
+    for (modules, bots, turn_points, [_][]const u8{ "A", "B" }, 0..) |module, bot_path, turns, team, t| {
+        if (scripted == t) continue;
+        const profile = module.profile orelse continue;
+        const totals = profile.teams[t];
+        const names_path = try besidePath(allocator, bot_path, ".names");
+        defer allocator.free(names_path);
+        const names_text = cwd.readFileAlloc(io, names_path, allocator, .unlimited) catch "";
+        defer if (names_text.len > 0) allocator.free(names_text);
+        var names = std.AutoHashMap(u64, []const u8).init(allocator);
+        defer names.deinit();
+        var lines = std.mem.splitScalar(u8, names_text, '\n');
+        while (lines.next()) |line| {
+            const tab = std.mem.indexOfScalar(u8, line, '\t') orelse continue;
+            try names.put(std.fmt.parseInt(u64, line[0..tab], 10) catch continue, line[tab + 1 ..]);
+        }
+        const Row = struct { function: usize, total: i64 };
+        var rows: std.ArrayList(Row) = .empty;
+        defer rows.deinit(allocator);
+        var by_class = [_]i64{0} ** metering.classes.len;
+        var code: i64 = 0;
+        for (0..profile.layout.functions) |f| {
+            var total: i64 = 0;
+            for (totals[f * width ..][0..width], &by_class) |points, *sum| {
+                total += points;
+                sum.* += points;
+            }
+            code += total;
+            if (total != 0) try rows.append(allocator, .{ .function = f, .total = total });
+        }
+        std.mem.sort(Row, rows.items, {}, struct {
+            fn more(_: void, a: Row, b: Row) bool {
+                return a.total > b.total;
+            }
+        }.more);
+        for (rows.items) |row| {
+            const index = profile.layout.imported_functions + row.function;
+            try out.print(allocator, "{s}\t{d}\t{s}", .{ team, index, names.get(index) orelse "" });
+            for (totals[row.function * width ..][0..width]) |points| try out.print(allocator, "\t{d}", .{points});
+            try out.print(allocator, "\t{d}\n", .{row.total});
+        }
+        const host = totals[profile.functionCounters()..];
+        for (host, [_][]const u8{ "(stdin reads)", "(stdout writes)" }) |points, name| {
+            try out.print(allocator, "{s}\t\t{s}", .{ team, name });
+            for (0..width) |_| try out.append(allocator, '\t');
+            try out.print(allocator, "\t{d}\n", .{points});
+        }
+        var recorded: i64 = 0;
+        for (turns) |points| recorded += points;
+        var bufs: [4][32]u8 = undefined;
+        echo.print("team {s} profile: {s} points in its code, {d}% of them SIMD, and {s} in host calls, against {s} over its turns\n", .{
+            team,
+            formatPoints(code, &bufs[0]),
+            if (code > 0) @divFloor(100 * by_class[metering.SIMD], code) else 0,
+            formatPoints(host[0] + host[1], &bufs[1]),
+            formatPoints(recorded, &bufs[2]),
+        });
+        if (names.count() == 0) echo.print("team {s} profile: no function names at {s}\n", .{ team, names_path });
+    }
+    const file = try cwd.createFile(io, path, .{});
+    defer file.close(io);
+    try file.writeStreamingAll(io, out.items);
+    echo.print("wrote profile: {s}\n", .{path});
 }
 
 /// Plays the game and returns the process exit code, as `unswbc run` would.
 pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, args: []const [:0]const u8) !u8 {
     const arguments = parse(args) catch |err| {
-        fail("usage: loong-judge --engine E run --sandbox [--seed N] [-o REPLAY | --no-replay] [--no-debug] [--team-a NAME --team-b NAME] [--script-a|--script-b FILE] [--charge-first-read] MAP A.wasm B.wasm ({s})", .{@errorName(err)});
+        fail("usage: loong-judge --engine E run --sandbox [--seed N] [-o REPLAY | --no-replay] [--no-debug] [--team-a NAME --team-b NAME] [--script-a|--script-b FILE] [--charge-first-read] [--profile] MAP A.wasm B.wasm ({s})", .{@errorName(err)});
         return 2;
     };
     if (!arguments.sandbox) {
@@ -245,7 +331,7 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
     var points_path: ?[]u8 = null;
     defer if (points_path) |path| allocator.free(path);
     if (replay_path) |path| {
-        points_path = try pointsPath(allocator, path);
+        points_path = try besidePath(allocator, path, ".points.cols");
         cwd.deleteFile(io, points_path.?) catch {};
     }
 
@@ -380,6 +466,11 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
             try writePoints(allocator, io, points_path.?, &record);
             break;
         }
+    }
+    if (arguments.profile) {
+        const profile_path = try besidePath(allocator, path, ".profile.tsv");
+        defer allocator.free(profile_path);
+        try writeProfile(allocator, io, echo, profile_path, arguments.bots, .{ &module_a, &module_b }, summary.points, scripted);
     }
     return 0;
 }

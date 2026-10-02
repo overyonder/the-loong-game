@@ -168,3 +168,31 @@ decisions *args:
     mkdir -p "$(dirname "$game")"
     if [[ ! "$game" -nt "$replay" ]]; then "$root/build/bin/loong-gamedata" "$replay" "$game" >&2; fi
     exec "$root/build/bin/loong-recover" decisions --replay "$(realpath "$replay")" --game "$game" --registry "$registry" --judge "$judge" "${options[@]}"
+
+# Fit or select a pearl-gap table from locally supplied seeded replays.
+[group("Inspection")]
+map-variants *args:
+    ../../build/bin/loong-map-variants "$@"
+
+# Restore a supplied replay only when its map and physical state are resolved.
+[group("Inspection")]
+regenerate *args:
+    ../../build/bin/loong-regenerate "$@"
+
+# Profile one seeded game in judge CPU points, beside its replay.
+[group("Profiling")]
+points-profile a b map seed replay:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    engine=$({{quote(python)}} -c 'from unswbc.engine import WASM_PATH; print(WASM_PATH)')
+    exec nice -n 19 ../../build/zig-judge/bin/loong-judge --engine "$engine" --timeout 300 run --sandbox --profile --seed "$4" -o "$5" "$3" "$1" "$2"
+
+# Read a registered build's compiler remarks, optionally beside its hot functions.
+[group("Profiling")]
+vector-remarks guid profile="" team="A" top="25":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    registry=${LOONG_BUILD_REGISTRY:-$(realpath ../../build/registry)}
+    remarks="$registry/$1/judge.remarks.tsv"
+    [[ -f "$remarks" ]] || { echo 'Build has no remarks: run just bot-build for its source' >&2; exit 2; }
+    if [[ -z "$2" ]]; then cat "$remarks"; else ../../build/bin/loong-profile join "$remarks" "$2" "$3" "$4"; fi

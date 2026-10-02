@@ -427,14 +427,15 @@ bot-build source mode="judge":
     #!/usr/bin/env -S {{quote(python)}}
     import json
     import sys
+    import tempfile
     from pathlib import Path
 
     from harness import build_registry, toolkit
+    from harness.compiler import compile_with_sidecars
 
 
     def main() -> None:
         sandbox = toolkit.sandbox_module()
-        from unswbc import clangtool
         from unswbc.project import Project
 
         source, mode = Path(sys.argv[1]).resolve(), sys.argv[2]
@@ -444,9 +445,11 @@ bot-build source mode="judge":
             # Local games and Python bots run the organiser's project build.
             print(Project.from_dir(source).compile())
         else:
-            wasm = clangtool.build(source)
-            sandbox.compile_once(sandbox._metered(wasm))
-            guid, _ = build_registry.register(source, wasm)
+            with tempfile.TemporaryDirectory(prefix="loong-bot-build-") as temporary:
+                wasm = compile_with_sidecars(source, Path(temporary) / "judge.wasm")
+                sandbox.compile_once(sandbox._metered(wasm))
+                guid, registered = build_registry.register(source, wasm)
+            wasm = registered
             print(json.dumps({"guid": guid, "wasm": str(wasm)}))
 
 
@@ -456,10 +459,13 @@ bot-build source mode="judge":
 [group("Build")]
 tools-build:
     mkdir -p ../../build/bin
-    nim c -d:release --hints:off --nimcache:../../build/nimcache/gamedata -o:../../build/bin/loong-gamedata ../../gamedata/gamedata.nim
-    nim c -d:release --hints:off --nimcache:../../build/nimcache/report -o:../../build/bin/loong-report ../../harness/report/report.nim
+    nim c -d:release --hints:off --passL:-lz --nimcache:../../build/nimcache/gamedata -o:../../build/bin/loong-gamedata ../../gamedata/gamedata.nim
+    nim c -d:release --hints:off --passL:-lz --nimcache:../../build/nimcache/report -o:../../build/bin/loong-report ../../harness/report/report.nim
     nim c -d:release -d:ssl --hints:off --nimcache:../../build/nimcache/sample-replays -o:../../build/bin/loong-sample-replays ../../replays/collection.nim
-    nim c -d:release --hints:off --nimcache:../../build/nimcache/recover -o:../../build/bin/loong-recover ../../replays/recovery/serve.nim
+    nim c -d:release --hints:off --passL:-lz --nimcache:../../build/nimcache/recover -o:../../build/bin/loong-recover ../../replays/recovery/serve.nim
+    nim c -d:release --hints:off --nimcache:../../build/nimcache/profile -o:../../build/bin/loong-profile ../../harness/profiling/profile.nim
+    nim c -d:release --hints:off --passL:-lz --nimcache:../../build/nimcache/map-variants -o:../../build/bin/loong-map-variants ../../harness/map_variants.nim
+    nim c -d:release --hints:off --passL:-lz --nimcache:../../build/nimcache/regenerate -o:../../build/bin/loong-regenerate ../../harness/regenerate.nim
 
 # Check the Zig judge meters bots and records games exactly as the toolkit does.
 [group("Evaluation")]
@@ -501,8 +507,8 @@ judge-fidelity *args:
 
 # Build the Zig judge the round robin, batch and ladder play in by default.
 [group("Build")]
-zig-judge-build:
-    zig build --build-file ../../harness/zig_judge/build.zig --cache-dir "$PWD/../../build/zig-cache" --global-cache-dir "$PWD/../../build/zig-global-cache" --prefix "$PWD/../../build/zig-judge" -Doptimize=ReleaseFast
+zig-judge-build *args:
+    zig build --build-file ../../harness/zig_judge/build.zig --cache-dir "$PWD/../../build/zig-cache" --global-cache-dir "$PWD/../../build/zig-global-cache" --prefix "$PWD/../../build/zig-judge" -Doptimize=ReleaseFast "$@"
 
 [group("Evaluation")]
 zig-judge +args:

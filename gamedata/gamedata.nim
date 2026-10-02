@@ -3,8 +3,11 @@
 ## a run's merged results, and summarise replays. `Usage` below lists the
 ## commands.
 
-import std/[os, sets, strutils, tables]
-import columns, capnp_replay, decode, gzip_inflate, observations, result
+import std/[os, strutils, tables]
+import columns, capnp_replay, gzip_inflate
+when isMainModule:
+  import std/sets
+  import decode, observations, result
 
 const GameVersion = 1'u32
 

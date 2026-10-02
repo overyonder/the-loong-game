@@ -21,6 +21,11 @@ pub fn build(b: *std.Build) void {
     root.addLibraryPath(.{ .cwd_relative = lib_dir });
     root.addRPath(.{ .cwd_relative = lib_dir });
     root.linkSystemLibrary("wasmtime", .{ .preferred_link_mode = .static });
+    // The lockstep mode's CPU reference; replace with -Dreference-source=FILE.
+    root.addIncludePath(b.path("reference"));
+    const reference = b.option([]const u8, "reference-source", "C++ source implementing reference/port.h");
+    root.addCSourceFile(.{ .file = if (reference) |path| .{ .cwd_relative = path } else b.path("reference/host.cc"), .flags = &.{ "-std=c++20", "-O2" } });
+    root.link_libcpp = true;
     root.linkSystemLibrary("unwind", .{ .preferred_link_mode = .static });
 
     const exe = b.addExecutable(.{

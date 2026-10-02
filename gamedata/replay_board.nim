@@ -1,6 +1,6 @@
-## A packed replay's events applied to the rebuilt board (board.nim): a move,
-## split or death of an unknown dragon, or a starting body the replay places
-## elsewhere, fails the rebuild.
+## A packed replay's events applied to the rebuilt board (board.nim), as the
+## Python ReplayState applied them: a move, split or death of an unknown dragon,
+## or a starting body the replay places elsewhere, fails the rebuild.
 
 import std/tables
 import board, capnp_replay

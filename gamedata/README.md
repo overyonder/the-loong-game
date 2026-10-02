@@ -20,3 +20,9 @@ their events.
   replay's sides, result and event counts, or every bot's deaths by cause.
   Run `loong-gamedata` alone for the options. The
   viewer, its recovery server and the harness call the binary themselves.
+
+The same released `capnp_replay`, `board`, `replay_board` and `gzip_inflate`
+modules serve the map tools. They decode locally, with no imports from a
+private checkout. Gzip support links zlib. Strict reconstruction refuses
+body layouts whose heading cannot be determined, rather than inserting a
+heading into missing state.

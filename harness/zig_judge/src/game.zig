@@ -6,6 +6,7 @@ const std = @import("std");
 const engine = @import("engine.zig");
 const bot = @import("bot.zig");
 const sync = @import("sync.zig");
+const Served = @import("served.zig").Served;
 
 pub const Team = enum(u8) { a = 0, b = 1 };
 
@@ -74,7 +75,7 @@ pub const Summary = struct {
 };
 
 /// A team whose turns answer with recorded replies instead of running a bot: the
-/// other side of a recorded game, replaying its moves, splits and sonar exactly.
+/// other side of a ladder game, replaying its moves, splits and sonar exactly.
 pub const Script = struct {
     team:    Team,
     replies: std.AutoHashMap(u64, []const u8), // round << 32 | dragon, to its reply
@@ -95,6 +96,7 @@ pub const Setup = struct {
     record:        ?*Record = null,
     echo:          ?Echo = null,
     script:        ?*const Script = null,
+    served:        ?*Served = null,   // a team another process answers (served.zig)
 };
 
 /// run.py's Progress, printing as it does when stdout is not a terminal.
@@ -149,6 +151,10 @@ const Game = struct {
         const index = @intFromEnum(team);
         self.teams.put(dragon_id, team) catch {};
         if (self.setup.script) |script| if (script.team == team) return;
+        if (self.setup.served) |served| if (served.team == index) {
+            served.spawn(dragon_id, init);
+            return;
+        };
         const dragon = bot.Dragon.create(self.allocator, self.setup.modules[index], &self.keys[index], index, dragon_id, init) catch return;
         self.dragons.put(dragon_id, dragon) catch dragon.destroy();
     }
@@ -174,6 +180,12 @@ const Game = struct {
                 self.recordTurn(round, dragon_id, 0, null);
                 return script.replies.get(Script.key(round, dragon_id)) orelse "";
             }
+        }
+        if (self.setup.served) |served| {
+            if (self.teams.get(dragon_id)) |team| if (@intFromEnum(team) == served.team) {
+                self.recordTurn(round, dragon_id, 0, null);
+                return served.turn(dragon_id, block);
+            };
         }
         const dragon = self.dragons.get(dragon_id) orelse {
             self.recordTurn(round, dragon_id, 0, null);
@@ -215,6 +227,13 @@ const Game = struct {
         const code = std.mem.indexOfScalar(u8, DEATH_CODES, reason);
         if (self.setup.echo) |echo|
             echo.print("round {d}: bot {d} (team {s}) died: {s}\n", .{ round, dragon_id, self.teamLetter(dragon_id), if (code) |i| DEATH_REASONS[i] else "died" });
+        if (self.setup.served) |served| {
+            if (self.teams.get(dragon_id)) |team| if (@intFromEnum(team) == served.team) {
+                if (code) |i| self.figures[served.team].deaths[i] += 1;
+                served.death(dragon_id);
+                return;
+            };
+        }
         const entry = self.dragons.fetchRemove(dragon_id) orelse return;
         if (code) |i| self.figures[entry.value.team].deaths[i] += 1;
         entry.value.destroy();
@@ -270,11 +289,17 @@ pub fn play(allocator: std.mem.Allocator, setup: Setup) !Summary {
     });
     defer match.destroy();
 
+    if (setup.served) |served| served.game(setup.seed);
     const result = match.run(setup.map, setup.debug, setup.seed);
     var it = game.dragons.valueIterator();
     while (it.next()) |dragon| dragon.*.destroy();
     game.dragons.clearRetainingCapacity();
     const outcome = try result;
+    if (setup.served) |served| served.end(switch (outcome.winner) {
+        .a => 'A',
+        .b => 'B',
+        .none => '-',
+    }, outcome.rounds + 1);
     const replay: ?[]u8 = if (setup.want_replay) try match.replay(setup.names[0], setup.names[1]) else null;
 
     var summary = Summary{ .result = outcome, .teams = game.figures, .replay = replay, .wall_ms = @intCast(@divTrunc(sync.monotonicNanos() - started, std.time.ns_per_ms)), .points = undefined };

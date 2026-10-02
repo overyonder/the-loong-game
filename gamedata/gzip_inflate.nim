@@ -1,6 +1,5 @@
-## Gzip decompression through zlib's inflate, linked against the system zlib.
-
-{.passL: "-lz".}
+## Gzip decompression through zlib's inflate, linked statically so the binary
+## still runs on fleet workers (`just tools-build` passes its archive).
 
 type
   ZlibStream {.bycopy.} = object

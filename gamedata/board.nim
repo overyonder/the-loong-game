@@ -26,7 +26,7 @@ type
     head*:       bool
 
   ReconstructedBoard* = object
-    ## The engine's state as the bots saw it.
+    ## The engine's state as the bots saw it (reconstruction.py's ReplayState).
     width*, height*: int
     unitLimit*:     int
     lenient*:       bool

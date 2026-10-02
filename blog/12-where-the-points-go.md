@@ -1,6 +1,6 @@
 # Where the points go
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter, and the bot now reads the clock from Nim instead of C.
+> **Editor's note, 2 October 2026.** The judge can now profile charged points by function and instruction class without adding logging to the bot. The compiler's vectoriser remarks explain which loops became SIMD and why others didn't. The in-bot profile below is the original example.
 
 [The choice](03-the-choice.md) measured what a whole turn costs in each language, which was enough to pick one. It can't say what the points are spent on, and once a bot searches properly, every point spent elsewhere is search depth it doesn't get. The last tool on the wishlist splits a turn's cost into its parts, then follows the expensive part down to individual instructions.
 
@@ -61,6 +61,43 @@ Output is the 2.5 million write fee plus 4,000 points for each of about 135 byte
 The second surprise is input. A turn's input is under a kilobyte, which costs about 6,000 points to read, and nearly all the rest of that bar is the starter helper turning the text into numbers. Parsing costs more than the strategy.
 
 So a whole turn costs about 3.4 million points, and 96 million go unused. That budget is for thinking, and the part of the thinking that grows when a bot looks further ahead is the flood fill. Two moves deeper means sixteen times as many.
+
+## A profiler outside the bot
+
+The clock tells us the cost of a block we chose to wrap, but adding wrappers to every function would be tedious, and printing the answers spends points of its own. The [Zig judge](19-the-machine-inside-the-judge.md) can instead count the charged instructions as it runs them.
+
+Its profiling metering pass gives each defined function seven counters: arithmetic, locals, memory, SIMD, calls, control and other. When a metered block runs, it adds that block's points to the appropriate counters. Input reads and output writes get separate rows, so the large cost of sending a move doesn't disappear into whichever function happened to call `write`.
+
+![Charged points and compiler remarks meet at function names. The bot's WebAssembly passes through profiling metering and runs in the judge, producing a table of points by team, function and instruction class. The same build's source goes through clang's loop and SLP vectorisers, producing success and missed-vectorisation remarks. A name sidecar connects both reports to the original functions.](images/points-profile.svg)
+
+From `examples/tooling`, after `just tools-build` and `just zig-judge-build`, the points profile takes two built bots, a map, a seed and a replay destination:
+
+```sh
+just points-profile A.wasm B.wasm arena.map 12345 game.replay
+```
+
+It writes a `.profile.tsv` beside the replay, with each team's costliest functions first. `just bot-build` writes a `.names` sidecar beside each bot so function names stay available even when the submitted module is stripped.
+
+| Row | What it tells us |
+| --- | --- |
+| Function and instruction class | Where the charged WebAssembly work went |
+| Stdin reads | The input byte charge, apart from parsing |
+| Stdout writes | The write fee and output byte charge |
+| Team total | The sum over that team's dragon instances |
+
+The extra counters are host observations, not extra charged bot instructions. The run prints its profile totals alongside the points recorded by completed turns. Those totals can differ by the work a sandbox does after its last completed turn, so compare the stated accounting boundary before treating a difference as a metering bug. And keep the first-read setting the same: our judge leaves it free by default, while the toolkit charges it.
+
+## Why a loop stayed scalar
+
+A hot function's SIMD share is a useful clue, but it doesn't tell us whether a different loop would cost less. The compiler can explain its choices too. [LLVM has two vectorisers](https://llvm.org/docs/Vectorizers.html): the loop vectoriser combines work from consecutive iterations, and the SLP vectoriser combines independent scalar operations. Their remarks record successful transformations and reasons for missed ones, such as an uncertain dependency or a cost model that prefers scalar code.
+
+The build saves those remarks while compiling the staged source with the judge's clang and flags. The vector-remarks tool reads that saved report and joins it to the function costs; it doesn't quietly rebuild the bot:
+
+```sh
+just vector-remarks BUILD_GUID game.profile.tsv A 10
+```
+
+That lets us start with the expensive function rather than a loop that merely looks worth optimising. A large SIMD share still isn't a result: clang's cost model is for a processor, while the judge has its own price list. After changing the loop, we profile the charged points again and check that the actions stayed the same. The [profile README](../harness/profiling/README.md) describes both sidecars and the joined columns.
 
 ## Down to the instructions
 

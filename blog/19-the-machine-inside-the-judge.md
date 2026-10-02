@@ -1,8 +1,8 @@
 # The machine inside the judge
 
-> **Editor's note, 29 September 2026.** I've added figures to this post, linked the judge's source, moved the reasons for writing it in Zig to [The choice](03-the-choice.md), and linked the next post. Every game we play now runs in the judge, which meters bots itself, so I've added the larger equivalence check that came first, the check you can run yourself, and what the judge saves when every core is busy. The released judge now leaves a bot's first read uncharged, as the competition's judge does, which the section on first reads covers, and gives a bot rerun for the viewer a larger turn budget.
+> **Editor's note, 2 October 2026.** The judge now exposes its points profiler, inspection-only observers and an external served team, and accepts both engine-result layouts. The bundled lockstep reference targets toolkit 1.2.2, not the later queen rules. Inspection isn't a competition-budget validation run. The original host timings remain below.
 
-We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and, apart from one deliberate difference, point for point, in about a quarter of the time, and every game we play now runs in it, with the toolkit kept as the reference we check it against. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
+We wrote our own judge. In the host comparisons below it played the official toolkit's games event for event and, apart from one deliberate accounting difference, point for point, in about a quarter of the time. Our bot evaluations run in it, with the toolkit kept as the reference we check it against. And it rules out a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
 This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay. The harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](../harness/zig_judge/harness.py).
 
@@ -29,7 +29,7 @@ def _write(self, data: bytes) -> bool:
 
 Those two lines don't hold the pipe's lock between them. Usually that doesn't matter, because a bot between turns is frozen. A dragon that has just split is the exception. Its new sandbox is already running on its own thread, on its way to its first read. If it reaches that read between line 1469 and line 1470, it finds stdin empty and parks. Then the turn arrives. The host sees a park count higher than the one it noted, decides the new dragon has already finished its turn, and takes its empty reply. The dragon dies of "no valid action", and no error line says why.
 
-It's rare, and it lands on the worst dragon to lose: a fresh child, the whole point of a split. On busy cloud workers, 2 games in one batch of 384 lost a new dragon this way. It happens in toolkit 1.1.0, and the same two lines are unchanged in 1.2.2, the latest release. The repair for anyone running the official toolkit is to take the pipe's lock across both steps:
+It's rare, and it lands on the worst dragon to lose: a fresh child, the whole point of a split. On busy cloud workers, 2 games in one batch of 384 lost a new dragon this way. It happens in toolkit 1.1.0, and the same two lines are unchanged in 1.2.2. The repair for anyone running the official toolkit is to take the pipe's lock across both steps:
 
 ```python
 with self._stdin.cv:
@@ -69,7 +69,7 @@ pub fn write(self: *Instance, data: []const u8) !bool {
 }
 ```
 
-So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread. The budget is the ordinary 100M points a turn, except when the [viewer](11-through-one-dragons-eyes.md) reruns a bot to read its explanations, when the turn may spend a hundred times that on them.
+So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread. Ordinary games have the 100M-point turn budget. Inspection reruns have a larger ceiling for recovery, and use a separate observer allowance for explanations, described below. A rerun that finishes there still has to pass an ordinary metered game before it can say anything about the competition limit.
 
 ![Threads in the official sandbox, fibres in ours. In the official sandbox, a driver thread notes parks and feeds turns to dragon threads blocked in fd_read, and a new child's thread is already running, so it can reach its first read between the park count and the feed and be taken as done. In our judge, one thread per game holds the driver, the engine and every dragon, and a dragon's fibre pauses mid read and runs only when the driver resumes it, so no bot runs between noting the count and feeding a turn.](images/threads-fibres.svg)
 
@@ -104,6 +104,42 @@ Peak memory in the long game fell from 467 MiB to 294 MiB.
 That's one game at a time. What matters on the fleet is how much machine a game takes when every core is busy, and there the judge used 2.85 times fewer core-seconds a game than the toolkit on a 32-vCPU worker, 16.3 against 46.3 on average over the 144 paired games. The saving depends on how much of a game is the host's work: 2.4 times for our main line against an older version, where the bots' own thinking dominates, and 3.6 times for that older version against a bot that moves at random.
 
 The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. These timings don't separate the two.
+
+## Other ways to run the host
+
+The ordinary game hosts the organisers' engine and metered WebAssembly bots. The same host also gives us three ways to inspect or check something without pretending it's a submitted bot:
+
+![Four uses of the judge. An ordinary game runs the official engine with metered bot instances. Inspection feeds recorded observations to a bot and collects actions, state and annotations. A served team exchanges turn messages with an external process whose work is not metered. Lockstep sends identical replies to the official engine and a CPU reference, stopping at the first different observation.](images/judge-modes.svg)
+
+### Inspection without charging the explanation
+
+The [viewer](11-through-one-dragons-eyes.md) feeds recorded turn blocks to an inspection build. Older turns can run quietly until the requested range, so opening a late decision doesn't have to collect every earlier explanation. The response separates the action from annotation records, captured memory, charged policy points and any failure.
+
+For a build using the observer imports, a scope saves the policy meter, runs the explanation under a separate allowance, then restores the meter. Clock reads inside the scope see frozen policy time. The scope can't read gameplay input, send an action, consume randomness or yield. Its diagnostic bytes have a separate path too, bounded at 64 MiB per turn; the ordinary action path keeps its 10 KiB limit and output charges. The observer allowance is one billion points, so a broken explanation still has a finite limit.
+
+![Inspection accounting. Policy work uses the gameplay meter and sends actions through the charged 10 KiB output path. An explicit observer scope temporarily uses its own one-billion-point allowance and writes annotations through a separate 64 MiB path. On leaving the scope, the saved policy meter is restored.](images/inspection-accounting.svg)
+
+These imports are available only in inspection. Submission builds leave them out, and ordinary games refuse them. The flag-gated diagnostic blocks shown in [the viewer post](11-through-one-dragons-eyes.md#rebuilt-decisions) use a different route: they time their own work and subtract it from the clock the policy reads. The host still meters their instructions, under inspection's larger ceiling.
+
+Either block must only observe: writing to the bot's decision state would change the decision we're trying to explain. Scope boundaries and a different compiler layout can still change small instruction costs, so recovery checks every action against the replay and ordinary games check the budget. An explanation matching the action is useful evidence, not a licence to treat inspection as the online judge.
+
+### A team outside WebAssembly
+
+`--serve SOCKET --serve-team A|B` connects one team to another process over a local UNIX socket. The protocol sends game setup, dragon spawns, turns, deaths and the end of the game; the process returns the team's actions. The other team still runs as ordinary bot instances.
+
+We use this to play a large [teacher model](27-learning-to-play.md) against a judge bot before exporting a small student. The served process isn't metered and isn't competition-eligible. It's an evaluation boundary: it lets the engine ask for actions without needing to know whether the answer came from WebAssembly or a model process.
+
+### Two engines, the same replies
+
+Lockstep runs the official engine beside a CPU reference port and compares each observation block byte for byte. Both get the same reply, chosen deterministically from a hash of that block. Odd seeds exercise reckless actions, including invalid splits and rejected moves; even seeds use more careful actions so games can reach later rounds. A difference stops the run at the first mismatched block.
+
+This checks the observation interface along those action sequences. It doesn't prove every possible game, or equality of private engine state that never appeared in an observation. The released [CPU reference and command](../harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU. The training engine and CUDA implementation are separate from this release.
+
+The bundled CPU extraction implements toolkit 1.2.2. It has the older free-move and length-win rules, so later engines with queens and a length-based free-move quota should differ. To check a newer port, the runner exposes a replaceable C interface for creating a game, reading its next observation, applying a reply and reading the result. A skipped or unsupported game isn't a passing check.
+
+Ordinary games don't use that reference at all. They use the supplied official engine. The host accepts both the older 32-byte result layout and the later 48-byte layout, reading their shared fields; it doesn't yet add the new queen statistics to its own figures. Reproducing an old game still needs the engine version that played it.
+
+The judge's [points profile](12-where-the-points-go.md#a-profiler-outside-the-bot) needs no change to either player. It attributes each team's charged work to functions and instruction classes.
 
 ## The metered machine
 

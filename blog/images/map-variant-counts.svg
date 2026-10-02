@@ -1,22 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 316" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 478" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
 <title id="t">Games out of 40 that the published gap table did not explain</title>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
-<rect width="1000" height="316" fill="#ede5d5"/>
-<text x="20" y="34" font-size="17" fill="#20251f" text-anchor="start" font-weight="bold">Games out of 40 that the published gap table did not explain</text>
-<text x="368" y="79" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Prisoners Dilemma</text>
-<rect x="380" y="60" width="408.7" height="26" rx="4" fill="#263d31"/>
-<text x="798.695652173913" y="79" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">20 games</text>
-<text x="368" y="123" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Queen Of Spades</text>
-<rect x="380" y="104" width="286.1" height="26" rx="4" fill="#263d31"/>
-<text x="676.0869565217391" y="123" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">14 games</text>
-<text x="368" y="167" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Devil</text>
-<rect x="380" y="148" width="327.0" height="26" rx="4" fill="#263d31"/>
-<text x="716.9565217391305" y="167" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">16 games</text>
-<text x="368" y="211" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Schooltime</text>
-<rect x="380" y="192" width="470.0" height="26" rx="4" fill="#263d31"/>
-<text x="860.0" y="211" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">23 games</text>
-<text x="368" y="255" font-size="14" fill="#20251f" text-anchor="end" font-weight="normal">Slithery Fight, unresolved</text>
-<rect x="380" y="236" width="388.3" height="26" rx="4" fill="#b53b13"/>
-<text x="778.2608695652174" y="255" font-size="13.5" fill="#66675e" text-anchor="start" font-weight="normal">19 games</text>
-<text x="20" y="302" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Trauma, Default, Trophy, Portals and Autarky: 0 of 40. Read from stored games on 1 October.</text>
+<rect width="520" height="478" fill="#ede5d5"/>
+<text x="20" y="30" font-size="23" fill="#20251f" text-anchor="start" font-weight="bold">Games the published gaps didn&#x27;t explain</text>
+<text x="20" y="58" font-size="21" fill="#66675e" text-anchor="start" font-weight="normal">40 stored games per map · 1 October 2026</text>
+<text x="20" y="90" font-size="22" fill="#20251f" text-anchor="start" font-weight="normal">Prisoners Dilemma</text>
+<rect x="20" y="102" width="400" height="20" rx="4" fill="#dcd0bb"/>
+<rect x="20" y="102" width="200.0" height="20" rx="4" fill="#263d31"/>
+<text x="498" y="118" font-size="21" fill="#66675e" text-anchor="end" font-weight="normal">20 / 40</text>
+<text x="20" y="154" font-size="22" fill="#20251f" text-anchor="start" font-weight="normal">Queen Of Spades</text>
+<rect x="20" y="166" width="400" height="20" rx="4" fill="#dcd0bb"/>
+<rect x="20" y="166" width="140.0" height="20" rx="4" fill="#263d31"/>
+<text x="498" y="182" font-size="21" fill="#66675e" text-anchor="end" font-weight="normal">14 / 40</text>
+<text x="20" y="218" font-size="22" fill="#20251f" text-anchor="start" font-weight="normal">Devil</text>
+<rect x="20" y="230" width="400" height="20" rx="4" fill="#dcd0bb"/>
+<rect x="20" y="230" width="160.0" height="20" rx="4" fill="#263d31"/>
+<text x="498" y="246" font-size="21" fill="#66675e" text-anchor="end" font-weight="normal">16 / 40</text>
+<text x="20" y="282" font-size="22" fill="#20251f" text-anchor="start" font-weight="normal">Schooltime</text>
+<rect x="20" y="294" width="400" height="20" rx="4" fill="#dcd0bb"/>
+<rect x="20" y="294" width="230.0" height="20" rx="4" fill="#263d31"/>
+<text x="498" y="310" font-size="21" fill="#66675e" text-anchor="end" font-weight="normal">23 / 40</text>
+<text x="20" y="346" font-size="22" fill="#20251f" text-anchor="start" font-weight="normal">Slithery Fight, unresolved</text>
+<rect x="20" y="358" width="400" height="20" rx="4" fill="#dcd0bb"/>
+<rect x="20" y="358" width="190.0" height="20" rx="4" fill="#b53b13"/>
+<text x="498" y="374" font-size="21" fill="#66675e" text-anchor="end" font-weight="normal">19 / 40</text>
+<text x="20" y="428" font-size="21" fill="#66675e" text-anchor="start" font-weight="normal">Trauma, Default, Trophy, Portals</text>
+<text x="20" y="454" font-size="21" fill="#66675e" text-anchor="start" font-weight="normal">and Autarky: 0 of 40 each</text>
 </svg>

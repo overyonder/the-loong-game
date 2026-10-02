@@ -53,6 +53,10 @@ def build_settings() -> dict:
         # marker, which switches on the diagnostics a bot compiled in
         # (runtime/gizmos.h). A bot without them shows the replay alone.
         "diagnostics": "runtime",
+        "sidecars": "names-and-vector-remarks-v1",
+        "compiler_adapter_sha256": hashlib.sha256(
+            (ROOT / "harness/compiler.py").read_bytes()
+        ).hexdigest(),
         "driver_flags": clangtool.DRIVER_FLAGS,
         "clangtool_sha256": hashlib.sha256(
             Path(clangtool.__file__).read_bytes()
@@ -80,6 +84,16 @@ def register(source: Path, wasm: Path, registry: Path = REGISTRY) -> tuple[str, 
         destination = registry / guid
         if not destination.exists():
             shutil.copyfile(wasm, pending / "judge.wasm")
+            sidecars = {}
+            for suffix in (".names", ".remarks.tsv"):
+                sidecar = wasm.with_suffix(suffix)
+                if not sidecar.is_file():
+                    raise FileNotFoundError(f"Missing compiler sidecar: {sidecar}")
+                name = "judge" + suffix
+                shutil.copyfile(sidecar, pending / name)
+                sidecars[name] = hashlib.sha256(
+                    (pending / name).read_bytes()
+                ).hexdigest()
             artifacts = {
                 "judge": hashlib.sha256(
                     (pending / "judge.wasm").read_bytes()
@@ -91,6 +105,7 @@ def register(source: Path, wasm: Path, registry: Path = REGISTRY) -> tuple[str, 
                 "files": files,
                 "settings": settings,
                 "artifacts": artifacts,
+                "sidecars": sidecars,
             }
             (pending / "manifest.json").write_text(
                 json.dumps(manifest, indent=2) + "\n"
@@ -119,6 +134,7 @@ def resolve_build(registry: Path, guid: str) -> tuple[Path, dict]:
     expected.update(
         {f"{variant}.wasm": digest for variant, digest in manifest["artifacts"].items()}
     )
+    expected.update(manifest.get("sidecars", {}))
     for name, digest in expected.items():
         if hashlib.sha256((directory / name).read_bytes()).hexdigest() != digest:
             raise ValueError(f"Build snapshot hash mismatch: {name}")

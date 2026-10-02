@@ -2,7 +2,12 @@
 ## build_registry.py's resolve_build checks it: the manifest's identity names
 ## its GUID, and every file the manifest lists has the recorded SHA-256.
 
-import std/[algorithm, json, os, sha1, strutils, unicode]
+import std/[algorithm, json, os, strutils, unicode]
+# Existing registry GUIDs use std/sha1. Keep this codec self-contained until
+# the separate checksums package is part of the public build prerequisites.
+{.push warning[Deprecated]: off.}
+import std/sha1
+{.pop.}
 import ../../gamedata/sha256
 
 proc pythonDumps(node: JsonNode, output: var string) =
@@ -91,7 +96,7 @@ proc resolveBuild*(registry, guid: string): (string, JsonNode) =
   let manifest = parseFile(directory / "manifest.json")
   if manifest{"version"}.getInt != 1 or manifest{"guid"}.getStr != guid:
     raise newException(ValueError, "Build manifest identity/version mismatch")
-  # An entry registered from a judge wasm alone, as the foil's builds were
+  # An entry registered from a judge wasm alone, as a bot's builds were
   # before it built from source, is named by the wasm's hash.
   if manifest{"opaque"}.getBool:
     let judge = sha256Hex(readFile(directory / "judge.wasm"))
@@ -106,6 +111,8 @@ proc resolveBuild*(registry, guid: string): (string, JsonNode) =
     if manifest{section} != nil:
       for name, digest in manifest[section]: expected.add (name, digest.getStr)
   for variant, digest in manifest["artifacts"]: expected.add (variant & ".wasm", digest.getStr)
+  if manifest.hasKey("sidecars"):
+    for name, digest in manifest["sidecars"]: expected.add (name, digest.getStr)
   let root = directory.expandFilename
   for (name, digest) in expected:
     let path = directory / name

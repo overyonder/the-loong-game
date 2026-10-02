@@ -1,5 +1,4 @@
 # Pearls from the seed
-<!-- draft: 19218185, stage: Building our tooling -->
 
 The replay reader in the last post can rebuild where every dragon was, but a replay downloaded from the competition site no longer records pearl countdown events. Its copy of the map also sets every tile's minimum and maximum spawn gaps to zero. The bot still saw the current countdown in its 7×7 window while it played, yet someone opening the replay later can't tell when an empty spawning tile is due to try again.
 
@@ -7,13 +6,32 @@ There is a second complication. The site serves several maps in variants under t
 
 ## Every attempt is deterministic
 
-A match record gives us the missing ingredient: its seed. The engine uses that seed to initialise an `mt19937_64` random-number generator, then draws each countdown from the spawning tile's minimum and maximum gap. It takes a draw for every initial countdown, in the engine's tile order, and another whenever a tile attempts to spawn. An occupied tile still makes its attempt and consumes its draw, even though no pearl appears.
+A match record gives us the missing ingredient: its seed. The engine uses it to initialise [`mt19937_64`](https://math.sci.hiroshima-u.ac.jp/m-mat/MT/emt64.html), a deterministic random-number generator. For a tile with minimum gap `lo` and maximum gap `hi`, each draw chooses a countdown:
 
-That makes the pearl schedule a deterministic stream. If we know the gap table, the seed fixes every attempted spawn round. The replay then checks the answer because every pearl that actually appears must land on one of those attempts.
+```text
+countdown = lo + draw % (hi - lo + 1)
+```
 
-![A site replay supplies the map name and seed but zero pearl gaps. The engine turns the seed into a stream of spawn attempts. First and later pearl appearances constrain a fitted gap table, and that table regenerates the same game.](images/pearl-reconstruction.svg)
+On a symmetric map, reflected tiles share a countdown. The first tile encountered in the engine's scan owns that group, so initialisation takes one draw per group, not one per tile. When the group attempts to spawn it takes another draw to set its next countdown. An occupied tile still makes its attempt and consumes that draw even though no pearl appears.
 
-The published map is the first candidate. When it explains every spawn, there is nothing more to infer. When it doesn't, `just map-variants` fits another table from several stored games with the same map name. Early appearances narrow each tile's possible gaps. Later appearances rule choices out, while the places where a slow tile must have consumed an unseen draw keep the random stream aligned. A candidate only survives if it explains every observed spawn in every game used to fit it.
+Spawn attempts happen at the start of a round, before the dragons act. An initial countdown of `c` first attempts in round `c - 1`; a fresh countdown of `c` drawn on an attempt in round `r` next attempts in round `r + c`. A pearl left by a dying dragon is a different event, not evidence of a spawn countdown.
+
+![A site replay and match seed constrain a reconstruction. Seeded engine draws produce shared countdowns and spawn attempts, including attempts blocked by occupancy. A candidate table must explain both appearances and their absence. Reconstruction compares state and our bot's actions, stopping at the first difference.](images/pearl-reconstruction.svg)
+
+## Finding a table that explains the replay
+
+The published map is the first candidate. If its seeded attempts agree with the replay, we can use it to reconstruct that game. Otherwise the fitting tool searches bounded ranges of minimum and maximum gaps. Early appearances narrow the choices; later appearances reject them. Hidden attempts on occupied cells still have to be accounted for, or every later random draw shifts to the wrong tile.
+
+Matching the pearls that appeared isn't enough. A candidate that predicts a pearl on a free spawning tile where none appeared is wrong too. The check needs the board's occupancy at the start of each round, and keeps spawn events separate from pearls dropped by deaths. It must also agree with the replay's geometry and starting dragons: the right schedule on the wrong map is still the wrong game.
+
+| Candidate predicts | Replay records | Verdict |
+| --- | --- | --- |
+| Attempt on a free tile | A spawn there | Consistent |
+| Attempt on a free tile | No spawn there | Reject |
+| No attempt | A spawn there | Reject |
+| Attempt on an occupied tile | No spawn there | Consistent; the draw was still consumed |
+
+Several gap tables can explain the same finite replay, especially for tiles that stayed occupied or never tried to spawn within 500 rounds. A fit is a compatible reconstruction, not proof that we've recovered the organisers' unique hidden table. Checking several games with different seeds gives it more constraints. A game outside the search bounds, or one no candidate explains, stays unresolved.
 
 ## Variants behind familiar names
 
@@ -30,15 +48,32 @@ I ran that check over 40 stored games for each current map on 1 October. Four ma
 | Slithery Fight | 19 of 40 | Unresolved |
 | Trauma, Default, Trophy, Portals and Autarky | 0 of 40 each | The published table explained all 40 |
 
-Those are aggregate counts from our stored games. The fitted gaps themselves stay out of the article because tournament maps are unseen and a bot shouldn't be taught to identify a familiar layout. The variants are reconstruction evidence, not a strategy input.
+Those are aggregate counts from our stored games, not a new census of the live ladder. The fitted gaps themselves stay out of the release because tournament maps are unseen and a bot shouldn't be taught to identify a familiar layout. The variants are reconstruction evidence, not a strategy input.
 
 ## Rebuilding a game
 
-`just regenerate GAME_ID` fetches the site's replay and match seed, chooses the published map or the fitted variant whose attempts explain the observed pearls, and plays our registered build again in the [Zig judge](19-the-machine-inside-the-judge.md). It compares the rebuilt actions, points and result with the record, and reports the first game-state difference if anything diverges.
+The public tools take a downloaded replay, its match seed, a candidate map and explicit map directories. They don't contain our fitted tables or need our ladder account. Fitting requires at least three seeded replays and refuses to write a map if its search leaves unresolved spawning tiles. Lookup requires exactly one compatible table among the supplied maps; missing or ambiguous matches are errors.
 
-For a local evaluation the result record already holds the seed, map and exact registered builds, so `just regenerate RESULT_DIR GAME` takes the same route without the ladder lookup. We don't need to keep every replay from a large run. A small sample can stay for browsing, and any other game can be reconstructed from the compact result and the frozen builds that played it.
+From `examples/tooling`, after `just tools-build`, the fitting input is a TSV with a seed and replay path on each row:
 
-The [viewer](11-through-one-dragons-eyes.md) uses the recovered countdowns for its Spawn gaps overlay and for grading what a bot remembered. A zero in the downloaded replay no longer has to become a blank patch in the explanation.
+```sh
+just map-variants fit \
+  --map maps/published.map --games seeded-replays.tsv \
+  --output variants/fitted.map
+
+just regenerate --replay game.replay --seed MATCH_SEED \
+  --maps maps --variants variants --output rebuilt.replay
+```
+
+Without a bot build, regeneration drives both teams from the recorded actions. Adding `--build BUILD_GUID --side A` reruns that registered bot on side A, with the other side scripted. The [reconstruction README](../harness/README.md#regeneration) gives the formats and refusal conditions. Use the engine version that played the original game; a newer rule set can make the rerun differ.
+
+There are two different reruns. In a local evaluation we have both registered builds, the exact map and the seed. Playing both again in the [Zig judge](19-the-machine-inside-the-judge.md) lets us compare actions, the result and charged points, with the same accounting settings.
+
+In a ladder game we don't have the other team's program. We can rerun our registered build while a scripted opponent sends the other team's recorded actions, including splits and sonar. That can check our actions and the resulting game state. It cannot recover how many CPU points the other team's original program spent choosing those actions. The check reports the first state or action difference, and only writes the reconstructed replay after the comparisons pass.
+
+This also limits what can be discarded. A local game can be regenerated from its compact result and frozen builds; a ladder reconstruction still needs the recorded opponent actions. And an unresolved map must not turn into a supposedly exact rerun just because its name matches a bundled file.
+
+Recovered countdowns give the [viewer](11-through-one-dragons-eyes.md) a way to show the Spawn gaps overlay and to check what a bot remembered about pearl timing. Unknown countdowns should remain unknown until a checked reconstruction supplies them. Zeroes in the downloaded replay aren't evidence that the ground never grows food.
 
 ## Next up
 

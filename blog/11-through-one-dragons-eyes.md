@@ -14,7 +14,7 @@ Playback moves in turns or in rounds. In Turns mode each dragon's turn is a step
 
 The `Us` button chooses which team the charts, beliefs and role drawings describe. Mirror lays each dragon's reflected path over the matching half of a symmetric map, which lets me compare the two openings on the same ground. Comments belong to the view as much as the overlays do: saving one records the replay, exact turn, focused dragon, highlighted cells and edges, and the words I typed. Previous and Next saved return to that exact context.
 
-Two views read the replay alone. The Evaluation pane gives each side's chance of winning after every round, from [bceval](https://github.com/xCirno1/battlecode-eval) by xCirno1, a logistic model over 23 features of the whole board, such as bodies, pearls eaten, fights and the ground nearer each team. The viewer ports it to Odin. The Spawn gaps overlay tints each cell by how fast pearls come back to it, so the rich ground stands out under everything else.
+The Evaluation pane gives each side's chance of winning after every round, from [bceval](https://github.com/xCirno1/battlecode-eval) by xCirno1, a logistic model over 23 features of the replay's whole board, such as bodies, pearls eaten, fights and the ground nearer each team. The viewer ports it to Odin. The Spawn gaps overlay tints each cell by how fast pearls come back to it. Local replays carry those gaps; a site replay with its gaps zeroed needs a checked [reconstruction from the seed](10-pearls-from-the-seed.md) before the overlay can show them reliably.
 
 How the viewer opens a 500-round game in under a second is [its own post](22-game-data-in-columns.md).
 

@@ -1,6 +1,6 @@
 # The choice
 
-> **Editor's note, 28 September 2026.** I've edited this post to be shorter, to say how our competition bot uses these languages now, and to add Zig, the language of the judge we later wrote, and Rake, the language we write vector kernels in.
+> **Editor's note, 2 October 2026.** Rake can now compile whole programs as well as vector kernels. Its native register guarantees differ from what it can check in WebAssembly. The language-cost measurements remain the original flood-fill comparison.
 
 Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
 
@@ -153,7 +153,7 @@ The fourth language is my own. [Rake](https://rake-lang.org) is a language for w
 
 I'm building it because the usual ways of getting SIMD code leave you checking it by hand. You can write a plain loop and hope the compiler vectorises it, but nothing promises it will, or that it still will after the next edit. You can write intrinsics, one function call per machine instruction, but then the code is tied to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
 
-Rake makes vector code a condition of compiling. A kernel works on racks, where a rack is one vector register holding a lane per element, and every live rack has to stay in its register. If an operation would need a scalar fallback, a helper call or a spill, the program doesn't build, and the error says which operation broke which rule. The syntax is built to show those facts. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
+Rake makes vector code a condition of compiling. A kernel works on racks, with one element in each lane. On its native x86 and Arm targets a rack occupies a physical vector register, and verification rejects spills or hidden helper calls. On WebAssembly, racks are virtual 128-bit values: Rake checks the emitted SIMD operations, but the runtime still decides which physical registers they occupy. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
 
 ```rake
 crunch occupied_bits(tiles: u8s) -> u32:
@@ -169,9 +169,17 @@ crunch advance(positions: f32s, velocities: f32s) -> f32s:
   return result
 ```
 
-Each `| name <| expression` line reads right to left, with the value flowing into its name, and a run of them has to compile to one unbroken stretch of vector instructions with no calls or memory traffic. Here that stretch becomes a single fused multiply-add.
+Each `| name <| expression` line reads right to left, with the value flowing into its name. The native AVX2 target can fuse this chain into a multiply-add. WebAssembly has separate multiply and add instructions, so the same source doesn't promise the same fusion on every target.
 
-This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. Rake is still an alpha, and its production targets are x86 AVX2 and Arm NEON, so [counting room faster](18-counting-room-faster.md) adds a WebAssembly profile that emits C the judge accepts, and writes the room count's masks in Rake.
+This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. [Counting room faster](18-counting-room-faster.md) uses the profile that emits C the judge accepts, and writes the room count's masks in Rake.
+
+### Rake for the rest of the bot
+
+The [0.4.0 beta](https://rake-lang.org/) adds whole-program compilation. Ordinary code goes in `slow` functions, which can use records, arrays, slices, loops and persistent module state. Those functions handle input, memory and the turn loop; marked calls reach the vector routines. `crunch` still owns lane-wise work, while `run` owns traversals over collections of racks.
+
+![Two routes to the judge. Our Nim strategy and Rake kernels each emit C and are linked together. A whole Rake program instead holds scalar setup and state in slow functions, which call run traversals and crunch kernels, and emits C itself. Both routes finish with the judge's clang producing metered WebAssembly.](images/rake-program.svg)
+
+The emitted C can call the starter's C API, so this route doesn't require a second protocol implementation or a Rake runtime inside the judge. It gives us a way to port a bot without replacing its decision structure. Our textbook line still uses the Nim-and-Rake split described above; a whole-bot port is separate work. No new speed measurement is implied by the compiler accepting more of the program. We still have to compare actions and measure the [charged points](12-where-the-points-go.md).
 
 ## Next up
 

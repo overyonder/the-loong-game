@@ -1,8 +1,8 @@
 # The shape of the problem
 
-> **Editor's note, 29 September 2026.** I've rewritten this post to be shorter and to match how our bots are built now, from a repertoire of behaviour modules. I reran the first bot's test with the sequential verdict and toolkit 1.2.2 on the new generated maps. On the first generated maps it came out better. On these, which stay within the range of the official maps, it isn't clearly better, so the section ends by looking at how it loses, in a picture retaken in the current viewer.
+> **Editor's note, 2 October 2026.** This post now follows the competition bot's 1 October hierarchy: a role, tasks within that role, and a state machine inside each task. The first example bot and its 29 September measurements remain below, so the route from a small reactive bot to that design is visible.
 
-With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. This game rewards bots that are well organised and easy to change far more than it rewards raw compute or generated code. The rest of this post makes that case, looks at the main ways game AI organises decisions, and shows how I lay out a bot so the organisation itself can change.
+With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. Maps and opponents keep changing, and when a dragon makes a bad choice we need to understand it well enough to change the right piece. That makes the organisation of the bot part of the problem.
 
 ## Not a problem to grind
 
@@ -16,11 +16,11 @@ The opposite temptation is to describe the game to an AI model and ask for a bot
 
 ## Adaptive problems need structure
 
-Put together, this is an adaptive, adversarial problem, played on partial information. Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* has a good vocabulary for it. It's *partially observable*, since a dragon only sees its 7×7 window. It's *multi-agent* in two directions at once, competing with the other team while cooperating with teammates it can't share memory with. And it's *unknown* in the book's sense, because the maps and opponents we'll face at the tournament aren't the ones we can test against now.
+Put together, this is an adaptive, adversarial problem, played on partial information. Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* has a good vocabulary for it. It's *partially observable*, since a dragon only sees its 7×7 window. It's *multi-agent* in two directions at once, competing with the other team while cooperating with teammates it can't share memory with. The movement rules are known; an unseen map is hidden state, not an unknown rule. The other teams' policies are the part that keeps changing.
 
 ![The same round of a public ladder game twice. On the left, the whole board. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
 
-Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see why, fix that one behaviour, and prove with the [verdict](05-better-worse-or-undecided.md) that the fix helped without breaking anything else. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
+Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see what it knew, which choices it considered, and why it picked that one. We review those decisions in the [viewer](11-through-one-dragons-eyes.md). The [verdict](05-better-worse-or-undecided.md) measures results over games; it can't tell us whether a particular decision was sound. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
 
 ## A menu of architectures
 
@@ -38,11 +38,11 @@ Game AI has settled on a handful of ways to organise an agent's decisions, and r
 | **Search** | Minimax, with Knuth and Moore's [alpha-beta pruning](https://doi.org/10.1016/0004-3702(75)90019-3) (1975), or [Monte Carlo tree search](https://doi.org/10.1109/TCIAIG.2012.2186810) (Browne and colleagues' survey, 2012) looks ahead over moves. | Strong with a good model and enough budget. | Hidden information and many agents make the tree huge. |
 | **Learned policy** | A trained model maps what the agent sees to an action, as in Sutton and Barto's [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html) (2nd edition, 2018). | Finds patterns nobody wrote down. | Needs a stable environment and lots of data. |
 
-Choosing one of these and living with it would be a mistake, because we won't know which suits this game until we've tried several. The trick is to write the bot so the architecture can be swapped.
+These methods can also work at different levels of one bot. A utility score can choose a task whose steps are run by a state machine. Keeping those levels separate lets us change how a choice is made without rewriting what the chosen behaviour does.
 
 ## The repertoire
 
-I keep a reference layout that sorts code by what kind of thing it is, the way a textbook would. Here is the whole of it. Most files start life as pseudocode notes on a technique, and the dots mark the ones a bot has needed enough to implement:
+I keep a reference layout that sorts code by what kind of thing it is, the way a textbook would. This is the catalogue used for the early reference bots. Most files started as pseudocode notes on a technique, and the dots mark the ones those bots needed enough to implement:
 
 ![Every file in my reference repertoire, in four folders. data_structures holds sixteen structures from array to tree. decision_architectures holds ten, from behaviour_tree to utility_ai. techniques is sorted by family: caching, constraints, control, dynamic_programming, evaluation, game_theory, inference, learning, optimisation, planning, sampling, search and sorting. games/loong holds agent, htn, utility and world, and a behaviours folder with escape, explore, forage and pursue_enemy. Dots mark the thirteen implemented modules: the behaviour tree, decision context, hierarchical state machine and utility AI, the hierarchical task network planner, and everything in games/loong.](images/kieran-repertoire-wide.svg)
 
@@ -54,11 +54,27 @@ That last part is the heart of it. A behaviour module owns everything about one 
 
 Nothing in either file knows how a behaviour works, and nothing in a behaviour knows which architecture will pick it. That's what keeps everything loosely coupled. Changing a bot means editing a list. Trying a whole new architecture means writing one generic module, one adapter, and a factory in each behaviour it needs, and from then on every existing behaviour is available to it.
 
-Our competition bot is built the same way on our own repertoire. Its main line chooses behaviours by utility, with a margin that keeps a dragon on its current task until something clearly better turns up. Alongside it, experimental bots assemble the same behaviours under goal-oriented planning, subsumption, and belief, desire and intention, so we can compare architectures on the same footing. Here's what that looks like from the side of one behaviour, our escape, which carries a factory for every architecture that uses it:
+## Roles, tasks and states
 
-![Our escape behaviour, escape.nim, with boxes over each part. whenTrapped is its eligibility: fewer safe single steps than a minimum. execute is its execution: move away from the nearest enemy head, sprinting. Then one factory per architecture: utilityBehaviour builds a utility definition from the eligibility, a fixed score and the execution. SubsumptionLayer builds a layer that takes over the whole intent. BdiDesire builds a desire that interrupts the current intention and resumes it once safe. And goapGoal and goapAction build a survival goal and an escape step for the planner.](images/composition-behaviour.png)
+The textbook competition bot's 1 October design assembles that repertoire into a hierarchy. At the top, a role has an objective and a need: what it exists to achieve, and how many dragons are needed to achieve it. A scout exists to discover the map. As unexplored sectors disappear, the need for scouts falls, and once the map is known the role has finished its job. A champion exists to become the longest dragon, while guards protect it and an assassin pursues the enemy's champion.
 
-Two more rules apply to every piece. Hard constraints, like illegal or fatal moves, are filtered out before anything is scored, so no behaviour's enthusiasm can outweigh a wall. And each behaviour judges moves by its own objective. The alternative, one big weighted score where a dragon's role only changes the weights, is exactly the kind of bot that's hard to explain when it goes wrong.
+Each dragon makes its assignment from what it knows, including the facts teammates send over sonar. There's no central controller with the whole board in memory. A role can be held for a while so that a momentary change in the dragon's view doesn't send it straight into a different job.
+
+![The textbook competition bot's decision hierarchy on 1 October. The dragon's observed world and sonar inform a role with an objective and a needed number of holders. That role offers eligible behaviour-and-target tasks to a utility selector, which retains the current task until another clears its switching margin. The chosen task runs its own hierarchical state machine. Its active phase supplies a movement objective, and movement checks safety before choosing the action.](images/textbook-hierarchy.svg)
+
+Within a role, tasks are the ways of serving that objective. A task is a behaviour together with its target, so collecting one pearl and collecting a different pearl are two task choices. The role supplies the duties it can use, and a utility selector compares eligible tasks. It keeps the current one until another clears a switching margin, which stops a dragon changing its mind every time two scores trade places.
+
+Inside a task, a hierarchical state machine runs the work. Approaching a target and acting on it can be different phases of the same task. That implementation selects among ordered, guarded child states. It doesn't carry a table of explicit transitions between every pair of states:
+
+| Control | On the next turn |
+| --- | --- |
+| Reactive state | Choose again from the ordered guards |
+| Committed state | Keep its place until it completes or becomes unavailable |
+| Urgent interrupt | Take the turn while retaining the interrupted task's phase |
+
+The last choice is movement. The active behaviour supplies its own objective, and movement checks which actions are safe before comparing them by that objective. If no safe action exists it has to use a fallback. This is separate from the scores that chose the role and task: a high task score doesn't make a dangerous step safe.
+
+This gives a failing decision a home. Was the dragon in the wrong role? Did it choose the wrong target? Did its approach phase take a bad route? We can inspect and change that level. [Roles](15-roles.md) develops the objectives, and [Planning to play](26-planning-to-play.md) walks through the full turn loop, memory and messaging. [Three lines](14-three-lines.md) explains how the assemblies and their library versions stay reproducible.
 
 ## The first strategy bot
 
@@ -74,7 +90,7 @@ Each behaviour is one short module. Roam keeps the most room, exactly as the flo
 
 ![examples/repertoire/games/loong/behaviours/evade.nim. Its objective returns the room a step leaves plus four times the gap from the step to the nearest enemy head. Its hsmState factory builds a state named Evade that applies when an enemy head is within the given distance of ours, and acts by taking the best step under that objective.](images/first-bot-evade.png)
 
-Neither behaviour can pick a fatal step, because movement filters those out first. It drops steps into kelp and bodies, and steps next to an enemy head, since dragons move in turn and a head-on collision kills both. It also drops portals, because vision doesn't reach through them, and only takes one when nothing else is left:
+Both behaviours use movement's safety checks. It drops steps into kelp and bodies, and steps next to an enemy head, since dragons move in turn and a head-on collision kills both. It also drops portals, because vision doesn't reach through them. If no safe step remains, the fallback relaxes those checks, so it can't promise survival:
 
 ![examples/repertoire/games/loong/movement.nim. safeSteps keeps the first steps that are open and, unless allowed, not next to an enemy head. best takes the safe steps, falls back to steps within an enemy head's reach, then to an unseen portal, then to the current facing, and otherwise returns the step the behaviour's objective scores highest.](images/first-bot-movement.png)
 
@@ -88,17 +104,19 @@ To see whether the structure pays off, we test the first bot against the flood-f
 
 It isn't better. After 40 games the first bot had won 17 and lost 21, and the test crossed its lower line. The interval runs from −151 to +73 Elo, so the first bot could be a little worse or a little better, but it isn't the +70 gain the test was built to find. It won all ten of its upset games against the starter.
 
-Its dragons do survive better. The verdict counts deaths from each game's result file:
+The result files also count deaths. These are useful places to start looking for games to review:
 
 ![Deaths per game by cause, first bot against the flood-fill bot over their 40 games. The first bot's dragons died 2.0 times a game: 0.8 hitting a wall, 0.5 hitting another dragon, 0.4 losing a head-to-head and 0.4 hitting themselves. The flood-fill bot's died 2.5 times: 0.8 hitting a wall, 0.8 hitting another dragon, 0.6 hitting themselves and 0.4 losing a head-to-head.](images/first-bot-deaths.svg)
 
-Fewer of the first bot's dragons run into their own bodies or into other dragons, and its dragons end the game longer on average, 41.5 segments for its longest against 38.0. None of that is turning into wins yet, so the useful question is how it loses. The run played 72 games against the flood-fill bot before it stopped, and the results file says how each one ended. The first bot won 30, and 18 of those were by eliminating the flood-fill bot. It lost 30, and 18 of those went the full 500 rounds and were decided on length. It's better at fights and at staying alive, and worse at ending the game with the longest dragon.
+The first bot records fewer self-collisions and collisions with other dragons in this sample, and its longest dragon ends at 41.5 segments on average against 38.0. Those numbers don't establish better survival decisions: the bots may encounter different dangers, and a successful attack can itself cost a dragon. We need the replays to tell them apart.
+
+The run completed 72 games against the flood-fill bot before it stopped; the sequential decision above used its first 40. Across the completed games, the first bot won 30, with 18 wins by elimination, and lost 30, with 18 losses decided on length at round 500. The length losses give us a concrete question to take to the viewer: what stopped it growing?
 
 Here's one of those length losses in the viewer, the last round of a game on the bundled Portals map:
 
 ![The debug viewer at round 499 of room-c against first-bot on Portals. Pearls fill dozens of small walled boxes across the board, each reachable only through a portal edge. Outside them the board is nearly bare. The flood-fill bot's only dragon is 4 segments long, and the first bot's three dragons, on the right, are 3 segments each.](images/first-bot-length-loss.png)
 
-Nobody on this board grew, and it isn't for lack of food. Nearly every pearl sits in one of those small walled boxes, which a dragon can only enter through a portal, and neither bot goes looking for food, let alone through a portal to reach it. The flood-fill bot's only dragon ends 4 segments long and the first bot's three end 3 each, so a single pearl picked up by chance decided the game. Surviving with more dragons doesn't count for anything at round 500, only the longest one does, which is a job for the roles in the next post.
+Very little grew on this board, and it isn't for lack of food. Nearly every pearl sits in one of those small walled boxes, which a dragon can only enter through a portal. Neither bot has a food-seeking objective, and both avoid unseen portals while another move is available. The flood-fill bot's only dragon ends 4 segments long and the first bot's three end 3 each. Surviving with more dragons doesn't count for anything at round 500, only the longest one does, which is a job for [the roles](15-roles.md).
 
 So the first bot is a structure more than a clear improvement, and [the ladder at the end of the tactics post](16-tactics.md#every-version-on-one-ladder) puts it only a little ahead of the flood-fill bot. Every new behaviour now has an obvious place to go.
 

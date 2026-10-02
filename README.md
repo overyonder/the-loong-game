@@ -15,14 +15,17 @@ what the games leave.
 | Sequential verdict | `just batch`, `just verdict` | `harness/compare.py`, `harness/batch.py`, `harness/report` |
 | Standard summary and ratings | `just report` | `harness/report` |
 | Map generation | `just mapgen` | `harness/mapgen.py` |
+| Map-variant fitting and lookup | `just map-variants` | `harness/map_variants.nim` |
+| Replay regeneration | `just regenerate` | `harness/regenerate.nim` |
 | Local ladder | `just ladder` | `harness/ladder.py` |
 | Game data | `just gamedata`, `just decode`, `just deaths` | `gamedata` |
-| Replay sampling | `just sample-replays` | `replays/collection.nim` |
+| Capped replay collection and retention | `just sample-replays` | `replays/collection.nim`, `replays/retention.nim` |
 | Graphical viewer and decision recovery | `just viewer`, `just decisions`, `just showcase` | `replays/viewer`, `replays/recovery` |
 | Build registry | `just bot-build` | `harness/build_registry.py` |
 | Bot diagnostics runtime | `just showcase-bot` | `runtime` |
-| Nim tools | `just tools-build` | `gamedata`, `harness/report`, `replays` |
+| Nim tools | `just tools-build` | `gamedata`, `harness/report`, `harness/profiling`, `harness/map_variants.nim`, `harness/regenerate.nim`, `replays` |
 | Profiling | `just profile`, `just native`, `just native-profile` | `examples/performance/justfile` |
+| Judge CPU points and compiler remarks | `just points-profile`, `just vector-remarks` | `harness/zig_judge`, `harness/profiling`, `harness/compiler.py` |
 | Zig judge | `just zig-judge-build`, `just zig-judge`, `just judge-fidelity` | `harness/zig_judge` |
 
 `just viewer-build` compiles the Odin viewer into `build/bin/viewer`. It needs
@@ -36,10 +39,10 @@ nix-shell -p odin raylib raygui glfw libGL just --run 'just viewer-build'
 ```
 
 `just tools-build` compiles `loong-gamedata`, `loong-report`,
-`loong-sample-replays` and `loong-recover` into `build/bin`. The round robin,
-batch, ladder, verdict, report, decode, replay sampling and viewer run them, so
-build them first. They need Nim,
-zlib, SQLite and OpenSSL. With Nix:
+`loong-sample-replays`, `loong-recover`, `loong-profile`, `loong-map-variants`
+and `loong-regenerate` into `build/bin`: seven binaries. The evaluation,
+inspection and profiling commands use them, so build them first. They need
+Nim 2.2 or newer, zlib, SQLite and OpenSSL. With Nix:
 
 ```sh
 cd examples/tooling
@@ -74,6 +77,18 @@ just zig-judge --engine <toolkit site-packages>/unswbc/unswbc_engine.wasm run --
 `--log FILE` sends the game's output to a file, and `--timeout SECONDS` ends it
 with exit code 124 at that wall time. `harness/zig_judge/harness.py` runs the
 judge from Python, one game or a batch on N threads.
+
+The judge also offers served-team policy framing and a generic CPU lockstep
+interface. Its bundled minimal CPU reference implements toolkit 1.2.2 rules:
+one free move, then longest and total length for the verdict. It does not
+implement later queen rules or their length-based free-move quota. A newer
+official engine requires a matching replacement reference for lockstep.
+The host accepts both 32-byte and 48-byte engine results but reports the
+shared first eight fields. See the [judge README](harness/zig_judge/README.md)
+for commands, inspection accounting and the replaceable reference interface.
+The [harness README](harness/README.md) documents strict map fitting and
+regeneration, and the [profiling README](harness/profiling/README.md) documents
+CPU profiles and saved compiler sidecars.
 
 `just judge-fidelity` checks that the judge matches the toolkit: it meters each
 bot with both and compares the modules byte for byte, then plays each seeded game

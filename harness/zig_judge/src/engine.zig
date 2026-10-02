@@ -159,7 +159,8 @@ pub const Match = struct {
     pub fn run(self: *Match, map: []const u8, debug: i32, seed: u64) !MatchResult {
         const map_ptr = try self.call(&self.alloc_fn, &.{@intCast(map.len)}, 1);
         @memcpy(self.memoryData(self.context)[@intCast(map_ptr)..][0..map.len], map);
-        const out_ptr = try self.call(&self.alloc_fn, &.{32}, 1);
+        // New toolkits append four result integers; older engines write the first eight.
+        const out_ptr = try self.call(&self.alloc_fn, &.{48}, 1);
 
         var args = [_]c.wasmtime_val_t{
             wt.i32Val(map_ptr), wt.i32Val(@intCast(map.len)), wt.i32Val(debug),

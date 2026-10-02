@@ -8,12 +8,20 @@
 //! optional replay path and team names, tab separated), on N threads:
 //!   loong-judge --engine unswbc_engine.wasm --jobs jobs.tsv [--threads N] [--debug 0]
 //!
-//! A match as `unswbc run --sandbox` plays it (run.zig), taking the toolkit's
-//! arguments after `run`:
-//!   loong-judge --engine unswbc_engine.wasm [--log game.log] [--timeout SECONDS]
-//!               run --sandbox --seed 1 -o out.replay arena.map a.wasm b.wasm
+//! A match as `unswbc run --sandbox` plays it, recorded as the match wrapper records it
+//! (run.zig), taking the toolkit's arguments after `run`:
+//!   loong-judge --engine unswbc_engine.wasm [--log game.log]
+//!               [--timeout SECONDS] run --sandbox --seed 1 -o out.replay arena.map a.wasm b.wasm
 //! `--log` sends the game's output there, and `--timeout` ends the process with exit
 //! code 124 at that wall time.
+//!
+//! One team answered by another process over a UNIX socket (served.zig), the
+//! other team's bot as usual; the served team's `--a` or `--b` is loaded but unused:
+//!   loong-judge --engine E --map M --a opp.wasm --b opp.wasm --seed 1 --serve SOCKET --serve-team B
+//!
+//! The organisers' engine against our port of it (harness/zig_judge/reference), turn by
+//! turn, over a list of maps (lockstep.zig):
+//!   loong-judge --engine unswbc_engine.wasm --lockstep maps.txt --games N [--seed S]
 //!
 //! Bots are metered here unless they already carry the meter (metering.zig). `--meter`
 //! writes a bot's metered module alone, for the fidelity check:
@@ -36,6 +44,8 @@ const bot = @import("bot.zig");
 const game = @import("game.zig");
 const batch = @import("batch.zig");
 const inspection = @import("inspection.zig");
+const lockstep = @import("lockstep.zig");
+const Served = @import("served.zig").Served;
 const run = @import("run.zig");
 const metering = @import("metering.zig");
 const sync = @import("sync.zig");
@@ -61,6 +71,10 @@ const Options = struct {
     run_at: ?usize = null, // where `run` and the toolkit's arguments begin
     log_path: ?[]const u8 = null,
     timeout_seconds: ?u64 = null,
+    lockstep_path: ?[]const u8 = null,
+    games: u64 = 1,
+    serve_path: ?[]const u8 = null,
+    serve_team: u8 = 1,
 };
 
 fn parseOptions(args: []const [:0]const u8) !Options {
@@ -74,7 +88,7 @@ fn parseOptions(args: []const [:0]const u8) !Options {
         if (i + 1 >= args.len) return error.MissingValue;
         const flag = args[i];
         const value = args[i + 1];
-        if (std.mem.eql(u8, flag, "--engine")) options.engine_path = value else if (std.mem.eql(u8, flag, "--map")) options.map_path = value else if (std.mem.eql(u8, flag, "--a")) options.a_path = value else if (std.mem.eql(u8, flag, "--b")) options.b_path = value else if (std.mem.eql(u8, flag, "--seed")) options.seed = try std.fmt.parseInt(u64, value, 0) else if (std.mem.eql(u8, flag, "--name-a")) options.name_a = value else if (std.mem.eql(u8, flag, "--name-b")) options.name_b = value else if (std.mem.eql(u8, flag, "--replay")) options.replay_path = value else if (std.mem.eql(u8, flag, "--debug")) options.debug = try std.fmt.parseInt(i32, value, 0) else if (std.mem.eql(u8, flag, "--jobs")) options.jobs_path = value else if (std.mem.eql(u8, flag, "--threads")) options.threads = try std.fmt.parseInt(usize, value, 10) else if (std.mem.eql(u8, flag, "--inspect")) options.inspection_path = value else if (std.mem.eql(u8, flag, "--output")) options.output_path = value else if (std.mem.eql(u8, flag, "--meter")) options.meter_path = value else if (std.mem.eql(u8, flag, "--log")) options.log_path = value else if (std.mem.eql(u8, flag, "--timeout")) options.timeout_seconds = try std.fmt.parseInt(u64, value, 10) else return error.UnknownFlag;
+        if (std.mem.eql(u8, flag, "--engine")) options.engine_path = value else if (std.mem.eql(u8, flag, "--map")) options.map_path = value else if (std.mem.eql(u8, flag, "--a")) options.a_path = value else if (std.mem.eql(u8, flag, "--b")) options.b_path = value else if (std.mem.eql(u8, flag, "--seed")) options.seed = try std.fmt.parseInt(u64, value, 0) else if (std.mem.eql(u8, flag, "--name-a")) options.name_a = value else if (std.mem.eql(u8, flag, "--name-b")) options.name_b = value else if (std.mem.eql(u8, flag, "--replay")) options.replay_path = value else if (std.mem.eql(u8, flag, "--debug")) options.debug = try std.fmt.parseInt(i32, value, 0) else if (std.mem.eql(u8, flag, "--jobs")) options.jobs_path = value else if (std.mem.eql(u8, flag, "--threads")) options.threads = try std.fmt.parseInt(usize, value, 10) else if (std.mem.eql(u8, flag, "--inspect")) options.inspection_path = value else if (std.mem.eql(u8, flag, "--output")) options.output_path = value else if (std.mem.eql(u8, flag, "--meter")) options.meter_path = value else if (std.mem.eql(u8, flag, "--log")) options.log_path = value else if (std.mem.eql(u8, flag, "--timeout")) options.timeout_seconds = try std.fmt.parseInt(u64, value, 10) else if (std.mem.eql(u8, flag, "--lockstep")) options.lockstep_path = value else if (std.mem.eql(u8, flag, "--games")) options.games = try std.fmt.parseInt(u64, value, 10) else if (std.mem.eql(u8, flag, "--serve")) options.serve_path = value else if (std.mem.eql(u8, flag, "--serve-team")) options.serve_team = if (std.mem.eql(u8, value, "A") or std.mem.eql(u8, value, "a")) 0 else if (std.mem.eql(u8, value, "B") or std.mem.eql(u8, value, "b")) 1 else return error.InvalidTeam else return error.UnknownFlag;
     }
     return options;
 }
@@ -132,6 +146,9 @@ pub fn main(init: std.process.Init) !void {
     var engine_module = try engine.EngineModule.load(engine_host, engine_bytes);
     defer engine_module.deinit();
 
+    if (options.lockstep_path) |maps| {
+        std.process.exit(try lockstep.run(allocator, io, &engine_module, maps, options.games, options.seed));
+    }
     if (options.jobs_path) |jobs_path| {
         const jobs_text = try cwd.readFileAlloc(io, jobs_path, allocator, .unlimited);
         defer allocator.free(jobs_text);
@@ -155,7 +172,11 @@ pub fn main(init: std.process.Init) !void {
     var module_b = try bot.BotModule.load(allocator, bot_host, b_bytes);
     defer module_b.deinit(allocator);
 
+    var served: ?Served = null;
+    if (options.serve_path) |path| served = try Served.connect(allocator, path, options.serve_team);
+    defer if (served) |*s| s.close();
     const summary = try game.play(allocator, .{
+        .served = if (served) |*s| s else null,
         .engine_module = &engine_module,
         .modules = .{ &module_a, &module_b },
         .map = map,

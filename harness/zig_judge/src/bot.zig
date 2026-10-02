@@ -16,8 +16,8 @@ const metering = @import("metering.zig");
 const Framer = framer_mod.Framer;
 
 pub const MAX_TURN_POINTS: i64 = 100_000_000;
-/// A turn's cap in inspect mode, where diagnostics run inside the turn: they are
-/// metered, but the bot leaves their points out of its own clock (runtime).
+/// Legacy inline diagnostics use this expanded inspection turn cap.
+/// loong_inspection observer blocks have a separate meter and frozen clock.
 pub const INSPECTION_TURN_POINTS: i64 = 100 * MAX_TURN_POINTS;
 /// A stdout line that is a diagnostic record, not gameplay (runtime/gizmos.h).
 const GIZMO_PREFIX = "LOG LOONG_GIZMO ";
@@ -40,13 +40,8 @@ pub const INITIAL_POINTS: i64 = std.math.maxInt(i64);
 const WRITE_SYSCALL_COST: i64 = 2_500_000;
 const WRITE_BYTE_COST: i64 = 4_000;
 const READ_BYTE_COST: i64 = 6;
-/// Whether a new process's first stdin read call is charged. The ladder's judge
-/// doesn't charge it: in 98 first turns of ladder games 475975 and 475976 its
-/// points were ours less exactly 6 per byte of that read
-/// (results/local/ladder-fidelity-20260928). That evidence can't tell "the
-/// first read call is free" from "the first 1,024 bytes are free", since our
-/// bots read through a 1,024-byte buffer. The toolkit charges it, and
-/// `run --charge-first-read` sets this to match the toolkit.
+/// A process's first stdin read is free by default. --charge-first-read
+/// enables the toolkit's accounting for fidelity comparisons.
 pub var charge_first_read = false;
 /// Whether modules load with a profile's counters (`run --profile`).
 pub var profiling = false;

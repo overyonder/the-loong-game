@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "source_repository": "overyonder/the-loong-game-private",
-  "source_base_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
+  "source_base_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
   "policy": "Public files are releases of their private sources, simplified to leave out private infrastructure. Each entry records the public file's hash and, where known, the source's revision and hash. Changes originate in the private source.",
   "files": [
     {
@@ -108,18 +108,20 @@
       "source_sha256": "f88d5294af5a772f9114eb385009e3478d62b21f3e5bbc34d159d328047c8867"
     },
     {
-      "source": "evaluation/zig_judge/build.zig",
+      "source": "tools/judge/build.zig",
       "path": "harness/zig_judge/build.zig",
-      "sha256": "8be66d7a307d919222ecf8a0ffdaacfb7a4e5cb4ff842b8c816c72cfa51cf7d1",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "8be66d7a307d919222ecf8a0ffdaacfb7a4e5cb4ff842b8c816c72cfa51cf7d1"
+      "sha256": "74f171b065aa0540e20c65efa23c25671e0f3ee605db9cf4261c8d4d5ebf7a2d",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "f6588744355b312bb5c76e068a9d27b6ec0d4f0faf47d5cceabb351ae4d1b874",
+      "adaptation": "Link only the minimal CPU reference, with a replaceable C++ reference-source option."
     },
     {
-      "source": "evaluation/zig_judge/build.zig.zon",
+      "source": "tools/judge/build.zig.zon",
       "path": "harness/zig_judge/build.zig.zon",
-      "sha256": "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4"
+      "sha256": "8210adb9237d336b4f33417d8a32904b17842d48184a1f344890ed804524aee0",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4",
+      "adaptation": "Include the minimal CPU reference in the package."
     },
     {
       "source": "evaluation/zig_judge/harness.py",
@@ -129,66 +131,69 @@
       "source_sha256": "81dd35d2c29e6e002a5291caa5a2ed6ef0ffccff89a492924e78f3ea95b0f497"
     },
     {
-      "source": "evaluation/zig_judge/src/batch.zig",
+      "source": "tools/judge/src/batch.zig",
       "path": "harness/zig_judge/src/batch.zig",
       "sha256": "173493871ee653343ebedf04bc5fe34ab131fde3177587db71672b1c5be45773",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "173493871ee653343ebedf04bc5fe34ab131fde3177587db71672b1c5be45773"
     },
     {
       "source": "tools/judge/src/bot.zig",
       "path": "harness/zig_judge/src/bot.zig",
-      "sha256": "dc6be001958cfeaee11aac3e04839402626a73f7805c0e72628a715b7d21f193",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d"
+      "sha256": "679f14ce1d93983c0b83c1eb87f5a2260dacf08497440c26fd16a52dc8db5d69",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d",
+      "adaptation": "Remove private game references from comments; preserve committed inspection accounting."
     },
     {
-      "source": "evaluation/zig_judge/src/engine.zig",
+      "source": "tools/judge/src/engine.zig",
       "path": "harness/zig_judge/src/engine.zig",
-      "sha256": "ccef587cd74ebd5864737f9dcafeb319d01077ecd76069eece40af1c159f5b7b",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "ccef587cd74ebd5864737f9dcafeb319d01077ecd76069eece40af1c159f5b7b"
+      "sha256": "19192346f24c7342dfebb3712980292cf9ae57b269df6ae783abab62ed3a628c",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "ccef587cd74ebd5864737f9dcafeb319d01077ecd76069eece40af1c159f5b7b",
+      "adaptation": "Allocate 48 bytes for either official result ABI; continue reading the shared first eight fields."
     },
     {
-      "source": "evaluation/zig_judge/src/framer.zig",
+      "source": "tools/judge/src/framer.zig",
       "path": "harness/zig_judge/src/framer.zig",
       "sha256": "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab"
     },
     {
-      "source": "evaluation/zig_judge/src/game.zig",
+      "source": "tools/judge/src/game.zig",
       "path": "harness/zig_judge/src/game.zig",
-      "sha256": "5ade622b084a0761c1cbac2109d452a5ef57ca3b845cfb385769f476aed190a0",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "8b911bd03bde0faa908ddea3d8e645242ca9a02813c107db995c847469d0cbe8"
+      "sha256": "58c99b934c626189225288b01f7550dc2c9d7ba2494eb464a7d30fae55ab948e",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "58c99b934c626189225288b01f7550dc2c9d7ba2494eb464a7d30fae55ab948e"
     },
     {
       "source": "tools/judge/src/inspection.zig",
       "path": "harness/zig_judge/src/inspection.zig",
       "sha256": "e56176ebbb9111f0637b452fd71164935a4a054d08582d92e783fd0eb7da1324",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "e56176ebbb9111f0637b452fd71164935a4a054d08582d92e783fd0eb7da1324"
     },
     {
-      "source": "evaluation/zig_judge/src/main.zig",
+      "source": "tools/judge/src/main.zig",
       "path": "harness/zig_judge/src/main.zig",
-      "sha256": "076c4a99fad6788371f0a8c4c1819f09ff551df7ddba36d3884fcd1ab3bc796c",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "3565a0fe2d0bbd3dca02d15f2cc147d3995d0eac103c155a57afa393515acfa7"
+      "sha256": "2007939fcd9bb36b5b67b6117eacca69230a14560d838b46d31b22344a24fa85",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "668959accb0a2bcc69ffe0ea1cba95faf488cb6917b6a2af7f54771c2a5120b9",
+      "adaptation": "Public paths and validation of served team A/B."
     },
     {
-      "source": "evaluation/zig_judge/src/sync.zig",
+      "source": "tools/judge/src/sync.zig",
       "path": "harness/zig_judge/src/sync.zig",
       "sha256": "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da"
     },
     {
-      "source": "evaluation/zig_judge/src/wasmtime.zig",
+      "source": "tools/judge/src/wasmtime.zig",
       "path": "harness/zig_judge/src/wasmtime.zig",
       "sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900"
     },
     {
@@ -213,24 +218,25 @@
       "source_sha256": "39502672a7ebccaf0792ca923983766bb893e05986da8ed6e091357fab444844"
     },
     {
-      "source": "gamedata/capnp_replay.nim",
+      "source": "tools/gamedata/capnp_replay.nim",
       "path": "gamedata/capnp_replay.nim",
       "sha256": "f7b45299f98415c3a71a18fbd3ee554e7f0a44b3fbf89cf601fd4d6fac701801",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "dbd4ffde7f6379b2224e54dff2d3f447b20e29c8497c86474b7bc26384cf2fee"
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "6e938b72e672be42641dd11d873fa4ab38ac6f69f36db51d5c458a8758036b48",
+      "adaptation": "Public schema path in comments."
     },
     {
-      "source": "gamedata/gzip_inflate.nim",
+      "source": "tools/gamedata/gzip_inflate.nim",
       "path": "gamedata/gzip_inflate.nim",
-      "sha256": "679fe1e3f85062318e95f492ed65a3705738eda9405b872ef2c068275e038043",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "sha256": "07965a0f4adcf1a96c1daaf02005c39460bf0ba90139264811e57314ca6cff47",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "07965a0f4adcf1a96c1daaf02005c39460bf0ba90139264811e57314ca6cff47"
     },
     {
-      "source": "gamedata/sha256.nim",
+      "source": "tools/gamedata/sha256.nim",
       "path": "gamedata/sha256.nim",
       "sha256": "a5ad4abe67415e57eca6cb5ef3d2de0132ddd2c09fcc8048b8af736d100c2b4e",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "a5ad4abe67415e57eca6cb5ef3d2de0132ddd2c09fcc8048b8af736d100c2b4e"
     },
     {
@@ -248,11 +254,12 @@
       "source_sha256": "9e966f1ba4da4ef6c320fa23dd1002717d84c7048bd375d40a0562276285e10c"
     },
     {
-      "source": "gamedata/gamedata.nim",
+      "source": "tools/gamedata/gamedata.nim",
       "path": "gamedata/gamedata.nim",
-      "sha256": "5bbef2c8b6ec3f44965ff0c776c8070d0c3f7acdea98c6167050a9a786c15b8f",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "765ad259b5c975f030aea913296756d797c4dc9de9c148bc931b6376cf763de5"
+      "sha256": "a3ea410388f41266ab2df8732c503a263fb54d8cb921c9702e1b45d1d97e1710",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "6e3cdb27e29f043be93f3d511f6f9134f0ccefe22d9b1fac6ed1393af38d1dcd",
+      "adaptation": "Retain existing public CLI and separate its imports from the library API."
     },
     {
       "source": "gamedata/format.md",
@@ -325,67 +332,35 @@
       "source_sha256": "cdd6b0cd2f1acc107aaec2a8ae20209e3780777a276b4c76c035edabff2e54d4"
     },
     {
-      "source": "replays/collection.nim",
+      "source": "tools/ladder/collector/collection.nim",
       "path": "replays/collection.nim",
-      "sha256": "0989c65b1f616bccf89a71c2966b14ebb9436e2ba083c4c68adbcd2d5371375b",
-      "source_revision": "ec9cf7a131e52bc81aa7e4eaaa801f592728091d",
-      "source_sha256": "915f0e66686a9c7df6255d9f02624ca6bda400832f019d997a88677a068cf634"
+      "sha256": "bb00fdb1cae4270d1026ad33e167b4d9a978aaf52f00f52af621d2d61ee46d3d",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "9b114baabc84a35ed2fb37407f802dd3d5c765d2f0049418072d3a8cf55d97b4",
+      "adaptation": "Configurable user team and saved ratings; preserve payload-size cap, retention and pin/plan/drop; remove private provenance and infrastructure defaults."
     },
     {
-      "source": "replays/sqlite.nim",
+      "source": "tools/ladder/collector/sqlite.nim",
       "path": "replays/sqlite.nim",
       "sha256": "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e",
-      "source_revision": "6e591cc3a44e6635e38843ff1b9e848dc564d9a8",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e"
     },
     {
-      "source": "commands/evaluation.just",
+      "source": "tools/commands/evaluation.just",
       "path": "just/evaluation.just",
-      "sha256": "de75bf5fa8f8ac725d563aeb63812c9d6812e3ae1ade43af7802a8c5d3968b80",
-      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
-      "source_sha256": "24ca0f5bffa77bcdb53bf8e9d6399931e540ce682f302ddb94e153a05ef8bd04",
-      "recipe_sources": [
-        {
-          "recipe": "mapgen",
-          "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d"
-        },
-        {
-          "recipe": "verdict",
-          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
-        },
-        {
-          "recipe": "report",
-          "source_revision": "3b80cf01e620c557d1e557a4b70b7041cbd57cee"
-        },
-        {
-          "recipe": "tools-build",
-          "source": "justfile",
-          "source_revision": "d83a5577424d1810d2f32e2b8d9ff69a95e32222"
-        },
-        {
-          "recipe": "round-robin",
-          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
-        },
-        {
-          "recipe": "batch",
-          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
-        },
-        {
-          "recipe": "ladder",
-          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
-        },
-        {
-          "recipe": "judge-fidelity",
-          "source_revision": "4ca8b1bd74cca367bde995ce823240320f509c34"
-        }
-      ]
+      "sha256": "6dcfdc7e74cc528a3638cc8091dcebcf549df164202be1d499ca7d9e3397470d",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "23d9d05e8f19f2730bd4bf549165bed3286af7c6014862f400cae39fb814a112",
+      "adaptation": "Retain public recipes and add compiler sidecars plus compiled tool builds; no fleet or private bot defaults."
     },
     {
-      "source": "justfile",
+      "source": "tools/commands/inspection.just",
       "path": "just/inspection.just",
-      "sha256": "101ee9cadf3e48608ca82cc4fd7e8322c2282269157a42d86788c7bff86d7ae2",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "135297affeb8d549d890b09729628f5f686bc4e9845d8a9e9515fc2e12ffb896"
+      "sha256": "8e31347687e0c7dc55f2ea5c1f340693859ead1a185b493b96b99dfca6e920f1",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "5a400dc6c41a75a91a78fc412d358e02f7d810d4ccaeb55394e826115c60628e",
+      "adaptation": "Expose local map fitting/regeneration and points-profile/vector-remarks under their canonical command names."
     },
     {
       "source": "evaluation/compare.py",
@@ -416,17 +391,17 @@
       "source_sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4"
     },
     {
-      "source": "evaluation/zig_judge/src/run.zig",
+      "source": "tools/judge/src/run.zig",
       "path": "harness/zig_judge/src/run.zig",
-      "sha256": "4f44ca5b05835376242a9f459d06fc95ea93be1295144ab13d47fc3b2a0dbd9b",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "ef0c9c4ab4f5a25f0bc686065db628e0c7774f8d8ebfa1ebdcecb77ccf214905"
+      "sha256": "2dbee467aa3daca36289ae62536c7f28fb04f6ac38cda7a22cad51aef4105462",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "003694efdef1e748e80664fbe7812a48db4cae77fc2aa45c0a012f816d1175aa"
     },
     {
       "source": "tools/judge/src/metering.zig",
       "path": "harness/zig_judge/src/metering.zig",
       "sha256": "7e29301dd605cbfab130a6f7e27cabd6449476e1dc416c2cbbbc8bb481b87aed",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "7e29301dd605cbfab130a6f7e27cabd6449476e1dc416c2cbbbc8bb481b87aed"
     },
     {
@@ -719,9 +694,10 @@
     {
       "source": "tools/viewer/recovery/registry.nim",
       "path": "replays/recovery/registry.nim",
-      "sha256": "a04b97f4645cf439113cd840cbc210aa0cb7fe8186c784939958562e37173c77",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "458cec613db3150135ce0a82678d3e937d425ade0a92f082c1e87d8bfef7b780"
+      "sha256": "ca2133ef428c38722b2f1789baeb5f8295c770f63f5964f98b31f5627514093d",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "458cec613db3150135ce0a82678d3e937d425ade0a92f082c1e87d8bfef7b780",
+      "adaptation": "Retain public GUID codec and validate optional compiler sidecars; CLI-independent warning-free imports."
     },
     {
       "source": "tools/viewer/recovery/serve.nim",
@@ -731,17 +707,18 @@
       "source_sha256": "5b5e35b54985bbfac47b5281e5b12cc598ccdad39836b1de1ed0b370680dd811"
     },
     {
-      "source": "gamedata/README.md",
+      "source": "tools/gamedata/README.md",
       "path": "gamedata/README.md",
-      "sha256": "1a98046c825c909ec0745241a7695e8d97d2a7637e922223a6888955c92956a9",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "3b84ca1123cc179be162a720dc7bd597c9efb3a5f5cc85bd5c0c3f70d2d0a502"
+      "sha256": "2cb506bcd60ae33b5ce4ef02f55dbb3940fa23c9d90dcc048375711c32748513",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "3b84ca1123cc179be162a720dc7bd597c9efb3a5f5cc85bd5c0c3f70d2d0a502",
+      "adaptation": "Document released decoder use by the compiled map tools."
     },
     {
-      "source": "gamedata/board.nim",
+      "source": "tools/gamedata/board.nim",
       "path": "gamedata/board.nim",
-      "sha256": "acf0a40d176141c8ff3c1e5fa527a1e6130096309e6eba0fce983234b48b9875",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "sha256": "9f6313c7ce16934b0f321d5dc6ef8a3cfc09296316f243dacbe9888bf5bfc00b",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "9f6313c7ce16934b0f321d5dc6ef8a3cfc09296316f243dacbe9888bf5bfc00b"
     },
     {
@@ -752,10 +729,10 @@
       "source_sha256": "b7f112433ee56f0e76f19db1fbca51f50f948b91bde0ace486607d2e3882a9ad"
     },
     {
-      "source": "gamedata/replay_board.nim",
+      "source": "tools/gamedata/replay_board.nim",
       "path": "gamedata/replay_board.nim",
-      "sha256": "f34aa31195126e2403f92d77e8ec0c512ef9b397b543216aba1f005e83036867",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
+      "sha256": "be2b36f728c0d2657331872da9d9a77b70a7e0af390827a1495d1ad20dc50d44",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "be2b36f728c0d2657331872da9d9a77b70a7e0af390827a1495d1ad20dc50d44"
     },
     {
@@ -801,11 +778,12 @@
       "source_sha256": "13ef9e50761852ee2180705c5db1a10ce9a1066889a71c099611b9e15440beb9"
     },
     {
-      "source": "replays/viewer/build_registry.py",
+      "source": "tools/evaluation/build_registry.py",
       "path": "harness/build_registry.py",
-      "sha256": "4a973eb378ec532bedefdb09ce6014e3650bccca47cc4fd7122417c7c146da56",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "1b590f77d26b9e1c1f1abf7173cffaa90d906c14ff56c2206a32bb1cd0bb5e0a"
+      "sha256": "5f3e0ad94dc2764df9173208548ecb78051b10ad8f307902616107428f608bc6",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
+      "adaptation": "Keep the public C/C++ registry; add hashed compiler sidecars and adapter identity."
     },
     {
       "source": "tools/viewer/knowledge.odin",
@@ -815,10 +793,10 @@
       "source_sha256": "13faf08fd27802590b03d0c6db2237e71f8159b11447a2717e992aff57be26d0"
     },
     {
+      "source": "tools/judge/src/state.zig",
       "path": "harness/zig_judge/src/state.zig",
       "sha256": "384c251928082f4e96b87387ad7f57413c91d31ed1d88aae83699a550209a5c6",
-      "source": "tools/judge/src/state.zig",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "fbbed2e8df8c70991add7dd30ffe2067c045800cfcda07847f00dfee9cb6c5c6"
     },
     {
@@ -904,6 +882,134 @@
       "source": "tools/viewer/recovery/tests/gizmos.verdicts",
       "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
       "source_sha256": "b58976a564f147a2a94a917f70e1ea3dcd88bc3b334528723eda1be43689db48"
+    },
+    {
+      "source": "tools/evaluation/regenerate.py",
+      "path": "harness/README.md",
+      "sha256": "13d9d266c589fe2d20c73255d8128f991eb3d632552f3d7a3dbbfab0ae883c00",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "7ad681b14297009066662a613cd33e256459b1041959e2fe817a717a607ef8e3",
+      "adaptation": "Document local replay/seed inputs, strict compiled map fitting and regeneration; omit site and private-store access."
+    },
+    {
+      "source": "tools/evaluation/build_registry.py",
+      "path": "harness/compiler.py",
+      "sha256": "1c32a41c305fca324317c5f8423ebc3b3264d3992cdfbf8581b4033686d9bd97",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
+      "adaptation": "Simplify committed object/name/remark compilation to a sequential SDK adapter; compile once for playing WASM and sidecars."
+    },
+    {
+      "source": "tools/evaluation/regenerate.py",
+      "path": "harness/engine_adapter.py",
+      "sha256": "59f2efecb2e4a504e2065373d68bda4d34a342c240382fbed5c4891ccdde2711",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "7ad681b14297009066662a613cd33e256459b1041959e2fe817a717a607ef8e3",
+      "adaptation": "Thin organiser SDK pipe boundary for the compiled regeneration driver; guard older 32-byte SDKs against replacement engines."
+    },
+    {
+      "source": "tools/ladder/map_variants.py",
+      "path": "harness/map_variants.nim",
+      "sha256": "c66c6618ff37aee888c3fb7048dd2fac258e6513a7b0f3b7fca56fcdc632c5a1",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "833eb63f70d5d7a5becd02a5be6c1cc3eba378daff4dd6dbc92119650d858131",
+      "adaptation": "Port fitting and table lookup to Nim and the released decoder; explicit local seed/replay inputs, free-tile contradiction checks and unresolved-table refusal."
+    },
+    {
+      "source": "tools/commands/profiling.just",
+      "path": "harness/profiling/README.md",
+      "sha256": "228e77280a10fd71090690eb30b025b0b194edd468aceae9b3d2c2ebaad4e0ea",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "b453b99991e1719faf4ecd70bed9723c5dc5beef2caf6c982a0c2a61ffaeccae",
+      "adaptation": "Document released profile, saved sidecars and schemas; omit private source recompile/profiling workflows."
+    },
+    {
+      "source": "tools/evaluation/build_registry.py",
+      "path": "harness/profiling/profile.nim",
+      "sha256": "eef985cd97c5e7df9378c8f6c5721a5dd6e1b4721518ed3e7dfcd2710da5101c",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
+      "adaptation": "Compile WASM function-name and selected LLVM vectoriser-record decoding; join the judge TSV by raw names."
+    },
+    {
+      "source": "tools/evaluation/regenerate.py",
+      "path": "harness/regenerate.nim",
+      "sha256": "7ed62f2c691480fe847062ad198f0ef56c641cc2b02d5eb326a61316445510da",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "7ad681b14297009066662a613cd33e256459b1041959e2fe817a717a607ef8e3",
+      "adaptation": "Port recorded replies and state comparison to Nim; local inputs and immutable public build GUIDs; refuse missing, ambiguous or divergent reconstruction."
+    },
+    {
+      "source": "tools/judge/src/main.zig",
+      "path": "harness/zig_judge/README.md",
+      "sha256": "62515f88d26edc0618f6f1eead84efdf8b81888eca4e30d2cc978fb7dd161991",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "668959accb0a2bcc69ffe0ea1cba95faf488cb6917b6a2af7f54771c2a5120b9",
+      "adaptation": "Document public judge modes, observer contract, served framing and the older-rule CPU reference limit."
+    },
+    {
+      "source": "tools/judge/src/bot.zig",
+      "path": "harness/zig_judge/inspection.h",
+      "sha256": "a418639e3f129e97d13c0c28974bda3a4fbb7fc4d469986560c834ac4c2088c6",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d",
+      "adaptation": "Expose the committed host observer imports as inspection-only C declarations."
+    },
+    {
+      "source": "tools/engine/engine.h",
+      "path": "harness/zig_judge/reference/engine.h",
+      "sha256": "80043aa8a7dc0db5bf402e8dc308b782b1117726ea6b6a4ff21ab8538a0fd907",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "b0719594ee79d5ce06da0896256def86220042d1960e0a81a8d842f9fcf011f0",
+      "adaptation": "Minimal CPU reference only; remove CUDA and trainer action helpers. Retain toolkit 1.2.2 semantics."
+    },
+    {
+      "source": "tools/engine/host.cc",
+      "path": "harness/zig_judge/reference/host.cc",
+      "sha256": "1fb2e0c2552d583719fad5c79332606b2d19b4dfd6c1e0369c54e4eac591f924",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "b0339803a14e6b27f1f8649d517bdbae68874225e2378a8da36a31825f943a1d",
+      "adaptation": "Keep map/protocol and opaque lockstep bridge only; remove observation tensors and learning interfaces."
+    },
+    {
+      "source": "tools/engine/host.cc",
+      "path": "harness/zig_judge/reference/port.h",
+      "sha256": "ee7d6bc541002d122efb9644986dcced249557dfa48e8958fc78e2b993263ed5",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "b0339803a14e6b27f1f8649d517bdbae68874225e2378a8da36a31825f943a1d",
+      "adaptation": "Declare only the opaque create/next/apply/result/destroy CPU lockstep ABI."
+    },
+    {
+      "source": "tools/judge/src/lockstep.zig",
+      "path": "harness/zig_judge/src/lockstep.zig",
+      "sha256": "4a28d21bb9a889428af89713d0f86b91bd42c8a0501ba6d522a2dbcf275baf4b",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "b5a641b37d80d8d087d606021aca60e758c81565b8662d176fd4e81ad7cc55de",
+      "adaptation": "Use the public CPU interface; reject skipped/empty runs and compare shared result fields."
+    },
+    {
+      "source": "tools/judge/src/served.zig",
+      "path": "harness/zig_judge/src/served.zig",
+      "sha256": "5a5c8dcfcb024615f33ec44738d66612db77d19bd262d69ea1556bb46546ab2c",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "d23204d9386302265543853eec5e9b8d5bdcd1632ea688ebf7bd08fc421b7a1d",
+      "adaptation": "Generic external policy framing with a 1 MiB reply bound; no learner-specific dependency."
+    },
+    {
+      "source": "tools/ladder/collector/README.md",
+      "path": "replays/README.md",
+      "sha256": "b42a9ab3c713b068933868d4edd12d93d3a6b37d0a7d7111762fa2d5491a5ff7",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "d7666e87fb8c51ffc19e36cd0548e813422902cb442407e430ad31d82595732f",
+      "adaptation": "Document the configurable public collector without private paths or identity."
+    },
+    {
+      "source": "tools/ladder/collector/retention.nim",
+      "path": "replays/retention.nim",
+      "sha256": "78ff2634bb1b21b80886b4d2b4b69dce2b72e2e5235c71fa868d0fde936adf9b",
+      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "source_sha256": "423575f635c3eab47bb61a6ba5d6e39fb16db39fdd9aacdaa8fe834fb857afe2",
+      "adaptation": "Preserve retention priorities; require the CLI to supply a positive user team instead of a private default."
     }
   ]
 }
