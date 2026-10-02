@@ -52,7 +52,7 @@ The measures are the board's size and shape, how many pearls it spawns per tile 
 
 ![Expected pearls per 100 tiles per round on each map, on a log scale, against the official range from 0.15 to 4.97. The toolkit's 15 maps all sit inside it. Of the first generator's 20 maps from seed 2026, 10 fall outside, from 0.0001 to 22.6. All 20 of the current generator's maps from seed 2026 sit inside it.](images/map-supply.svg)
 
-`just mapgen --check` measures a directory of maps against the official ones and names any map outside the range. It reads the official maps from `maps/`, which `just article-bots` installs from the toolkit, so the range and the maps depend on the toolkit version. With toolkit 1.2.2's 15 maps, `just mapgen --count 20 --seed 2026` gives you the same 20 maps I'm using here, and the check passes all of them:
+`just mapgen --check` measures a directory of maps against the official ones and reports any map outside the range. It reads the official maps from `maps/`, which `just article-bots` installs from the toolkit, so the range and the maps depend on the toolkit version. With toolkit 1.2.2's 15 maps, `just mapgen --count 20 --seed 2026` gives you the same 20 maps I'm using here, and the check passes all of them:
 
 ![A terminal running just mapgen --check maps-generated. It prints a table of the minimum, quartiles and maximum of each measure for the official maps and for the 20 generated maps, from tiles, aspect and supply through kelp, portal pairs, dragons per side, longest dragon and force to dead ends and detour, and ends with 0 of 20 maps outside the official envelope.](images/mapgen-check.png)
 

@@ -73,7 +73,7 @@ for (int chunk = 0; chunk < 4; chunk++)
 }
 ```
 
-The masks now cost about 435 points instead of 7,800, and the whole room count about 1,750. That's 66 times cheaper than where we started, and all of it is plain C the online judge accepts.
+The masks now cost about 435 points instead of 7,800, and the whole room count about 1,750. That's 66 times cheaper than where we started, and all of it is WebAssembly compiled from plain C.
 
 ## Keeping it vectorised
 
@@ -86,7 +86,7 @@ crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:
   | low <| shuffle(a, b, [0, 4, 8, 12, 16, 20, 24, 28, 0, 0, 0, 0, 0, 0, 0, 0])
   | high <| shuffle(c, d, [0, 4, 8, 12, 16, 20, 24, 28, 0, 0, 0, 0, 0, 0, 0, 0])
   | sides <| shuffle(low, high, [0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23])
-  return bitmask(sides != <0>)
+  bitmask(sides != <0>)
 ```
 
 The judge only takes C, so the profile emits C, one intrinsic per selected instruction. `rakec --verify-native` then compiles that C, disassembles it, and rejects any function containing anything but locals, constants and vector instructions. In the benchmark the Rake masks cost 437 points against 435 for the hand-written intrinsics, and matched on every turn. The code is in [examples/performance/rake](../examples/performance/rake/window_bits.rk), and `just rake` regenerates the C.

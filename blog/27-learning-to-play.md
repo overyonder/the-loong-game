@@ -4,7 +4,7 @@ The planning bot in the previous article makes its choices from rules and scores
 
 > **Training note, 2 October 2026.** This is the design we are running now, across a 16 GB workstation card and a four-H100 rental. Training and evaluation are still in progress, so the measurements and the final submitted bot may change.
 
-The two networks have different jobs. Here are the names used in the diagrams.
+The two networks have different jobs. These are the labels used in the diagrams.
 
 ## A short glossary
 

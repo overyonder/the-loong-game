@@ -68,7 +68,7 @@ The clock tells us the cost of a block we chose to wrap, but adding wrappers to 
 
 Its profiling metering pass gives each defined function seven counters: arithmetic, locals, memory, SIMD, calls, control and other. When a metered block runs, it adds that block's points to the appropriate counters. Input reads and output writes get separate rows, so the large cost of sending a move doesn't disappear into whichever function happened to call `write`.
 
-![Charged points and compiler remarks meet at function names. The bot's WebAssembly passes through profiling metering and runs in the judge, producing a table of points by team, function and instruction class. The same build's source goes through clang's loop and SLP vectorisers, producing success and missed-vectorisation remarks. A name sidecar connects both reports to the original functions.](images/points-profile.svg)
+![Charged points and compiler remarks meet at function identifiers. The bot's WebAssembly passes through profiling metering and runs in the judge, producing a table of points by team, function and instruction class. The same build's source goes through clang's loop and SLP vectorisers, producing success and missed-vectorisation remarks. A name sidecar connects both reports to the original functions.](images/points-profile.svg)
 
 From `examples/tooling`, after `just tools-build` and `just zig-judge-build`, the points profile takes two built bots, a map, a seed and a replay destination:
 
@@ -76,7 +76,7 @@ From `examples/tooling`, after `just tools-build` and `just zig-judge-build`, th
 just points-profile A.wasm B.wasm arena.map 12345 game.replay
 ```
 
-It writes a `.profile.tsv` beside the replay, with each team's costliest functions first. `just bot-build` writes a `.names` sidecar beside each bot so function names stay available even when the submitted module is stripped.
+It writes a `.profile.tsv` beside the replay, with each team's costliest functions first. `just bot-build` writes a `.names` sidecar beside each bot so function identifiers stay available even when the submitted module is stripped.
 
 | Row | What it tells us |
 | --- | --- |

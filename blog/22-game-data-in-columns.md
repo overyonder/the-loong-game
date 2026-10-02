@@ -65,11 +65,11 @@ Loading a game in the viewer is now a list of lines like `view.turn_points = col
 
 ## Tables, lists and gaps
 
-Names carry the structure. A column called `turn.points` belongs to the table `turn`, and every plain column in a table has one value per row. A column that points at rows of another table is a u32 row index named after it. A value that varies in length per row, like a dragon's body, becomes two columns: every row's values end to end, and a `#` column of where each row starts.
+Column identifiers carry the structure. A column called `turn.points` belongs to the table `turn`, and every plain column in a table has one value per row. A column that points at rows of another table is a u32 row index named after it. A value that varies in length per row, like a dragon's body, becomes two columns: every row's values end to end, and a `#` column of where each row starts.
 
 ![The list column start.body holds the first three starting dragons of game 610 end to end: cells 1390 to 1387, 1402 to 1405, then 1712, 1713, 1714 and 1771, out of 40 cells. start.body# holds 0, 4, 8, 12, out of 11 starts. Row i is body[start[i] ..< start[i + 1]], head first, and a cell is y × width + x, so dragon 0's head, 1390 on this 57-wide map, is at (22, 24).](images/gamedata-list.svg)
 
-Strings are lists of UTF-8 bytes, so a bot's name or a turn's log lines are just another list. A value that can be missing, such as the CPU points of a game played outside the judge's sandbox, gets a companion `turn.points?` column of 1s and 0s, and columns that are always present don't pay for one. Enums are small integers whose names live in a string list called `enum.<name>`.
+Strings are lists of UTF-8 bytes, so a bot's name or a turn's log lines are just another list. A value that can be missing, such as the CPU points of a game played outside the judge's sandbox, gets a companion `turn.points?` column of 1s and 0s, and columns that are always present don't pay for one. Enums are small integers whose labels live in a string list called `enum.<name>`.
 
 ## Boards aren't stored
 

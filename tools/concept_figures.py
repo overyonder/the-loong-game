@@ -819,7 +819,7 @@ def rl_compute_topology():
     parts += [
         text(20, 426, "The rental is disposable. The checkpoints are not.", 14, INK, weight="bold"),
         text(20, 450, "The connector carries control traffic; S3 carries bulky fleet archives through expiring links.", 13, MUTED),
-        text(20, 471, "Names, addresses, account details, credentials and instance identifiers are intentionally absent.", 13, MUTED),
+        text(20, 471, "Personal details, addresses, credentials and instance identifiers are intentionally absent.", 13, MUTED),
     ]
     return svg(1100, 494, "The local workstation, private object store, Vast.ai rental and their orchestration", parts)
 

@@ -38,7 +38,7 @@ Let's try building both. Each one fits into the roles bot as new behaviour modul
 
 The assembly is the roles bot's with the champion's and feeders' lists changed, and `indicate = 2` makes each dragon's indicator show its behaviour as well as its role:
 
-![examples/tactics-bot/strategy.nim. The champion's children are evade.hsmState(within = 2), coil.hsmState(clearOf = 3) and roam.hsmState(), with the split reflex. The kamikaze keeps hunt and roam. roles.other names the Feeder role and holds evade, deliver.hsmState(atLength = 6, memoryTurns = 12) and forage. The sonar protocol is champion_radio.create(memoryTurns = 12), and indicate = 2 shows both the role and the behaviour.](images/tactics-bot-strategy.png)
+![examples/tactics-bot/strategy.nim. The champion's children are evade.hsmState(within = 2), coil.hsmState(clearOf = 3) and roam.hsmState(), with the split reflex. The kamikaze keeps hunt and roam. roles.other defines the Feeder role and holds evade, deliver.hsmState(atLength = 6, memoryTurns = 12) and forage. The sonar protocol is champion_radio.create(memoryTurns = 12), and indicate = 2 shows both the role and the behaviour.](images/tactics-bot-strategy.png)
 
 Across the three example bots, most of the repertoire is shared, and each new bot only adds a few modules:
 

@@ -24,5 +24,5 @@
 <path d="M864 336 L882 336" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
 <text x="20" y="426" font-size="14" fill="#20251f" text-anchor="start" font-weight="bold">The rental is disposable. The checkpoints are not.</text>
 <text x="20" y="450" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">The connector carries control traffic; S3 carries bulky fleet archives through expiring links.</text>
-<text x="20" y="471" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">Names, addresses, account details, credentials and instance identifiers are intentionally absent.</text>
+<text x="20" y="471" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">Personal details, addresses, credentials and instance identifiers are intentionally absent.</text>
 </svg>

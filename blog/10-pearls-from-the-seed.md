@@ -33,7 +33,7 @@ Matching the pearls that appeared isn't enough. A candidate that predicts a pear
 
 Several gap tables can explain the same finite replay, especially for tiles that stayed occupied or never tried to spawn within 500 rounds. A fit is a compatible reconstruction, not proof that we've recovered the organisers' unique hidden table. Checking several games with different seeds gives it more constraints. A game outside the search bounds, or one no candidate explains, stays unresolved.
 
-## Variants behind familiar names
+## Variants behind familiar labels
 
 I ran that check over 40 stored games for each current map on 1 October. Four maps had one repeatable variant beyond the published file. Slithery Fight still had 19 games that neither its public table nor a fitted table explained, so those stay unresolved rather than being forced into a bad fit.
 

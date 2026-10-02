@@ -47,7 +47,7 @@ The shared runtime is added separately. It supplies the entry point and judge in
 
 A line's highest numbered version is the one being developed. When it reaches a point worth evaluating, we freeze that directory, register its build and begin work under the next number. A frozen version never changes, and neither do the numbered library pieces it pins.
 
-This gives an old result a precise identity. An identifier such as `textbook-main-NNNN` names the assembly. Its manifest names every selected library file, and the registered build names the runtime, compiler settings and WebAssembly that actually played. Later edits elsewhere in `bots/` cannot quietly alter that evidence.
+This gives an old result a precise identity. An identifier such as `textbook-main-NNNN` identifies the assembly. Its manifest lists every selected library file, and the registered build records the runtime, compiler settings and WebAssembly that actually played. Later edits elsewhere in `bots/` cannot quietly alter that evidence.
 
 Keeping old versions costs some space, but deleting them would discard useful opponents and the exact program behind a replay. They become baselines in the [ladder of our own](07-a-ladder-of-our-own.md), regression cases and provenance for the viewer. The number records when a version was made, not whether it was better. The games say what happened.
 

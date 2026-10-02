@@ -50,7 +50,7 @@ Each explanation is one JSON record on its own `LOG` line, which the judge lifts
 
 To show every kind of record, there's a new example: the [showcase bot](../examples/showcase-bot/strategy.nim). Its play is simple on purpose. Each turn it scores four options on one utility scale, as the utility systems of Dave Mark's *Behavioral Mathematics for Game AI* (2009) do, and takes the best eligible one: flee an enemy head within two cells, eat the nearest reachable pearl, split once it's long enough, or explore wherever leaves the most room. It remembers every cell it has seen and every dragon it has seen or heard of, and it tells its teammates by sonar where its head is and how long it is.
 
-From `examples/tooling`, `just showcase` builds it, plays it against itself on Default and opens the game. `just bot-build` registers each judge build under a GUID, with the hash of every source file and of the WebAssembly, so the viewer reruns exactly the build that played, and `just viewer REPLAY --seat A GUID` names it for a side. In this game all 68 dragons rebuilt, and all 7,941 of their rebuilt turns matched the replay.
+From `examples/tooling`, `just showcase` builds it, plays it against itself on Default and opens the game. `just bot-build` registers each judge build under a GUID, with the hash of every source file and of the WebAssembly, so the viewer reruns exactly the build that played, and `just viewer REPLAY --seat A GUID` selects it for a side. In this game all 68 dragons rebuilt, and all 7,941 of their rebuilt turns matched the replay.
 
 ## Records on the board
 
@@ -112,7 +112,7 @@ The Signals tab starts with sonar. The showcase bot sends one table of what it t
 
 ## State from memory
 
-Writing a second description of a bot's state is an easy way to make a debugger lie. The public introspection helper takes another route. The bot gives the judge the address of a small region table and a schema made from its Nim types. While the bot is paused in that write, the judge copies those regions from WebAssembly memory. Objects become tables, enums keep their names, references are followed once, and arrays laid over the board become cell or edge records. The bot does not list its fields by hand.
+Writing a second description of a bot's state is an easy way to make a debugger lie. The public introspection helper takes another route. The bot gives the judge the address of a small region table and a schema made from its Nim types. While the bot is paused in that write, the judge copies those regions from WebAssembly memory. Objects become tables, enums keep their labels, references are followed once, and arrays laid over the board become cell or edge records. The bot does not list its fields by hand.
 
 The showcase bot exposes the record it just used to decide. Here the Sources tab has reflected its round, dragon, length, role, task and whether it has split. The Mental map above it is still the ordinary retained record the bot chose to emit.
 

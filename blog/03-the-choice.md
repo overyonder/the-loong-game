@@ -47,7 +47,7 @@ static int CountReachableTiles(LocalWindow const* window, int start, int first_s
 }
 ```
 
-The two bots make exactly the same move on every turn. I checked by playing each against itself with the same seeds and comparing every move. Then I played each against itself on all 13 bundled maps and recorded the points spent on every turn, about 18,000 turns per bot. `unswbc run -v` prints each dragon's points after every turn, which is all the measuring this needs. The bots and the script are in [examples/the-choice](../examples/the-choice/README.md).
+The two bots make exactly the same move on every turn. I checked by playing each against itself with the same seeds and comparing every move. Then I played each against itself on all 13 bundled maps and recorded the points spent on every turn, about 18,000 turns per bot. `unswbc run -v` prints each dragon's points after every turn, so we can measure each move directly. The bots and the script are in [examples/the-choice](../examples/the-choice/README.md).
 
 ![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-c-python.svg)
 
@@ -59,7 +59,7 @@ This is a small search, and a stronger bot will want to look much further ahead.
 
 So the choice looks simple. Python is quick to write and slow to run. C and C++ are fast, but verbose and unforgiving while you're still trying ideas.
 
-![Three ways to write a bot for the judge. Python is quick to write, but the strategy costs 450 times as much as in C. C and C++ are fast, going through the same clang to the same WebAssembly, but verbose while ideas change. Nim reads like Python and compiles to C, which the judge accepts.](images/language-options.svg)
+![Three ways to write a bot for the judge. Python is quick to write, but the strategy costs 450 times as much as in C. C and C++ are fast, going through the same clang to the same WebAssembly, but verbose while ideas change. Nim reads like Python and compiles to C for compilation to WebAssembly.](images/language-options.svg)
 
 ## Four less familiar languages
 
@@ -157,7 +157,7 @@ Rake makes vector code a condition of compiling. A kernel works on racks, with o
 
 ```rake
 crunch occupied_bits(tiles: u8s) -> u32:
-  return bitmask(tiles != <0>)
+  bitmask(tiles != <0>)
 ```
 
 A `crunch` does the same thing to every lane. `u8s` is a rack of bytes, sixteen of them in the 128-bit registers WebAssembly has, and `u8` without the `s` would be one byte. Angle brackets mark a value that's the same in every lane, so `<0>` is zero broadcast across the rack, and every broadcast is visible in the source. Longer kernels name their intermediate values in a fused chain:
@@ -166,12 +166,12 @@ A `crunch` does the same thing to every lane. `u8s` is a rack of bytes, sixteen 
 crunch advance(positions: f32s, velocities: f32s) -> f32s:
   | scaled: f32s <| velocities * <0.5>
   | result: f32s <| positions + scaled
-  return result
+  result
 ```
 
-Each `| name <| expression` line reads right to left, with the value flowing into its name. The native AVX2 target can fuse this chain into a multiply-add. WebAssembly has separate multiply and add instructions, so the same source doesn't promise the same fusion on every target.
+Each `| name <| expression` line reads right to left, with the value flowing into its binding. The native AVX2 target can fuse this chain into a multiply-add. WebAssembly has separate multiply and add instructions, so the same source doesn't promise the same fusion on every target. These examples use the bare final-expression syntax introduced in 0.6.0-beta.
 
-This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. [Counting room faster](18-counting-room-faster.md) uses the profile that emits C the judge accepts, and writes the room count's masks in Rake.
+This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. [Counting room faster](18-counting-room-faster.md) writes the room count's masks in Rake and compiles them to WebAssembly through C.
 
 ### Rake for the rest of the bot
 

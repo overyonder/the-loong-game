@@ -105,7 +105,7 @@ Between two bots with level performance, we kept the one that lost fewer of thos
 
 ## Opponents we named
 
-Some opponents played in ways that went beyond good or bad, and we gave their styles names so we could talk about them. The teams stay anonymous here.
+Some opponents played in ways that went beyond good or bad, and we gave their styles labels so we could talk about them. The teams stay anonymous here.
 
 We found them in three ways. The first was a cheese screen: among teams rated 1350 to 1800, we looked for wins over teams rated 150 or more above them since 29 September, and found eight teams. Not every upset was real. In 10 of their 76 upset games the stronger team had failed 20 or more turns, a broken bot rather than a clever one. The second was the list of our own upsets, counted against each bot's measured strength as above. The third was replaying our own losses exactly: our judge can replay a ladder game from its seed, with the opponent's recorded moves, while our bot runs with its diagnostics on, so [the viewer](11-through-one-dragons-eyes.md) shows why each of our dragons did what it did. Of our 19 newest games at one point, 16 reproduced every one of our turns.
 

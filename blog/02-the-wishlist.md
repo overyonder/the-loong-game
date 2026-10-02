@@ -74,9 +74,9 @@ The fifth item is a **replay sampler**.
 
 ## Reading a replay
 
-Once we have the replays, we hit the next wall. A replay file is packed binary, and opening one in a hex viewer shows the bot names and scraps of the map text, and nothing else we can read:
+Once we have the replays, we hit the next wall. A replay file is packed binary, and opening one in a hex viewer shows the bot labels and scraps of the map text, and nothing else we can read:
 
-![hexyl showing the first 160 bytes of a replay file. The bot names alpha and bravo and parts of the map text are readable, and the rest is binary.](images/replay-hexdump.png)
+![hexyl showing the first 160 bytes of a replay file. The bot labels alpha and bravo and parts of the map text are readable, and the rest is binary.](images/replay-hexdump.png)
 
 To ask questions of thousands of games, like how often top bots split early, we first need to decode the format and rebuild each game turn by turn.
 

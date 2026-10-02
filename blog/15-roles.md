@@ -28,7 +28,7 @@ The role doesn't replace the first bot's state machine. It adds a layer on top, 
 
 Because behaviours are modules, the roles bot is still just an assembly. The same `evade` and `roam` modules the first bot used now appear under more than one role, alongside a new `hunt` behaviour for kamikazes and the sonar protocol:
 
-![examples/roles-bot/strategy.nim. hsm.run is given a root with three roles. roles.champion holds evade.hsmState(within = 2) and roam.hsmState(), with split.reflex(atLength = 10, childSize = 3). roles.kamikaze holds hunt.hsmState() and roam.hsmState(). roles.other names the Worker role and holds evade and roam. The call also passes sonar = length_radio.create(memoryTurns = 12) and indicate = 1.](images/roles-bot-strategy.png)
+![examples/roles-bot/strategy.nim. hsm.run is given a root with three roles. roles.champion holds evade.hsmState(within = 2) and roam.hsmState(), with split.reflex(atLength = 10, childSize = 3). roles.kamikaze holds hunt.hsmState() and roam.hsmState(). roles.other defines the Worker role and holds evade and roam. The call also passes sonar = length_radio.create(memoryTurns = 12) and indicate = 1.](images/roles-bot-strategy.png)
 
 The roles themselves are three tiny factories, each a guard on a parent state:
 

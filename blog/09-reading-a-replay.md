@@ -2,7 +2,7 @@
 
 > **Editor's note, 29 September 2026.** The decoder is now written in Nim, with its own Cap'n Proto reader.
 
-In the [wishlist](02-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](08-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
+In the [wishlist](02-the-wishlist.md), a hex viewer showed us a replay's bot labels, scraps of the map and nothing else. Now that the [sampler](08-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 
 ## The file format
 
@@ -15,7 +15,7 @@ A replay is a [Cap'n Proto](https://capnproto.org/encoding.html) message. Cap'n 
 | `03 28 04` | `00000011` | `28 04 00 00 00 00 00 00` | The last is 1,064 words long |
 | `50 02 05` | `01010000` | `00 00 00 00 02 00 05 00` | The root struct: two words of plain values, then five pointers |
 
-Those five pointers are the map text, the two bot names, the list of events and the result. Replays downloaded from the site are also gzipped, so they start with `1f 8b` instead.
+Those five pointers are the map text, the two bot labels, the list of events and the result. Replays downloaded from the site are also gzipped, so they start with `1f 8b` instead.
 
 ## The schema
 
@@ -74,7 +74,7 @@ Each tag byte says which of the next word's eight bytes are stored, a tag of zer
 
 ![A terminal running just decode on a public replay: team A vs team B on a 63×27 map, format 2, team B wins after 221 rounds. It holds 11,168 turnStart and dragonAction events, 9,933 dragonUpdate, 3,839 tileChange, 664 dragonSplit, 614 dragonDeath and 221 roundStart events.](images/replay-decode.png)
 
-Public replays leave the bot names blank, so the decoder calls the players team A and team B. The game is all there: 221 rounds, 11,168 dragon turns, 664 splits and 614 deaths.
+Public replays leave the bot labels blank, so the decoder calls the players team A and team B. The game is all there: 221 rounds, 11,168 dragon turns, 664 splits and 614 deaths.
 
 ## Rebuilding the game
 
@@ -113,7 +113,7 @@ for dy in -3 .. 3:
 
 The [observations](../gamedata/observations.nim) that the viewer's recovery feeds back to a bot are built from these cells, exactly as the engine wrote them to it.
 
-There is one gap in site replays downloaded since 27 September: they no longer record pearl countdown events, and every tile's minimum and maximum spawn gaps are zero. The bot still received the live countdown in its window. [Pearls from the seed](10-pearls-from-the-seed.md) shows how the match seed and the engine's pearl generator constrain those hidden timings, including the variants the site serves under familiar map names. A replay that no candidate explains stays unresolved.
+There is one gap in site replays downloaded since 27 September: they no longer record pearl countdown events, and every tile's minimum and maximum spawn gaps are zero. The bot still received the live countdown in its window. [Pearls from the seed](10-pearls-from-the-seed.md) shows how the match seed and the engine's pearl generator constrain those hidden timings, including the variants the site serves under familiar map labels. A replay that no candidate explains stays unresolved.
 
 Here is round 238 of another public game, on a 32×32 map, from a three-segment dragon in the middle of it:
 
