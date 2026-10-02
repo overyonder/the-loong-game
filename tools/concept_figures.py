@@ -1102,7 +1102,127 @@ def engine_throughput():
     return svg(760, 267, "GPU engine throughput and its design target", parts)
 
 
+def tour_team():
+    roles = [
+        ("Champion", ["grow and survive", "the longest-body finish"]),
+        ("Understudy", ["grow elsewhere", "late-game second body"]),
+        ("Vanguard", ["watch near the head", "guard and report ground"]),
+        ("Rearguard", ["follow the tail", "report what lies behind"]),
+        ("Assassin", ["stalk the enemy champion", "save the trade for it"]),
+        ("Scouts", ["reveal unknown sectors", "risk shorter bodies"]),
+        ("Harvesters", ["collect food and expand", "everyone else"]),
+    ]
+    parts = [text(20, 30, "Roles in textbook-main-0026 · original rules", 20, INK, weight="bold")]
+    for index, (title, lines) in enumerate(roles):
+        x, y = 20 + index % 2 * 370, 52 + index // 2 * 135
+        parts.append(card(x, y, 350, 115, title, lines, dark=index == 0,
+                          title_size=21, body_size=18, line_height=22))
+    parts += [text(390, 512, "Roles change as team needs", 19, MUTED),
+              text(390, 540, "and each dragon's picture change.", 19, MUTED)]
+    return svg(760, 595, "The seven assigned roles of the historical planning bot", parts)
+
+
+def tour_loop():
+    stages = [
+        (20, 55, "Read the turn", ["window, inbox, echoes"]),
+        (400, 55, "Memory → belief", ["facts → hidden-state estimates"]),
+        (400, 205, "Assign a role", ["from this dragon's team picture"]),
+        (20, 205, "Choose a task", ["behaviour + target + score"]),
+        (20, 355, "Reactive phases", ["interrupts before the task"]),
+        (400, 355, "Movement", ["legal, safety, then utility"]),
+        (400, 505, "Action or fallback", ["move, sprint or split"]),
+        (20, 505, "Radio", ["urgent and ambient records"]),
+    ]
+    parts = [text(20, 30, "Implemented flow · no student hook in the flagship", 20, INK, weight="bold")]
+    for x, y, title, lines in stages:
+        parts.append(card(x, y, 340, 110, title, lines, dark=title == "Choose a task",
+                          title_size=21, body_size=18))
+    for points in [
+        [(360, 110), (398, 110)], [(570, 165), (570, 203)],
+        [(400, 260), (362, 260)], [(190, 315), (190, 353)],
+        [(360, 410), (398, 410)], [(570, 465), (570, 503)],
+        [(400, 560), (362, 560)],
+    ]:
+        parts.append(arrow(points))
+    parts += [arrow([(105, 465), (105, 490), (400, 490), (400, 515)], SIGNAL),
+              text(115, 486, "direct splits / deliberate deaths", 16, SIGNAL),
+              arrow([(190, 615), (190, 670), (570, 670), (570, 730)], dashed=True),
+              text(280, 657, "heard at another dragon's next turn", 17, MUTED),
+              card(400, 732, 340, 90, "Its own memory and belief", ["no shared omniscient store"],
+                   title_size=20, body_size=17)]
+    return svg(760, 845, "One turn through the frozen pre-Queen planning bot", parts)
+
+
+def tour_tasks():
+    parts = [text(20, 30, "Historical task selection and reactive execution", 20, INK, weight="bold"),
+             card(20, 55, 340, 125, "The role permits behaviours", ["targets and eligibility", "each behaviour's own score"],
+                  title_size=20, body_size=18, line_height=22),
+             card(400, 55, 340, 125, "Choose a pair", ["role weight × score", "switching margin: 2"],
+                  dark=True, title_size=21, body_size=18, line_height=22),
+             arrow([(360, 117), (398, 117)]),
+             arrow([(570, 180), (570, 202), (190, 202), (190, 223)]),
+             card(20, 225, 340, 155, "Interrupts, first refusal", ["1  Give way", "2  Rescue split", "3  Evade"],
+                  title_size=20, body_size=18, line_height=22),
+             card(400, 225, 340, 155, "Then the task's phases", ["coil: escape, leave,", "follow, approach", "first eligible child that acts"],
+                  title_size=20, body_size=18, line_height=22),
+             arrow([(360, 300), (398, 300)]), text(370, 284, "none", 15, MUTED, "middle"),
+             arrow([(570, 380), (570, 423)]),
+             card(400, 425, 340, 110, "An action", ["or try the next task candidate"],
+                  title_size=21, body_size=18),
+             text(20, 465, "No explicit transition graph.", 18, MUTED),
+             text(20, 495, "Order is rechecked each turn.", 18, MUTED)]
+    return svg(760, 560, "A role gates task choice; interrupts preempt reactive phases", parts)
+
+
+def tour_search():
+    parts = [text(20, 30, "Inside movement.chooseMove · original-rule model", 20, INK, weight="bold")]
+    for index, (title, lines) in enumerate([
+        ("1  Legal single steps", ["known passable edges; bodies and claims"]),
+        ("2  Hard safety classes", ["exits, threats, cycles, room and survival"]),
+        ("3  Task utility within the best class", ["target, food field, soft costs and sprint cost"]),
+    ]):
+        y = 55 + index * 145
+        parts.append(card(20, y, 720, 110, title, lines, dark=index == 1,
+                          title_size=22, body_size=19))
+        if index < 2:
+            parts.append(arrow([(380, y + 110), (380, y + 143)]))
+    parts += [card(20, 500, 340, 135, "Bounded survival and sprints", ["depth ≤ 24; 512 expansions", "beam ≤ 64; up to 3 steps"],
+                   title_size=19, body_size=17, line_height=23),
+              card(400, 500, 340, 135, "Nearby head duel", ["4 plies; 8,192 expansions", "whole opponent body visible"],
+                   title_size=21, body_size=17, line_height=23),
+              text(20, 678, "Other bodies frozen; splits and deaths are not searched here.", 19, MUTED)]
+    return svg(760, 710, "Safety ranking and bounded searches in the historical movement layer", parts)
+
+
+def tour_integration():
+    parts = [text(20, 30, "Two different builds · the experiment is not the flagship", 20, INK, weight="bold"),
+             card(20, 55, 340, 125, "Frozen planning bot", ["textbook-main-0026", "student hook unset"],
+                  dark=True, title_size=21, body_size=18, line_height=22),
+             card(400, 55, 340, 125, "Student-mover test", ["textbook-test-0091", "student hook enabled"],
+                  title_size=21, body_size=18, line_height=22),
+             arrow([(190, 180), (190, 213)]), arrow([(570, 180), (570, 213)]),
+             card(20, 215, 340, 125, "Classical task and phases", ["call the movement planner", "safety classes → utility"],
+                  title_size=20, body_size=18, line_height=22),
+             card(400, 215, 340, 155, "Student runs first", ["own encoding and memory", "no planning sonar or task input", "reserve 40M points"],
+                  title_size=21, body_size=17, line_height=23),
+             arrow([(190, 340), (190, 423)]), arrow([(570, 370), (570, 423)]),
+             card(20, 425, 340, 110, "Planner's move or sprint", ["splits and deaths from tasks"],
+                  title_size=20, body_size=18),
+             card(400, 425, 340, 135, "Substitute student movement", ["no classical safety ranking", "tasks still own splits / deaths"],
+                  title_size=18, body_size=17, line_height=23),
+             f'<rect x="20" y="610" width="720" height="120" rx="8" fill="none" stroke="{MUTED}" stroke-width="1.6" stroke-dasharray="6 5"/>',
+             text(35, 641, "Unfinished: a cooperating hybrid", 22, INK, weight="bold"),
+             text(35, 675, "Task-conditioned learning or learned evaluation inside search.", 19, MUTED),
+             text(35, 705, "Neither was used by the frozen flagship.", 19, MUTED)]
+    return svg(760, 755, "What the historical student-mover experiment connected, and what it did not", parts)
+
+
 FIGURES = {
+    "tour-team": tour_team,
+    "tour-loop": tour_loop,
+    "tour-tasks": tour_tasks,
+    "tour-search": tour_search,
+    "tour-integration": tour_integration,
     "engine-two-targets": engine_two_targets,
     "engine-body-links": engine_body_links,
     "engine-batched-decisions": engine_batched_decisions,

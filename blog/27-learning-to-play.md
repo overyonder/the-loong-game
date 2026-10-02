@@ -174,3 +174,5 @@ Some papers were useful because they marked a path we should not take for this r
 | Teh et al., [Distral](https://arxiv.org/abs/1707.04175) (2017) | Distral trains several task policies around a shared distilled policy. We need one general submission and had time for one main teacher. Short specialist fine-tunes can still feed the same student without maintaining a permanent policy per map family. |
 
 The rejected approaches can become sensible under different constraints. More disconnected GPUs would make DiLoCo attractive. An expert that can label arbitrary states would reopen DAgger. A stable family of specialists would give Distral a real set of tasks. For this run, each extra mechanism had to improve the one teacher, one student and one submitted bot we could finish before the cutoff.
+
+Next: [A tour of our bot](28-a-tour-of-our-bot.md), the historical planning design and its unfinished student-mover integration.

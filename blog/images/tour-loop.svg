@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 845" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">One turn through the frozen pre-Queen planning bot</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="760" height="845" fill="#ede5d5"/>
+<text x="20" y="30" font-size="20" fill="#20251f" text-anchor="start" font-weight="bold">Implemented flow · no student hook in the flagship</text>
+<rect x="20" y="55" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="80" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Read the turn</text><text x="34" y="115" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">window, inbox, echoes</text>
+<rect x="400" y="55" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="414" y="80" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Memory → belief</text><text x="414" y="115" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">facts → hidden-state estimates</text>
+<rect x="400" y="205" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="414" y="230" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Assign a role</text><text x="414" y="265" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">from this dragon&#x27;s team picture</text>
+<rect x="20" y="205" width="340" height="110" rx="8" fill="#263d31" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="230" font-size="21" fill="#ede5d5" text-anchor="start" font-weight="bold">Choose a task</text><text x="34" y="265" font-size="18" fill="#d9d2c3" text-anchor="start" font-weight="normal">behaviour + target + score</text>
+<rect x="20" y="355" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="380" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Reactive phases</text><text x="34" y="415" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">interrupts before the task</text>
+<rect x="400" y="355" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="414" y="380" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Movement</text><text x="414" y="415" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">legal, safety, then utility</text>
+<rect x="400" y="505" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="414" y="530" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Action or fallback</text><text x="414" y="565" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">move, sprint or split</text>
+<rect x="20" y="505" width="340" height="110" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="530" font-size="21" fill="#20251f" text-anchor="start" font-weight="bold">Radio</text><text x="34" y="565" font-size="18" fill="#66675e" text-anchor="start" font-weight="normal">urgent and ambient records</text>
+<path d="M360 110 L398 110" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M570 165 L570 203" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M400 260 L362 260" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M190 315 L190 353" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M360 410 L398 410" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M570 465 L570 503" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M400 560 L362 560" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M105 465 L105 490 L400 490 L400 515" fill="none" stroke="#b53b13" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#s)"/>
+<text x="115" y="486" font-size="16" fill="#b53b13" text-anchor="start" font-weight="normal">direct splits / deliberate deaths</text>
+<path d="M190 615 L190 670 L570 670 L570 730" fill="none" stroke="#66675e" stroke-width="1.8" stroke-dasharray="6 5" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="280" y="657" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">heard at another dragon&#x27;s next turn</text>
+<rect x="400" y="732" width="340" height="90" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="414" y="757" font-size="20" fill="#20251f" text-anchor="start" font-weight="bold">Its own memory and belief</text><text x="414" y="778" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">no shared omniscient store</text>
+</svg>

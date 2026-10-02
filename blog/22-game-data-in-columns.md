@@ -128,4 +128,4 @@ These records have different meanings, but opening any of them starts with the s
 
 ## Next up
 
-That's the last of the performance posts for now. The final stage starts with [how we played the ladder](24-playing-the-ladder.md) and [what we learned by modelling other teams](25-modelling-other-teams.md). Then it opens the bot itself in two parts: [the planning design](26-planning-to-play.md) and [the learned design](27-learning-to-play.md). The combined holdout follows after the Grand Final.
+That's the last of the performance posts for now. Behind the bot starts with [how we played the ladder](24-playing-the-ladder.md) and [what we learned by modelling other teams](25-modelling-other-teams.md). Then it opens the bot itself in two parts: [the planning design](26-planning-to-play.md) and [the learned design](27-learning-to-play.md). [A tour of our bot](28-a-tour-of-our-bot.md) brings the pre-rewrite design together, including the integration we hadn't finished.

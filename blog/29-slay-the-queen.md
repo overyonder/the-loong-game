@@ -6,6 +6,4 @@ Movement changed too. A dragon now gets `ceil(length / 4)` free steps instead of
 
 > The strategy and training described earlier in this series were developed under the previous rules. Those results belong to that version of the game.
 
-I'm revisiting the designs in [Planning to play](26-planning-to-play.md) and [Learning to play](27-learning-to-play.md) as we adapt to the new rules. Some of the work discussed earlier may need reworking, and the combined bot in the planned tour is still in progress.
-
-<!-- namecard -->
+I'm revisiting the designs in [Planning to play](26-planning-to-play.md) and [Learning to play](27-learning-to-play.md) as we adapt to the new rules. [A tour of our bot](28-a-tour-of-our-bot.md) records the pre-Queen design and its unfinished integration. The new version in development uses a different architecture.

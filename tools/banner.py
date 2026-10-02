@@ -6,6 +6,7 @@
     python3 tools/banner.py pearls blog/images/banner-pearls-from-the-seed.svg
     python3 tools/banner.py lines blog/images/banner-three-lines.svg
     python3 tools/banner.py gpu blog/images/banner-an-engine-on-the-gpu.svg
+    python3 tools/banner.py tour blog/images/banner-a-tour-of-our-bot.svg
 
 They use the map banners' board: a 24-pixel grid, kelp in green, pearls in yellow, our dragons
 in orange and the enemy's in white. The sonar banner adds dashed rays, and the machine banner
@@ -253,9 +254,33 @@ def gpu():
     return parts
 
 
+def tour():
+    """A champion's coil, head and tail guards, with rays between their local views."""
+    rng = random.Random(28)
+    parts = board()
+    walls = [kelp_room(19, 10, 22, 20, "east"), kelp_room(5, 5, 8, 10, "south"),
+             kelp_room(46, 23, 8, 10, "west")]
+    parts.append(f'<path d="{"".join(walls)}" stroke="{KELP}" stroke-width="3" fill="none"/>')
+    champion = [(column, 13) for column in range(25, 38)]
+    champion += [(37, row) for row in range(14, 27)]
+    champion += [(column, 26) for column in range(36, 22, -1)]
+    champion += [(23, row) for row in range(25, 16, -1)]
+    blocked = set(champion)
+    parts.append(dragon(champion, OURS))
+    for start, length, colour in [((17, 13), 6, OURS), ((23, 32), 5, OURS),
+                                  ((45, 14), 8, THEIRS), ((8, 28), 6, OURS)]:
+        parts.append(dragon(walk(rng, start, length, blocked), colour))
+    for start, end in [((17, 13), (25, 13)), ((23, 32), (23, 17))]:
+        x0, y0 = centre(*start)
+        x1, y1 = centre(*end)
+        parts.append(f'<path d="M{x0} {y0}L{x1} {y1}" stroke="{PEARL}" stroke-width="2" stroke-dasharray="5 7" opacity=".6"/>')
+    parts += pearls(rng, 55, blocked)
+    return parts
+
+
 def main():
     parts = {"sonar": sonar, "machine": machine, "cloud": cloud,
-             "pearls": pearl_seed, "lines": three_lines, "gpu": gpu}[sys.argv[1]]()
+             "pearls": pearl_seed, "lines": three_lines, "gpu": gpu, "tour": tour}[sys.argv[1]]()
     parts.append("</svg>")
     with open(sys.argv[2], "w") as output:
         output.write("\n".join(parts) + "\n")

@@ -32,9 +32,10 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 25 | [Modelling other teams](25-modelling-other-teams.md) | Behind the bot | What research on modelling other agents offers a public ladder, and what we did: a census of techniques, imitation, sonar decoding and determinism. |
 | 26 | [Planning to play](26-planning-to-play.md) | Behind the bot | The planning line: its world model, sonar, roles, utility selection, twenty behaviours, state machines and tactical search. |
 | 27 | [Learning to play](27-learning-to-play.md) | Behind the bot | The learned line: a large teacher trained by self-play, a league of past selves, and distillation into an integer student that fits the judge. |
+| 28 | [A tour of our bot](28-a-tour-of-our-bot.md) | Behind the bot | The pre-Queen bot: its memory, sonar, roles and bounded planning, plus the unfinished experiment that put a learned student in charge of movement. |
 | 29 | [Slay the Queen](29-slay-the-queen.md) | Slay the Queen | The competition changes to Slay the Queen after the Sprint, so earlier planning and learning designs are being revisited under the new rules. |
 
-Next up: a tour of our bot.
+Still planned: The whole bot in Rake, The Jev bot and The poker bot.
 
 ## Stages
 

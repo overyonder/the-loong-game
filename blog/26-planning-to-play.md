@@ -138,4 +138,4 @@ Each layer is a simpler version of its textbook form:
 - There's no shared team picture. Each dragon assigns roles from what it believes, and the radio keeps those beliefs close.
 - The filters are approximate: at most 300 states a dragon and 3,000 in all, and echoes correct geometry but not where dragons are.
 
-This is the planning half of the final bot. [Learning to play](27-learning-to-play.md) follows the learned line from its teacher and critic to the small student that fits inside the judge. *A tour of our bot* will return after the Grand Final as Post 28, once the holdout that combines the two is finished.
+This was the planning line before the rules changed. [Learning to play](27-learning-to-play.md) follows the teacher, student and training. [A tour of our bot](28-a-tour-of-our-bot.md) brings the later frozen planning version and its student-mover experiment together, including what remained unfinished when the Queen rewrite began.

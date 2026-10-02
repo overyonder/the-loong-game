@@ -114,5 +114,3 @@ The GPU engine gives us the environment for that loop. The judge remains where w
 ## Next up
 
 [Games in the cloud](21-games-in-the-cloud.md): running big batches of games on AWS Spot workers, and how every run ends on its own.
-
-<!-- namecard -->
