@@ -2,9 +2,13 @@
 
 The planning bot in the previous article makes its choices from rules and scores we wrote. Our learned bot gets the same incomplete view of the game, but learns those choices from games. We train a large network where compute is cheap, then teach a smaller one that can live inside the competition judge's 100-million-point turn budget.
 
-> **Training note, 2 October 2026.** This is the design we are running now. Training and evaluation are still in progress, so the measurements and the final submitted bot may change.
+> **Training note, 2 October 2026.** This is the design we are running now, across a 16 GB workstation card and a four-H100 rental. Training and evaluation are still in progress, so the measurements and the final submitted bot may change.
 
-The two networks have different jobs, so a short glossary helps before the machinery.
+The two networks have different jobs. Here are the names used in the diagrams.
+
+## A short glossary
+
+### Networks
 
 | Term | Meaning here |
 | --- | --- |
@@ -13,11 +17,21 @@ The two networks have different jobs, so a short glossary helps before the machi
 | **Actor or policy** | The part of a network that turns one dragon's observation and memory into probabilities for its next action. |
 | **Critic** | A training-only network that estimates how a position will turn out. Ours may see the true board, but the actor and submitted student never can. |
 | **Part** | One component of an action: its kind, a move direction, a split size, or one step of a sprint. The policy scores the relevant parts and packs them into one action. |
+
+### Training
+
+| Term | Meaning here |
+| --- | --- |
 | **Sample** | One dragon's observation, memory, chosen action, probability, reward and training targets at one turn. |
 | **Rollout** | The samples collected while many games advance under fixed policy weights. |
 | **Batch and minibatch** | A batch is the rollout used for one update. Training divides it into minibatches that fit the GPU. |
 | **Epoch** | One pass over that rollout's training sequences. We make two passes before collecting fresh games. |
 | **Update** | One rollout followed by its optimisation epochs. Checkpoint intervals are counted in updates. |
+
+### Saved state
+
+| Term | Meaning here |
+| --- | --- |
 | **Checkpoint** | A resumable file containing weights, AdamW state, update number, settings and the level-replay state. `latest.pt` is replaced atomically. |
 | **Snapshot** | An immutable copy used as a league opponent or a student candidate. It does not carry the optimiser state needed to resume training. |
 | **League** | The pool of past teachers, exploiters and learned imitations that supplies opponents. |
@@ -29,27 +43,55 @@ The two networks have different jobs, so a short glossary helps before the machi
 
 ![The reinforcement-learning pipeline. A pool of 4,096 generated maps feeds a GPU engine, which resets thousands of games onto maps selected by prioritised level replay. A league of past teacher snapshots, exploiters and mimics supplies opponents. Recorded ladder-bot turns supply demonstrations. The 44-million-weight teacher contains a residual spatial trunk, mixture-of-experts layers, a GRU, action heads and a privileged critic. Atomic teacher checkpoints feed an on-policy student sidecar. The student uses integer convolutions, one routed expert pair, n-tuple tables, a GRU and quantisation-aware training, then exports into a Nim and Rake WebAssembly bot. Beneath the pipeline, the figure lists all 43 papers reviewed for the design, keyed to the components they informed.](images/rl-pipeline.svg)
 
-The game engine is the base of the system. We ported the organisers' C++ engine to fixed arrays and CUDA, then ran it in lockstep against the 1.2.2 engine. Across 100,000 games, every turn block agreed on all 126,645,678 dragon-turns. With 2,048 games resident on the card, it advances about 761,000 dragon-turns a second. The observations, actions and rewards therefore stay on the GPU instead of crossing a process boundary for every dragon.
+The engine is the base of the system. We ported the organisers' C++ engine to fixed arrays and CUDA, then ran it in lockstep against the 1.2.2 engine. Across 100,000 games, every turn block agreed on all 126,645,678 dragon-turns.
 
-The engine runs lanes of independent games. When one ends, the trainer chooses a map, draws a new 62-bit seed and resets that lane immediately. The maps come from a pool of 4,096 generated files, plus our generated and community sets. Our map generator varies size, symmetry, kelp, portals, pearl gaps and starting bodies. It covers maps below the documented minimum as well as 64 by 64 boards, because the ladder has already served both surprises.
+With 2,048 games resident on one card, the port advances about 761,000 dragon-turns a second. Observations, actions and rewards stay on the GPU instead of crossing a process boundary for every dragon.
+
+### Maps that keep moving
+
+The engine runs lanes of independent games. When one ends, the trainer chooses a map, draws a new 62-bit seed and resets that lane immediately. The core pool has 4,096 generated files, with more generated and community maps beside it. Size, symmetry, kelp, portals, pearl gaps and starting bodies all vary.
 
 The pool is generated before a training process starts. What changes dynamically is which map each lane receives. [Prioritized Level Replay](https://arxiv.org/abs/2010.03934) records the positive advantage left in the last game on each map, gives unseen maps half of new starts, and otherwise mixes difficult maps with ones that have gone longest without play. A newly generated pool is picked up when a run restarts. The official and ladder maps never enter this pool. They are held out for evaluation, so a student has to generalise before it can pass its gate.
+
+## The machines
+
+![The training machines and orchestration. A local AM4 workstation with a Ryzen 7 5800X3D, 32 GB DDR4 and a 16 GB RTX 5070 Ti connects both to a private S3 object store and, through a rental connector, to a Vast.ai host. The rental has two Xeon Gold 6448Y processors, 64 physical cores, 128 threads, 1 TB RAM and four H100 GPUs. Three GPUs train the teacher while one distils the student. The scripts pack inputs, connect and start jobs, run teacher, student and CPU demonstration workers, save atomic checkpoints and immutable snapshots, and pull durable copies every fifteen minutes and before shutdown. Credentials, addresses, account details and identifiers are absent.](images/rl-compute-topology.svg)
+
+The workstation is where a run begins and ends. It builds the judge and source bundle, prepares maps and demonstrations, starts the rental jobs, checks the exported student, and keeps the durable copy. Its RTX 5070 Ti can continue either network after the rental ends, although the 16 GB card must alternate between them.
+
+The four-H100 host was deliberately disposable. Three cards ran the teacher with local SGD; the fourth ran the student. Its 64 CPU cores generated and encoded more demonstrations while the GPUs trained.
+
+### Two transfer paths
+
+Our scripts used a control path and a bulk-data path. The rental connector carried commands, small tar streams, checkpoints and logs. A private S3 object store held larger fleet archives. The rental fetched those through short-lived signed links, so it never needed a permanent cloud credential.
+
+The launch scripts pinned each job to a GPU and the matching half of a NUMA node. `teacher.sh` resumed the trainer, `student.sh` watched for a complete teacher checkpoint, and `demos.sh` used otherwise idle CPU cores to play and encode new games. `judge.sh` packed the locally built judge and streamed it to the host.
+
+Every fifteen minutes, the pull job copied `latest.pt`, immutable snapshots, logs and evaluation results back to the workstation. The same pull ran before the rental's deadline. A failed rental could therefore lose part of one update, but not the run.
 
 ## The teacher
 
 One policy controls every dragon. Its observation is egocentric: a 15 by 15 crop of the remembered map, a coarse overview of the whole remembered map, scalar facts and up to eight sonar messages. The crop is rotated so forward is always up and is mirrored at random during training. That removes two symmetries the network would otherwise have to relearn.
 
-Eight residual convolution blocks process the crop. FiLM conditions every block on the scalar state. The overview joins after its own convolutions, two top-two-of-sixteen mixture-of-experts layers add capacity without using every expert on every turn, and a set encoder pools the sonar messages. A 512-unit GRU carries each dragon's memory. Every reader takes a layer-normalised copy of that memory. Without the normalisation, the update gate saturated, memory stopped responding to the view and the network learnt little beyond its commonest action.
+### Seeing and remembering
+
+Eight residual blocks process the crop, with FiLM injecting the scalar state into each one. Separate convolutions read the overview. A set encoder pools sonar, and two top-two-of-sixteen expert layers add capacity without running every expert on every turn.
+
+A 512-unit GRU carries each dragon's memory. Every reader takes a layer-normalised copy. Without that normalisation, the update gate saturated and the network learnt little beyond its commonest action.
+
+### Choosing an action
 
 The action is a tree rather than one enormous categorical choice. One head chooses move, sprint or split. Further heads choose a move's relative direction or a split size. A sprint uses a recurrent decoder for two to eight steps, with each direction conditioned on the steps before it. Illegal split sizes and unaffordable sprint steps are masked. Nothing else is forbidden, because deliberately dying can be the correct move.
 
 The policy also chooses a role at birth and every fixed role interval, then holds it between choices. A claim head selects a nearby cell or no claim and sends that choice in the status packet. This is the small part we took from hierarchical reinforcement learning: roles give temporal commitment, while actions remain free to react on every turn.
 
-## The critic and reward
+## Critic and reward
 
 The critic answers a different question from the policy: given the position, how much return should we expect? During training it sees the true board, every dragon and every pearl countdown. It encodes that board once per team per round, then reads out a value for each acting dragon. This is centralised training with decentralised execution in the style of MAPPO and asymmetric actor-critic. The actor still receives only information a submitted dragon could have.
 
-The terminal reward is the game result. Potential-based shaping adds 0.02 for each segment of longest-dragon lead and 0.01 for each segment of total-length lead, scaled by the current shaping setting. Because the shaping is a difference of potentials, it supplies a denser learning signal without changing which terminal policy is optimal. PPO clips each policy update, Generalized Advantage Estimation carries delayed results back through the rollout, and AdamW applies the gradients. Prediction heads also ask the memory to reconstruct hidden cells, enemy heads three rounds ahead and the dragon's own future length.
+The terminal reward is the game result. Potential-based shaping adds 0.02 for each segment of longest-dragon lead and 0.01 for each segment of total-length lead, scaled by the current shaping setting. As a difference of potentials, it makes the signal denser without changing which terminal policy is optimal.
+
+PPO clips each update, Generalized Advantage Estimation carries delayed results back through the rollout, and AdamW applies the gradients. Auxiliary heads ask the memory to reconstruct hidden cells, enemy heads three rounds ahead and the dragon's own future length.
 
 Opponent models are not alternative critics. A critic estimates our expected return. A learned imitation of another ladder bot changes the opponent and therefore the situations our policy must survive. Keeping those two jobs separate stops an opponent-specific value estimate from becoming the definition of success.
 
@@ -57,7 +99,11 @@ Opponent models are not alternative critics. A critic estimates our expected ret
 
 The league contains frozen teacher snapshots from this run and other runs, including exploiters. Prioritised fictitious self-play weights an opponent by the square of one minus our smoothed win rate, so policies that still beat us appear more often. Self-play remains the default, with a fixed reference policy taking a smaller share so the run cannot silently forget its starting competence.
 
+### Demonstrations as they arrive
+
 Public ladder games enter by another route. We replay a foil or imitation policy, record every decision, and encode each dragon's life into compressed recurrent chunks. The trainer memory-maps those chunks and applies the DAPG demonstration loss beside PPO. An encoder can keep following a directory while games arrive, and training rescans it every few updates, so new games join without restarting the teacher.
+
+### Compiled opponents
 
 A mimic can also become a league opponent when it has a compatible checkpoint. A WASM bot cannot execute inside the CUDA engine, so our compiled planning bots play through the judge's served-team mode instead: the official engine and the WASM opponent run on the CPU, while a GPU server batches the teacher's replies. Those games are used for evaluation, and they can be introduced occasionally when an evaluation exposes a weakness. This gives the teacher changing opponents without training it on held-out ladder maps.
 
@@ -65,9 +111,11 @@ A mimic can also become a league opponent when it has a compatible checkpoint. A
 
 ![Teacher and student execution. On separate GPUs, the teacher trains continuously while the student repeatedly copies the teacher's latest atomic checkpoint and distils for fifteen minutes. On a single 16 GB card, the same jobs alternate in forty-five-minute and fifteen-minute turns. The teacher writes latest.pt every five updates in the live setup, a league snapshot every twenty-five updates by default, and saves again at normal exit or SIGTERM. Each student round keeps an immutable round-HHMM.pt for evaluation. Every dragon-turn remains in the active rollout, but a model file is not written after every dragon-turn.](images/rl-sidecar.svg)
 
-On a rental with several cards, the teacher and student run at the same time. The teacher writes `latest.pt` beside the live file and renames it into place, so the student can never open a half-written checkpoint. Our live multi-GPU command saves it every five teacher updates. It also saves at the end and when SIGTERM stops a rental. Separate league snapshots are written every 25 updates by default.
+The teacher writes `latest.pt` beside the live file and renames it into place, so the student can never open a half-written checkpoint. Our live command saves every five teacher updates, at normal exit, and when SIGTERM stops a rental. Separate league snapshots are written every 25 updates by default.
 
 The student sidecar copies the newest complete teacher checkpoint at the start of each 15-minute round, resumes its own optimiser, and plays new games under its own policy. The teacher labels the action distributions on those positions. Each round ends quantisation-aware and is copied to an immutable `round-HHMM.pt`, which is what the fleet evaluates.
+
+### One smaller card
 
 On the workstation's 16 GB card, both networks do not fit at once. The same protocol alternates: 45 minutes of resumable teacher training, then 15 minutes of resumable student training. Stopping the wrapper sends SIGTERM to the current child, and the teacher saves the last completed update before exiting.
 
@@ -81,7 +129,11 @@ The submitted bot cannot carry the teacher. The ZIP is capped at 4 MB, each drag
 
 The student trains on-policy. It plays the states its own imperfect policy reaches and asks the teacher what distribution it should have produced there. This avoids the familiar failure where a student looks good on teacher states, makes one different move in a real game, and then has no training for everything that follows.
 
+### Integer arithmetic
+
 During the final third of each distillation round, training fakes the exact arithmetic used by the bot. Convolution weights are signed 8-bit values, activations are 16-bit, sums are exact 32-bit integers and each layer requantises with its recorded scale. Later dense layers and the GRU use 8-bit weights with one scale per row. The bot embeds about 1 MB of weights and performs about 8 million multiply-adds on a turn.
+
+### Export gate
 
 Export checks the student twice. PyTorch's integer path must choose the same action as the quantised student. Then the judge replays those turn blocks through the WebAssembly bot in inspection mode. Its observation tensor, remembered map, action and fixed status sonar must agree on every turn, and the judge measures its p99 point cost. Only after those checks does a student play verdicts against the foil and the latest reviewed planning bot.
 

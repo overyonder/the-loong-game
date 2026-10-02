@@ -754,7 +754,59 @@ def gizmo_inspector():
     parts.append(text(700, 466, "outcome, joined on the recorded ping.", 12.5, MUTED))
     return svg(1010, 486, "Records the inspector lays out beside the board", parts)
 
+
+def rl_compute_topology():
+    """The machines and deliberately credential-free paths used by the RL run."""
+    parts = [
+        text(20, 30, "Where a training run lived", 17, INK, weight="bold"),
+        card(20, 50, 300, 144, "Local workstation", [
+            "AM4 · Ryzen 7 5800X3D",
+            "32 GB DDR4 · RTX 5070 Ti 16 GB",
+            "builds bundles and checks exports",
+            "keeps the durable copy of every run",
+        ], dark=True),
+        card(400, 50, 280, 144, "Private S3 object store", [
+            "large input and result archives",
+            "short-lived signed transfers",
+            "no cloud key on the rental",
+            "no public objects",
+        ], accent=GOLD),
+        card(760, 50, 320, 144, "Vast.ai rental", [
+            "2 × Xeon Gold 6448Y",
+            "64 cores / 128 threads · 1 TB RAM",
+            "4 × H100",
+            "3 cards teach · 1 card distils",
+        ], accent=SIGNAL),
+        arrow([(320, 98), (398, 98)]),
+        arrow([(680, 98), (758, 98)]),
+        text(360, 86, "archives", 11.5, MUTED, "middle"),
+        text(720, 86, "signed fetch", 11.5, MUTED, "middle"),
+        arrow([(320, 166), (365, 166), (365, 220), (715, 220), (715, 166), (758, 166)], dashed=True),
+        text(540, 214, "rental connector: commands, tar streams, checkpoints and logs", 11.5, SIGNAL, "middle"),
+        text(20, 264, "What the scripts did", 17, INK, weight="bold"),
+    ]
+    stages = [
+        ("1. Pack", ["source, judge, maps", "and demonstrations"]),
+        ("2. Connect", ["copy the bundle", "start pinned jobs"]),
+        ("3. Run", ["teacher + student", "CPU demo workers"]),
+        ("4. Save", ["atomic latest.pt", "immutable snapshots"]),
+        ("5. Recover", ["pull every 15 min", "and before shutdown"]),
+    ]
+    for index, (title, lines) in enumerate(stages):
+        x = 20 + index * 216
+        parts.append(card(x, 284, 194, 105, title, lines, dark=index == 2,
+                          accent=SIGNAL if index in (1, 4) else RULE))
+        if index:
+            parts.append(arrow([(x - 20, 336), (x - 2, 336)]))
+    parts += [
+        text(20, 426, "The rental is disposable. The checkpoints are not.", 14, INK, weight="bold"),
+        text(20, 450, "The connector carries control traffic; S3 carries bulky fleet archives through expiring links.", 13, MUTED),
+        text(20, 471, "Names, addresses, account details, credentials and instance identifiers are intentionally absent.", 13, MUTED),
+    ]
+    return svg(1100, 494, "The local workstation, private object store, Vast.ai rental and their orchestration", parts)
+
 FIGURES = {
+    "rl-compute-topology": rl_compute_topology,
     "viewer-recovery": viewer_recovery,
     "gizmo-board": gizmo_board,
     "gizmo-inspector": gizmo_inspector,
