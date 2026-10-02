@@ -93,7 +93,7 @@ The terminal reward is the game result. Potential-based shaping adds 0.02 for ea
 
 PPO clips each update, Generalized Advantage Estimation carries delayed results back through the rollout, and AdamW applies the gradients. Auxiliary heads ask the memory to reconstruct hidden cells, enemy heads three rounds ahead and the dragon's own future length.
 
-Opponent models are not alternative critics. A critic estimates our expected return. A learned imitation of another ladder bot changes the opponent and therefore the situations our policy must survive. Keeping those two jobs separate stops an opponent-specific value estimate from becoming the definition of success.
+Opponent models are not alternative critics. A critic estimates our expected return. A learned imitation of another ladder bot changes the opponent, so our policy needs to cope with a different set of situations. Keeping those two jobs separate stops an opponent-specific value estimate from becoming the definition of success.
 
 ## Ladder play without ladder-map training
 

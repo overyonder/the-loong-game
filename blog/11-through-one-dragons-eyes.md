@@ -148,7 +148,7 @@ Champion markings keep the belief and the replay's truth visible together. The e
 
 ![The Mental map overlay at round 178. The board the dragon has seen shows its remembered kelp in bright green, the parts it has never seen are black, and a few pearl cells are hatched red where its memory is wrong. Dots mark where it believes other dragons are, green where they are and red for two teammates it last heard of 2 and 11 rounds ago. The Sources tab shows the selected cell's memory: its edges, pearl and spawn round, each seen at round 176.](images/viewer-mental-map-positions.png)
 
-The strip under the board does this for the whole team at once. Each belief is a column. Its box says how many of the team's living dragons hold it without a single false fact, and what share of all their stated facts are right. Under the box are four measures of the team's knowledge, taken from the properties a consensus protocol must have (Lynch, *Distributed Algorithms*, 1996, chapters 5 and 6):
+The strip under the board does this for the whole team at once. Each belief is a column. Its box says how many of the team's living dragons hold it without a single false fact, and what share of all their stated facts are right. Under the box are four measures of the team's knowledge, taken from the requirements for a consensus protocol (Lynch, *Distributed Algorithms*, 1996, chapters 5 and 6):
 
 - **Connectivity** is how far each fact has spread: the share of the other dragons that state it too, as an update spreads between sites in the epidemic protocols of [Demers and colleagues](https://doi.org/10.1145/41840.41841) (1987).
 - **Agreement** is the share of pairs of dragons stating the same fact that don't contradict each other.
