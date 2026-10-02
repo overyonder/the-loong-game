@@ -1,6 +1,6 @@
 # Sonar
 
-> **Editor's note, 2 October 2026.** I've answered some of the original questions with a census of 800 public replays, including how many teams encrypted their messages and what our tested forgeries achieved.
+> **Editor's note, 2 October 2026.** Added the census of 800 public replays: how many teams encrypted their messages and what our tested forgeries achieved.
 
 Most Battlecode seasons are built around one unusual mechanic, and the strongest teams exploit it better than anyone else. In 2026 it's sonar. It's the only way dragons can talk, the only way they learn anything beyond their 7×7 window, and every message is as audible to the enemy as to a teammate.
 

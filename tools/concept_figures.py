@@ -38,13 +38,13 @@ from figure_palette import (
 
 def svg(width, height, title, parts):
     return "\n".join([
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}"'
-        f' font-family="{FONT}" role="img" aria-labelledby="t">',
+        (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}"'
+         f' font-family="{FONT}" role="img" aria-labelledby="t">'),
         f'<title id="t">{html.escape(title)}</title>',
-        f'<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
-        f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{MUTED}"/></marker>'
-        f'<marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
-        f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{SIGNAL}"/></marker></defs>',
+        (f'<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
+         f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{MUTED}"/></marker>'
+         f'<marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"'
+         f' orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{SIGNAL}"/></marker></defs>'),
         f'<rect width="{width}" height="{height}" fill="{PAPER}"/>',
         *parts, "</svg>", ""])
 
@@ -54,15 +54,15 @@ def text(x, y, value, size=14, fill=INK, anchor="start", weight="normal"):
             f' font-weight="{weight}">{html.escape(str(value))}</text>')
 
 
-def card(x, y, w, h, title, lines=(), dark=False, accent=RULE, centre=False):
+def card(x, y, w, h, title, lines=(), dark=False, accent=RULE, centre=False, title_size=15, body_size=12.5):
     """A rounded card: a bold title, which may run to two lines with \n, then body lines."""
     fill, title_fill, line_fill = (FOREST, PAPER, DARK_LINE) if dark else (CARD, INK, MUTED)
     tx, anchor = (x + w / 2, "middle") if centre else (x + 14, "start")
     titles = title.split("\n")
     parts = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{fill}" stroke="{accent}" stroke-width="1.6"/>']
-    parts += [text(tx, y + 25 + 19 * i, t, 15, title_fill, anchor, "bold") for i, t in enumerate(titles)]
+    parts += [text(tx, y + 25 + 19 * i, t, title_size, title_fill, anchor, "bold") for i, t in enumerate(titles)]
     top = y + 46 + 19 * (len(titles) - 1)
-    parts += [text(tx, top + 18 * index, line, 12.5, line_fill, anchor) for index, line in enumerate(lines)]
+    parts += [text(tx, top + 18 * index, line, body_size, line_fill, anchor) for index, line in enumerate(lines)]
     return "".join(parts)
 
 
@@ -398,7 +398,7 @@ def fleet_run():
         card(20, 44, 230, 92, "Buckets", ["run bundles and results,", "expired after 14 days,", "public access blocked"]),
         card(270, 44, 230, 92, "Fleet user", ["launches, tags and", "terminates tagged Spot", "workers, runs queues"]),
         card(20, 150, 480, 76, "Worker role", ["read the run's bundle, write results, lease jobs from its queue"]),
-        card(540, 44, 200, 92, "Launcher", ["packs workers into the", "vCPU allowance, checks", "quota and the $50 ledger"], dark=True),
+        card(540, 44, 200, 102, "Launcher", ["checks vCPUs and $75 cap,", "records the run's owner,", "starts its workers"], dark=True),
         card(780, 44, 210, 92, "One queue per run", ["one message per game,", "leased and acknowledged"]),
         card(540, 150, 450, 76, "Spot workers in Hyderabad and Mumbai", ["pull games as cores free up, upload each result, shut down at the deadline"]),
         arrow([(740, 90), (778, 90)]), arrow([(885, 136), (885, 148)]), arrow([(640, 136), (640, 148)]),
@@ -406,6 +406,24 @@ def fleet_run():
         text(20, 256, "A reaper on a system timer, outside every agent, terminates any worker past its deadline and costs runs whose launcher died.", 13, MUTED),
     ]
     return svg(1010, 272, "The fleet: standing resources and one run's pieces", parts)
+
+
+def fleet_result_links():
+    parts = [
+        text(20, 30, "Results go directly to the rented GPU", 20, INK, weight="bold"),
+        card(20, 55, 440, 100, "Launcher", ["holds AWS credentials,", "signs links to completed result archives"],
+             dark=True, title_size=20, body_size=17),
+        arrow([(240, 155), (240, 207)]),
+        text(258, 184, "links valid 12 hours", 17, MUTED),
+        card(20, 209, 440, 100, "Rented GPU", ["downloads each archive directly,", "holds no AWS credentials"], title_size=20, body_size=17),
+        arrow([(145, 309), (145, 377)], dashed=True),
+        text(163, 348, "GET", 17, MUTED),
+        arrow([(325, 379), (325, 311)], colour=SIGNAL),
+        text(343, 348, "archive", 17, SIGNAL),
+        card(20, 379, 440, 100, "Private bucket", ["serves the linked object,", "checks its signature and expiry"], title_size=20, body_size=17),
+        text(20, 516, "Each link reads one object. The bucket stays private.", 16, MUTED),
+    ]
+    return svg(480, 536, "Presigned links carry results from the bucket to a rented GPU", parts)
 
 
 def unseen_losses():
@@ -918,6 +936,7 @@ FIGURES = {
     "unseen-losses": unseen_losses,
     "map-supply": map_supply,
     "fleet-run": fleet_run,
+    "fleet-result-links": fleet_result_links,
     "sonar-position-message": sonar_position_message,
     "who-hears": who_hears,
     "echo-totals": echo_totals,

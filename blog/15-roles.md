@@ -1,6 +1,6 @@
 # Roles
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to show the roles bot as it's built now, from behaviour modules in a shared repertoire. I reran its tests with the sequential verdict and toolkit 1.2.2 on the new generated maps, recounted the replays, and dropped a chart that screened variants for keeping or dropping, since settings like the champion's berth are parameters to tune once the rest of the bot settles.
+> **Editor's note, 28 September 2026.** The roles bot is now assembled from behaviour modules. Its tests below use the sequential verdict, toolkit 1.2.2 and the new generated maps.
 
 The [first strategy bot](13-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500, and another is two segments long and not worth much alive. This post gives dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its own role.
 

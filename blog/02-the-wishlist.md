@@ -1,7 +1,5 @@
 # The wishlist
 
-> **Editor's note, 28 September 2026.** I've edited this post to be shorter, and to say what the statistics are for: telling how far a difference can be trusted, while the games themselves are where we find what to fix.
-
 Most of us start the same way: we run `unswbc init`, get a starter bot going, and immediately have a list of ideas for making it better. Before trying any of them, though, we need a way to tell whether a change actually helped. Otherwise we're just guessing, and a guess that feels like progress is worse than no change at all.
 
 So this post tries to answer that one question using only the official toolkit and its starter bots. Every time we get stuck, we'll write down the tool that would have got us unstuck. By the end, that list is the wishlist, and building it is the next stage of the series.

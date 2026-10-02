@@ -1,6 +1,6 @@
 # Three lines
 
-> **Editor's note, 2 October 2026.** I've rewritten this post to begin with how a bot is assembled. The distinction between a bot version, its pinned library pieces and the shared runtime has to be clear before the three development lines make sense.
+> **Editor's note, 2 October 2026.** Added the assembly of a bot from its numbered strategy, pinned library pieces and shared runtime.
 
 Before comparing our textbook, foil and learned bots, it helps to define what one bot actually is. The source tree is a catalogue, not an execution diagram. A numbered directory under `main/` holds one bot's assembly. The libraries hold pieces that assemblies may select. The runtime is the common boundary with the judge.
 

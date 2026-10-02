@@ -1,6 +1,6 @@
 # Reading a replay
 
-> **Editor's note, 29 September 2026.** I've rewritten this post to be shorter, to describe the released decoder, now in Nim with its own Cap'n Proto reader, and to quote the reconstruction the viewer now uses, also in Nim. I decoded a newly sampled replay and counted deaths from the rerun ladder.
+> **Editor's note, 29 September 2026.** The decoder is now written in Nim, with its own Cap'n Proto reader.
 
 In the [wishlist](02-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](08-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 

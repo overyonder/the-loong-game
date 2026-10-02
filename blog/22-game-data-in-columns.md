@@ -1,6 +1,6 @@
 # Game data in columns
 
-> **Editor's note, 29 September 2026.** The viewer and its recovery are now released in the public repository, so the code quoted here links to it. I've corrected how recovered decisions reach the viewer: they stream into memory rather than landing in a file.
+> **Editor's note, 2 October 2026.** Recovered decisions stream into the viewer's memory rather than landing in a file. The same columns format also holds the team's graded knowledge and the census's counts, detected events and short behaviour sequences.
 
 The [debug viewer](11-through-one-dragons-eyes.md) started life reading a JSON export of each game, and that was fine for short games. Then we opened a 500-round game, and the viewer sat there for over eight minutes, reaching 6 GB of memory, without ever drawing a frame. The export for a game that long was 552 MB, or 27 MB once we delta-encoded it, and all of it had to be parsed into objects before anything could be drawn.
 
@@ -99,7 +99,32 @@ Our converter, [gamedata/gamedata.nim](../gamedata/gamedata.nim), turns a replay
 
 The format isn't only for the viewer. Each game the harness plays also gets a small `result` file, one row per game and one per side, with how it ended and each side's economy: pearls eaten, splits, deaths by cause, peak points and how much of the map its heads covered. When a run ends, its games merge into one file of the same kind, table by table, with list starts and row indices shifted past the rows before them.
 
-New columns can appear without breaking anything, because readers look columns up by name and ignore the ones they don't know. Removing a column or changing its meaning raises the version that each kind records in its own `meta.version` column, so an old reader can refuse a file instead of misreading it. The whole format, both kinds included, is written up in [gamedata/format.md](../gamedata/format.md).
+New columns can appear without breaking anything, because readers look columns up by name and ignore the ones they don't know. Removing a column or changing its meaning raises the version that each kind records in its own `meta.version` column, so an old reader can refuse a file instead of misreading it. The container and the public tools' kinds are written up in [gamedata/format.md](../gamedata/format.md).
+
+## Team knowledge
+
+The viewer already [grades the team's beliefs](11-through-one-dragons-eyes.md) against what the replay says happened. To follow those beliefs over a whole game, its `--knowledge FILE` export writes a columns file of kind `knowledge`. Each row is one belief for one team at the end of one round, judged from the latest usable record of each living dragon we could rebuild. A dragon whose records are missing doesn't silently count as knowing nothing: the file keeps both the number alive and the number graded.
+
+![The viewer's Pearls belief for the showcase bot at round 178: the map marks agreement and disagreement, while the detail gives raw counts and the team's connectivity, agreement, coverage and validity.](images/viewer-belief-map.png)
+
+I keep the raw counts behind those percentages. `row.facts` and `row.correct` let a reader calculate how often the dragons' stated facts were right. `row.comparisons` and `row.conflicts` do the same for agreement between dragons, and separate columns record how much of the world they covered and how far their facts spread. A report can follow a belief through the game without reopening every dragon's diagnostics.
+
+## Census records
+
+The [census of other teams](25-modelling-other-teams.md) needs a different set of tables, so it uses kind `census`, now at version 2, in the same container. Each sampled game has a row, each of its sides has another, and named columns hold that side's counts and the opportunities it had. Counters can be added without changing the reader's layout. A counter absent for some games gets the same `?` companion as any other optional value.
+
+| Table | One row describes | Purpose |
+| --- | --- | --- |
+| `game` | A sampled replay | Its identity, map and measurement status |
+| `side` | One team in that game | Links the team's measurements to the replay |
+| `count` | A side's counters | Counts beside the opportunities they had |
+| `window` | A side's 50-round interval | Follows changes during the game |
+| `event` | One detected behaviour | Its kind, round, actor and target |
+| `motif` | A short context-and-action sequence | Its frequency and an example to inspect |
+
+A count alone still doesn't show what happened. A detector also writes an `event` row for each tail strike, champion hunt, shadowing episode or delivered feed it finds. Its `side` index leads back to the game, while the round and dragon identify the decision to open in the viewer. The short sequences the census searches for keep an example's game, round and dragon too, so a pattern in the numbers leads back to play I can inspect.
+
+These records have different meanings, but opening any of them starts with the same header and directory. The viewer, the census and the run reports can share the columns reader while each owns the tables its questions need.
 
 ## Next up
 

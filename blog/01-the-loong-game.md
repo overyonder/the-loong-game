@@ -1,7 +1,5 @@
 # Introducing The Loong Game
 
-> **Editor's note, 28 September 2026.** I've edited this post to be shorter.
-
 Hi all! The Loong Game is a little open source series running alongside UNSW Battlecode 2026. I'll be building tools for `unswbc`, trying out odd bot ideas and writing up what I learn along the way.
 
 ## Who I am

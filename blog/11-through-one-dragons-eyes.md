@@ -1,6 +1,6 @@
 # Through one dragon's eyes
 
-> **Editor's note, 2 October 2026.** I've brought the public viewer up to the version we use. It now shows roles and tasks on the board, reads a bot's state straight from memory, reconstructs the deeper reasoning behind a decision, keeps comments with their exact context, and rebuilds only the part of a game being inspected. The showcase bot demonstrates the new public contract.
+> **Editor's note, 2 October 2026.** The viewer now shows roles and tasks on the board and reads a bot's state from memory. It reconstructs the reasoning behind a decision and grades the team's beliefs against the replay, rebuilding only the part of a game being inspected. Saved comments return to their exact context.
 
 When a dragon does something stupid, the official visualiser shows the whole board. But the dragon only saw the 7×7 square around its head, and a move that looks absurd from above can look sensible from inside that square. So the debugging question is never "what was on the board?" but "what could this dragon see, and what did it make of it?" The seventh tool answers both: a debug viewer that shows a game through one dragon's eyes, written in [Odin](https://odin-lang.org) for the reasons in [The choice](03-the-choice.md) and built on the [decoder](09-reading-a-replay.md).
 

@@ -1,6 +1,6 @@
 # A ladder of our own
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the released ladder, which fits its ratings offline with the Bradley–Terry model, now in Nim, and plays its games in rounds. I reran the ladder with toolkit 1.2.2 on the new generated maps, so the ratings below are new.
+> **Editor's note, 28 September 2026.** Ratings are now fitted to all the games at once with the Bradley–Terry model. The ladder below uses toolkit 1.2.2 and the new generated maps.
 
 The [verdict tool](05-better-worse-or-undecided.md) answers one question at a time: how sure can we be that this candidate scores differently from that opponent? That's a useful question about one change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
 

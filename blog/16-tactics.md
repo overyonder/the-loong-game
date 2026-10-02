@@ -1,6 +1,6 @@
 # Tactics
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to show the tactics bot as it's built now, from behaviour modules in a shared repertoire. The sacrifice I first left out, because its first numbers did badly, is back in: a behaviour with a sound reason behind it stays, and its numbers get tuned once the rest of the bot settles. I reran the tests with the sequential verdict and toolkit 1.2.2 on the new generated maps, and dropped a chart that screened variants for keeping or dropping.
+> **Editor's note, 28 September 2026.** The sacrifice is back in. A behaviour with a sound reason stays, and its numbers get tuned once the rest of the bot settles. The tests below use toolkit 1.2.2 and the new generated maps.
 
 The last two posts were about strategy, which is deciding what each dragon is for. Giving one dragon the job of staying long for round 500 and another the job of hunting enemy heads is a strategic choice. Tactics is the other half: once a dragon knows its job, doing that job precisely and efficiently. The question changes from "who should be the champion?" to "given I'm the champion right now, how do I do it well?" Two bots with the same strategy can play very differently depending on how well each carries it out.
 

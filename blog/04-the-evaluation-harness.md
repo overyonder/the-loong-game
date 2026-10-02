@@ -1,6 +1,6 @@
 # The evaluation harness
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the harness as it's now released: a frozen copy of the round robin runner we use for our own bots, in place of the simpler one this post first described. I reran the first run with the released harness and toolkit 1.2.2, and show its standard summary. Games between compiled bots now play in our Zig judge, which gives byte-identical replays, so the results stand.
+> **Editor's note, 28 September 2026.** Games between compiled bots now play in our own Zig judge, which gives byte-identical replays. The first run below uses the released harness and toolkit 1.2.2.
 
 The [wishlist](02-the-wishlist.md) ended with eight tools, and most of them lean on the first one. The statistics need results to judge, the map generator needs something playing on its maps, and the ladder rates versions from games they've already played. So we start with the tool that produces games.
 

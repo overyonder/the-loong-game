@@ -1,12 +1,12 @@
 # Games in the cloud
 
-> **Editor's note, 28 September 2026.** I've reworded the opening to say what the games are for: playing the bot against a pool of opponents to find what it gets wrong. The workers now play every game in our own Zig judge, which cut the cost of a run by more than half.
+> **Editor's note, 2 October 2026.** Workers now play every game in our Zig judge, which cut the cost of a run by more than half. The fleet's $75 cap counts spend so far, every run records its owner, and rented GPUs can fetch results through links that expire after 12 hours.
 
 The [harness](04-the-evaluation-harness.md) plays games side by side on every core of one machine, and for a while that was enough. Then the work got bigger. Playing our bot against a pool of opponents across 120 maps, both sides and several seeds runs to thousands of games, and the games it loses are what tell us what to fix next. My desktop could grind through them overnight, but it's also the machine several of us work on, and every hour spent waiting for games is an hour before the next fault turns up.
 
 So big batches now go to a fleet of cloud machines, and this post explains how it's built. A handful of long-lived AWS resources are declared in OpenTofu, everything a run needs is created by the launcher when the run starts, and every run is built to end on its own, even if everything watching it dies.
 
-![The fleet. Standing resources, declared in OpenTofu: the buckets, which hold run bundles and results, expire objects after 14 days and block public access. The fleet user launches, tags and terminates tagged Spot workers and runs queues. The worker role reads the run's bundle, writes results and leases jobs from its queue. Made for each run by the launcher: the launcher packs workers into the vCPU allowance and checks the quota and the $50 ledger, creates one queue per run with a message per game, and starts Spot workers in Hyderabad and Mumbai, which pull games as cores free up, upload each result and shut down at the deadline. A reaper on a system timer, outside every agent, terminates any worker past its deadline.](images/fleet-run.svg)
+![The fleet. OpenTofu declares the buckets, fleet user and worker role. Each run's launcher checks the free vCPUs and $75 spending cap, records an owner, creates a queue and starts Spot workers in Hyderabad and Mumbai. Workers lease games, upload each result and shut down at the deadline. An independent reaper terminates overdue workers.](images/fleet-run.svg)
 
 ## One run
 
@@ -14,7 +14,15 @@ A run starts on my machine. The launcher bundles the bots, maps and runner into 
 
 Each worker boots Amazon Linux, installs the official toolkit for its game engine, downloads the bundle and starts pulling games off the queue, one per free core, and plays each one in our own [Zig judge](19-the-machine-inside-the-judge.md). Every game has a wall-clock limit of 300 seconds, so a bot that hangs costs one game and five minutes of a core. A game's queue message is leased while it plays ([Gray and Cheriton](https://doi.org/10.1145/74850.74870), 1989), and only acknowledged once its result is safely in the bucket, so a worker that disappears mid-game loses nothing but that game, which goes back on the queue for someone else. Back on my machine, the launcher collects results as they land, so a run that gets cut short still returns every game it finished.
 
-The workers run in two AWS regions, Hyderabad and Mumbai, each allowed up to 320 vCPUs at once, capped by the live Spot quota. Mumbai's workers use Hyderabad's queue and bucket across the region boundary, which keeps a run in one place however its workers are spread.
+The workers run in two AWS regions, Hyderabad and Mumbai, each allowed up to 320 vCPUs at once, capped by the live Spot quota. Mumbai's workers use Hyderabad's queue and bucket across the region boundary, which keeps a run in one place however its workers are spread. Every run records its owner in the ledger and on its workers' tags, so I can see which line launched it and how much that line has spent.
+
+## Results on a rented GPU
+
+Some results need to reach a machine outside AWS, such as a rented GPU that will learn from the games. Copying them home and then uploading them again would send the same files over the internet twice. Instead, the launcher makes a presigned link for each completed result archive. The link authorises downloads of that archive from the bucket for 12 hours, so the rental can fetch it directly without holding our AWS credentials.
+
+![The launcher gives a rented GPU links to completed result archives. Each link authorises a GET of one object for 12 hours. The rental downloads from the private bucket directly, and holds no AWS credentials.](images/fleet-result-links.svg)
+
+These links don't make the bucket public. Anyone holding one can read that one archive until the link expires, and the launcher can issue a fresh set if a rental starts later. They use the same committed archives the launcher collects, so a worker interrupted before uploading a result has nothing to offer yet.
 
 ## Standing resources in OpenTofu
 
@@ -65,7 +73,16 @@ shutdown -h +$(( ({deadline} - $(date +%s) + 59) / 60 ))
 
 The worker stops taking new games two minutes before the deadline and uploads what it finished. Behind that, a reaper runs every ten minutes on a system timer that belongs to no agent at all. It terminates any fleet instance past its deadline, removes orphaned queues, and records a cost for any run whose launcher died before it could.
 
-Spending has its own guard. Every launch is written to a ledger at its worst-case cost, and the launcher refuses any launch that could take the total past $50. The ledger is our own estimate, covering compute, disks and addresses, and not an AWS billing limit, which is why it's deliberately pessimistic.
+Spending has its own guard. The shared cap is $75, counting the recorded cost of finished runs plus what running workers have cost so far. Before admitting a new run, the launcher adds that run's worst-case cost through its deadline and refuses it if the total would exceed the cap. Existing runs' reservations are shown separately, so a three-hour allowance doesn't count as three hours already spent.
+
+| Ledger figure | Counts towards the cap | Basis |
+| --- | --- | --- |
+| Settled spend | Yes | Finished workers' runtimes |
+| Accrued spend | Yes | Running workers' time so far |
+| Existing reservations | No | Worst case through each run's deadline |
+| Proposed run | Checked before launch | Its own worst case through its deadline |
+
+The ledger estimates compute at the Spot quote, disks and public addresses. It doesn't include transfer, storage requests or tax, and it isn't an AWS billing limit. Owners let me read each line's share of that spend, while deadlines bound how long a run can keep adding to it.
 
 ## Cost
 

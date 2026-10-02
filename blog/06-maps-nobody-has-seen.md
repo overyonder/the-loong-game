@@ -1,6 +1,6 @@
 # Maps nobody has seen
 
-> **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to use the released round robin runner, and replaced my first map generator with xCirno's, bounded by the official maps. I redrew the figures and reran the comparison on the new maps with toolkit 1.2.2 and the released harness.
+> **Editor's note, 28 September 2026.** The map generator is now xCirno's, bounded by the official maps. The comparison below uses its maps, toolkit 1.2.2 and the released harness.
 
 The organisers have said that every Sprint, Qualifier and Grand Final map will be brand new. That's a problem for anyone who only tests on the maps bundled with the toolkit, because a bot can quietly come to depend on something those maps happen to have in common, and look strong right up until the tournament puts it on a map without it. We can't test on maps nobody has seen, but we can make lots of new ones that look like the real thing. That's the map generator from the wishlist. This post shows how ours works, built on a generator another competitor shared, and then uses it straight away to find a blind spot the bundled maps had been hiding.
 

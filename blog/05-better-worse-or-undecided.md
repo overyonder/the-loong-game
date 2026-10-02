@@ -1,6 +1,6 @@
 # Better, worse or undecided
 
-> **Editor's note, 28 September 2026.** I've rewritten this post around the verdict as it works now. It no longer plays a fixed pile of games and judges them afterwards. It decides how many games a question needs, checks after every game, and stops as soon as the answer is safe. I've also made clear what it's for: measuring how far to trust a difference, while the faults it turns up are what we act on.
+> **Editor's note, 28 September 2026.** The verdict is now sequential: it checks after every game and stops as soon as the answer is safe, instead of judging a fixed number of games.
 
 With the [harness](04-the-evaluation-harness.md) we can play as many games as we like, and that's exactly the problem: a pile of results always tempts us to read meaning into small gaps. Playing a bot against a pool of opponents is how we find out what's wrong with it, and the useful output of those games is the faults, the games it should have won and didn't, each one something to watch in a viewer and fix. But the games also produce a score, and sooner or later we want to know what that score means. This post builds the tool for that, from first principles, and explains why it plays as few games as it does. The commands are `just batch` to play and `just verdict` to read, with the statistics in [harness/report/verdict.nim](../harness/report/verdict.nim).
 

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 536" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+<title id="t">Presigned links carry results from the bucket to a rented GPU</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker></defs>
+<rect width="480" height="536" fill="#ede5d5"/>
+<text x="20" y="30" font-size="20" fill="#20251f" text-anchor="start" font-weight="bold">Results go directly to the rented GPU</text>
+<rect x="20" y="55" width="440" height="100" rx="8" fill="#263d31" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="80" font-size="20" fill="#ede5d5" text-anchor="start" font-weight="bold">Launcher</text><text x="34" y="101" font-size="17" fill="#d9d2c3" text-anchor="start" font-weight="normal">holds AWS credentials,</text><text x="34" y="119" font-size="17" fill="#d9d2c3" text-anchor="start" font-weight="normal">signs links to completed result archives</text>
+<path d="M240 155 L240 207" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="258" y="184" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">links valid 12 hours</text>
+<rect x="20" y="209" width="440" height="100" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="234" font-size="20" fill="#20251f" text-anchor="start" font-weight="bold">Rented GPU</text><text x="34" y="255" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">downloads each archive directly,</text><text x="34" y="273" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">holds no AWS credentials</text>
+<path d="M145 309 L145 377" fill="none" stroke="#66675e" stroke-width="1.8" stroke-dasharray="6 5" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="163" y="348" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">GET</text>
+<path d="M325 379 L325 311" fill="none" stroke="#b53b13" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#s)"/>
+<text x="343" y="348" font-size="17" fill="#b53b13" text-anchor="start" font-weight="normal">archive</text>
+<rect x="20" y="379" width="440" height="100" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="34" y="404" font-size="20" fill="#20251f" text-anchor="start" font-weight="bold">Private bucket</text><text x="34" y="425" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">serves the linked object,</text><text x="34" y="443" font-size="17" fill="#66675e" text-anchor="start" font-weight="normal">checks its signature and expiry</text>
+<text x="20" y="516" font-size="16" fill="#66675e" text-anchor="start" font-weight="normal">Each link reads one object. The bucket stays private.</text>
+</svg>
