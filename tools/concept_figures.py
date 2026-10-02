@@ -845,6 +845,26 @@ def three_bot_lines():
     return svg(1020, 266, "The textbook, foil and learned bot lines", parts)
 
 
+def bot_assembly():
+    parts = [
+        text(20, 30, "A bot is an assembly, not a copy of the whole library", 17, INK, weight="bold"),
+        card(20, 56, 250, 112, "main/NNNN", ["strategy.nim", "library.toml"], dark=True),
+        card(20, 194, 250, 112, "The catalogues", ["this line's lib/", "common/lib/"]),
+        card(350, 102, 250, 144, "Materialise", ["read the manifest", "copy only its pinned pieces", "mount one repertoire/"], accent=GOLD),
+        card(680, 56, 310, 112, "Assembled source", ["strategy.nim", "repertoire/ with stable imports"]),
+        card(680, 194, 310, 112, "common/runtime", ["entry point and judge boundary", "shared, but separately snapshotted"]),
+        card(680, 350, 310, 112, "Registered build", ["WebAssembly", "source and toolchain hashes"], accent=SIGNAL),
+        arrow([(270, 112), (320, 112), (320, 150), (348, 150)]),
+        arrow([(270, 250), (320, 250), (320, 200), (348, 200)]),
+        arrow([(600, 174), (640, 174), (640, 112), (678, 112)]),
+        arrow([(990, 112), (1005, 112), (1005, 406), (992, 406)]),
+        arrow([(835, 306), (835, 348)]),
+        text(20, 346, "library.toml chooses versions; it does not describe the turn loop.", 13, MUTED),
+        text(20, 369, "strategy.nim and the selected pieces own that decision structure.", 13, MUTED),
+    ]
+    return svg(1020, 486, "How a numbered bot, pinned library pieces and the runtime become one registered build", parts)
+
+
 def frozen_versions():
     parts = [text(20, 30, "A version becomes evidence once it plays", 17, INK, weight="bold")]
     stages = [
@@ -872,6 +892,7 @@ def frozen_versions():
     return svg(1020, 386, "How bot versions and library pieces become immutable", parts)
 
 FIGURES = {
+    "bot-assembly": bot_assembly,
     "frozen-versions": frozen_versions,
     "three-bot-lines": three_bot_lines,
     "map-variant-counts": map_variant_counts,
