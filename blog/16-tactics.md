@@ -94,7 +94,7 @@ It isn't better, at least not by the +70 Elo the verdict looks for. After 23 gam
 
 ## Every version on one ladder
 
-Each verdict in the last three posts compared a new version with the one before it. The [ladder](07-a-ladder-of-our-own.md) can check that the chain of improvements adds up and that nothing went round in a circle. Here are the saved versions from the flood-fill bot onwards, with the pearl chaser and the C starter for reference, over 1,050 games on the same 35 maps, played with `just ladder-all`. Each head-to-head column is the points the row's bot scored against that bot, out of 70:
+Each verdict in the last three posts compared a new version with the one before it. [Three lines](14-three-lines.md#frozen-versions) explains why those numbered snapshots never change. The [ladder](07-a-ladder-of-our-own.md) can then check that the chain of improvements adds up and that nothing went round in a circle. Here are the saved versions from the flood-fill bot onwards, with the pearl chaser and the C starter for reference, over 1,050 games on the same 35 maps, played with `just ladder-all`. Each head-to-head column is the points the row's bot scored against that bot, out of 70:
 
 | Bot | Rating | Won | Drawn | Lost | vs roles-bot | vs tactics-bot | vs first-bot | vs room-c | vs room-pearls | vs starter-c |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |

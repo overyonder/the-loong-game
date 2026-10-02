@@ -3,8 +3,10 @@
     python3 tools/banner.py sonar blog/images/banner-sonar.svg
     python3 tools/banner.py machine blog/images/banner-the-machine-inside-the-judge.svg
     python3 tools/banner.py cloud blog/images/banner-games-in-the-cloud.svg
+    python3 tools/banner.py pearls blog/images/banner-pearls-from-the-seed.svg
+    python3 tools/banner.py lines blog/images/banner-three-lines.svg
 
-Both use the map banners' board: a 24-pixel grid, kelp in green, pearls in yellow, our dragons
+They use the map banners' board: a 24-pixel grid, kelp in green, pearls in yellow, our dragons
 in orange and the enemy's in white. The sonar banner adds dashed rays, and the machine banner
 lays the board out as a chip: register banks, cache lines and the wires between them.
 """
@@ -191,8 +193,45 @@ def cloud():
     return parts
 
 
+def pearl_seed():
+    """The same board and seed unfolding into a stream of pearl attempts."""
+    rng = random.Random(10)
+    parts = board()
+    blocked = set()
+    walls = [kelp_room(5, 5, 18, 28, "east"), kelp_room(37, 7, 18, 26, "west")]
+    parts.append(f'<path d="{"".join(walls)}" stroke="{KELP}" stroke-width="3" fill="none"/>')
+    for start, colour, length in [((13, 18), OURS, 8), ((46, 21), THEIRS, 7), ((29, 8), OURS, 5)]:
+        parts.append(dragon(walk(rng, start, length, blocked), colour))
+    for index in range(90):
+        column = rng.randrange(WIDTH // CELL)
+        row = rng.randrange(HEIGHT // CELL)
+        if (column, row) in blocked:
+            continue
+        x, y = centre(column, row)
+        radius = 2.4 + (index % 4) * 0.8
+        opacity = 0.35 + (index % 5) * 0.12
+        parts.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{radius:.1f}" fill="{PEARL}" opacity="{opacity:.2f}"/>')
+    return parts
+
+
+def three_lines():
+    """Three separate bot lineages crossing the same board."""
+    rng = random.Random(14)
+    parts = board()
+    blocked = set()
+    walls = [kelp_room(4, 4, 52, 8, "east"), kelp_room(4, 16, 52, 8, "west"), kelp_room(4, 28, 52, 8, "east")]
+    parts.append(f'<path d="{"".join(walls)}" stroke="{KELP}" stroke-width="3" fill="none"/>')
+    for row, colour in ((8, OURS), (20, THEIRS), (32, PEARL)):
+        cells = [(column, row + (column // 8) % 2) for column in range(8, 52)]
+        parts.append(dragon(cells, colour))
+        blocked.update(cells)
+    parts += pearls(rng, 35, blocked)
+    return parts
+
+
 def main():
-    parts = {"sonar": sonar, "machine": machine, "cloud": cloud}[sys.argv[1]]()
+    parts = {"sonar": sonar, "machine": machine, "cloud": cloud,
+             "pearls": pearl_seed, "lines": three_lines}[sys.argv[1]]()
     parts.append("</svg>")
     with open(sys.argv[2], "w") as output:
         output.write("\n".join(parts) + "\n")

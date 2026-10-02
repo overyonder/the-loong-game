@@ -805,7 +805,77 @@ def rl_compute_topology():
     ]
     return svg(1100, 494, "The local workstation, private object store, Vast.ai rental and their orchestration", parts)
 
+
+def pearl_reconstruction():
+    parts = [
+        card(20, 36, 220, 120, "Site replay", ["map name", "match seed", "pearl gaps are zero"], dark=True),
+        card(280, 36, 220, 120, "Engine draws", ["one seeded random stream", "every attempt consumes a draw", "occupied cells still count"]),
+        card(540, 36, 220, 120, "Fitted gap table", ["first spawns constrain gaps", "later spawns reject choices", "one table explains the game"]),
+        card(800, 36, 220, 120, "Regenerated game", ["same spawn attempts", "same actions and points", "same final state"], accent=SIGNAL),
+    ]
+    for x in (240, 500, 760):
+        parts.append(arrow([(x, 96), (x + 38, 96)]))
+    parts += [
+        text(20, 202, "The replay tells us when pearls appeared. The engine source tells us which random draw made each attempt.", 13, MUTED),
+        text(20, 224, "Together they recover the hidden table without using it to choose how the bot plays.", 13, MUTED),
+    ]
+    return svg(1040, 246, "Rebuilding hidden pearl countdowns from a replay and its seed", parts)
+
+
+def map_variant_counts():
+    rows = [
+        ("Prisoners Dilemma", 20, FOREST),
+        ("Queen Of Spades", 14, FOREST),
+        ("Devil", 16, FOREST),
+        ("Schooltime", 23, FOREST),
+        ("Slithery Fight, unresolved", 19, SIGNAL),
+    ]
+    return bars("Games out of 40 that the published gap table did not explain", rows, "games", width=1000,
+                log=False, note="Trauma, Default, Trophy, Portals and Autarky: 0 of 40. Read from stored games on 1 October.")
+
+
+def three_bot_lines():
+    parts = [
+        text(20, 30, "Three lines answer different questions", 17, INK, weight="bold"),
+        card(20, 54, 310, 150, "Textbook", ["known methods, assembled clearly", "each departure is a candidate", "for the next improvement"], dark=True),
+        card(355, 54, 310, 150, "Foil", ["a rival free to use any method", "a benchmark and counterpoint", "to the textbook line"], accent=SIGNAL),
+        card(690, 54, 310, 150, "Learned", ["a policy learned from games", "teacher distilled into a student", "small enough for the judge"], accent=GOLD),
+        text(20, 242, "They share the game, the evaluation pool and the evidence from replays. Their implementations stay separate.", 13, MUTED),
+    ]
+    return svg(1020, 266, "The textbook, foil and learned bot lines", parts)
+
+
+def frozen_versions():
+    parts = [text(20, 30, "A version becomes evidence once it plays", 17, INK, weight="bold")]
+    stages = [
+        ("In development", ["the highest number", "changes as we work"]),
+        ("Freeze", ["make the source immutable", "keep its identifier"]),
+        ("Build", ["pin every library piece", "register the WebAssembly"]),
+        ("Keep", ["replay provenance", "opponent and regression test"]),
+    ]
+    for index, (title, lines) in enumerate(stages):
+        x = 20 + index * 250
+        parts.append(card(x, 52, 220, 112, title, lines, dark=index == 1, accent=SIGNAL if index == 1 else RULE))
+        if index:
+            parts.append(arrow([(x - 28, 108), (x - 2, 108)]))
+    parts += [
+        text(20, 205, "A frozen version never changes. New work gets the next number, so an old result can always be rebuilt.", 13, MUTED),
+        text(20, 250, "One library piece can advance without moving the others", 15, INK, weight="bold"),
+        card(20, 270, 220, 92, "0001 · pseudocode", ["the algorithm and contract"]),
+        arrow([(240, 316), (278, 316)]),
+        card(280, 270, 220, 92, "0002.nim", ["the clear implementation"]),
+        arrow([(500, 316), (538, 316)]),
+        card(540, 270, 220, 92, "0003.rk", ["the measured hot kernel"]),
+        text(790, 300, "library.toml pins the", 13, MUTED),
+        text(790, 320, "versions one bot uses", 13, MUTED),
+    ]
+    return svg(1020, 386, "How bot versions and library pieces become immutable", parts)
+
 FIGURES = {
+    "frozen-versions": frozen_versions,
+    "three-bot-lines": three_bot_lines,
+    "map-variant-counts": map_variant_counts,
+    "pearl-reconstruction": pearl_reconstruction,
     "rl-compute-topology": rl_compute_topology,
     "viewer-recovery": viewer_recovery,
     "gizmo-board": gizmo_board,

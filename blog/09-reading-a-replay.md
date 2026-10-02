@@ -113,6 +113,8 @@ for dy in -3 .. 3:
 
 The [observations](../gamedata/observations.nim) that the viewer's recovery feeds back to a bot are built from these cells, exactly as the engine wrote them to it.
 
+There is one gap in site replays downloaded since 27 September: they no longer record pearl countdown events, and every tile's minimum and maximum spawn gaps are zero. The bot still received the live countdown in its window. The planned article *Pearls from the seed* shows how the match seed and the engine's pearl generator recover those hidden timings, including the variants the site serves under familiar map names.
+
 Here is round 238 of another public game, on a 32×32 map, from a three-segment dragon in the middle of it:
 
 ![Round 238 of a public ladder game on a 32×32 map. Everything is dimmed except a 7×7 square around one dragon's head, which holds a few dragons and pearls, part of a room of kelp walls, and several portal edges.](images/replay-window.svg)

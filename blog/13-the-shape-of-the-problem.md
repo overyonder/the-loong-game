@@ -104,4 +104,4 @@ So the first bot is a structure more than a clear improvement, and [the ladder a
 
 ## Next up
 
-From here the series adds behaviour one piece at a time, starting with [roles](15-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.
+[Three lines](14-three-lines.md): why the textbook bot develops beside a free-form foil and a learned line, and how their versions stay reproducible.

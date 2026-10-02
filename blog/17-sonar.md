@@ -1,8 +1,10 @@
 # Sonar
 
+> **Editor's note, 2 October 2026.** I've answered some of the original questions with a census of 800 public replays, including how many teams encrypted their messages and what our tested forgeries achieved.
+
 Most Battlecode seasons are built around one unusual mechanic, and the strongest teams exploit it better than anyone else. In 2026 it's sonar. It's the only way dragons can talk, the only way they learn anything beyond their 7×7 window, and every message is as audible to the enemy as to a teammate.
 
-[Roles](15-roles.md) used sonar to announce a dragon's length, and [Tactics](16-tactics.md) added its position. This post is a notebook of what else the rules allow, with the working out left to you.
+[Roles](15-roles.md) used sonar to announce a dragon's length, and [Tactics](16-tactics.md) added its position. This post works through what else the rules allow, then checks a few of those ideas against public ladder replays.
 
 ![One sonar message from the roles bot, 64 bits. The top 32 bits hold the team tag 0x4C4F4F4E, which spells LOON. Bits 31 to 16 hold the sender's ID, bits 15 to 12 its role, and bits 11 to 0 its length.](images/sonar-message.svg)
 
@@ -41,6 +43,19 @@ The echo counts are the only information from beyond the window that no teammate
 ## Misinformation
 
 Nothing in the game stops a dragon sending a message in another team's format. A bot that believes everything it hears can be misled, and checking a message against what the dragon can see for itself is the simplest defence.
+
+## The replay census
+
+Later in the season we tested these questions over 800 public replays from 20 teams. Eight teams encrypted their messages, and we could validate fields in the packets of three. Packet shapes were distinctive enough to fingerprint 19 teams, although our bot never used that table.
+
+| Question | Supported result |
+| --- | --- |
+| How many of the 20 teams encrypted sonar? | 8 |
+| How many teams had packet fields we could validate? | 3 |
+| Did a forged command make an enemy split? | No forgeable split command was found |
+| Did fake length claims move a tested team? | None of the teams we could test moved |
+
+Those negative results have narrow boundaries. They say what our tested messages achieved against the games we stored, rather than proving that sonar forgery can never work. [Modelling other teams](25-modelling-other-teams.md#sonar) puts the sonar census beside the rest of the opponent study and explains how little of it entered our bot.
 
 ## Poker
 
