@@ -1,6 +1,6 @@
 # An engine on the GPU
 
-> For the later rule change, see [Slay the Queen](31-slay-the-queen.md).
+> For the later rule change, see [Slay the Queen](29-slay-the-queen.md).
 
 [Our judge](19-the-machine-inside-the-judge.md) plays a game about four times faster than the toolkit, but it still runs the organisers' engine in WebAssembly and asks each bot for its next move. That is what we want when checking a submission. For training a learned bot, I wanted thousands of games feeding one network on the graphics card, without sending every dragon's turn through a CPU sandbox first.
 
