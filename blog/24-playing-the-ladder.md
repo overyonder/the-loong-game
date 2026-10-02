@@ -1,6 +1,6 @@
 # Playing the ladder
 
-A strong bot is only half of a good placing. The rest is how you play the ladder: which bot is live, who it plays, and when you change it. Tournament seeds come from the ladder rating, and every tournament is a single-elimination knockout, so a rating point is worth something and one lost series ends a run. This post is how we played the ladder during the 2026 season. It applies the statistics from two earlier posts: Elo ratings from [A ladder of our own](06-a-ladder-of-our-own.md), and how far a difference between two bots can be trusted from [Better, worse or undecided](04-better-worse-or-undecided.md).
+A strong bot is only half of a good placing. The rest is how you play the ladder: which bot is live, who it plays, and when you change it. Tournament seeds come from the ladder rating, and every tournament is a single-elimination knockout, so a rating point is worth something and one lost series ends a run. This post is how we played the ladder during the 2026 season. It applies the statistics from two earlier posts: Elo ratings from [A ladder of our own](07-a-ladder-of-our-own.md), and how far a difference between two bots can be trusted from [Better, worse or undecided](05-better-worse-or-undecided.md).
 
 Our team started at 1500 on 26 September, fell as low as 1492 (rank 258) on the 28th, and reached 1830 (rank 40 of about 900 teams) early on the 30th:
 
@@ -12,7 +12,7 @@ The climb on the 29th came from a string of stronger releases, and the rules bel
 
 A few rules shape everything else:
 
-- A ranked battle is five games on random maps. Each team's rating then moves by K × (S − E), where S is its score and E is what the two ratings predicted, the formula from [A ladder of our own](06-a-ladder-of-our-own.md#ratings).
+- A ranked battle is five games on random maps. Each team's rating then moves by K × (S − E), where S is its score and E is what the two ratings predicted, the formula from [A ladder of our own](07-a-ladder-of-our-own.md#ratings).
 - K is 96 for a new bot and falls by 7.2 with each ranked battle it plays, to a floor of 24 after ten.
 - A new bot doesn't always start fresh. If another of the team's bots started from zero in the last 12 hours, the new one inherits the count of the bot last played, capped at ten, so it starts at the floor. K resets once per 12 hours, for one bot.
 - Every hour the site draws each team one ranked battle against a team within eight places, using whichever bot is active when the battle is queued. On top of that, a team can challenge any team rated no more than 50 below it, up to 60 games an hour, with several challenges pending against one team at once.
@@ -63,7 +63,7 @@ A new bot has no measured strength, so for its first 40 games the challenger pla
 
 The foil, our second bot line, was developed during the season in a loop: study live games, make one upgrade, check it, release it. At first each release was checked with a local series against the release before it. That misled us twice. foil-2026-09-29l beat 29k 52–36 locally and then performed about 1733 live, against 29k's 1800. foil-2026-09-29n beat 29m 48–40 locally and performed about 1741. Close versions of one line mostly play each other, so a series between them measures how they differ from each other, and on the ladder they meet everyone else.
 
-So we moved the check to the cloud, with more games against both live incumbents rather than one, and a non-inferiority test instead of a test for improvement, the margin form of the verdict in [Better, worse or undecided](04-better-worse-or-undecided.md). foil-2026-09-30c shows why. Against 30b on the ladder maps it came out worse, 36–57, about −80 Elo with an interval from −157 to −10. Live, it performed about 1770 over 40 games against 30b's 1794, and 30b went back.
+So we moved the check to the cloud, with more games against both live incumbents rather than one, and a non-inferiority test instead of a test for improvement, the margin form of the verdict in [Better, worse or undecided](05-better-worse-or-undecided.md). foil-2026-09-30c shows why. Against 30b on the ladder maps it came out worse, 36–57, about −80 Elo with an interval from −157 to −10. Live, it performed about 1770 over 40 games against 30b's 1794, and 30b went back.
 
 After upload, the live numbers take over. A performance rating over n games has a standard error of about 380/√n: the binomial value, widened by a factor of 1.2 we measured in our own battles, since five games against one opponent share a lot. That's about ±60 at 40 games and ±49 at 60. It's why we never judged a bot on one battle, or on how its rating moved in an afternoon.
 
@@ -107,7 +107,7 @@ Between two bots with level performance, we kept the one that lost fewer of thos
 
 Some opponents played in ways that went beyond good or bad, and we gave their styles names so we could talk about them. The teams stay anonymous here.
 
-We found them in three ways. The first was a cheese screen: among teams rated 1350 to 1800, we looked for wins over teams rated 150 or more above them since 29 September, and found eight teams. Not every upset was real. In 10 of their 76 upset games the stronger team had failed 20 or more turns, a broken bot rather than a clever one. The second was the list of our own upsets, counted against each bot's measured strength as above. The third was replaying our own losses exactly: our judge can replay a ladder game from its seed, with the opponent's recorded moves, while our bot runs with its diagnostics on, so [the viewer](09-through-one-dragons-eyes.md) shows why each of our dragons did what it did. Of our 19 newest games at one point, 16 reproduced every one of our turns.
+We found them in three ways. The first was a cheese screen: among teams rated 1350 to 1800, we looked for wins over teams rated 150 or more above them since 29 September, and found eight teams. Not every upset was real. In 10 of their 76 upset games the stronger team had failed 20 or more turns, a broken bot rather than a clever one. The second was the list of our own upsets, counted against each bot's measured strength as above. The third was replaying our own losses exactly: our judge can replay a ladder game from its seed, with the opponent's recorded moves, while our bot runs with its diagnostics on, so [the viewer](11-through-one-dragons-eyes.md) shows why each of our dragons did what it did. Of our 19 newest games at one point, 16 reproduced every one of our turns.
 
 To keep watching them, the replay collector pins every game of a style under study, so later pruning keeps them: 934 games for the two ram rushers and 285 for the cheese candidates. Its regular refresh keeps each team rated above us to its newest 40 games, and we tracked which teams upset us more than once. One team took 18 of 25 games from us while rated below us.
 

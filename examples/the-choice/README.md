@@ -1,6 +1,6 @@
 # The choice
 
-The same strategy in C, Python and Nim, from [The choice](../../blog/02-the-choice.md). Each turn, a dragon tries every move and every follow-up move, flood-fills the visible 7×7 window from where it would end up, and takes the move that leaves it the most room. `c-idle` and `python-idle` only repeat their last move, which measures each language's fixed cost per turn.
+The same strategy in C, Python and Nim, from [The choice](../../blog/03-the-choice.md). Each turn, a dragon tries every move and every follow-up move, flood-fills the visible 7×7 window from where it would end up, and takes the move that leaves it the most room. `c-idle` and `python-idle` only repeat their last move, which measures each language's fixed cost per turn.
 
 The helper files come from the toolkit, so they aren't copied here. To run the bots:
 

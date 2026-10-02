@@ -51,7 +51,7 @@ bench-maps:
 rake:
     rakec --emit-asm --target wasm-simd128 -o bench-bot/window_bits.h rake/window_bits.rk
 
-# The machine bot's loops in the judge, one per turn, then the same loops natively, logged for post 16.
+# The machine bot's loops in the judge, one per turn, then the same loops natively, logged for post 19.
 machine:
     just nim-bot machine-bot
     unswbc run --sandbox -v --no-replay --seed 0x42 {{tooling}}/maps/arena.map machine-bot {{tooling}}/starter-c | grep "LOG machine" > machine-judge.log

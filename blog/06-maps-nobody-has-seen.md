@@ -62,7 +62,7 @@ Here they are:
 
 ## The flood-fill bot on new maps
 
-To see whether the new maps tell us anything, we'll play the same matchup twice, the flood-fill bot from [The choice](02-the-choice.md) against the C starter, first on the bundled maps and then on the generated ones. If the generated maps were just more of the same, both runs should look alike. `just unseen-maps` generates the maps and plays both, two seeds per map and side, in the sandbox:
+To see whether the new maps tell us anything, we'll play the same matchup twice, the flood-fill bot from [The choice](03-the-choice.md) against the C starter, first on the bundled maps and then on the generated ones. If the generated maps were just more of the same, both runs should look alike. `just unseen-maps` generates the maps and plays both, two seeds per map and side, in the sandbox:
 
 ![A terminal reading the two round robins' summaries through rg and glow, drawn as tables with records, scores, Elo intervals and side-swapped pairs. On the bundled maps, room-c won all 60 games against starter-c. On the generated maps, room-c won 77 and lost 3, +564 Elo, with 37 pairs won both ways and 3 split.](images/unseen-maps.png)
 
@@ -84,4 +84,4 @@ Those three take the drudgery out of improving a bot. Playing it against a pool 
 
 ## Next up
 
-[A ladder of our own](06-a-ladder-of-our-own.md): rating every saved version against every other, so we can see whether the bot is improving overall.
+[A ladder of our own](07-a-ladder-of-our-own.md): rating every saved version against every other, so we can see whether the bot is improving overall.

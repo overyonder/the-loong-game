@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've reworded the opening to say what the games are for: playing the bot against a pool of opponents to find what it gets wrong. The workers now play every game in our own Zig judge, which cut the cost of a run by more than half.
 
-The [harness](03-the-evaluation-harness.md) plays games side by side on every core of one machine, and for a while that was enough. Then the work got bigger. Playing our bot against a pool of opponents across 120 maps, both sides and several seeds runs to thousands of games, and the games it loses are what tell us what to fix next. My desktop could grind through them overnight, but it's also the machine several of us work on, and every hour spent waiting for games is an hour before the next fault turns up.
+The [harness](04-the-evaluation-harness.md) plays games side by side on every core of one machine, and for a while that was enough. Then the work got bigger. Playing our bot against a pool of opponents across 120 maps, both sides and several seeds runs to thousands of games, and the games it loses are what tell us what to fix next. My desktop could grind through them overnight, but it's also the machine several of us work on, and every hour spent waiting for games is an hour before the next fault turns up.
 
 So big batches now go to a fleet of cloud machines, and this post explains how it's built. A handful of long-lived AWS resources are declared in OpenTofu, everything a run needs is created by the launcher when the run starts, and every run is built to end on its own, even if everything watching it dies.
 
@@ -12,7 +12,7 @@ So big batches now go to a fleet of cloud machines, and this post explains how i
 
 A run starts on my machine. The launcher bundles the bots, maps and runner into one archive, uploads it to a bucket, and creates a queue with one message per game. Then it asks AWS for Spot instances, which are spare capacity sold cheaply on the understanding that it can be taken back, and packs them into the run's vCPU allowance, cheaper region first.
 
-Each worker boots Amazon Linux, installs the official toolkit for its game engine, downloads the bundle and starts pulling games off the queue, one per free core, and plays each one in our own [Zig judge](16-the-machine-inside-the-judge.md). Every game has a wall-clock limit of 300 seconds, so a bot that hangs costs one game and five minutes of a core. A game's queue message is leased while it plays ([Gray and Cheriton](https://doi.org/10.1145/74850.74870), 1989), and only acknowledged once its result is safely in the bucket, so a worker that disappears mid-game loses nothing but that game, which goes back on the queue for someone else. Back on my machine, the launcher collects results as they land, so a run that gets cut short still returns every game it finished.
+Each worker boots Amazon Linux, installs the official toolkit for its game engine, downloads the bundle and starts pulling games off the queue, one per free core, and plays each one in our own [Zig judge](19-the-machine-inside-the-judge.md). Every game has a wall-clock limit of 300 seconds, so a bot that hangs costs one game and five minutes of a core. A game's queue message is leased while it plays ([Gray and Cheriton](https://doi.org/10.1145/74850.74870), 1989), and only acknowledged once its result is safely in the bucket, so a worker that disappears mid-game loses nothing but that game, which goes back on the queue for someone else. Back on my machine, the launcher collects results as they land, so a run that gets cut short still returns every game it finished.
 
 The workers run in two AWS regions, Hyderabad and Mumbai, each allowed up to 320 vCPUs at once, capped by the live Spot quota. Mumbai's workers use Hyderabad's queue and bucket across the region boundary, which keeps a run in one place however its workers are spread.
 
@@ -73,4 +73,4 @@ A two-region test with one small worker in each region, a c8i-flex.large in Hyde
 
 ## Next up
 
-[Game data in columns](18-game-data-in-columns.md): one binary format for all our game data, which a reader maps into memory and uses without parsing.
+[Game data in columns](22-game-data-in-columns.md): one binary format for all our game data, which a reader maps into memory and uses without parsing.

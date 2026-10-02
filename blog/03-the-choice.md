@@ -113,7 +113,7 @@ Nim doesn't make every loop fast. The generated C is correct and fast, but nobod
 
 ### Odin for tools
 
-Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](01-the-wishlist.md) is written in [Odin](https://odin-lang.org), which is *very* good at graphics programming. The first reason is memory. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs. Odin passes an implicit `context` into every procedure, carrying the allocator, so setting it once makes everything called afterwards, library code included, allocate from wherever you chose:
+Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](02-the-wishlist.md) is written in [Odin](https://odin-lang.org), which is *very* good at graphics programming. The first reason is memory. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs. Odin passes an implicit `context` into every procedure, carrying the allocator, so setting it once makes everything called afterwards, library code included, allocate from wherever you chose:
 
 ```odin
 arena: virtual.Arena
@@ -132,7 +132,7 @@ The second reason is libraries. Odin's `vendor` collection, maintained alongside
 
 ### Zig for the judge
 
-The third language came later, when we wrote [our own judge](16-the-machine-inside-the-judge.md) to play the toolkit's games faster. A judge is glue between C APIs: it hosts the organisers' engine and every dragon's bot inside wasmtime, a WebAssembly runtime whose API is C. [Zig](https://ziglang.org) is very good at exactly that kind of program.
+The third language came later, when we wrote [our own judge](19-the-machine-inside-the-judge.md) to play the toolkit's games faster. A judge is glue between C APIs: it hosts the organisers' engine and every dragon's bot inside wasmtime, a WebAssembly runtime whose API is C. [Zig](https://ziglang.org) is very good at exactly that kind of program.
 
 The first reason is that Zig reads C headers directly. There's no binding generator and no wrapper library to keep in step with wasmtime's releases. The judge imports the whole C API in three lines, and every wasmtime function and type is then available as if it were written in Zig:
 
@@ -171,8 +171,8 @@ crunch advance(positions: f32s, velocities: f32s) -> f32s:
 
 Each `| name <| expression` line reads right to left, with the value flowing into its name, and a run of them has to compile to one unbroken stretch of vector instructions with no calls or memory traffic. Here that stretch becomes a single fused multiply-add.
 
-This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. Rake is still an alpha, and its production targets are x86 AVX2 and Arm NEON, so [counting room faster](15-counting-room-faster.md) adds a WebAssembly profile that emits C the judge accepts, and writes the room count's masks in Rake.
+This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. Rake is still an alpha, and its production targets are x86 AVX2 and Arm NEON, so [counting room faster](18-counting-room-faster.md) adds a WebAssembly profile that emits C the judge accepts, and writes the room count's masks in Rake.
 
 ## Next up
 
-That's the end of the first stage, understanding the problem. The next stage builds the tools on the wishlist, starting with [the evaluation harness](03-the-evaluation-harness.md).
+That's the end of the first stage, understanding the problem. The next stage builds the tools on the wishlist, starting with [the evaluation harness](04-the-evaluation-harness.md).

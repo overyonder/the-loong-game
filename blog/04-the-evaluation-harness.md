@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the harness as it's now released: a frozen copy of the round robin runner we use for our own bots, in place of the simpler one this post first described. I reran the first run with the released harness and toolkit 1.2.2, and show its standard summary. Games between compiled bots now play in our Zig judge, which gives byte-identical replays, so the results stand.
 
-The [wishlist](01-the-wishlist.md) ended with eight tools, and most of them lean on the first one. The statistics need results to judge, the map generator needs something playing on its maps, and the ladder rates versions from games they've already played. So we start with the tool that produces games.
+The [wishlist](02-the-wishlist.md) ended with eight tools, and most of them lean on the first one. The statistics need results to judge, the map generator needs something playing on its maps, and the ladder rates versions from games they've already played. So we start with the tool that produces games.
 
 ![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which says how sure we can be of a difference, and the loop back to the bot is what to fix next. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
 
@@ -63,7 +63,7 @@ finally:
     process.wait()
 ```
 
-Sandboxed games between compiled bots play in our own Zig judge, which plays exactly the same games as the toolkit in a fraction of the time, and `--engine toolkit` sends them through the toolkit instead. Python bots and unsandboxed games always go through the toolkit, with a small wrapper that closes a race in its sandbox, which could otherwise kill a freshly split dragon on its first turn. We found that one the hard way, and [the machine inside the judge](16-the-machine-inside-the-judge.md) tells the story of both.
+Sandboxed games between compiled bots play in our own Zig judge, which plays exactly the same games as the toolkit in a fraction of the time, and `--engine toolkit` sends them through the toolkit instead. Python bots and unsandboxed games always go through the toolkit, with a small wrapper that closes a race in its sandbox, which could otherwise kill a freshly split dragon on its first turn. We found that one the hard way, and [the machine inside the judge](19-the-machine-inside-the-judge.md) tells the story of both.
 
 ## Keeping errors separate from losses
 
@@ -88,7 +88,7 @@ A bot failure is a dragon that ran out of time, exited, hit a fuel, trap or memo
 
 ## A first run
 
-To try it out, let's use the four bots we already have: the C and Python starters, and the flood-fill bot from [The choice](02-the-choice.md) in C and in Python. From `examples/tooling`, `just article-bots` fetches the toolkit's maps and sets up the bots, `just zig-judge-build` builds the judge, and `just tools-build` compiles the Nim programs the harness writes its results with. Then two seeds on each of toolkit 1.2.2's 15 bundled maps, in the sandbox, comes to 360 games, with the games between the two C bots playing in the judge and every game with a Python bot in the toolkit:
+To try it out, let's use the four bots we already have: the C and Python starters, and the flood-fill bot from [The choice](03-the-choice.md) in C and in Python. From `examples/tooling`, `just article-bots` fetches the toolkit's maps and sets up the bots, `just zig-judge-build` builds the judge, and `just tools-build` compiles the Nim programs the harness writes its results with. Then two seeds on each of toolkit 1.2.2's 15 bundled maps, in the sandbox, comes to 360 games, with the games between the two C bots playing in the judge and every game with a Python bot in the toolkit:
 
 ```sh
 just round-robin --bots starter-c starter-py room-c room-py --maps maps/*.map --sandbox --seeds 2
@@ -100,8 +100,8 @@ The games add up to about 43 minutes of play, which the harness spreads over as 
 
 Every pairing gets a row, with its record, its score, the Elo difference that score implies and a 95% interval around it. The results look the way we'd hope: both flood-fill bots beat both starters comfortably, and not a single game ended in an error. The intervals say how far to trust each gap. The starters' 34–26 is +47 Elo, but the interval runs from −41 to +141, so the two could easily be equal.
 
-The last column counts pairs of games: the same map and seed played twice, with the sides swapped. The two flood-fill bots make exactly the same move in every position, so every one of their 30 pairs is discordant, each bot winning from the same side, and they finish exactly level on 30–30. That's a useful warning. Two bots that play almost alike mostly win on which side they start, so their games against each other say very little, and [the next post](04-better-worse-or-undecided.md) compares close versions another way. Below this table the summary breaks each bot's results down by map group and by map, and counts how its dragons died, which later posts put to use.
+The last column counts pairs of games: the same map and seed played twice, with the sides swapped. The two flood-fill bots make exactly the same move in every position, so every one of their 30 pairs is discordant, each bot winning from the same side, and they finish exactly level on 30–30. That's a useful warning. Two bots that play almost alike mostly win on which side they start, so their games against each other say very little, and [the next post](05-better-worse-or-undecided.md) compares close versions another way. Below this table the summary breaks each bot's results down by map group and by map, and counts how its dragons died, which later posts put to use.
 
 ## Next up
 
-[Better, worse or undecided](04-better-worse-or-undecided.md): turning a pile of wins and losses into a clear answer on whether a change made the bot better.
+[Better, worse or undecided](05-better-worse-or-undecided.md): turning a pile of wins and losses into a clear answer on whether a change made the bot better.

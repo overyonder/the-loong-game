@@ -2,7 +2,7 @@
 
 > **Editor's note, 29 September 2026.** I've rewritten this post to be shorter, to describe the released decoder, now in Nim with its own Cap'n Proto reader, and to quote the reconstruction the viewer now uses, also in Nim. I decoded a newly sampled replay and counted deaths from the rerun ladder.
 
-In the [wishlist](01-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](07-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
+In the [wishlist](02-the-wishlist.md), a hex viewer showed us a replay's bot names, scraps of the map and nothing else. Now that the [sampler](08-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 
 ## The file format
 
@@ -121,7 +121,7 @@ That lit square is all the dragon's program was given that turn. Most of the ene
 
 ## A first question
 
-The decoder can already answer questions across many games. The [verdict post](04-better-worse-or-undecided.md) found the pearl-chasing bot losing to the plain flood-fill bot, and even dropping a game to a starter, and left the reason for later. The [ladder](06-a-ladder-of-our-own.md) kept every replay, so `just deaths` can count how each bot's dragons died across the 70 games between them:
+The decoder can already answer questions across many games. The [verdict post](05-better-worse-or-undecided.md) found the pearl-chasing bot losing to the plain flood-fill bot, and even dropping a game to a starter, and left the reason for later. The [ladder](07-a-ladder-of-our-own.md) kept every replay, so `just deaths` can count how each bot's dragons died across the 70 games between them:
 
 ![A terminal running just deaths over 70 replays. room-c's dragons hit a wall 46 times, hit themselves 34 times, hit another dragon 46 times and lost 24 head-to-heads. room-pearls hit a wall 92 times, hit itself 91 times, hit another dragon 46 times and lost 28 head-to-heads. Neither had a turn with no valid action.](images/replay-deaths.png)
 
@@ -133,4 +133,4 @@ The pearl chaser's dragons run into walls twice as often and into themselves nea
 
 ## Next up
 
-[Through one dragon's eyes](09-through-one-dragons-eyes.md): the debug viewer, and what it shows about those deaths.
+[Through one dragon's eyes](11-through-one-dragons-eyes.md): the debug viewer, and what it shows about those deaths.

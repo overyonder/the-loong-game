@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to describe the released ladder, which fits its ratings offline with the Bradley–Terry model, now in Nim, and plays its games in rounds. I reran the ladder with toolkit 1.2.2 on the new generated maps, so the ratings below are new.
 
-The [verdict tool](04-better-worse-or-undecided.md) answers one question at a time: how sure can we be that this candidate scores differently from that opponent? That's a useful question about one change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
+The [verdict tool](05-better-worse-or-undecided.md) answers one question at a time: how sure can we be that this candidate scores differently from that opponent? That's a useful question about one change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
 
 ## Ratings
 
@@ -12,7 +12,7 @@ The online ladder uses Elo ratings, from Arpad Elo's *The Rating of Chessplayers
 
 ## Fitting ratings offline
 
-The online ladder updates ratings one game at a time. After each game, the winner takes some points from the loser, more if the win was a surprise, with a factor called K deciding how big each step is. That suits a ladder that never stops, where new games keep arriving forever. It has two side effects we'd rather avoid, though. The ratings depend on the order the games happened in, and the most recent games move them the most, which is exactly the noise the [wishlist](01-the-wishlist.md) complained about.
+The online ladder updates ratings one game at a time. After each game, the winner takes some points from the loser, more if the win was a surprise, with a factor called K deciding how big each step is. That suits a ladder that never stops, where new games keep arriving forever. It has two side effects we'd rather avoid, though. The ratings depend on the order the games happened in, and the most recent games move them the most, which is exactly the noise the [wishlist](02-the-wishlist.md) complained about.
 
 There's a third effect that surprised me more. With a fixed K, every game can only move a rating so far, so a bot with a lopsided record never gets the rating its record implies. On our own private ladders, a bot that scored 98 of 100 against its pool sat at 1916 under game-by-game Elo, and at 2270 when fitted to all its games at once, which is what its odds against that pool imply.
 
@@ -49,7 +49,7 @@ A ladder writes three things: `results.json` with every game and every refit, `r
 
 ## The first ladder
 
-At this point in the series we have six bots: the two starters, the flood-fill bot from [The choice](02-the-choice.md) in C, Python and Nim, and the pearl-chasing version the verdict found losing. From `examples/tooling`, a ladder of all six on toolkit 1.2.2's 15 bundled maps and the 20 generated ones plays 350 rounds, 1,050 games, 70 between each pair of bots:
+At this point in the series we have six bots: the two starters, the flood-fill bot from [The choice](03-the-choice.md) in C, Python and Nim, and the pearl-chasing version the verdict found losing. From `examples/tooling`, a ladder of all six on toolkit 1.2.2's 15 bundled maps and the 20 generated ones plays 350 rounds, 1,050 games, 70 between each pair of bots:
 
 ```sh
 just ladder --bots starter-c starter-py room-c room-nim room-py room-pearls \
@@ -79,4 +79,4 @@ There's no circle here. The two upsets are both between bots that play alike: ro
 
 ## Next up
 
-The ladder measures our bots against each other. The next two tools look outward, at everyone else's games, starting with [a sampler](07-everyone-elses-games.md) that downloads the public ladder's replays without loading the organisers' site.
+The ladder measures our bots against each other. The next two tools look outward, at everyone else's games, starting with [a sampler](08-everyone-elses-games.md) that downloads the public ladder's replays without loading the organisers' site.

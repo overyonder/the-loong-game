@@ -2,11 +2,11 @@
 
 > **Editor's note, 29 September 2026.** The viewer and its recovery are now released in the public repository, so the code quoted here links to it. I've corrected how recovered decisions reach the viewer: they stream into memory rather than landing in a file.
 
-The [debug viewer](09-through-one-dragons-eyes.md) started life reading a JSON export of each game, and that was fine for short games. Then we opened a 500-round game, and the viewer sat there for over eight minutes, reaching 6 GB of memory, without ever drawing a frame. The export for a game that long was 552 MB, or 27 MB once we delta-encoded it, and all of it had to be parsed into objects before anything could be drawn.
+The [debug viewer](11-through-one-dragons-eyes.md) started life reading a JSON export of each game, and that was fine for short games. Then we opened a 500-round game, and the viewer sat there for over eight minutes, reaching 6 GB of memory, without ever drawing a frame. The export for a game that long was 552 MB, or 27 MB once we delta-encoded it, and all of it had to be parsed into objects before anything could be drawn.
 
 ![A 500-round game on disk, on a log scale: the viewer's old JSON export was 552 MB, and 27 MB delta-encoded. The packed replay of game 610 is 13 MB, and its columns file 14.6 MB.](images/gamedata-sizes.svg)
 
-So all our game data now goes in one binary format, which we call Loong columns. The packed replay from the judge is still the smallest thing on disk, but it's a Cap'n Proto message that has to be walked event by event, as in [Reading a replay](08-reading-a-replay.md). A columns file costs about the same space and needs no parsing at all: a reader maps it into memory and uses the numbers where they lie.
+So all our game data now goes in one binary format, which we call Loong columns. The packed replay from the judge is still the smallest thing on disk, but it's a Cap'n Proto message that has to be walked event by event, as in [Reading a replay](09-reading-a-replay.md). A columns file costs about the same space and needs no parsing at all: a reader maps it into memory and uses the numbers where they lie.
 
 ## Columns
 
@@ -89,7 +89,7 @@ Each round and each turn records the row of its starting event, so the viewer ju
 
 ![Opening that game in the viewer. Before, it had reached 6,100 MB when it was stopped, after over 8 minutes without drawing a frame. Now its peak memory to the first frame is 332 MB, and the first frame takes 0.96 s.](images/gamedata-viewer.svg)
 
-A game that never finished loading now draws its first frame in under a second. The same change went into our bots' decision records, which the viewer regenerates one dragon at a time by [re-running the bot](09-through-one-dragons-eyes.md) on what that dragon observed. The recovery now rebuilds those observations as a columns file of their own, and streams each turn's records to the viewer, which keeps them as the bot wrote them and parses them only for the turn on screen:
+A game that never finished loading now draws its first frame in under a second. The same change went into our bots' decision records, which the viewer regenerates one dragon at a time by [re-running the bot](11-through-one-dragons-eyes.md) on what that dragon observed. The recovery now rebuilds those observations as a columns file of their own, and streams each turn's records to the viewer, which keeps them as the bot wrote them and parses them only for the turn on screen:
 
 ![Recovering one dragon's diagnostics took 31 s before and takes 3.0 s with columns. Peak memory fell from 709 MB to 122 MB.](images/gamedata-recovery.svg)
 
@@ -103,4 +103,4 @@ New columns can appear without breaking anything, because readers look columns u
 
 ## Next up
 
-That's the last of the performance posts for now. The final stage starts with [how we played the ladder](19-playing-the-ladder.md) and [what we learned by modelling other teams](20-modelling-other-teams.md). Then it opens the bot itself in two parts: [the planning design](21-planning-to-play.md) and [the learned design](22-learning-to-play.md). The combined holdout follows after the Grand Final.
+That's the last of the performance posts for now. The final stage starts with [how we played the ladder](24-playing-the-ladder.md) and [what we learned by modelling other teams](25-modelling-other-teams.md). Then it opens the bot itself in two parts: [the planning design](26-planning-to-play.md) and [the learned design](27-learning-to-play.md). The combined holdout follows after the Grand Final.

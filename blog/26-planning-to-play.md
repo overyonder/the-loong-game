@@ -1,6 +1,6 @@
 # Planning to play
 
-The planning bot makes its choices from rules and scores we wrote. This article follows one turn through the whole design: what each dragon believes, how it talks to its team, the roles, all twenty behaviours, and how it picks a move. The version described here is textbook-main-0025, about 11,700 lines of Nim: one strategy file that assembles behaviours from a repertoire of modules, built the way [The shape of the problem](11-the-shape-of-the-problem.md) set out.
+The planning bot makes its choices from rules and scores we wrote. This article follows one turn through the whole design: what each dragon believes, how it talks to its team, the roles, all twenty behaviours, and how it picks a move. The version described here is textbook-main-0025, about 11,700 lines of Nim: one strategy file that assembles behaviours from a repertoire of modules, built the way [The shape of the problem](13-the-shape-of-the-problem.md) set out.
 
 Every dragon runs its own copy of the program. It sees the 7×7 cells round its head and whatever its teammates tell it by sonar, and nothing else. So everything below happens inside one dragon, and the team only acts as a team because every dragon runs the same rules on what it knows.
 
@@ -138,4 +138,4 @@ Each layer is a simpler version of its textbook form:
 - There's no shared team picture. Each dragon assigns roles from what it believes, and the radio keeps those beliefs close.
 - The filters are approximate: at most 300 states a dragon and 3,000 in all, and echoes correct geometry but not where dragons are.
 
-This is the planning half of the final bot. [Learning to play](22-learning-to-play.md) follows the learned line from its teacher and critic to the small student that fits inside the judge. *A tour of our bot* will return after the Grand Final as Post 23, once the holdout that combines the two is finished.
+This is the planning half of the final bot. [Learning to play](27-learning-to-play.md) follows the learned line from its teacher and critic to the small student that fits inside the judge. *A tour of our bot* will return after the Grand Final as Post 28, once the holdout that combines the two is finished.

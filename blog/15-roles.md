@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've rewritten this post to be shorter and to show the roles bot as it's built now, from behaviour modules in a shared repertoire. I reran its tests with the sequential verdict and toolkit 1.2.2 on the new generated maps, recounted the replays, and dropped a chart that screened variants for keeping or dropping, since settings like the champion's berth are parameters to tune once the rest of the bot settles.
 
-The [first strategy bot](11-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500, and another is two segments long and not worth much alive. This post gives dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its own role.
+The [first strategy bot](13-the-shape-of-the-problem.md) treats every dragon the same. But dragons on the same team aren't in the same position. One is long and carries the team's chance of winning at round 500, and another is two segments long and not worth much alive. This post gives dragons different roles, so the same program behaves differently depending on who's running it, and uses sonar to let each dragon work out its own role.
 
 ## Different jobs
 
@@ -50,7 +50,7 @@ The tag stops a dragon mistaking random enemy traffic for a teammate. It won't s
 
 ## The champion's berth
 
-Since the champion carries the team's hopes for round 500, the first version played it extra carefully, keeping three tiles from enemy heads instead of the usual two. Against the first bot it won 17, drew 3 and lost 21 before the [verdict](04-better-worse-or-undecided.md) stopped at not better, with an interval from −148 to +73 Elo.
+Since the champion carries the team's hopes for round 500, the first version played it extra carefully, keeping three tiles from enemy heads instead of the usual two. Against the first bot it won 17, drew 3 and lost 21 before the [verdict](05-better-worse-or-undecided.md) stopped at not better, with an interval from −148 to +73 Elo.
 
 A result like that is about the settings as much as the idea, so the first question was whether the roles machinery itself cost anything. A control that gave every dragon the first bot's behaviour, with the sonar still running and the champion keeping the usual two-tile berth, split its games with the first bot 36–37, and every pair of games on the same map and seed went to whichever bot had the same side. That's what two bots that make identical moves do, so listening and announcing cost nothing. That left the berth, a single number: keeping three tiles from enemy heads made the champion too timid to hold its ground. At two tiles, the roles bot came out level with the first bot, +14 Elo after 128 games with an interval from −47 to +75.
 
@@ -92,4 +92,4 @@ The obvious fix is to give friendly heads the same berth as enemy ones. Surprisi
 
 ## Next up
 
-[Tactics](13-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.
+[Tactics](16-tactics.md): once a dragon knows its role, how to carry it out well, starting with a question from the competition Discord about coiling the champion and feeding it.

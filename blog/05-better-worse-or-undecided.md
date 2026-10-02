@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've rewritten this post around the verdict as it works now. It no longer plays a fixed pile of games and judges them afterwards. It decides how many games a question needs, checks after every game, and stops as soon as the answer is safe. I've also made clear what it's for: measuring how far to trust a difference, while the faults it turns up are what we act on.
 
-With the [harness](03-the-evaluation-harness.md) we can play as many games as we like, and that's exactly the problem: a pile of results always tempts us to read meaning into small gaps. Playing a bot against a pool of opponents is how we find out what's wrong with it, and the useful output of those games is the faults, the games it should have won and didn't, each one something to watch in a viewer and fix. But the games also produce a score, and sooner or later we want to know what that score means. This post builds the tool for that, from first principles, and explains why it plays as few games as it does. The commands are `just batch` to play and `just verdict` to read, with the statistics in [harness/report/verdict.nim](../harness/report/verdict.nim).
+With the [harness](04-the-evaluation-harness.md) we can play as many games as we like, and that's exactly the problem: a pile of results always tempts us to read meaning into small gaps. Playing a bot against a pool of opponents is how we find out what's wrong with it, and the useful output of those games is the faults, the games it should have won and didn't, each one something to watch in a viewer and fix. But the games also produce a score, and sooner or later we want to know what that score means. This post builds the tool for that, from first principles, and explains why it plays as few games as it does. The commands are `just batch` to play and `just verdict` to read, with the statistics in [harness/report/verdict.nim](../harness/report/verdict.nim).
 
 ## The question
 
@@ -78,7 +78,7 @@ One more check runs alongside. Ten games against a bot that moves at random are 
 
 ## Reaching the cap
 
-Some changes are too small for either line: they help a little, or on some maps and not others. After 155 games without crossing, the verdict stops and reports no material difference. It means the difference is smaller than the test was built to see, and measuring it would take far more games, such as the [ladder](06-a-ladder-of-our-own.md) later in this stage, which plays every pair many times.
+Some changes are too small for either line: they help a little, or on some maps and not others. After 155 games without crossing, the verdict stops and reports no material difference. It means the difference is smaller than the test was built to see, and measuring it would take far more games, such as the [ladder](07-a-ladder-of-our-own.md) later in this stage, which plays every pair many times.
 
 ## A first verdict
 
@@ -109,8 +109,8 @@ As the bot grows, we save numbered snapshots of it, and it's tempting to read ea
 
 ![Rock, paper, scissors, rock, paper, scissors, labelled v1 to v6, with each version beating the one before it. The labels read as steady progress, but v4 plays exactly like v1.](images/version-cycle.svg)
 
-Every step in that sequence would pass a fair test, and the bot has only gone round in a circle. The [ladder](06-a-ladder-of-our-own.md), later in this stage, rates every snapshot against every other, so a version that has gone back round the circle shows up losing to one of its own ancestors.
+Every step in that sequence would pass a fair test, and the bot has only gone round in a circle. The [ladder](07-a-ladder-of-our-own.md), later in this stage, rates every snapshot against every other, so a version that has gone back round the circle shows up losing to one of its own ancestors.
 
 ## Next up
 
-[Maps nobody has seen](05-maps-nobody-has-seen.md): generating plausible new maps, and what the flood-fill bot does on them.
+[Maps nobody has seen](06-maps-nobody-has-seen.md): generating plausible new maps, and what the flood-fill bot does on them.

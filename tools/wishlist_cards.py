@@ -1,4 +1,4 @@
-"""Draw the wishlist card shown at the end of each section of post 1.
+"""Draw the wishlist card shown at the end of each section of post 2.
 
 Card N fills the first N slots, highlights the newest item and leaves the rest
 as empty dashed slots.

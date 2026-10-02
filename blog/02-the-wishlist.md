@@ -120,4 +120,4 @@ I already have most of these working in some form, so the tools posts will walk 
 
 ## Next up
 
-[Choosing a language](02-the-choice.md), which settles how much of the CPU budget is left for thinking.
+[Choosing a language](03-the-choice.md), which settles how much of the CPU budget is left for thinking.

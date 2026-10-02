@@ -2,7 +2,7 @@
 
 > **Editor's note, 28 September 2026.** I've rewritten this post to be shorter, and the bot now reads the clock from Nim instead of C.
 
-[The choice](02-the-choice.md) measured what a whole turn costs in each language, which was enough to pick one. It can't say what the points are spent on, and once a bot searches properly, every point spent elsewhere is search depth it doesn't get. The last tool on the wishlist splits a turn's cost into its parts, then follows the expensive part down to individual instructions.
+[The choice](03-the-choice.md) measured what a whole turn costs in each language, which was enough to pick one. It can't say what the points are spent on, and once a bot searches properly, every point spent elsewhere is search depth it doesn't get. The last tool on the wishlist splits a turn's cost into its parts, then follows the expensive part down to individual instructions.
 
 ## The price list
 
@@ -100,4 +100,4 @@ Beyond the eight tools on the wishlist, the screenshots in these posts lean on a
 
 ## Next up
 
-That completes the wishlist. The series turns to the part that decides games, starting with [the shape of the problem](11-the-shape-of-the-problem.md).
+That completes the wishlist. The series turns to the part that decides games, starting with [the shape of the problem](13-the-shape-of-the-problem.md).

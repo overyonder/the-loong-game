@@ -51,7 +51,7 @@ We decoded other teams' sonar where we could. Across 800 replays from 20 teams, 
 
 ### Upset screens
 
-The screens that found the ram rushers and the other styles in [Playing the ladder](19-playing-the-ladder.md#opponents-we-named) looked at results rather than behaviour: teams that beat much stronger ones, and how the dragons in those games died.
+The screens that found the ram rushers and the other styles in [Playing the ladder](24-playing-the-ladder.md#opponents-we-named) looked at results rather than behaviour: teams that beat much stronger ones, and how the dragons in those games died.
 
 ### Determinism
 

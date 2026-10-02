@@ -2,7 +2,7 @@
 
 Most Battlecode seasons are built around one unusual mechanic, and the strongest teams exploit it better than anyone else. In 2026 it's sonar. It's the only way dragons can talk, the only way they learn anything beyond their 7×7 window, and every message is as audible to the enemy as to a teammate.
 
-[Roles](12-roles.md) used sonar to announce a dragon's length, and [Tactics](13-tactics.md) added its position. This post is a notebook of what else the rules allow, with the working out left to you.
+[Roles](15-roles.md) used sonar to announce a dragon's length, and [Tactics](16-tactics.md) added its position. This post is a notebook of what else the rules allow, with the working out left to you.
 
 ![One sonar message from the roles bot, 64 bits. The top 32 bits hold the team tag 0x4C4F4F4E, which spells LOON. Bits 31 to 16 hold the sender's ID, bits 15 to 12 its role, and bits 11 to 0 its length.](images/sonar-message.svg)
 
@@ -52,4 +52,4 @@ It's a joke, but it describes sonar well: a channel between two programs that do
 
 ## Next up
 
-That ends the ideas stages. The last stage is performance, making a bot's thinking cheaper so it can afford more of it, starting with [counting room faster](15-counting-room-faster.md).
+That ends the ideas stages. The last stage is performance, making a bot's thinking cheaper so it can afford more of it, starting with [counting room faster](18-counting-room-faster.md).

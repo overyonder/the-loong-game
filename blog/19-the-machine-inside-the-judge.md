@@ -1,6 +1,6 @@
 # The machine inside the judge
 
-> **Editor's note, 29 September 2026.** I've added figures to this post, linked the judge's source, moved the reasons for writing it in Zig to [The choice](02-the-choice.md), and linked the next post. Every game we play now runs in the judge, which meters bots itself, so I've added the larger equivalence check that came first, the check you can run yourself, and what the judge saves when every core is busy. The released judge now leaves a bot's first read uncharged, as the competition's judge does, which the section on first reads covers, and gives a bot rerun for the viewer a larger turn budget.
+> **Editor's note, 29 September 2026.** I've added figures to this post, linked the judge's source, moved the reasons for writing it in Zig to [The choice](03-the-choice.md), and linked the next post. Every game we play now runs in the judge, which meters bots itself, so I've added the larger equivalence check that came first, the check you can run yourself, and what the judge saves when every core is busy. The released judge now leaves a bot's first read uncharged, as the competition's judge does, which the section on first reads covers, and gives a bot rerun for the viewer a larger turn budget.
 
 We wrote our own judge. It plays exactly the same games as the official toolkit, event for event and, apart from one deliberate difference, point for point, in about a quarter of the time, and every game we play now runs in it, with the toolkit kept as the reference we check it against. And it never loses a dragon to a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
@@ -69,11 +69,11 @@ pub fn write(self: *Instance, data: []const u8) !bool {
 }
 ```
 
-So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread. The budget is the ordinary 100M points a turn, except when the [viewer](09-through-one-dragons-eyes.md) reruns a bot to read its explanations, when the turn may spend a hundred times that on them.
+So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread. The budget is the ordinary 100M points a turn, except when the [viewer](11-through-one-dragons-eyes.md) reruns a bot to read its explanations, when the turn may spend a hundred times that on them.
 
 ![Threads in the official sandbox, fibres in ours. In the official sandbox, a driver thread notes parks and feeds turns to dragon threads blocked in fd_read, and a new child's thread is already running, so it can reach its first read between the park count and the feed and be taken as done. In our judge, one thread per game holds the driver, the engine and every dragon, and a dragon's fibre pauses mid read and runs only when the driver resumes it, so no bot runs between noting the count and feeding a turn.](images/threads-fibres.svg)
 
-The judge is written in Zig, for reasons [The choice](02-the-choice.md) goes into: it reads wasmtime's C headers directly, has no runtime of its own, and builds to a single binary. A batch runs one game per thread, with every bot in a game sharing that game's thread.
+The judge is written in Zig, for reasons [The choice](03-the-choice.md) goes into: it reads wasmtime's C headers directly, has no runtime of its own, and builds to a single binary. A batch runs one game per thread, with every bot in a game sharing that game's thread.
 
 ## Same games
 
@@ -131,4 +131,4 @@ The judge stops our bots at WebAssembly. At [over|yonder](https://over-yonder.te
 
 ## Next up
 
-[Games in the cloud](17-games-in-the-cloud.md): running big batches of games on AWS Spot workers, and how every run ends on its own.
+[Games in the cloud](21-games-in-the-cloud.md): running big batches of games on AWS Spot workers, and how every run ends on its own.

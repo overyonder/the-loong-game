@@ -1,6 +1,6 @@
 # Counting room faster
 
-Every bot in this series counts how much room a move leaves, and [where the points go](10-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, one step at a time, from the Nim the first bot used down to vector instructions.
+Every bot in this series counts how much room a move leaves, and [where the points go](12-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, one step at a time, from the Nim the first bot used down to vector instructions.
 
 To compare versions fairly, I wrote a benchmark bot that plays the first bot's moves and, on every turn, runs each version of the room count on the same window. It checks that they all agree, then logs what each one cost using the judge's own clock, so the numbers are exact CPU points. Over 1,477 turns on six maps, every version agreed on every turn:
 
@@ -79,7 +79,7 @@ The masks now cost about 435 points instead of 7,800, and the whole room count a
 
 Vectorised C has one weakness: nothing promises it stays vectorised. A small edit elsewhere can let the compiler turn part of a kernel back into scalar code, and the only way to find out is to read the assembly or notice a slow benchmark.
 
-As I mentioned in [the choice](02-the-choice.md#rake-for-vector-kernels), Rake exists for exactly this problem: every rack stays in one vector register, and a kernel that would fall back to scalar code doesn't build. For this post I added a [WebAssembly profile](https://github.com/rakelang/rake/tree/wasm-simd128) to it. Here is the north mask in Rake:
+As I mentioned in [the choice](03-the-choice.md#rake-for-vector-kernels), Rake exists for exactly this problem: every rack stays in one vector register, and a kernel that would fall back to scalar code doesn't build. For this post I added a [WebAssembly profile](https://github.com/rakelang/rake/tree/wasm-simd128) to it. Here is the north mask in Rake:
 
 ```rake
 crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:
@@ -93,7 +93,7 @@ The judge only takes C, so the profile emits C, one intrinsic per selected instr
 
 ## The fast bot
 
-The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. That's the split [The choice](02-the-choice.md) planned: strategy in Nim, and hot code in a kernel it calls. This example's kernel is hand-written C. Our competition bot writes any hot kernel in Rake, like the masks above. On the bundled maps the fast bot plays exactly the same games as the original:
+The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. That's the split [The choice](03-the-choice.md) planned: strategy in Nim, and hot code in a kernel it calls. This example's kernel is hand-written C. Our competition bot writes any hot kernel in Rake, like the masks above. On the bundled maps the fast bot plays exactly the same games as the original:
 
 ![A terminal running just fast. The first bot and the fast bot each play room-c on the default map with seed 0x42. Both games have the same five deaths and end with team B winning on length after 500 rounds. The first bot's median turn costs 3.2 million points, and the fast bot's 3.0 million.](images/fast-bot.png)
 
@@ -103,4 +103,4 @@ One wish remains. Of the mask builder's 260 or so WebAssembly instructions, 42 a
 
 ## Next up
 
-[The machine inside the judge](16-the-machine-inside-the-judge.md): the judge we wrote to play these games four times faster, and the machine it presents to a bot.
+[The machine inside the judge](19-the-machine-inside-the-judge.md): the judge we wrote to play these games four times faster, and the machine it presents to a bot.

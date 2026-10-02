@@ -20,7 +20,7 @@ Put together, this is an adaptive, adversarial problem, played on partial inform
 
 ![The same round of a public ladder game twice. On the left, the whole board. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
 
-Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see why, fix that one behaviour, and prove with the [verdict](04-better-worse-or-undecided.md) that the fix helped without breaking anything else. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
+Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see why, fix that one behaviour, and prove with the [verdict](05-better-worse-or-undecided.md) that the fix helped without breaking anything else. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
 
 ## A menu of architectures
 
@@ -80,7 +80,7 @@ Neither behaviour can pick a fatal step, because movement filters those out firs
 
 ## The first result
 
-To see whether the structure pays off, we test the first bot against the flood-fill bot from [The choice](02-the-choice.md), on toolkit 1.2.2's 15 bundled maps and the 20 generated ones. From `examples/tooling`, `just first-bot` builds the bot from Nim to C and runs the [verdict](04-better-worse-or-undecided.md) on it:
+To see whether the structure pays off, we test the first bot against the flood-fill bot from [The choice](03-the-choice.md), on toolkit 1.2.2's 15 bundled maps and the 20 generated ones. From `examples/tooling`, `just first-bot` builds the bot from Nim to C and runs the [verdict](05-better-worse-or-undecided.md) on it:
 
 | Candidate | Opponent | W–D–L | Elo (95% interval) | Decision | Games used |
 | --- | --- | --- | --- | --- | --- |
@@ -100,8 +100,8 @@ Here's one of those length losses in the viewer, the last round of a game on the
 
 Nobody on this board grew, and it isn't for lack of food. Nearly every pearl sits in one of those small walled boxes, which a dragon can only enter through a portal, and neither bot goes looking for food, let alone through a portal to reach it. The flood-fill bot's only dragon ends 4 segments long and the first bot's three end 3 each, so a single pearl picked up by chance decided the game. Surviving with more dragons doesn't count for anything at round 500, only the longest one does, which is a job for the roles in the next post.
 
-So the first bot is a structure more than a clear improvement, and [the ladder at the end of the tactics post](13-tactics.md#every-version-on-one-ladder) puts it only a little ahead of the flood-fill bot. Every new behaviour now has an obvious place to go.
+So the first bot is a structure more than a clear improvement, and [the ladder at the end of the tactics post](16-tactics.md#every-version-on-one-ladder) puts it only a little ahead of the flood-fill bot. Every new behaviour now has an obvious place to go.
 
 ## Next up
 
-From here the series adds behaviour one piece at a time, starting with [roles](12-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.
+From here the series adds behaviour one piece at a time, starting with [roles](15-roles.md): giving dragons different jobs, and letting each one work out its job by sonar.

@@ -2,7 +2,7 @@
 
 > **Editor's note, 2 October 2026.** I've brought the public viewer up to the version we use. It now shows roles and tasks on the board, reads a bot's state straight from memory, reconstructs the deeper reasoning behind a decision, keeps comments with their exact context, and rebuilds only the part of a game being inspected. The showcase bot demonstrates the new public contract.
 
-When a dragon does something stupid, the official visualiser shows the whole board. But the dragon only saw the 7×7 square around its head, and a move that looks absurd from above can look sensible from inside that square. So the debugging question is never "what was on the board?" but "what could this dragon see, and what did it make of it?" The seventh tool answers both: a debug viewer that shows a game through one dragon's eyes, written in [Odin](https://odin-lang.org) for the reasons in [The choice](02-the-choice.md) and built on the [decoder](08-reading-a-replay.md).
+When a dragon does something stupid, the official visualiser shows the whole board. But the dragon only saw the 7×7 square around its head, and a move that looks absurd from above can look sensible from inside that square. So the debugging question is never "what was on the board?" but "what could this dragon see, and what did it make of it?" The seventh tool answers both: a debug viewer that shows a game through one dragon's eyes, written in [Odin](https://odin-lang.org) for the reasons in [The choice](03-the-choice.md) and built on the [decoder](09-reading-a-replay.md).
 
 ![The viewer on a showcase game at round 178, focused on dragon 0 after all 68 dragons have rebuilt. The left sidebar charts the team's roles and tasks. Scouts are green with magnifying-glass heads, foragers are gold with arrow heads, and parents are blue with crowns. Body patterns show the task. The board is zoomed on the dragon, with its 7×7 window outlined in yellow, a route to a pearl, a red line to the nearest enemy head, and dots where it believes other dragons are. The Brain tab shows Eat selected with utility 6. Under the board, the beliefs strip grades what team A's eight dragons know.](images/viewer-overview.png)
 
@@ -16,7 +16,7 @@ The `Us` button chooses which team the charts, beliefs and role drawings describ
 
 Two views read the replay alone. The Evaluation pane gives each side's chance of winning after every round, from [bceval](https://github.com/xCirno1/battlecode-eval) by xCirno1, a logistic model over 23 features of the whole board, such as bodies, pearls eaten, fights and the ground nearer each team. The viewer ports it to Odin. The Spawn gaps overlay tints each cell by how fast pearls come back to it, so the rich ground stands out under everything else.
 
-How the viewer opens a 500-round game in under a second is [its own post](18-game-data-in-columns.md).
+How the viewer opens a 500-round game in under a second is [its own post](22-game-data-in-columns.md).
 
 ## Rebuilt decisions
 
@@ -24,7 +24,7 @@ A replay records what each dragon observed and what it did, but not why. The vie
 
 ![In play, bot.wasm has its diagnostics compiled in and switched off, costing one flag check per block. The judge plays the game and writes the replay, with what each dragon observed and did. In the viewer, the same bot.wasm comes from the build registry and is started with LOONG_INSPECT, so its diagnostics run. loong-recover runs it in the judge on each dragon's recorded observations and checks each action, and the viewer draws each turn's records beside the board, hiding a dragon's overlays after its rebuilt action first differs from the replay.](images/viewer-recovery.svg)
 
-The explanations are compiled into the build that plays, but switched off, so in a game each block costs one flag check. The organiser's engine never sends the line that switches them on. Our recovery tool, `loong-recover`, sends it first, then feeds the dragon its recorded observations one turn at a time in the [Zig judge](16-the-machine-inside-the-judge.md). Each rebuilt action is checked against the replay. If one ever differs, that dragon's later turns are marked unreliable and their overlays disappear, since from then on they show some other game.
+The explanations are compiled into the build that plays, but switched off, so in a game each block costs one flag check. The organiser's engine never sends the line that switches them on. Our recovery tool, `loong-recover`, sends it first, then feeds the dragon its recorded observations one turn at a time in the [Zig judge](19-the-machine-inside-the-judge.md). Each rebuilt action is checked against the replay. If one ever differs, that dragon's later turns are marked unreliable and their overlays disappear, since from then on they show some other game.
 
 A bot writes its explanations inside a diagnostic block, which runs only when inspection has switched it on. The Nim helper times itself, too, so the points a block spends are left out of the clock the bot budgets with:
 
@@ -167,7 +167,7 @@ Back to the question from the last post: why do the pearl chaser's dragons hit w
 
 ![The viewer at round 208 of room-c against room-pearls on Autarky, a wide map. Dragon 7 of room-pearls is focused: its head is in a small walled box on the left, inside its yellow window, and the rest of its 27-segment body lies on the right side of the board, drawn faded because it has yet to move this turn. Lines join the ends of each portal pair across the board.](images/viewer-long-dragon-portal.png)
 
-Its head is inside a small walled box that the dragon can only have entered through a portal, and most of its body is back on the other side of the board, far outside its 49-tile window. Its next move went north through the portal edge and landed on its own body on the far side. That's the portal blind spot from [the map generator post](05-maps-nobody-has-seen.md), and 28 of the pearl chaser's 91 self-hits in these games went through a portal the same way.
+Its head is inside a small walled box that the dragon can only have entered through a portal, and most of its body is back on the other side of the board, far outside its 49-tile window. Its next move went north through the portal edge and landed on its own body on the far side. That's the portal blind spot from [the map generator post](06-maps-nobody-has-seen.md), and 28 of the pearl chaser's 91 self-hits in these games went through a portal the same way.
 
 The next one has no portal to blame. Pale Maze, one of the generated maps, has no portals, and this dragon had grown to 55 segments:
 
@@ -183,4 +183,4 @@ A third of the pearl chaser's self-hits were dragons longer than 49 segments, to
 
 ## Next up
 
-The last tool on the wishlist is profiling: [where the points go](10-where-the-points-go.md).
+The last tool on the wishlist is profiling: [where the points go](12-where-the-points-go.md).
