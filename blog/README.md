@@ -42,3 +42,4 @@ The series runs through these stages in order. The site shows them as a stepper 
 4. Tactical ideas and espionage
 5. Performance
 6. Behind the bot
+7. Fun and games
