@@ -105,7 +105,9 @@ Public ladder games enter by another route. We replay a foil or imitation policy
 
 ### Compiled opponents
 
-A mimic can also become a league opponent when it has a compatible checkpoint. A WASM bot cannot execute inside the CUDA engine, so our compiled planning bots play through the judge's served-team mode instead: the official engine and the WASM opponent run on the CPU, while a GPU server batches the teacher's replies. Those games are used for evaluation, and they can be introduced occasionally when an evaluation exposes a weakness. This gives the teacher changing opponents without training it on held-out ladder maps.
+A mimic can also become a league opponent when it has a compatible checkpoint. The training engine's device-only interface doesn't run WASM bots, so our compiled planning bots play through the judge's served-team mode instead: the official engine and the WASM opponent run on the CPU, while a GPU server batches the teacher's replies. Those games are used for evaluation, and they can be introduced occasionally when an evaluation exposes a weakness. This gives the teacher changing opponents without training it on held-out ladder maps.
+
+The separately released [complete-match CUDA reference](20-an-engine-on-the-gpu.md#released-cpu-and-cuda-references) runs WASM bots on host CPUs and simulation on the GPU. It doesn't include the device-only training interface described here.
 
 ## The sidecar
 

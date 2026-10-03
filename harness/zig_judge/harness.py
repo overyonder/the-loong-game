@@ -72,7 +72,12 @@ def check_judge(judge: Path = JUDGE) -> Path:
     built = judge.stat().st_mtime
     if any(
         source.stat().st_mtime > built
-        for source in (sources / "build.zig", *sources.glob("src/*.zig"))
+        for source in (
+            sources / "build.zig",
+            *sources.glob("src/*.zig"),
+            *sources.glob("reference/*.h"),
+            *sources.glob("reference/*.cc"),
+        )
     ):
         raise RuntimeError(
             f"{judge} is older than its sources: run just zig-judge-build"

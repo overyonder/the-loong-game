@@ -13,7 +13,7 @@ const engine = @import("engine.zig");
 extern fn loong_port_create(map: [*]const u8, length: usize, seed: u64, err: [*]u8, capacity: usize) ?*anyopaque;
 extern fn loong_port_next(port: *anyopaque, block: [*]u8, capacity: usize, length: *usize) i32;
 extern fn loong_port_apply(port: *anyopaque, reply: [*]const u8, length: usize) void;
-extern fn loong_port_result(port: *const anyopaque, out: *[10]i32) void;
+extern fn loong_port_result(port: *const anyopaque, out: *[12]i32) void;
 extern fn loong_port_destroy(port: *anyopaque) void;
 
 const Pair = struct {
@@ -307,14 +307,14 @@ pub fn run(allocator: std.mem.Allocator, io: std.Io, module: *const engine.Engin
                 pair.failed = true;
             }
         }
-        var ours: [10]i32 = undefined;
+        var ours: [12]i32 = undefined;
         loong_port_result(port, &ours);
         const winner: i32 = switch (result.winner) {
             .none => 0,
             .a => 1,
             .b => 2,
         };
-        if (!pair.failed and (result.rounds + 1 != ours[0] or winner != ours[1] or result.end_reason != ours[2] or result.a_dragons != ours[3] or result.a_length != ours[5] or result.b_dragons != ours[6] or result.b_length != ours[8] or ours[9] != 0)) {
+        if (!pair.failed and (result.rounds != ours[0] or winner != ours[1] or result.end_reason != ours[2] or result.a_dragons != ours[3] or result.a_length != ours[5] or result.b_dragons != ours[6] or result.b_length != ours[8] or result.a_longest != ours[4] or result.b_longest != ours[7] or result.a_queen != ours[10] or result.b_queen != ours[11] or ours[9] != 0)) {
             pair.failed = true;
             std.debug.print("{s} seed {d}: results differ. The engine: rounds {d}, winner {d}, reason {d}, dragons {d} and {d}, lengths {d} and {d}. Ours: {any}\n", .{ path, seed, result.rounds, winner, result.end_reason, result.a_dragons, result.b_dragons, result.a_length, result.b_length, ours });
         }

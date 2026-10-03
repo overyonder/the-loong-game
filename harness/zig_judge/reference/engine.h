@@ -1,8 +1,9 @@
 // The organisers' Loong engine, ported to fixed arrays so that one source
-// is released here as a CPU reference. Each function follows its namesake in
+// compiles for the CPU and for CUDA. Each function follows its namesake in
 // unswcpmsoc/unswbc (engine/src, commit eb54612, version 1.0.2), with the
-// pearl generator of version 1.2.2: std::mt19937_64 seeded with the match
-// seed. The judge's oracle mode checks it against the 1.2.2 engine turn by turn.
+// pearl generator of version 1.2.2 and the queen scoring and free sprint
+// allowance of 1.2.6. The judge's lockstep mode checks the official engine
+// turn by turn; its result ABI also exposes queen and longest lengths.
 //
 // Bodies are linked lists through the board: each occupied cell holds its
 // dragon's slot and the cells toward the head and toward the tail, so finding
@@ -29,7 +30,13 @@
 
 #include <stdint.h>
 
+#ifdef __CUDACC__
+#define LE __host__ __device__ inline
+#else
 #define LE inline
+#endif
+
+#include "replay_events.h"
 
 namespace loong {
 
@@ -38,7 +45,7 @@ constexpr int MAX_CELLS = MAX_SIDE * MAX_SIDE;
 constexpr int MAX_SLOTS = 128;       // living dragons, 64 a team at most
 constexpr int MAX_ORDER = 512;       // turns in one round: the living plus that round's children
 constexpr int INBOX = 64;            // sonar messages kept between a dragon's turns
-constexpr int MAX_STEPS = 16;        // steps in one sprint
+constexpr int MAX_STEPS = 16;        // inline steps; text replies may use an external sequence
 constexpr int MAX_ROUNDS = 500;
 constexpr int MIN_LENGTH = 2;
 constexpr int VISION = 7;
@@ -58,8 +65,9 @@ enum ActionKind : uint8_t { SUICIDE = 0, MOVE = 1, SPLIT = 2 };
 struct Action
 {
     uint8_t kind = SUICIDE;
-    uint8_t steps = 0;
+    int32_t steps = 0;
     uint8_t step[MAX_STEPS] = {};
+    uint8_t const* extendedSteps = nullptr; // host reply's sequence when longer than the inline array
     int32_t split = 0;
     uint8_t sonarMask = 0;            // bit d: a directed sonar toward d
     uint64_t sonar[4] = {};
@@ -156,7 +164,11 @@ LE uint64_t Draw(Rng& r)
 }
 
 LE int Opposite(int d) { return (d + 2) & 3; }
-LE int Wrap(int v, int size) { return ((v % size) + size) % size; }
+LE int Wrap(int v, int size)
+{
+    int const remainder = v % size;
+    return remainder < 0 ? remainder + size : remainder;
+}
 LE int Cell(Game const& g, int x, int y) { return y * g.width + x; }
 LE int X(Game const& g, int cell) { return cell % g.width; }
 LE int Y(Game const& g, int cell) { return cell / g.width; }
@@ -225,9 +237,11 @@ LE int DirectionOfStepBetween(Game const& g, int from, int to)
     return -1;
 }
 
-LE void Kill(Game& g, int slot, int reason, int32_t* deaths)
+template<typename Events = NoReplayEvents>
+LE void Kill(Game& g, int slot, int reason, int32_t* deaths, Events const& events = {})
 {
     Dragon& d = g.dragon[slot];
+    events.emit({DEATH_EVENT, {d.id, reason, g.round}});
     int segment = 0;
     for (int cell = d.head; cell >= 0; segment++)
     {
@@ -235,6 +249,7 @@ LE void Kill(Game& g, int slot, int reason, int32_t* deaths)
         if (segment % 2 == 0)
         {
             g.pearl[cell] = 1;
+            events.emit({TILE_EVENT, {X(g, cell), Y(g, cell), 1}});
         }
         g.occupant[cell] = -1;
         cell = next;
@@ -266,31 +281,32 @@ struct Outcome
     int32_t children;
 };
 
-LE void Step(Game& g, int slot, int dir, bool pay, Outcome& out)
+template<typename Events = NoReplayEvents>
+LE void Step(Game& g, int slot, int dir, bool pay, Outcome& out, Events const& events = {})
 {
     Dragon& d = g.dragon[slot];
     d.facing = static_cast<uint8_t>(dir);
     int const dest = TileAfterStep(g, d.head, dir);
     if (dest < 0)
     {
-        Kill(g, slot, WALL, out.deaths);
+        Kill(g, slot, WALL, out.deaths, events);
         return;
     }
     int const other = g.occupant[dest];
     if (other == slot)
     {
-        Kill(g, slot, SELF, out.deaths);
+        Kill(g, slot, SELF, out.deaths, events);
         return;
     }
     if (other >= 0)
     {
         if (g.dragon[other].head == dest)
         {
-            Kill(g, other, HEAD_ON, out.deaths);
-            Kill(g, slot, HEAD_ON, out.deaths);
+            Kill(g, other, HEAD_ON, out.deaths, events);
+            Kill(g, slot, HEAD_ON, out.deaths, events);
             return;
         }
-        Kill(g, slot, OTHER, out.deaths);
+        Kill(g, slot, OTHER, out.deaths, events);
         return;
     }
     g.occupant[dest] = static_cast<int16_t>(slot);
@@ -302,6 +318,7 @@ LE void Step(Game& g, int slot, int dir, bool pay, Outcome& out)
     if (g.pearl[dest])
     {
         g.pearl[dest] = 0;
+        events.emit({TILE_EVENT, {X(g, dest), Y(g, dest), 0}});
         out.pearls++;
     }
     else
@@ -312,18 +329,23 @@ LE void Step(Game& g, int slot, int dir, bool pay, Outcome& out)
     {
         PopTail(g, d);
     }
+    events.emit({UPDATE_EVENT, {d.id, d.facing, X(g, d.head), Y(g, d.head), X(g, d.tail), Y(g, d.tail)}});
 }
 
-LE void Move(Game& g, int slot, Action const& a, Outcome& out)
+template<typename Events = NoReplayEvents>
+LE void Move(Game& g, int slot, Action const& a, Outcome& out, Events const& events = {})
 {
+    int const freeSteps = (g.dragon[slot].length + 3) / 4;
     for (int i = 0; i < a.steps; i++)
     {
-        if (i > 0 && g.dragon[slot].length <= MIN_LENGTH)
+        bool const pay = i >= freeSteps;
+        if (pay && g.dragon[slot].length <= MIN_LENGTH)
         {
-            Kill(g, slot, NO_ACTION, out.deaths);
+            events.emit({ACTION_ERROR_EVENT, {g.dragon[slot].id, 0, i + 1, g.dragon[slot].team}});
+            Kill(g, slot, NO_ACTION, out.deaths, events);
             return;
         }
-        Step(g, slot, a.step[i], i > 0, out);
+        Step(g, slot, a.extendedSteps ? a.extendedSteps[i] : a.step[i], pay, out, events);
         if (!g.dragon[slot].alive)
         {
             return;
@@ -331,13 +353,15 @@ LE void Move(Game& g, int slot, Action const& a, Outcome& out)
     }
 }
 
-LE void Split(Game& g, int slot, int count, Outcome& out)
+template<typename Events = NoReplayEvents>
+LE void Split(Game& g, int slot, int count, Outcome& out, Events const& events = {})
 {
     Dragon& parent = g.dragon[slot];
     int const length = parent.length;
     if (count < MIN_LENGTH || count > length - MIN_LENGTH || g.alive[parent.team] >= g.unitLimit)
     {
-        Kill(g, slot, NO_ACTION, out.deaths);
+        events.emit({ACTION_ERROR_EVENT, {parent.id, count < MIN_LENGTH || count > length - MIN_LENGTH ? 1 : 2, count, length, parent.team, g.unitLimit}});
+        Kill(g, slot, NO_ACTION, out.deaths, events);
         return;
     }
     int free = -1;
@@ -352,7 +376,7 @@ LE void Split(Game& g, int slot, int count, Outcome& out)
     if (free < 0 || g.orderCount >= MAX_ORDER)
     {
         g.overflow++;
-        Kill(g, slot, NO_ACTION, out.deaths);
+        Kill(g, slot, NO_ACTION, out.deaths, events);
         return;
     }
     // The child takes the rear `count` segments, reversed: the old tail is its head.
@@ -396,9 +420,11 @@ LE void Split(Game& g, int slot, int count, Outcome& out)
     g.alive[child.team]++;
     g.order[g.orderCount++] = Turn{static_cast<int16_t>(free), child.id};
     out.children++;
+    events.split(g, slot, free);
 }
 
-LE int CastSonar(Game& g, int slot, int dir, uint64_t value)
+template<typename Events = NoReplayEvents>
+LE int CastSonar(Game& g, int slot, int dir, uint64_t value, Events const& events = {})
 {
     Dragon& d = g.dragon[slot];
     bool const fromTail = dir == Opposite(d.facing) && d.length > 1;
@@ -441,13 +467,17 @@ LE int CastSonar(Game& g, int slot, int dir, uint64_t value)
         bool const isHead = target.head == at;
         kind = target.team == d.team ? (isHead ? ALLY_HEAD : ALLY) : (isHead ? ENEMY_HEAD : ENEMY);
     }
+    events.emit({SONAR_EVENT, {d.id, dir, X(g, origin), Y(g, origin), X(g, at), Y(g, at), hit < 0 ? -1 : g.dragon[hit].id, kind == EMPTY ? 1 : kind + 2}, value});
     return kind;
 }
 
-LE void SetCountdown(Game& g, int bed, int mirror, int gap)
+template<typename Events = NoReplayEvents>
+LE void SetCountdown(Game& g, int bed, int mirror, int gap, Events const& events = {})
 {
     g.countdown[bed] = gap;
     g.countdown[mirror] = gap;
+    events.emit({COUNTDOWN_EVENT, {X(g, bed), Y(g, bed), gap}});
+    if (mirror != bed) events.emit({COUNTDOWN_EVENT, {X(g, mirror), Y(g, mirror), gap}});
 }
 
 LE int DrawRespawnGap(Game& g, int bed)
@@ -456,15 +486,18 @@ LE int DrawRespawnGap(Game& g, int bed)
     return g.minGap[bed] + static_cast<int>(Draw(g.rng) % span);
 }
 
-LE void TrySpawnPearl(Game& g, int bed)
+template<typename Events = NoReplayEvents>
+LE void TrySpawnPearl(Game& g, int bed, Events const& events = {})
 {
     if (!g.pearl[bed] && g.occupant[bed] < 0)
     {
         g.pearl[bed] = 1;
+        events.emit({TILE_EVENT, {X(g, bed), Y(g, bed), 1}});
     }
 }
 
-LE void InitPearlCountdowns(Game& g)
+template<typename Events = NoReplayEvents>
+LE void InitPearlCountdowns(Game& g, Events const& events = {})
 {
     int const cells = g.width * g.height;
     for (int bed = 0; bed < cells; bed++)
@@ -474,11 +507,12 @@ LE void InitPearlCountdowns(Game& g)
         {
             continue;
         }
-        SetCountdown(g, bed, mirror, DrawRespawnGap(g, bed));
+        SetCountdown(g, bed, mirror, DrawRespawnGap(g, bed), events);
     }
 }
 
-LE void PearlTick(Game& g)
+template<typename Events = NoReplayEvents>
+LE void PearlTick(Game& g, Events const& events = {})
 {
     int const cells = g.width * g.height;
     for (int bed = 0; bed < cells; bed++)
@@ -489,28 +523,28 @@ LE void PearlTick(Game& g)
             continue;
         }
         int const remaining = g.countdown[bed] - 1;
-        SetCountdown(g, bed, mirror, remaining);
+        g.countdown[bed] = g.countdown[mirror] = remaining;
         if (remaining > 0)
         {
             continue;
         }
-        TrySpawnPearl(g, bed);
+        TrySpawnPearl(g, bed, events);
         if (mirror != bed)
         {
-            TrySpawnPearl(g, mirror);
+            TrySpawnPearl(g, mirror, events);
         }
-        SetCountdown(g, bed, mirror, DrawRespawnGap(g, bed));
+        SetCountdown(g, bed, mirror, DrawRespawnGap(g, bed), events);
     }
 }
 
 struct Standing
 {
-    int32_t dragons, longest, total;
+    int32_t dragons, longest, total, queen;
 };
 
 LE void Standings(Game const& g, Standing* s)
 {
-    s[0] = s[1] = Standing{0, 0, 0};
+    s[0] = s[1] = Standing{0, 0, 0, 0};
     for (int slot = 0; slot < MAX_SLOTS; slot++)
     {
         Dragon const& d = g.dragon[slot];
@@ -521,6 +555,10 @@ LE void Standings(Game const& g, Standing* s)
         s[d.team].dragons++;
         s[d.team].longest = d.length > s[d.team].longest ? d.length : s[d.team].longest;
         s[d.team].total += d.length;
+        if (d.id == 0 || d.id == 1)
+        {
+            s[d.team].queen = d.length;
+        }
     }
 }
 
@@ -543,15 +581,19 @@ LE void EndRound(Game& g)
     }
     g.over = 1;
     g.endReason = 1;
-    bool const aAhead = s[0].longest > s[1].longest || (s[0].longest == s[1].longest && s[0].total > s[1].total);
-    bool const bAhead = s[1].longest > s[0].longest || (s[1].longest == s[0].longest && s[1].total > s[0].total);
+    bool const aAhead = s[0].queen > s[1].queen || (s[0].queen == s[1].queen &&
+        (s[0].longest > s[1].longest || (s[0].longest == s[1].longest && s[0].total > s[1].total)));
+    bool const bAhead = s[1].queen > s[0].queen || (s[1].queen == s[0].queen &&
+        (s[1].longest > s[0].longest || (s[1].longest == s[0].longest && s[1].total > s[0].total)));
     g.winner = aAhead ? 0 : bAhead ? 1 : 2;
 }
 
 // Starts a round: its pearl tick, then the living dragons in ID order.
-LE void StartRound(Game& g)
+template<typename Events = NoReplayEvents>
+LE void StartRound(Game& g, Events const& events = {})
 {
-    PearlTick(g);
+    events.emit({ROUND_EVENT, {g.round}});
+    PearlTick(g, events);
     g.orderCount = 0;
     for (int slot = 0; slot < MAX_SLOTS; slot++)
     {
@@ -572,13 +614,14 @@ LE void StartRound(Game& g)
 // Runs the game forward to the next dragon that must act and returns its
 // slot, or -1 once the game is over. The dragon's observation is read now,
 // before Act clears its inbox.
-LE int Advance(Game& g)
+template<typename Events = NoReplayEvents>
+LE int Advance(Game& g, Events const& events = {})
 {
     while (!g.over)
     {
         if (g.cursor == ROUND_START)
         {
-            StartRound(g);
+            StartRound(g, events);
         }
         while (g.cursor < g.orderCount)
         {
@@ -600,7 +643,8 @@ LE int Advance(Game& g)
 }
 
 // TakeTurn after the observation: the acting dragon's action, then its sonar.
-LE Outcome Act(Game& g, Action const& a)
+template<typename Events = NoReplayEvents>
+LE Outcome Act(Game& g, Action const& a, Events const& events = {})
 {
     Outcome out{};
     int const slot = g.order[g.cursor].slot;
@@ -616,15 +660,15 @@ LE Outcome Act(Game& g, Action const& a)
     }
     if (a.kind == MOVE && a.steps > 0)
     {
-        Move(g, slot, a, out);
+        Move(g, slot, a, out, events);
     }
     else if (a.kind == SPLIT)
     {
-        Split(g, slot, a.split, out);
+        Split(g, slot, a.split, out, events);
     }
     else
     {
-        Kill(g, slot, NO_ACTION, out.deaths);
+        Kill(g, slot, NO_ACTION, out.deaths, events);
     }
     g.cursor++;
     if (!g.dragon[slot].alive)
@@ -663,7 +707,7 @@ LE Outcome Act(Game& g, Action const& a)
     {
         if (mask & (1 << k))
         {
-            int const kind = CastSonar(g, slot, k, value[k]);
+            int const kind = CastSonar(g, slot, k, value[k], events);
             if (kind != EMPTY)
             {
                 g.dragon[slot].echoes[kind]++;
@@ -673,7 +717,9 @@ LE Outcome Act(Game& g, Action const& a)
     return out;
 }
 
-LE void Begin(Game& g, uint64_t seed)
+// Game::Run's opening, once the map is loaded and its dragons placed.
+template<typename Events = NoReplayEvents>
+LE void Begin(Game& g, uint64_t seed, Events const& events = {})
 {
     Seed(g.rng, seed);
     g.round = 0;
@@ -682,7 +728,15 @@ LE void Begin(Game& g, uint64_t seed)
     g.winner = 2;
     g.endReason = 0;
     g.overflow = 0;
-    InitPearlCountdowns(g);
+    InitPearlCountdowns(g, events);
+    for (int id = 0; id < g.nextId; id++)
+    {
+        for (int slot = 0; slot < MAX_SLOTS; slot++)
+        {
+            Dragon const& d = g.dragon[slot];
+            if (d.alive && d.id == id) events.emit({UPDATE_EVENT, {d.id, d.facing, X(g, d.head), Y(g, d.head), X(g, d.tail), Y(g, d.tail)}});
+        }
+    }
 }
 
 } // namespace loong

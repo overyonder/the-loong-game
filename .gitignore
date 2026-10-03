@@ -2,3 +2,5 @@
 .unswbc-build/
 __pycache__/
 build/
+
+/assets/

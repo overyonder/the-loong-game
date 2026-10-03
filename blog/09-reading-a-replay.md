@@ -1,12 +1,12 @@
 # Reading a replay
 
-> **Editor's note, 29 September 2026.** The decoder is now written in Nim, with its own Cap'n Proto reader.
+> **Editor's note, 4 October 2026.** The decoder is written in Nim, with its own Cap'n Proto reader. The released schema also records SDK 1.2.7 queen standings and whether the match seed is known. The byte example and games below are the original recordings.
 
 In the [wishlist](02-the-wishlist.md), a hex viewer showed us a replay's bot labels, scraps of the map and nothing else. Now that the [sampler](08-everyone-elses-games.md) fetches other teams' games, we need to read them. This post builds the decoder: it reads the file, rebuilds the game one event at a time, and works out what any dragon could see at any moment.
 
 ## The file format
 
-A replay is a [Cap'n Proto](https://capnproto.org/encoding.html) message. Cap'n Proto lays data out the way a C program holds it in memory: each struct is a block of 8-byte words, plain values at fixed offsets, then pointers to anything variable-sized. That leaves a lot of zero bytes, so the file is *packed*: each word becomes a tag byte, whose bits say which of its eight bytes are non-zero, followed by just those bytes. Here are the first bytes of one of our replays, unpacked by hand:
+A replay is a [Cap'n Proto](https://capnproto.org/encoding.html) message. Cap'n Proto lays data out the way a C program holds it in memory: each struct is a block of 8-byte words, plain values at fixed offsets, then pointers to anything variable-sized. That leaves a lot of zero bytes, so the file is *packed*: each word becomes a tag byte, whose bits say which of its eight bytes are non-zero, followed by just those bytes. Here are the first bytes of one of our older replays, unpacked by hand:
 
 | Packed bytes | Tag in binary | Unpacked word | What it is |
 | --- | --- | --- | --- |
@@ -45,7 +45,17 @@ struct Event {
 }
 ```
 
-With the schema, reading a replay takes very little code. `just decode` runs `loong-gamedata decode`, which has its own small Cap'n Proto reader in [gamedata/capnp_replay.nim](../gamedata/capnp_replay.nim), with an accessor for each field the schema lays out. Undoing the packing from the table above is one short loop:
+The current schema adds `queenLength @3 :Int32` to each team's standing. It also distinguishes an unknown seed from a known one:
+
+```capnp
+seed :group {
+  union { none @6 :Void; value @7 :UInt64; }
+}
+```
+
+An older file without those fields keeps Cap'n Proto's wire defaults. Its seed is unknown, rather than seed zero, and a missing queen length cannot tell us which dragon was the queen. The [native references](../harness/zig_judge/reference/README.md) write this same packed format, without an outer gzip layer.
+
+With the schema, reading a replay takes very little code. `just decode` runs `loong-gamedata decode`, which has its own small Cap'n Proto reader in [gamedata/capnp_replay.nim](../gamedata/capnp_replay.nim), with accessors for the fields it uses. Undoing the packing from the table above is one short loop:
 
 ```nim
 while at < packed.len:

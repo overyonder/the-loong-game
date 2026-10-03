@@ -62,7 +62,7 @@ viewer *args:
       --no-display            only write the game columns
       --image FILE, --size WxH   render one frame to a PNG (needs a display)
       --no-recovery           show only what the replay recorded
-      --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or build/registry)
+      --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or assets/registry)
       --inbox FILE            where comments are appended (default build/viewer/comments.md)
       --memory-share R        the share of the viewer's and recovery's own memory
                               its checkpoints may hold (default 1)
@@ -77,7 +77,7 @@ viewer *args:
     image=''
     size=1600x960
     recover=true
-    registry=${LOONG_BUILD_REGISTRY:-$root/build/registry}
+    registry=${LOONG_BUILD_REGISTRY:-$root/assets/registry}
     judge=${LOONG_JUDGE:-$root/build/zig-judge/bin/loong-judge}
     inbox=$root/build/viewer/comments.md
     seats=()
@@ -140,13 +140,13 @@ decisions *args:
     turns follow a line giving its build and how many rebuilt turns match the
     replay, with the first divergence. --json prints one JSON object a turn.
     --state adds the state a bot exposes from memory, as tables.
-      --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or build/registry)
+      --registry DIR          the build registry (default $LOONG_BUILD_REGISTRY or assets/registry)
     USAGE
     }
     root=$(realpath ../..)
     replay=''
     options=()
-    registry=${LOONG_BUILD_REGISTRY:-$root/build/registry}
+    registry=${LOONG_BUILD_REGISTRY:-$root/assets/registry}
     judge=${LOONG_JUDGE:-$root/build/zig-judge/bin/loong-judge}
     while (($#)); do
         case "$1" in
@@ -192,7 +192,7 @@ points-profile a b map seed replay:
 vector-remarks guid profile="" team="A" top="25":
     #!/usr/bin/env bash
     set -euo pipefail
-    registry=${LOONG_BUILD_REGISTRY:-$(realpath ../../build/registry)}
+    registry=${LOONG_BUILD_REGISTRY:-$(realpath ../../assets/registry)}
     remarks="$registry/$1/judge.remarks.tsv"
     [[ -f "$remarks" ]] || { echo 'Build has no remarks: run just bot-build for its source' >&2; exit 2; }
     if [[ -z "$2" ]]; then cat "$remarks"; else ../../build/bin/loong-profile join "$remarks" "$2" "$3" "$4"; fi

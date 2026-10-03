@@ -1,7 +1,7 @@
 """Immutable local builds, addressed by GUID, for the viewer's recovery.
 
 `just bot-build` compiles a bot directory with the judge's clang and registers
-the result as `build/registry/GUID/`: a snapshot of the sources the judge
+the result as `assets/registry/GUID/`: a snapshot of the sources the judge
 compiled under `source/`, the compiled `judge.wasm`, and `manifest.json` with
 every file's SHA-256. The viewer's recovery (replays/recovery/registry.nim)
 checks those hashes before it reruns the build, and never rebuilds from the
@@ -21,7 +21,7 @@ import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REGISTRY = Path(os.environ.get("LOONG_BUILD_REGISTRY", ROOT / "build/registry"))
+REGISTRY = Path(os.environ.get("LOONG_BUILD_REGISTRY", ROOT / "assets/registry"))
 
 SOURCE_SUFFIXES = {".c", ".h", ".cc", ".cpp", ".cxx", ".c++", ".hpp", ".hh", ".inc"}
 

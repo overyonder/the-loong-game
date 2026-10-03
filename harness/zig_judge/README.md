@@ -18,10 +18,22 @@ its TSV rows are `round<TAB>dragon<TAB>reply`, with `|` separating reply
 lines. `--charge-first-read` enables the toolkit's startup-read accounting
 for fidelity comparisons. The default treats the first stdin read as free.
 
-The host allocates 48 bytes for engine results, so both the older eight-int
-ABI and toolkit 1.2.3+'s twelve-int ABI fit. It reads the shared first eight
-fields; new queen statistics are not added to its figures. Rule behaviour
-comes from the selected engine, not the host's build date.
+The host allocates and reads the twelve-int engine result, including queen
+and longest-dragon lengths. An older eight-int engine leaves the extra fields
+zero. Rule behaviour comes from the selected engine. The bundled native
+reference implements the SDK 1.2.7 rules and is selected only explicitly;
+see its [build commands, C ABI and limits](reference/README.md).
+
+```sh
+just zig-judge --engine ENGINE.wasm --native-library /path/libloong-native-cpu.so \
+  --charge-first-read --timeout 300 run --sandbox --seed 123 \
+  -o /path/native.replay /path/map.map /path/a.wasm /path/b.wasm
+```
+
+For CUDA jobs, select the CUDA library and add `--cuda-batch N --threads T`.
+The ordinary official-engine path, metering, inspection and jobs figures remain
+available through the same host. Native simulation does not replace WASM bot
+execution. The selectors precede `run` and do not install a default.
 
 ## Inspection
 
@@ -87,13 +99,14 @@ separator. Only `TURN` expects a reply.
 | `SPAWN id bytes` | Init block follows |
 | `TURN id bytes` | Observation follows; answer `bytes\n` followed by reply text |
 | `DEATH id` | Dragon ended |
-| `END A|B|- rounds` | Result and last round index |
+| `END A|B|- rounds` | Result and number of completed rounds |
 
-The served side's WASM path is loaded but unused, so an opponent module can
-fill both slots. Served decisions have no WASM CPU-point measurement.
-Replies are limited to 1 MiB. A disconnected server supplies empty replies;
-a blocked server needs an external wall-time bound, for example `timeout
-300 just zig-judge ...`.
+The served side needs no WASM module. Both teams may be served with
+`--serve-a SOCKET_A --serve-b SOCKET_B`, using separate listeners or one shared
+listener. Served decisions have no WASM CPU-point measurement. Transport replies
+are limited to 1 MiB and native callbacks also require SDK-sized frames.
+A disconnected server supplies empty replies. Use `--timeout 300` to bound a
+blocked server, or an external `timeout`.
 
 ## Lockstep
 
@@ -109,15 +122,15 @@ just zig-judge --engine ENGINE.wasm --lockstep /tmp/maps.txt --games 2 --seed 12
 
 `reference/port.h` is the replaceable C interface: create, next observation,
 apply reply, result and destroy. `next` returns a dragon ID, or -1 at end;
-the result holds ten integers as labelled in the header. Build another CPU
+the result holds twelve integers as labelled in the header. Build another CPU
 implementation with `just zig-judge-build -Dreference-source=/path/host.cc`.
 Map files are ordinary local inputs. A mismatch, unsupported map or empty
 map list makes lockstep exit nonzero; skipped games never count as passes.
 
-The bundled reference is the minimal CPU extraction of an older engine
-port. It implements toolkit 1.2.2 rules, including one free move and longest
-length before total length. It does not implement the queen rules or the
-length-based free-move quota introduced in later engines. Comparing it to
-1.2.5 should expose differences. Passing a finite lockstep run establishes
-agreement only for those games. No CUDA, learning code or benchmark runner
-is included.
+The bundled CPU reference implements SDK 1.2.7 queen scoring and its free-move
+quota. Lockstep compares zero-based rounds, both teams' counts, queen/longest/total
+lengths and overflow. The old 1.2.2 implementation is available in Git history;
+historical measurements keep their original rule/source identities. Passing
+a finite lockstep run establishes agreement only for those games. The generic
+CPU and CUDA replay libraries share this simulation; learning code and the
+private benchmark runner are excluded.

@@ -4,6 +4,7 @@
 const std = @import("std");
 const wt = @import("wasmtime.zig");
 const engine = @import("engine.zig");
+const native = @import("native.zig");
 const bot = @import("bot.zig");
 const game = @import("game.zig");
 const sync = @import("sync.zig");
@@ -11,11 +12,11 @@ const sync = @import("sync.zig");
 /// One line of a jobs file: id, map, bot A, bot B, seed, then optionally a replay
 /// path and the two team names, all tab separated.
 pub const Job = struct {
-    id:     []const u8,
-    map:    []const u8,
-    a:      []const u8,
-    b:      []const u8,
-    seed:   u64,
+    id: []const u8,
+    map: []const u8,
+    a: []const u8,
+    b: []const u8,
+    seed: u64,
     replay: ?[]const u8,
     name_a: ?[]const u8,
     name_b: ?[]const u8,
@@ -53,11 +54,28 @@ pub fn parseJobs(allocator: std.mem.Allocator, text: []const u8) ![]Job {
 /// Files and compiled modules shared by every worker, loaded on first use.
 const Shared = struct {
     allocator: std.mem.Allocator,
-    io:        std.Io,
-    wasm:      *wt.c.wasm_engine_t,
-    modules:   std.StringHashMap(*bot.BotModule),
-    maps:      std.StringHashMap([]u8),
-    mutex:     sync.Mutex,
+    io: std.Io,
+    wasm: *wt.c.wasm_engine_t,
+    modules: std.StringHashMap(*bot.BotModule),
+    maps: std.StringHashMap([]u8),
+    mutex: sync.Mutex,
+
+    fn init(allocator: std.mem.Allocator, io: std.Io, wasm: *wt.c.wasm_engine_t) Shared {
+        return .{ .allocator = allocator, .io = io, .wasm = wasm, .modules = std.StringHashMap(*bot.BotModule).init(allocator), .maps = std.StringHashMap([]u8).init(allocator), .mutex = sync.Mutex.init() };
+    }
+
+    fn deinit(self: *Shared) void {
+        var modules = self.modules.valueIterator();
+        while (modules.next()) |loaded| {
+            loaded.*.deinit(self.allocator);
+            self.allocator.destroy(loaded.*);
+        }
+        self.modules.deinit();
+        var maps = self.maps.valueIterator();
+        while (maps.next()) |bytes| self.allocator.free(bytes.*);
+        self.maps.deinit();
+        self.mutex.deinit();
+    }
 
     fn module(self: *Shared, path: []const u8) !*bot.BotModule {
         self.mutex.lock();
@@ -82,12 +100,13 @@ const Shared = struct {
 };
 
 const Worker = struct {
-    shared:        *Shared,
+    shared: *Shared,
     engine_module: *const engine.EngineModule,
-    jobs:          []const Job,
-    next:          *std.atomic.Value(usize),
-    debug:         i32,
-    stdout:        *sync.Mutex,
+    native_library: ?*const native.Library,
+    jobs: []const Job,
+    next: *std.atomic.Value(usize),
+    debug: i32,
+    stdout: *sync.Mutex,
 
     fn run(self: *Worker) void {
         while (true) {
@@ -110,7 +129,8 @@ const Worker = struct {
         const map = try self.shared.map(job.map);
         const summary = try game.play(self.shared.allocator, .{
             .engine_module = self.engine_module,
-            .modules = .{ module_a, module_b },
+            .native_library = self.native_library,
+            .policies = .{ .{ .bot = module_a }, .{ .bot = module_b } },
             .map = map,
             .seed = job.seed,
             .debug = self.debug,
@@ -131,27 +151,9 @@ const Worker = struct {
 };
 
 /// Runs every job on `threads` workers and returns once all have printed.
-pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm: *wt.c.wasm_engine_t, engine_module: *const engine.EngineModule, jobs: []const Job, threads: usize, debug: i32) !void {
-    var shared = Shared{
-        .allocator = allocator,
-        .io = io,
-        .wasm = wasm,
-        .modules = std.StringHashMap(*bot.BotModule).init(allocator),
-        .maps = std.StringHashMap([]u8).init(allocator),
-        .mutex = sync.Mutex.init(),
-    };
-    defer {
-        var modules = shared.modules.valueIterator();
-        while (modules.next()) |loaded| {
-            loaded.*.deinit(allocator);
-            allocator.destroy(loaded.*);
-        }
-        shared.modules.deinit();
-        var maps = shared.maps.valueIterator();
-        while (maps.next()) |bytes| allocator.free(bytes.*);
-        shared.maps.deinit();
-        shared.mutex.deinit();
-    }
+pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm: *wt.c.wasm_engine_t, engine_module: *const engine.EngineModule, jobs: []const Job, threads: usize, debug: i32, native_library: ?*const native.Library) !void {
+    var shared = Shared.init(allocator, io, wasm);
+    defer shared.deinit();
     var next = std.atomic.Value(usize).init(0);
     var stdout = sync.Mutex.init();
     defer stdout.deinit();
@@ -161,9 +163,72 @@ pub fn run(allocator: std.mem.Allocator, io: std.Io, wasm: *wt.c.wasm_engine_t, 
     defer allocator.free(workers);
     const handles = try allocator.alloc(std.Thread, count);
     defer allocator.free(handles);
+    var started: usize = 0;
+    defer for (handles[0..started]) |handle| handle.join();
     for (workers, 0..) |*worker, i| {
-        worker.* = .{ .shared = &shared, .engine_module = engine_module, .jobs = jobs, .next = &next, .debug = debug, .stdout = &stdout };
+        worker.* = .{ .shared = &shared, .engine_module = engine_module, .native_library = native_library, .jobs = jobs, .next = &next, .debug = debug, .stdout = &stdout };
         handles[i] = try std.Thread.spawn(.{}, Worker.run, .{worker});
+        started += 1;
     }
-    for (handles) |handle| handle.join();
+}
+
+/// Explicit CUDA selection batches the same sessions and live WASM callbacks.
+/// Any creation, device, export or output failure fails this invocation; it
+/// never substitutes CPU simulation or exports an incomplete game.
+pub fn runCuda(allocator: std.mem.Allocator, io: std.Io, wasm: *wt.c.wasm_engine_t, engine_module: *const engine.EngineModule, jobs: []const Job, threads: usize, debug: i32, library: *const native.Library, batch_size: usize) !void {
+    if (batch_size == 0 or batch_size > std.math.maxInt(u32)) return error.BadCudaBatchSize;
+    var shared = Shared.init(allocator, io, wasm);
+    defer shared.deinit();
+    var first: usize = 0;
+    while (first < jobs.len) {
+        const chunk = jobs[first..@min(jobs.len, first + batch_size)];
+        const sessions = try allocator.alloc(*game.Session, chunk.len);
+        defer allocator.free(sessions);
+        const bridges = try allocator.alloc(native.CallbackBridge, chunk.len);
+        defer allocator.free(bridges);
+        const setups = try allocator.alloc(native.c.LoongNativeSetup, chunk.len);
+        defer allocator.free(setups);
+        var created: usize = 0;
+        defer for (sessions[0..created]) |session| session.destroy();
+        for (chunk, 0..) |job, i| {
+            const a = try shared.module(job.a);
+            const b = try shared.module(job.b);
+            const map = try shared.map(job.map);
+            sessions[i] = try game.Session.create(allocator, .{
+                .engine_module = engine_module,
+                .policies = .{ .{ .bot = a }, .{ .bot = b } },
+                .map = map,
+                .seed = job.seed,
+                .debug = debug,
+                .names = .{ job.name_a orelse job.a, job.name_b orelse job.b },
+                .want_replay = job.replay != null,
+            });
+            created += 1;
+            bridges[i] = .{ .callbacks = sessions[i].callbacks() };
+            setups[i] = .{ .callbacks = bridges[i].asC(), .map = map.ptr, .mapLength = map.len, .debug = debug, .seed = job.seed };
+        }
+        var cuda = try native.CudaBatch.create(allocator, library, setups);
+        defer cuda.destroy();
+        try cuda.run(threads);
+        for (chunk, 0..) |job, i| {
+            const result = try cuda.result(i);
+            const replay = if (job.replay != null) try cuda.replay(i, .{ job.name_a orelse job.a, job.name_b orelse job.b }) else null;
+            const summary = sessions[i].finish(result, replay) catch |err| {
+                if (replay) |bytes| allocator.free(bytes);
+                return err;
+            };
+            defer summary.deinit(allocator);
+            if (job.replay) |path| {
+                const file = try std.Io.Dir.cwd().createFile(io, path, .{});
+                defer file.close(io);
+                try file.writeStreamingAll(io, summary.replay.?);
+            }
+            var line: [640]u8 = undefined;
+            const figures = try game.formatFigures(summary, &line);
+            try std.Io.File.stdout().writeStreamingAll(io, job.id);
+            try std.Io.File.stdout().writeStreamingAll(io, "\t");
+            try std.Io.File.stdout().writeStreamingAll(io, figures);
+        }
+        first += chunk.len;
+    }
 }

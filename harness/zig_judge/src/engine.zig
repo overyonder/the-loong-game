@@ -11,19 +11,23 @@ pub const DEBUG_ALL: i32 = 15;
 pub const Winner = enum { none, a, b };
 
 pub const MatchResult = struct {
-    rounds:     i32,
-    winner:     Winner,
+    rounds: i32,
+    winner: Winner,
     end_reason: i32,
-    a_dragons:  i32,
-    b_dragons:  i32,
-    a_length:   i32,
-    b_length:   i32,
-    events:     i32,
+    a_dragons: i32,
+    b_dragons: i32,
+    a_length: i32,
+    b_length: i32,
+    events: i32,
+    a_queen: i32,
+    b_queen: i32,
+    a_longest: i32,
+    b_longest: i32,
 };
 
 /// What a match needs from its host: a reply for a dragon's turn, a spawn and a death.
 pub const Callbacks = struct {
-    ctx:   *anyopaque,
+    ctx: *anyopaque,
     reply: *const fn (ctx: *anyopaque, dragon_id: u32, block: []const u8) []const u8,
     spawn: *const fn (ctx: *anyopaque, dragon_id: u32, init: []const u8) void,
     death: *const fn (ctx: *anyopaque, dragon_id: u32, round: i32, reason: u8) void,
@@ -43,21 +47,21 @@ pub const EngineModule = struct {
 };
 
 pub const Match = struct {
-    allocator:  std.mem.Allocator,
-    store:      *c.wasmtime_store_t,
-    context:    *c.wasmtime_context_t,
-    linker:     *c.wasmtime_linker_t,
-    instance:   c.wasmtime_instance_t,
-    memory:     c.wasmtime_memory_t,
-    alloc_fn:   c.wasmtime_func_t,
-    free_fn:    c.wasmtime_func_t,
-    run_fn:     c.wasmtime_func_t,
-    replay_fn:  c.wasmtime_func_t,
+    allocator: std.mem.Allocator,
+    store: *c.wasmtime_store_t,
+    context: *c.wasmtime_context_t,
+    linker: *c.wasmtime_linker_t,
+    instance: c.wasmtime_instance_t,
+    memory: c.wasmtime_memory_t,
+    alloc_fn: c.wasmtime_func_t,
+    free_fn: c.wasmtime_func_t,
+    run_fn: c.wasmtime_func_t,
+    replay_fn: c.wasmtime_func_t,
     replay_ptr: c.wasmtime_func_t,
-    error_fn:   c.wasmtime_func_t,
-    callbacks:  Callbacks,
-    long_reply: ?[]u8 = null,   // a reply the engine's buffer could not hold, kept for its retry
-    message:    [1024]u8 = undefined,
+    error_fn: c.wasmtime_func_t,
+    callbacks: Callbacks,
+    long_reply: ?[]u8 = null, // a reply the engine's buffer could not hold, kept for its retry
+    message: [1024]u8 = undefined,
 
     pub fn create(allocator: std.mem.Allocator, module: *const EngineModule, callbacks: Callbacks) !*Match {
         const self = try allocator.create(Match);
@@ -159,11 +163,11 @@ pub const Match = struct {
     pub fn run(self: *Match, map: []const u8, debug: i32, seed: u64) !MatchResult {
         const map_ptr = try self.call(&self.alloc_fn, &.{@intCast(map.len)}, 1);
         @memcpy(self.memoryData(self.context)[@intCast(map_ptr)..][0..map.len], map);
-        // New toolkits append four result integers; older engines write the first eight.
         const out_ptr = try self.call(&self.alloc_fn, &.{48}, 1);
+        @memset(self.memoryData(self.context)[@intCast(out_ptr)..][0..48], 0);
 
         var args = [_]c.wasmtime_val_t{
-            wt.i32Val(map_ptr), wt.i32Val(@intCast(map.len)), wt.i32Val(debug),
+            wt.i32Val(map_ptr),        wt.i32Val(@intCast(map.len)), wt.i32Val(debug),
             wt.i64Val(@bitCast(seed)), wt.i32Val(out_ptr),
         };
         var results: [1]c.wasmtime_val_t = undefined;
@@ -177,18 +181,26 @@ pub const Match = struct {
             std.debug.print("engine failed: {s}\n", .{try self.errorText()});
             return error.EngineFailed;
         }
-        const raw = self.memoryData(self.context)[@intCast(out_ptr)..][0..32];
-        var values: [8]i32 = undefined;
+        const raw = self.memoryData(self.context)[@intCast(out_ptr)..][0..48];
+        var values: [12]i32 = undefined;
         for (&values, 0..) |*value, i| value.* = std.mem.readInt(i32, raw[i * 4 ..][0..4], .little);
         return .{
             .rounds = values[0],
-            .winner = switch (values[1]) { 1 => .a, 2 => .b, else => .none },
+            .winner = switch (values[1]) {
+                1 => .a,
+                2 => .b,
+                else => .none,
+            },
             .end_reason = values[2],
             .a_dragons = values[3],
             .b_dragons = values[4],
             .a_length = values[5],
             .b_length = values[6],
             .events = values[7],
+            .a_queen = values[8],
+            .b_queen = values[9],
+            .a_longest = values[10],
+            .b_longest = values[11],
         };
     }
 

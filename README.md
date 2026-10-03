@@ -6,8 +6,9 @@ Read the posts at [over-yonder.tech/games/loong](https://over-yonder.tech/games/
 
 Run the article tools from `examples/tooling` with Just. Command options and
 process orchestration live in [just/](just/). Python modules schedule games, the
-Zig judge plays them with the organiser's engine, and compiled Nim tools read
-what the games leave.
+Zig judge plays them with the organiser's engine by default, and compiled Nim
+tools read what the games leave. Native C++ CPU and CUDA simulation libraries
+are available through an explicit judge option.
 
 | Article capability | Command | Domain owner |
 | --- | --- | --- |
@@ -27,6 +28,9 @@ what the games leave.
 | Profiling | `just profile`, `just native`, `just native-profile` | `examples/performance/justfile` |
 | Judge CPU points and compiler remarks | `just points-profile`, `just vector-remarks` | `harness/zig_judge`, `harness/profiling`, `harness/compiler.py` |
 | Zig judge | `just zig-judge-build`, `just zig-judge`, `just judge-fidelity` | `harness/zig_judge` |
+| Native CPU reference | `just zig-native-build cpu`, `just zig-judge --native-library LIBRARY ...` | `harness/zig_judge/reference` |
+| Native CUDA reference | `just zig-native-build cuda`, `just zig-judge --native-library LIBRARY --cuda-batch N ...` | `harness/zig_judge/reference` |
+| Engine lockstep | `just zig-judge --engine ENGINE --lockstep MAP_LIST --games N --seed SEED` | `harness/zig_judge`, `harness/zig_judge/reference/port.h` |
 
 `just viewer-build` compiles the Odin viewer into `build/bin/viewer`. It needs
 Odin, raylib, raygui, GLFW and OpenGL. raygui ships as a header only, so the
@@ -78,14 +82,50 @@ just zig-judge --engine <toolkit site-packages>/unswbc/unswbc_engine.wasm run --
 with exit code 124 at that wall time. `harness/zig_judge/harness.py` runs the
 judge from Python, one game or a batch on N threads.
 
-The judge also offers served-team policy framing and a generic CPU lockstep
-interface. Its bundled minimal CPU reference implements toolkit 1.2.2 rules:
-one free move, then longest and total length for the verdict. It does not
-implement later queen rules or their length-based free-move quota. A newer
-official engine requires a matching replacement reference for lockstep.
-The host accepts both 32-byte and 48-byte engine results but reports the
-shared first eight fields. See the [judge README](harness/zig_judge/README.md)
-for commands, inspection accounting and the replaceable reference interface.
+The judge also offers served-team policy framing, a generic CPU lockstep
+interface and explicit native simulation selection:
+
+| Simulation | Rule version | Selection |
+| --- | --- | --- |
+| Official WASM engine | The supplied toolkit module's version | Default |
+| Native C++ CPU reference | SDK 1.2.7 | `--native-library .../libloong-native-cpu.so` |
+| Native CUDA reference | SDK 1.2.7 | `--native-library .../libloong-native-cuda.so` |
+| Historical CPU reference | SDK 1.2.2 | [Source in Git history](https://github.com/overyonder/the-loong-game/tree/2933c03/harness/zig_judge/reference) |
+
+The current references implement queen scoring and length-based free moves.
+Both run live metered WASM bots on host CPUs. CUDA moves simulation to the
+device, while observation text and replay serialization stay on the host.
+The judge reads the twelve-field 48-byte engine result, including queen and
+longest lengths; older 32-byte results leave those extra fields zero. The
+standard batch figures retain their existing fields.
+
+From `examples/tooling`, build the libraries separately from the judge:
+
+```sh
+CAPNP_PREFIX=/path/to/capnproto CXX=clang++ just zig-native-build cpu
+CAPNP_PREFIX=/path/to/capnproto CXX=g++ NVCC=/path/to/nvcc \
+  CUDART=/path/to/cudart CUDA_ARCH=120 just zig-native-build cuda
+```
+
+These commands need C++20 and Cap'n Proto's development libraries and code
+generator. CUDA also needs the NVIDIA toolchain and a compatible device for
+execution. Each build writes `build/native-reference/BACKEND`, refuses an
+existing output directory, and neither installs a library nor starts a game.
+The checked CUDA target is an ahead-of-time `sm_120` image, without a PTX JIT
+fallback. CUDA produces native GPU code; no Rake GPU implementation is used.
+
+The clean source export built the judge and both references. Its CPU games
+matched official packed replays and per-turn points in both initial team
+orders. The extracted CUDA library has no fresh GPU execution result: its
+device instruction sections match the accepted source build, whose runtime
+evidence keeps its original artifact identities. These checks do not establish
+universal fidelity or a new throughput figure. Training interfaces, models,
+competitive bots and private game data are excluded.
+
+See the [native reference README](harness/zig_judge/reference/README.md) for
+copyable run/jobs commands, ABI, bounds and evidence, and the
+[judge README](harness/zig_judge/README.md) for inspection accounting and
+lockstep. Reproducing an old measurement requires its original engine version.
 The [harness README](harness/README.md) documents strict map fitting and
 regeneration, and the [profiling README](harness/profiling/README.md) documents
 CPU profiles and saved compiler sidecars.
@@ -107,7 +147,7 @@ ladder` take the same `--engine`. Seeded sandbox games are cached in
 `build/game-cache` and reused while the bots, map, toolkit and judge are
 unchanged. `just bot-build` builds a
 bot once into the toolkit's own caches, as the round robin does before it
-plays, and registers a judge build in `build/registry` under a GUID, which it
+plays, and registers a judge build in `assets/registry` under a GUID, which it
 prints with the WASM's path. The viewer reruns a registered build to rebuild its
 dragons' decisions (`just viewer REPLAY --seat A GUID`). An existing `--output` is resumed, playing again only the games that did
 not complete.

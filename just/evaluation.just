@@ -510,6 +510,11 @@ judge-fidelity *args:
 zig-judge-build *args:
     zig build --build-file ../../harness/zig_judge/build.zig --cache-dir "$PWD/../../build/zig-cache" --global-cache-dir "$PWD/../../build/zig-global-cache" --prefix "$PWD/../../build/zig-judge" -Doptimize=ReleaseFast "$@"
 
+# Build an opt-in native reference library, without playing or installing it.
+[group("Build")]
+zig-native-build backend="cpu":
+    bash ../../harness/zig_judge/reference/build-native.sh "../../build/native-reference/$1" "$1"
+
 [group("Evaluation")]
 zig-judge +args:
     ../../build/zig-judge/bin/loong-judge {{args}}

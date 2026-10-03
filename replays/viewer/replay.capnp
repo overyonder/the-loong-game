@@ -1,6 +1,7 @@
 @0xbeefbeefdead1234;
-# Field order reconstructed from the generated classes in unswbc 1.0.1's
-# replay-viewer.vsix. Keep this schema tied to that artifact, not guessed offsets.
+# Field order reconstructed from the generated classes in official
+# replay-viewer.vsix artifacts. Queen standings and the seed group are verified
+# against unswbc 1.2.7; absent historical fields retain Cap'n Proto defaults.
 enum Team { a @0; b @1; }
 enum Direction { north @0; east @1; south @2; west @3; }
 struct Point { x @0 :Int32; y @1 :Int32; }
@@ -33,10 +34,14 @@ struct Event {
     dragonSplit @10 :DragonSplit; dragonDeath @11 :DragonDeath; sonarPing @12 :SonarPing;
   }
 }
-struct TeamStanding { dragonCount @0 :Int32; longestDragon @1 :Int32; totalLength @2 :Int32; }
+struct TeamStanding { dragonCount @0 :Int32; longestDragon @1 :Int32; totalLength @2 :Int32; queenLength @3 :Int32; }
 struct GameResult {
   terminated @0 :Bool; endReason @1 :UInt16;
   union { noWinner @2 :Void; winner @3 :Team; }
   teamA @4 :TeamStanding; teamB @5 :TeamStanding;
 }
-struct Replay { map @0 :Text; botA @1 :Text; botB @2 :Text; events @3 :List(Event); result @4 :GameResult; formatVersion @5 :UInt32; }
+struct Replay {
+  map @0 :Text; botA @1 :Text; botB @2 :Text; events @3 :List(Event);
+  result @4 :GameResult; formatVersion @5 :UInt32;
+  seed :group { union { none @6 :Void; value @7 :UInt64; } }
+}

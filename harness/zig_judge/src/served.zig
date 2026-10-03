@@ -1,5 +1,5 @@
 //! A team whose turns another process answers over a UNIX socket, such as the
-//! external policy server. The judge connects, and for
+//! external policy process. The judge connects, and for
 //! each game sends, one message a line and its text after:
 //!   GAME <seed> <A or B>        the game and the team served
 //!   SPAWN <id> <bytes>          a served dragon's init block follows
@@ -19,6 +19,7 @@ pub const Served = struct {
     pub fn connect(allocator: std.mem.Allocator, path: []const u8, team: u8) !Served {
         const fd = std.c.socket(std.c.AF.UNIX, std.c.SOCK.STREAM, 0);
         if (fd < 0) return error.Socket;
+        errdefer _ = std.c.close(fd);
         var address = std.mem.zeroes(std.c.sockaddr.un);
         address.family = std.c.AF.UNIX;
         if (path.len >= address.path.len) return error.PathTooLong;
@@ -81,12 +82,6 @@ pub const Served = struct {
         while (self.readByte()) |byte| {
             if (byte == '\n') break;
             if (byte < '0' or byte > '9') {
-                self.failed = true;
-                return "";
-            }
-            // A protocol reply is small; reject oversized framing before
-            // multiplication can overflow or a peer can request huge allocation.
-            if (length > 104857 or (length == 104857 and byte > '6')) {
                 self.failed = true;
                 return "";
             }

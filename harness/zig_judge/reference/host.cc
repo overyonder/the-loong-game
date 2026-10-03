@@ -7,8 +7,7 @@
 // Original work: Copyright (c) 2026 UNSW CPMSoc, MIT License. The full notice
 // is in engine.h.
 
-#include "engine.h"
-#include "port.h"
+#include "reply_replay.h"
 
 #include <algorithm>
 #include <cmath>
@@ -151,6 +150,10 @@ std::string LoadMap(Game& g, std::string const& text)
         {
             int team = 0, count = 0;
             fields >> team >> count;
+            if ((team != 0 && team != 1) || (slots > 0 && team == g.dragon[slots - 1].team))
+            {
+                return "initial dragon teams must alternate";
+            }
             if (slots >= MAX_SLOTS)
             {
                 return "too many dragons";
@@ -339,10 +342,15 @@ static int DirOf(char c)
     return c != '\0' && at ? static_cast<int>(at - DIRS) : -1;
 }
 
-// ReadReply, keeping only what changes the game: the action, sonar and protocol.
-Action ReadReply(std::string const& text)
+// ReadReply owns both simulation commands and optional replay annotations.
+Action ReadReply(std::string const& text, std::vector<uint8_t>& moveSteps, ReplyReplay const* replay)
 {
     Action a;
+    std::string indicator;
+    bool hasIndicator = false;
+    auto const emitText = [&](ReplayEventKind kind, std::string const& value) {
+        if (replay) replay->emit(replay->context, {kind, {replay->dragonId}}, value.data(), value.size());
+    };
     std::istringstream lines(text.substr(0, text.rfind('\n') + 1));
     std::string line;
     while (std::getline(lines, line))
@@ -372,6 +380,7 @@ Action ReadReply(std::string const& text)
             char const* at = AfterSpaces(args);
             bool valid = true;
             int steps = 0;
+            std::vector<uint8_t> candidate;
             for (; *at != '\0' && !isspace(static_cast<unsigned char>(*at)); at++)
             {
                 int const d = DirOf(*at);
@@ -384,13 +393,17 @@ Action ReadReply(std::string const& text)
                 {
                     move.step[steps] = static_cast<uint8_t>(d);
                 }
+                candidate.push_back(static_cast<uint8_t>(d));
                 steps++;
             }
-            if (valid && steps > 0 && *AfterSpaces(at) == '\0' && steps <= MAX_STEPS)
+            if (valid && steps > 0 && *AfterSpaces(at) == '\0')
             {
                 move.kind = MOVE;
-                move.steps = static_cast<uint8_t>(steps);
+                move.steps = steps;
+                moveSteps = std::move(candidate);
+                move.extendedSteps = steps > MAX_STEPS ? moveSteps.data() : nullptr;
                 a = move;
+                continue;
             }
         }
         else if (command == "SPLIT")
@@ -400,6 +413,7 @@ Action ReadReply(std::string const& text)
             {
                 a.kind = SPLIT;
                 a.split = count;
+                continue;
             }
         }
         else if (command == "SONAR")
@@ -411,6 +425,7 @@ Action ReadReply(std::string const& text)
             {
                 a.legacySonar = 1;
                 a.legacyValue = value;
+                continue;
             }
             else if (sscanf(args, " %c %20[0-9] %n", &direction, digits, &consumed) == 2 && args[consumed] == '\0' &&
                      DirOf(direction) >= 0)
@@ -423,6 +438,7 @@ Action ReadReply(std::string const& text)
                     int const d = DirOf(direction);
                     a.sonarMask |= static_cast<uint8_t>(1 << d);
                     a.sonar[d] = v;
+                    continue;
                 }
             }
         }
@@ -432,12 +448,55 @@ Action ReadReply(std::string const& text)
             if (sscanf(args, "%d %n", &major, &consumed) == 1 && args[consumed] == '\0')
             {
                 a.protocol = major;
+                continue;
             }
         }
+        else if (command == "LOG")
+        {
+            if (replay && (replay->debug & 1)) emitText(LOG_EVENT, AfterSpaces(args));
+            continue;
+        }
+        else if (command == "INDICATOR")
+        {
+            if (replay && (replay->debug & 2))
+            {
+                indicator = AfterSpaces(args);
+                if ((replay->debug & 16) && indicator.size() > 512) indicator.resize(512);
+                hasIndicator = true;
+            }
+            continue;
+        }
+        else if (command == "DOT" || command == "LINE")
+        {
+            int x = 0, y = 0, toX = 0, toY = 0;
+            unsigned char red = 0, green = 0, blue = 0;
+            bool const dot = command == "DOT";
+            int const read = dot
+                ? sscanf(args, "%d %d %hhu %hhu %hhu %n", &x, &y, &red, &green, &blue, &consumed)
+                : sscanf(args, "%d %d %d %d %hhu %hhu %hhu %n", &x, &y, &toX, &toY, &red, &green, &blue, &consumed);
+            if (read == (dot ? 5 : 7) && args[consumed] == '\0')
+            {
+                if (dot) { toX = x; toY = y; }
+                if (replay && (replay->debug & 4))
+                    replay->emit(replay->context, {DRAW_EVENT, {replay->dragonId, dot ? 1 : 0, x, y, toX, toY, red, green}, blue}, nullptr, 0);
+                continue;
+            }
+        }
+        if (replay && (replay->debug & 8)) emitText(ENGINE_LOG_EVENT, "can't read line: " + line);
     }
+    if (hasIndicator) emitText(INDICATOR_EVENT, indicator);
     return a;
 }
 
+std::string InitBlock(Game const& g, int slot)
+{
+    std::ostringstream out;
+    out << "ID " << g.dragon[slot].id << "\n";
+    out << "TEAM " << (g.dragon[slot].team == 0 ? 'A' : 'B') << "\n";
+    out << "MAP " << g.width << ' ' << g.height << "\n";
+    out << "UNIT_LIMIT " << g.unitLimit << "\n";
+    return out.str();
+}
 
 } // namespace loong
 
@@ -482,16 +541,17 @@ int32_t loong_port_next(LoongPort* port, char* block, size_t capacity, size_t* l
 
 void loong_port_apply(LoongPort* port, char const* reply, size_t length)
 {
-    loong::Act(port->game, loong::ReadReply(std::string(reply, length)));
+    std::vector<uint8_t> moveSteps;
+    loong::Act(port->game, loong::ReadReply(std::string(reply, length), moveSteps));
 }
 
 // rounds, winner (1 A, 2 B, 0 none), end reason, then each team's dragons,
-// longest and total length, then how often the port ran past its arrays.
+// longest and total length, then overflow and the two queen lengths.
 void loong_port_result(LoongPort const* port, int32_t* out)
 {
     loong::Standing s[2];
     loong::Standings(port->game, s);
-    out[0] = port->game.round + 1;
+    out[0] = port->game.round;
     out[1] = port->game.winner == 2 ? 0 : port->game.winner + 1;
     out[2] = port->game.endReason;
     out[3] = s[0].dragons;
@@ -501,10 +561,10 @@ void loong_port_result(LoongPort const* port, int32_t* out)
     out[7] = s[1].longest;
     out[8] = s[1].total;
     out[9] = port->game.overflow;
+    out[10] = s[0].queen;
+    out[11] = s[1].queen;
 }
 
-void loong_port_destroy(LoongPort* port)
-{
-    free(port);
-}
-}
+void loong_port_destroy(LoongPort* port) { free(port); }
+
+} // extern "C"

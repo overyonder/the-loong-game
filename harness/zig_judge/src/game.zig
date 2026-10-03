@@ -3,6 +3,7 @@
 //! dragon turn's points that the toolkit's match wrapper records.
 
 const std = @import("std");
+const native = @import("native.zig");
 const engine = @import("engine.zig");
 const bot = @import("bot.zig");
 const sync = @import("sync.zig");
@@ -17,26 +18,26 @@ const DEATH_REASONS = [_][]const u8{ "hit a wall", "hit itself", "hit another dr
 pub const MAX_ROUNDS = 500;
 
 pub const TeamFigures = struct {
-    deaths:      [5]u32 = .{ 0, 0, 0, 0, 0 },
-    errors:      u32 = 0,       // turns a bot failed: exited, trapped, ran out of points or time
-    turns:       u32 = 0,
-    points_p50:  i64 = 0,
+    deaths: [5]u32 = .{ 0, 0, 0, 0, 0 },
+    errors: u32 = 0, // turns a bot failed: exited, trapped, ran out of points or time
+    turns: u32 = 0,
+    points_p50: i64 = 0,
     points_mean: i64 = 0,
-    points_max:  i64 = 0,
+    points_max: i64 = 0,
 };
 
 /// One dragon turn as the toolkit's wrapper records it in the `points` columns.
 pub const Turn = struct {
-    round:   i32,   // the block's ROUND, or -1
-    dragon:  u32,
-    points:  u64,
+    round: i32, // the block's ROUND, or -1
+    dragon: u32,
+    points: u64,
     failure: [2]u32, // the failure text's bounds in `Record.failures`; empty for none
 };
 
 /// Every dragon turn's points and failure.
 pub const Record = struct {
-    turns:        std.ArrayList(Turn) = .empty,
-    failures:     std.ArrayList(u8) = .empty,
+    turns: std.ArrayList(Turn) = .empty,
+    failures: std.ArrayList(u8) = .empty,
 
     pub fn deinit(self: *Record, allocator: std.mem.Allocator) void {
         self.turns.deinit(allocator);
@@ -50,7 +51,7 @@ pub const Record = struct {
 
 /// Where a `run` streams its log lines as the game plays.
 pub const Echo = struct {
-    io:   std.Io,
+    io: std.Io,
     file: std.Io.File,
 
     pub fn print(self: Echo, comptime format: []const u8, args: anytype) void {
@@ -61,12 +62,12 @@ pub const Echo = struct {
 };
 
 pub const Summary = struct {
-    result:  engine.MatchResult,
-    teams:   [2]TeamFigures,
-    replay:  ?[]u8,
+    result: engine.MatchResult,
+    teams: [2]TeamFigures,
+    replay: ?[]u8,
     wall_ms: i64,
     /// Each team's nonzero turn points in ascending order, as run.py summarises them.
-    points:  [2][]i64,
+    points: [2][]i64,
 
     pub fn deinit(self: Summary, allocator: std.mem.Allocator) void {
         if (self.replay) |replay| allocator.free(replay);
@@ -77,7 +78,7 @@ pub const Summary = struct {
 /// A team whose turns answer with recorded replies instead of running a bot: the
 /// other side of a ladder game, replaying its moves, splits and sonar exactly.
 pub const Script = struct {
-    team:    Team,
+    team: Team,
     replies: std.AutoHashMap(u64, []const u8), // round << 32 | dragon, to its reply
 
     pub fn key(round: i64, dragon: u32) u64 {
@@ -85,24 +86,30 @@ pub const Script = struct {
     }
 };
 
+pub const Policy = union(enum) {
+    bot: *const bot.BotModule,
+    served: *Served,
+};
+
 pub const Setup = struct {
     engine_module: *const engine.EngineModule,
-    modules:       [2]*const bot.BotModule,
-    map:           []const u8,
-    seed:          u64,
-    debug:         i32,
-    names:         [2][]const u8,
-    want_replay:   bool,
-    record:        ?*Record = null,
-    echo:          ?Echo = null,
-    script:        ?*const Script = null,
-    served:        ?*Served = null,   // a team another process answers (served.zig)
+    native_library: ?*const native.Library = null,
+    native_cuda_threads: ?usize = null,
+    policies: [2]Policy,
+    map: []const u8,
+    seed: u64,
+    debug: i32,
+    names: [2][]const u8,
+    want_replay: bool,
+    record: ?*Record = null,
+    echo: ?Echo = null,
+    script: ?*const Script = null,
 };
 
 /// run.py's Progress, printing as it does when stdout is not a terminal.
 const Progress = struct {
-    round:       i64 = 0,
-    start:       i128,
+    round: i64 = 0,
+    start: i128,
     round_start: i128,
 
     fn update(self: *Progress, echo: Echo, round: i64, dragons: [2]u32) void {
@@ -135,37 +142,114 @@ fn roundMs(value: f64, buf: []u8) []const u8 {
     return std.fmt.bufPrint(buf, "{d:.1}s", .{value}) catch "";
 }
 
-const Game = struct {
+/// Owns the live bot instances, deterministic keys and turn accounting for one
+/// game, independently of which selected simulation backend requests its turns.
+pub const Session = struct {
     allocator: std.mem.Allocator,
-    setup:     Setup,
-    keys:      [2][18]u8,
-    dragons:   std.AutoHashMap(u32, *bot.Dragon),
-    teams:     std.AutoHashMap(u32, Team),   // every dragon ever spawned, as run.py's `teams`
-    points:    [2]std.ArrayList(i64),
-    figures:   [2]TeamFigures,
-    progress:  Progress,
+    setup: Setup,
+    keys: [2][18]u8,
+    dragons: std.AutoHashMap(u32, *bot.Dragon),
+    teams: std.AutoHashMap(u32, Team), // every dragon ever spawned, as run.py's `teams`
+    points: [2]std.ArrayList(i64),
+    figures: [2]TeamFigures,
+    progress: Progress,
+
+    pub fn create(allocator: std.mem.Allocator, setup: Setup) !*Session {
+        const self = try allocator.create(Session);
+        self.* = .{
+            .allocator = allocator,
+            .setup = setup,
+            .keys = undefined,
+            .dragons = std.AutoHashMap(u32, *bot.Dragon).init(allocator),
+            .teams = std.AutoHashMap(u32, Team).init(allocator),
+            .points = .{ .empty, .empty },
+            .figures = .{ .{}, .{} },
+            .progress = .{ .start = sync.monotonicNanos(), .round_start = sync.monotonicNanos() },
+        };
+        errdefer self.destroy();
+        // SDK random_get key: sixteen seed hex digits, dash, team letter.
+        _ = try std.fmt.bufPrint(&self.keys[0], "{x:0>16}-a", .{setup.seed});
+        _ = try std.fmt.bufPrint(&self.keys[1], "{x:0>16}-b", .{setup.seed});
+        for (setup.policies) |policy| switch (policy) {
+            .served => |served| served.game(setup.seed),
+            .bot => {},
+        };
+        return self;
+    }
+
+    pub fn destroy(self: *Session) void {
+        self.stopBots();
+        self.dragons.deinit();
+        self.teams.deinit();
+        for (&self.points) |*list| list.deinit(self.allocator);
+        self.allocator.destroy(self);
+    }
+
+    fn stopBots(self: *Session) void {
+        var it = self.dragons.valueIterator();
+        while (it.next()) |dragon| dragon.*.destroy();
+        self.dragons.clearRetainingCapacity();
+    }
+
+    pub fn callbacks(self: *Session) engine.Callbacks {
+        return .{ .ctx = self, .reply = reply, .spawn = spawn, .death = death };
+    }
+
+    // Replay ownership transfers only when the complete summary succeeds.
+    pub fn finish(self: *Session, outcome: engine.MatchResult, replay: ?[]u8) !Summary {
+        self.stopBots();
+        for (self.setup.policies) |policy| switch (policy) {
+            .served => |served| served.end(switch (outcome.winner) {
+                .a => 'A',
+                .b => 'B',
+                .none => '-',
+            }, outcome.rounds + 1),
+            .bot => {},
+        };
+        var owned_points: [2]?[]i64 = .{ null, null };
+        errdefer for (owned_points) |points| if (points) |list| self.allocator.free(list);
+        var summary = Summary{ .result = outcome, .teams = self.figures, .replay = replay, .wall_ms = 0, .points = undefined };
+        for (&summary.teams, 0..) |*figures, i| {
+            const points = try self.points[i].toOwnedSlice(self.allocator);
+            owned_points[i] = points;
+            summary.points[i] = points;
+            figures.turns = @intCast(points.len);
+            if (points.len == 0) continue;
+            std.mem.sort(i64, points, {}, std.sort.asc(i64));
+            var total: i64 = 0;
+            for (points) |p| total += p;
+            figures.points_p50 = points[points.len / 2];
+            figures.points_mean = @divTrunc(total, @as(i64, @intCast(points.len)));
+            figures.points_max = points[points.len - 1];
+        }
+        summary.wall_ms = @intCast(@divTrunc(sync.monotonicNanos() - self.progress.start, std.time.ns_per_ms));
+        return summary;
+    }
 
     fn spawn(ctx: *anyopaque, dragon_id: u32, init: []const u8) void {
-        const self: *Game = @ptrCast(@alignCast(ctx));
+        const self: *Session = @ptrCast(@alignCast(ctx));
         const team = teamOf(init);
         const index = @intFromEnum(team);
         self.teams.put(dragon_id, team) catch {};
         if (self.setup.script) |script| if (script.team == team) return;
-        if (self.setup.served) |served| if (served.team == index) {
-            served.spawn(dragon_id, init);
-            return;
+        const module = switch (self.setup.policies[index]) {
+            .served => |served| {
+                served.spawn(dragon_id, init);
+                return;
+            },
+            .bot => |module| module,
         };
-        const dragon = bot.Dragon.create(self.allocator, self.setup.modules[index], &self.keys[index], index, dragon_id, init) catch return;
+        const dragon = bot.Dragon.create(self.allocator, module, &self.keys[index], index, dragon_id, init) catch return;
         self.dragons.put(dragon_id, dragon) catch dragon.destroy();
     }
 
-    fn teamLetter(self: *Game, dragon_id: u32) []const u8 {
+    fn teamLetter(self: *Session, dragon_id: u32) []const u8 {
         const team = self.teams.get(dragon_id) orelse return "?";
         return if (team == .b) "B" else "A";
     }
 
     fn reply(ctx: *anyopaque, dragon_id: u32, block: []const u8) []const u8 {
-        const self: *Game = @ptrCast(@alignCast(ctx));
+        const self: *Session = @ptrCast(@alignCast(ctx));
         const round = roundOf(block);
         if (self.setup.echo) |echo| {
             if (round >= 0) {
@@ -181,11 +265,14 @@ const Game = struct {
                 return script.replies.get(Script.key(round, dragon_id)) orelse "";
             }
         }
-        if (self.setup.served) |served| {
-            if (self.teams.get(dragon_id)) |team| if (@intFromEnum(team) == served.team) {
-                self.recordTurn(round, dragon_id, 0, null);
-                return served.turn(dragon_id, block);
-            };
+        if (self.teams.get(dragon_id)) |team| {
+            switch (self.setup.policies[@intFromEnum(team)]) {
+                .served => |served| {
+                    self.recordTurn(round, dragon_id, 0, null);
+                    return served.turn(dragon_id, block);
+                },
+                .bot => {},
+            }
         }
         const dragon = self.dragons.get(dragon_id) orelse {
             self.recordTurn(round, dragon_id, 0, null);
@@ -210,7 +297,7 @@ const Game = struct {
         return out;
     }
 
-    fn recordTurn(self: *Game, round: i64, dragon_id: u32, points: i64, failure: ?[]const u8) void {
+    fn recordTurn(self: *Session, round: i64, dragon_id: u32, points: i64, failure: ?[]const u8) void {
         const record = self.setup.record orelse return;
         const start: u32 = @intCast(record.failures.items.len);
         if (failure) |text| record.failures.appendSlice(self.allocator, text) catch {};
@@ -223,16 +310,19 @@ const Game = struct {
     }
 
     fn death(ctx: *anyopaque, dragon_id: u32, round: i32, reason: u8) void {
-        const self: *Game = @ptrCast(@alignCast(ctx));
+        const self: *Session = @ptrCast(@alignCast(ctx));
         const code = std.mem.indexOfScalar(u8, DEATH_CODES, reason);
         if (self.setup.echo) |echo|
             echo.print("round {d}: bot {d} (team {s}) died: {s}\n", .{ round, dragon_id, self.teamLetter(dragon_id), if (code) |i| DEATH_REASONS[i] else "died" });
-        if (self.setup.served) |served| {
-            if (self.teams.get(dragon_id)) |team| if (@intFromEnum(team) == served.team) {
-                if (code) |i| self.figures[served.team].deaths[i] += 1;
-                served.death(dragon_id);
-                return;
-            };
+        if (self.teams.get(dragon_id)) |team| {
+            switch (self.setup.policies[@intFromEnum(team)]) {
+                .served => |served| {
+                    if (code) |i| self.figures[@intFromEnum(team)].deaths[i] += 1;
+                    served.death(dragon_id);
+                    return;
+                },
+                .bot => {},
+            }
         }
         const entry = self.dragons.fetchRemove(dragon_id) orelse return;
         if (code) |i| self.figures[entry.value.team].deaths[i] += 1;
@@ -263,59 +353,39 @@ fn teamOf(init: []const u8) Team {
 
 /// Plays one game to its end and returns its figures; the caller deinits the summary.
 pub fn play(allocator: std.mem.Allocator, setup: Setup) !Summary {
-    const started = sync.monotonicNanos();
-    var game = Game{
-        .allocator = allocator,
-        .setup = setup,
-        .keys = undefined,
-        .dragons = std.AutoHashMap(u32, *bot.Dragon).init(allocator),
-        .teams = std.AutoHashMap(u32, Team).init(allocator),
-        .points = .{ .empty, .empty },
-        .figures = .{ .{}, .{} },
-        .progress = .{ .start = started, .round_start = started },
-    };
-    defer game.dragons.deinit();
-    defer game.teams.deinit();
-    errdefer for (&game.points) |*list| list.deinit(allocator);
-    // A team's random_get key: the seed as sixteen hex digits, a dash and the team's letter.
-    _ = try std.fmt.bufPrint(&game.keys[0], "{x:0>16}-a", .{setup.seed});
-    _ = try std.fmt.bufPrint(&game.keys[1], "{x:0>16}-b", .{setup.seed});
-
-    const match = try engine.Match.create(allocator, setup.engine_module, .{
-        .ctx = &game,
-        .reply = Game.reply,
-        .spawn = Game.spawn,
-        .death = Game.death,
-    });
-    defer match.destroy();
-
-    if (setup.served) |served| served.game(setup.seed);
-    const result = match.run(setup.map, setup.debug, setup.seed);
-    var it = game.dragons.valueIterator();
-    while (it.next()) |dragon| dragon.*.destroy();
-    game.dragons.clearRetainingCapacity();
-    const outcome = try result;
-    if (setup.served) |served| served.end(switch (outcome.winner) {
-        .a => 'A',
-        .b => 'B',
-        .none => '-',
-    }, outcome.rounds + 1);
-    const replay: ?[]u8 = if (setup.want_replay) try match.replay(setup.names[0], setup.names[1]) else null;
-
-    var summary = Summary{ .result = outcome, .teams = game.figures, .replay = replay, .wall_ms = @intCast(@divTrunc(sync.monotonicNanos() - started, std.time.ns_per_ms)), .points = undefined };
-    for (&summary.teams, 0..) |*figures, i| {
-        const points = try game.points[i].toOwnedSlice(allocator);
-        summary.points[i] = points;
-        figures.turns = @intCast(points.len);
-        if (points.len == 0) continue;
-        std.mem.sort(i64, points, {}, std.sort.asc(i64));
-        var total: i64 = 0;
-        for (points) |p| total += p;
-        figures.points_p50 = points[points.len / 2];
-        figures.points_mean = @divTrunc(total, @as(i64, @intCast(points.len)));
-        figures.points_max = points[points.len - 1];
+    const session = try Session.create(allocator, setup);
+    defer session.destroy();
+    if (setup.native_cuda_threads) |threads| {
+        const library = setup.native_library orelse return error.NativeCudaRequiresLibrary;
+        var bridge = native.CallbackBridge{ .callbacks = session.callbacks() };
+        var cuda = try native.CudaBatch.create(allocator, library, &.{.{
+            .callbacks = bridge.asC(),
+            .map = setup.map.ptr,
+            .mapLength = setup.map.len,
+            .debug = setup.debug,
+            .seed = setup.seed,
+        }});
+        defer cuda.destroy();
+        try cuda.run(threads);
+        const result = try cuda.result(0);
+        const replay = if (setup.want_replay) try cuda.replay(0, setup.names) else null;
+        errdefer if (replay) |bytes| allocator.free(bytes);
+        return session.finish(result, replay);
     }
-    return summary;
+    if (setup.native_library) |library| {
+        const match = try native.Match.create(allocator, library, session.callbacks());
+        defer match.destroy();
+        const result = try match.run(setup.map, setup.debug, setup.seed);
+        const replay = if (setup.want_replay) try match.replay(setup.names[0], setup.names[1]) else null;
+        errdefer if (replay) |bytes| allocator.free(bytes);
+        return session.finish(result, replay);
+    }
+    const match = try engine.Match.create(allocator, setup.engine_module, session.callbacks());
+    defer match.destroy();
+    const result = try match.run(setup.map, setup.debug, setup.seed);
+    const replay = if (setup.want_replay) try match.replay(setup.names[0], setup.names[1]) else null;
+    errdefer if (replay) |bytes| allocator.free(bytes);
+    return session.finish(result, replay);
 }
 
 /// One tab-separated line of figures: winner (A, B or -), rounds, reason, A dragons,
@@ -325,16 +395,38 @@ pub fn formatFigures(summary: Summary, buf: []u8) ![]const u8 {
     const r = summary.result;
     const a = summary.teams[0];
     const b = summary.teams[1];
-    return std.fmt.bufPrint(buf,
-        "{s}\t{d}\t{d}\t{d}\t{d}\t{d}\t{d}\t{d},{d},{d},{d},{d}\t{d},{d},{d},{d},{d}\t{d}\t{d}\t{d}\t{d}/{d}/{d}\t{d}\t{d}/{d}/{d}\t{d}\n",
-        .{
-            switch (r.winner) { .a => "A", .b => "B", .none => "-" },
-            r.rounds + 1, r.end_reason, r.a_dragons, r.b_dragons, r.a_length, r.b_length,
-            a.deaths[0], a.deaths[1], a.deaths[2], a.deaths[3], a.deaths[4],
-            b.deaths[0], b.deaths[1], b.deaths[2], b.deaths[3], b.deaths[4],
-            a.errors, b.errors,
-            a.turns, a.points_p50, a.points_mean, a.points_max,
-            b.turns, b.points_p50, b.points_mean, b.points_max,
-            summary.wall_ms,
-        });
+    return std.fmt.bufPrint(buf, "{s}\t{d}\t{d}\t{d}\t{d}\t{d}\t{d}\t{d},{d},{d},{d},{d}\t{d},{d},{d},{d},{d}\t{d}\t{d}\t{d}\t{d}/{d}/{d}\t{d}\t{d}/{d}/{d}\t{d}\n", .{
+        switch (r.winner) {
+            .a => "A",
+            .b => "B",
+            .none => "-",
+        },
+        r.rounds + 1,
+        r.end_reason,
+        r.a_dragons,
+        r.b_dragons,
+        r.a_length,
+        r.b_length,
+        a.deaths[0],
+        a.deaths[1],
+        a.deaths[2],
+        a.deaths[3],
+        a.deaths[4],
+        b.deaths[0],
+        b.deaths[1],
+        b.deaths[2],
+        b.deaths[3],
+        b.deaths[4],
+        a.errors,
+        b.errors,
+        a.turns,
+        a.points_p50,
+        a.points_mean,
+        a.points_max,
+        b.turns,
+        b.points_p50,
+        b.points_mean,
+        b.points_max,
+        summary.wall_ms,
+    });
 }

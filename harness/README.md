@@ -20,6 +20,14 @@ missing tools. See [profiling](profiling/README.md), the
 The organiser's Python-only compiler and engine APIs have small Python
 adapters. Replay decoding, gap fitting and regeneration checks run in Nim.
 
+The opt-in [native CPU/CUDA references](zig_judge/reference/README.md) additionally
+need C++20 and Cap'n Proto's C++ libraries/code generator. CUDA needs nvcc,
+CUDART and a supported NVIDIA device for execution; CPU-only builds need none
+of those GPU dependencies. `just zig-native-build cpu|cuda` builds one library,
+and `zig-judge --native-library PATH` selects it explicitly. The official engine
+remains the ordinary default. Both native references implement SDK 1.2.7 rules;
+they do not require a Rake GPU backend or contain training/student code.
+
 ## Map variants
 
 The input is a local packed Cap'n Proto replay, optionally gzip compressed,
@@ -108,4 +116,5 @@ installed toolkit's engine. Use the version that produced the original
 game; rule changes can make regeneration fail. Toolkit 1.2.3 or newer is
 required when the selected engine uses its 48-byte result ABI. The judge
 host accepts both 32-byte and 48-byte results; the bundled CPU lockstep
-reference has the narrower compatibility described in its README.
+reference implements the current twelve-field SDK 1.2.7 contract described
+in its README. Use the official engine matching any historical replay.

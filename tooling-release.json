@@ -5,11 +5,12 @@
   "policy": "Public files are releases of their private sources, simplified to leave out private infrastructure. Each entry records the public file's hash and, where known, the source's revision and hash. Changes originate in the private source.",
   "files": [
     {
-      "source": "replays/viewer/replay.capnp",
+      "source": "tools/gamedata/replay.capnp",
       "path": "replays/viewer/replay.capnp",
-      "sha256": "1a33f9285b3561fd97e8183d11b47004801046b4474d0a3a4fae430dbb2c6200",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "1a33f9285b3561fd97e8183d11b47004801046b4474d0a3a4fae430dbb2c6200"
+      "sha256": "c43fa2635087639eb589121a1ee4cc5a856dd977e11af5708622ba2d3a61aeab",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "c43fa2635087639eb589121a1ee4cc5a856dd977e11af5708622ba2d3a61aeab",
+      "adaptation": "Retain canonical wire layout; include actual team-owned queen length and unknown/known seed union. Older absent fields retain wire defaults."
     },
     {
       "source": "tools/viewer/board_drawing.odin",
@@ -124,34 +125,36 @@
       "adaptation": "Include the minimal CPU reference in the package."
     },
     {
-      "source": "evaluation/zig_judge/harness.py",
+      "source": "tools/judge/harness.py",
       "path": "harness/zig_judge/harness.py",
-      "sha256": "12bb23b1235c87a67673ed2f2d8c0e72109ed0d4c8ed75fa460d38638a72a10d",
-      "source_revision": "a9a373156b80ee75dc7c810b7c05cc27eb5ad00c",
-      "source_sha256": "81dd35d2c29e6e002a5291caa5a2ed6ef0ffccff89a492924e78f3ea95b0f497"
+      "sha256": "e6860e39ce84b10102bee34ead7c922907b1a4e6798bdc281c08b6849eba7575",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "bd77af4be4df5ba6806c47c2727c1df8b2a12b106163d24dd85192b67d73dcb2",
+      "adaptation": "Retain the public harness; extend its source-age guard to the compiled reference headers and C++ inputs."
     },
     {
       "source": "tools/judge/src/batch.zig",
       "path": "harness/zig_judge/src/batch.zig",
-      "sha256": "173493871ee653343ebedf04bc5fe34ab131fde3177587db71672b1c5be45773",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "173493871ee653343ebedf04bc5fe34ab131fde3177587db71672b1c5be45773"
+      "sha256": "29ab4fdaf17699bf9e2cbfd500390762cd6741b14807407d14cb0b4d573d07ea",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "29ab4fdaf17699bf9e2cbfd500390762cd6741b14807407d14cb0b4d573d07ea",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "source": "tools/judge/src/bot.zig",
       "path": "harness/zig_judge/src/bot.zig",
-      "sha256": "679f14ce1d93983c0b83c1eb87f5a2260dacf08497440c26fd16a52dc8db5d69",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
+      "sha256": "77692f9d7626c8664e5120840a82e080ebe8c30ec6faf28cf3abdce74bca3488",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
       "source_sha256": "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d",
-      "adaptation": "Remove private game references from comments; preserve committed inspection accounting."
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "source": "tools/judge/src/engine.zig",
       "path": "harness/zig_judge/src/engine.zig",
-      "sha256": "19192346f24c7342dfebb3712980292cf9ae57b269df6ae783abab62ed3a628c",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "ccef587cd74ebd5864737f9dcafeb319d01077ecd76069eece40af1c159f5b7b",
-      "adaptation": "Allocate 48 bytes for either official result ABI; continue reading the shared first eight fields."
+      "sha256": "9c827af45ea2d4de382604e0594f9ef167ef7b662a135cf9d88d4e5f03d137c0",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "9c827af45ea2d4de382604e0594f9ef167ef7b662a135cf9d88d4e5f03d137c0",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "source": "tools/judge/src/framer.zig",
@@ -163,9 +166,10 @@
     {
       "source": "tools/judge/src/game.zig",
       "path": "harness/zig_judge/src/game.zig",
-      "sha256": "58c99b934c626189225288b01f7550dc2c9d7ba2494eb464a7d30fae55ab948e",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "58c99b934c626189225288b01f7550dc2c9d7ba2494eb464a7d30fae55ab948e"
+      "sha256": "f332b2b393aaa70675626ffb51bac3741e68c3a0c45b44f19174f32bec29ced8",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "f332b2b393aaa70675626ffb51bac3741e68c3a0c45b44f19174f32bec29ced8",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "source": "tools/judge/src/inspection.zig",
@@ -177,10 +181,10 @@
     {
       "source": "tools/judge/src/main.zig",
       "path": "harness/zig_judge/src/main.zig",
-      "sha256": "2007939fcd9bb36b5b67b6117eacca69230a14560d838b46d31b22344a24fa85",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "668959accb0a2bcc69ffe0ea1cba95faf488cb6917b6a2af7f54771c2a5120b9",
-      "adaptation": "Public paths and validation of served team A/B."
+      "sha256": "68c98ba0614fa45f89c54b11dac3c0dd5319401672eab45b61077a7641acdb89",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "567685482627480911b59a086a0dee719ea78bdf46cf7995014027571ccee34f",
+      "adaptation": "Expose the canonical native selectors, jobs/run and generic lockstep only; omit private focused case/example gate modes."
     },
     {
       "source": "tools/judge/src/sync.zig",
@@ -349,18 +353,19 @@
     {
       "source": "tools/commands/evaluation.just",
       "path": "just/evaluation.just",
-      "sha256": "6dcfdc7e74cc528a3638cc8091dcebcf549df164202be1d499ca7d9e3397470d",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "23d9d05e8f19f2730bd4bf549165bed3286af7c6014862f400cae39fb814a112",
-      "adaptation": "Retain public recipes and add compiler sidecars plus compiled tool builds; no fleet or private bot defaults."
+      "sha256": "f31ee001ee4c677e09a22825a31f0d5bf246b125e9149b799133313dd0344ace",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "1989ad38ad649132a1a9213ed161374d6ad1e6085565dbe55d20dc65321f656b",
+      "adaptation": "Retain existing public recipes and expose one discrete zig-native-build cpu|cuda stage; no game, implicit install or private imports."
     },
     {
       "source": "tools/commands/inspection.just",
       "path": "just/inspection.just",
-      "sha256": "8e31347687e0c7dc55f2ea5c1f340693859ead1a185b493b96b99dfca6e920f1",
+      "sha256": "a6fd205c01192d7c0f07bf23a344cf33c39bc1536bc331ee15d96e68ea7f6190",
       "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "5a400dc6c41a75a91a78fc412d358e02f7d810d4ccaeb55394e826115c60628e",
-      "adaptation": "Expose local map fitting/regeneration and points-profile/vector-remarks under their canonical command names."
+      "adaptation": "Expose local map fitting/regeneration and points-profile/vector-remarks under their canonical command names. Record the committed storage-path adaptation: retained registry snapshots use assets/registry.",
+      "public_adaptation_revision": "5ef0fd0abb475cd1575b8aea32b335a39051d69d"
     },
     {
       "source": "evaluation/compare.py",
@@ -393,9 +398,10 @@
     {
       "source": "tools/judge/src/run.zig",
       "path": "harness/zig_judge/src/run.zig",
-      "sha256": "2dbee467aa3daca36289ae62536c7f28fb04f6ac38cda7a22cad51aef4105462",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "003694efdef1e748e80664fbe7812a48db4cae77fc2aa45c0a012f816d1175aa"
+      "sha256": "10999935cbb3fa4807a64548007e19e3bea9017204d3452a0878013d773f6b4b",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "8668d87b9b4fd47a9588878710df8e368ad599aa9ab027d24c6aae6ae4768ab8",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "source": "tools/judge/src/metering.zig",
@@ -780,10 +786,11 @@
     {
       "source": "tools/evaluation/build_registry.py",
       "path": "harness/build_registry.py",
-      "sha256": "5f3e0ad94dc2764df9173208548ecb78051b10ad8f307902616107428f608bc6",
+      "sha256": "066fefb87a6cf6428cbea1f76dceeb38fbf17a71f110e49ce00a569a86fe7e73",
       "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
-      "adaptation": "Keep the public C/C++ registry; add hashed compiler sidecars and adapter identity."
+      "adaptation": "Keep the public C/C++ registry; add hashed compiler sidecars and adapter identity. Record the committed storage-path adaptation: retained registry snapshots use assets/registry.",
+      "public_adaptation_revision": "5ef0fd0abb475cd1575b8aea32b335a39051d69d"
     },
     {
       "source": "tools/viewer/knowledge.odin",
@@ -796,8 +803,9 @@
       "source": "tools/judge/src/state.zig",
       "path": "harness/zig_judge/src/state.zig",
       "sha256": "384c251928082f4e96b87387ad7f57413c91d31ed1d88aae83699a550209a5c6",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "fbbed2e8df8c70991add7dd30ffe2067c045800cfcda07847f00dfee9cb6c5c6"
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "fbbed2e8df8c70991add7dd30ffe2067c045800cfcda07847f00dfee9cb6c5c6",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "path": "replays/recovery/brain.nim",
@@ -884,12 +892,12 @@
       "source_sha256": "b58976a564f147a2a94a917f70e1ea3dcd88bc3b334528723eda1be43689db48"
     },
     {
-      "source": "tools/evaluation/regenerate.py",
+      "source": "tools/evaluation/README.md",
       "path": "harness/README.md",
-      "sha256": "13d9d266c589fe2d20c73255d8128f991eb3d632552f3d7a3dbbfab0ae883c00",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "7ad681b14297009066662a613cd33e256459b1041959e2fe817a717a607ef8e3",
-      "adaptation": "Document local replay/seed inputs, strict compiled map fitting and regeneration; omit site and private-store access."
+      "sha256": "d199832a37965d0ef5ea939e7d9e4a1b684b7a4446e467baa0ea5c55d49ce74c",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "828f727d6690a8cb7f63a62a03aa82fffb9e45c8a0e413597a87121cbe927869",
+      "adaptation": "Document native C++/Capnp/CUDA prerequisites and replace the older-reference limit; preserve existing map and regeneration workflow."
     },
     {
       "source": "tools/evaluation/build_registry.py",
@@ -940,12 +948,12 @@
       "adaptation": "Port recorded replies and state comparison to Nim; local inputs and immutable public build GUIDs; refuse missing, ambiguous or divergent reconstruction."
     },
     {
-      "source": "tools/judge/src/main.zig",
+      "source": "tools/judge/README.md",
       "path": "harness/zig_judge/README.md",
-      "sha256": "62515f88d26edc0618f6f1eead84efdf8b81888eca4e30d2cc978fb7dd161991",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "668959accb0a2bcc69ffe0ea1cba95faf488cb6917b6a2af7f54771c2a5120b9",
-      "adaptation": "Document public judge modes, observer contract, served framing and the older-rule CPU reference limit."
+      "sha256": "808e8c17f1893fa05c992eed0b3328cc83f18208d55aaa76000ff4e80780ec9a",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "15604dacffc67031e146c4cd4e68b5791c5c256765747a217505ff71fc959234",
+      "adaptation": "Document the released native selectors, twelve-int engine/lockstep results and current dual-served interface; ordinary official-engine default retained."
     },
     {
       "source": "tools/judge/src/bot.zig",
@@ -958,42 +966,42 @@
     {
       "source": "tools/engine/engine.h",
       "path": "harness/zig_judge/reference/engine.h",
-      "sha256": "80043aa8a7dc0db5bf402e8dc308b782b1117726ea6b6a4ff21ab8538a0fd907",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "b0719594ee79d5ce06da0896256def86220042d1960e0a81a8d842f9fcf011f0",
-      "adaptation": "Minimal CPU reference only; remove CUDA and trainer action helpers. Retain toolkit 1.2.2 semantics."
+      "sha256": "1ff09b0cd284d92c4c80bfde79d124f5b73676d069bc30129a00d995ba128f4d",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "25726dda9b42793cb0bc0df1cc572e8f0dfae4590de31b735c69c2499218f08e",
+      "adaptation": "Retain SDK 1.2.7 simulation, Game layout and event sink unchanged; remove packed learner actions and legal-action helpers."
     },
     {
       "source": "tools/engine/host.cc",
       "path": "harness/zig_judge/reference/host.cc",
-      "sha256": "1fb2e0c2552d583719fad5c79332606b2d19b4dfd6c1e0369c54e4eac591f924",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "b0339803a14e6b27f1f8649d517bdbae68874225e2378a8da36a31825f943a1d",
-      "adaptation": "Keep map/protocol and opaque lockstep bridge only; remove observation tensors and learning interfaces."
+      "sha256": "ea190f384228adfdd9a3b631ca4a3a1a93a9b483e26f8a15260d160c711daff9",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "432f71a2846b66743427040d61159d197373001a6e2157be61b17883b9cf3c31",
+      "adaptation": "Retain map loading, full text observation/reply parser and 12-int lockstep port; remove learner TextView, state/tensor encoding and training exports."
     },
     {
       "source": "tools/engine/host.cc",
       "path": "harness/zig_judge/reference/port.h",
-      "sha256": "ee7d6bc541002d122efb9644986dcced249557dfa48e8958fc78e2b993263ed5",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "b0339803a14e6b27f1f8649d517bdbae68874225e2378a8da36a31825f943a1d",
-      "adaptation": "Declare only the opaque create/next/apply/result/destroy CPU lockstep ABI."
+      "sha256": "ec8da3ef34665c9ad05d03cdef3f3365880a736e8934fa2df4200ebea9bf9b34",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "432f71a2846b66743427040d61159d197373001a6e2157be61b17883b9cf3c31",
+      "adaptation": "Declare the standalone twelve-int lockstep port; this result order is distinct from native ABI 1."
     },
     {
       "source": "tools/judge/src/lockstep.zig",
       "path": "harness/zig_judge/src/lockstep.zig",
-      "sha256": "4a28d21bb9a889428af89713d0f86b91bd42c8a0501ba6d522a2dbcf275baf4b",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "b5a641b37d80d8d087d606021aca60e758c81565b8662d176fd4e81ad7cc55de",
-      "adaptation": "Use the public CPU interface; reject skipped/empty runs and compare shared result fields."
+      "sha256": "f98aabb9b7f25a535a1c0b84ed22dddc73d2f43d6fa16da68b1a79b00f4395f9",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "7d634fff499907d08e3ee569abb4573352f4024e81f082a9210f3662b1ad1c72",
+      "adaptation": "Keep the existing released deterministic generic policy; compare zero-based rounds and all twelve current result fields, including actual-owned queens. Private gates/examples stay private."
     },
     {
       "source": "tools/judge/src/served.zig",
       "path": "harness/zig_judge/src/served.zig",
-      "sha256": "5a5c8dcfcb024615f33ec44738d66612db77d19bd262d69ea1556bb46546ab2c",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "d23204d9386302265543853eec5e9b8d5bdcd1632ea688ebf7bd08fc421b7a1d",
-      "adaptation": "Generic external policy framing with a 1 MiB reply bound; no learner-specific dependency."
+      "sha256": "4a8fcc2f603d82a9074417679fc441dbb074c23cd02aab1dcbdf41682a0fae26",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "4d74bc9ba89e80d6a654b85c4799e654e70f6c994dcb995b9e455099ac76f3db",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
     },
     {
       "source": "tools/ladder/collector/README.md",
@@ -1010,6 +1018,106 @@
       "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
       "source_sha256": "423575f635c3eab47bb61a6ba5d6e39fb16db39fdd9aacdaa8fe834fb857afe2",
       "adaptation": "Preserve retention priorities; require the CLI to supply a positive user team instead of a private default."
+    },
+    {
+      "path": "harness/zig_judge/reference/native.h",
+      "source": "tools/engine/native.h",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "e8fdcc02d99843c17b0071d36d2ada568ad091612a7c2c45b71a73415a4e614a",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "e8fdcc02d99843c17b0071d36d2ada568ad091612a7c2c45b71a73415a4e614a"
+    },
+    {
+      "path": "harness/zig_judge/reference/native.cc",
+      "source": "tools/engine/native.cc",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "2d2fdf986e9b3ab27bcea20c2255e4470ee4c08206af175fd8d00fbbeb9bf7a6",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "2d2fdf986e9b3ab27bcea20c2255e4470ee4c08206af175fd8d00fbbeb9bf7a6"
+    },
+    {
+      "path": "harness/zig_judge/reference/native_replay.h",
+      "source": "tools/engine/native_replay.h",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "23cf2a061a5c6b782db017ff1a24d58dd1b9196004975fc8a2241a3aef3b7d58",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "23cf2a061a5c6b782db017ff1a24d58dd1b9196004975fc8a2241a3aef3b7d58"
+    },
+    {
+      "path": "harness/zig_judge/reference/native_replay.cc",
+      "source": "tools/engine/native_replay.cc",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "b7be04d02e6007bdbceea5458b4d88a51f7c4a4dd3ef25e04f717800328d0b9c",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "1ba25c1e5a90df51cc02f23d031198c30c7137f6b7e5cc9b490c4ce38e1acc03"
+    },
+    {
+      "path": "harness/zig_judge/reference/reply_replay.h",
+      "source": "tools/engine/reply_replay.h",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "4f163668a05e13a9ccac541e6b69304579693ba14c0b03cea2d1d10a1a88598e",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "4f163668a05e13a9ccac541e6b69304579693ba14c0b03cea2d1d10a1a88598e"
+    },
+    {
+      "path": "harness/zig_judge/reference/native_batch.cuh",
+      "source": "tools/engine/native_batch.cuh",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "41d56288180244217e8bc4f8cc65cd58320af05d0287a52984c2122e5de86c8a",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "f2c7becd437dbf332f0b2f49dd69c704f3c7627fe4f717651e4401599927fadf"
+    },
+    {
+      "path": "harness/zig_judge/reference/replay_events.h",
+      "source": "tools/engine/replay_events.h",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "efd9d3b794cce992e7c379c615163332d8ab5e8bd08f0a06b8543098d8ec3049",
+      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
+      "sha256": "55374bb8bda7b281fc60555e55e3f28ec81e0b5230955555367daf878f6daf64"
+    },
+    {
+      "path": "harness/zig_judge/reference/batch.cu",
+      "source": "tools/engine/batch.cu",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "ab67c628fa546f9aff2cd8e524311ef48fcadfd37171e73d1f4d1b43ea695eb6",
+      "adaptation": "Use only the committed native_batch.cuh complete-match path; omit all learner kernels, observations, state planes and loong_batch_* exports.",
+      "sha256": "ade00c47147c5ba29652706d05ad841e5966e981e2340fd8219ff44539518dda"
+    },
+    {
+      "path": "harness/zig_judge/src/native.zig",
+      "source": "tools/judge/src/native.zig",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "60c1872ae61e7782f4415920b921605192b8d86d7031d196f60223f76e7745ec",
+      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration.",
+      "sha256": "60c1872ae61e7782f4415920b921605192b8d86d7031d196f60223f76e7745ec"
+    },
+    {
+      "path": "harness/zig_judge/reference/build-native.sh",
+      "source": "tools/engine/build-native.sh",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "b0bdafe898feea96eae388a9df933e01f41d3deb172a764c3e2c56ef4d27a028",
+      "adaptation": "Relocate source/schema inputs to public owners; build only CPU or CUDA complete-match exports and refuse existing output directories.",
+      "sha256": "2b84762305c0f2246d459a2e4d92db307d0c35fc200e93f8871fdfeaefe724a0"
+    },
+    {
+      "path": "harness/zig_judge/reference/README.md",
+      "source": "tools/engine/README.md",
+      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+      "source_sha256": "ff48d3cdb4649bbc335097b0775edb54a97e9becdaac994c6d0ac6805bb83148",
+      "adaptation": "Document the generic native references, ABI 1, pinned toolchains, builds, output schemas and evidence limits; exclude training and private results.",
+      "sha256": "736becf08cc697f9dbd99515bbb959c68e89a582f6ce0a0702d813cc02123262"
     }
-  ]
+  ],
+  "native_reference": {
+    "rules_sdk": "1.2.7",
+    "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
+    "official_engine_sha256": "26e68680e45eb0f221db702aead9eefde776c2ad2ba066f4ddf8c12500c6a546",
+    "c_abi": 1,
+    "cpu": "C++20 O2",
+    "cuda": "CUDA C++20, nvcc O3, AOT sm_120, no PTX image",
+    "schema": "replays/viewer/replay.capnp, packed format 2",
+    "scope": "Generic simulation, full protocol and complete replay capture. Live WASM policies remain in the judge host. No learning, training, student, competitive bot or private data.",
+    "performance": "No full CUDA workload or paired profiling overhead claim.",
+    "verification": "Clean-export host/CPU/CUDA builds; both-order CPU packed-replay and per-turn-points agreement; unchanged generic source and exact NativeBegin/Advance/Apply device instruction sections inherit original accepted runtime evidence. No fresh extracted-library CUDA execution."
+  }
 }

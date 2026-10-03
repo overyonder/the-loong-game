@@ -9,6 +9,7 @@
 const std = @import("std");
 const wt = @import("wasmtime.zig");
 const engine = @import("engine.zig");
+const native = @import("native.zig");
 const bot = @import("bot.zig");
 const game = @import("game.zig");
 const sync = @import("sync.zig");
@@ -19,8 +20,18 @@ const DEBUG_INDICATOR: i32 = 2;
 const DEBUG_DRAW: i32 = 4;
 /// Holds bot output to the judge's limits, as every sandboxed toolkit run does.
 const DEBUG_LIMITS: i32 = 16;
-const END_REASONS = [_][]const u8{ "by elimination", "on length" };
-const DRAW_REASONS = [_][]const u8{ "both teams eliminated", "equal length" };
+fn verdict(result: engine.MatchResult, buffer: *[128]u8) []const u8 {
+    if (result.end_reason == 0) return if (result.winner == .none) "both teams eliminated" else "by elimination";
+    const a = [3]i32{ result.a_queen, result.a_longest, result.a_length };
+    const b = [3]i32{ result.b_queen, result.b_longest, result.b_length };
+    if (result.winner == .none) return std.fmt.bufPrint(buffer, "equal length: queen {d}, longest {d}, total {d} each", .{ a[0], a[1], a[2] }) catch unreachable;
+    const won = if (result.winner == .a) a else b;
+    const lost = if (result.winner == .a) b else a;
+    for ([_][]const u8{ "longer queen", "longest dragon", "total length" }, won, lost) |label, ours, theirs| {
+        if (ours != theirs) return std.fmt.bufPrint(buffer, "{s}, {d} to {d}", .{ label, ours, theirs }) catch unreachable;
+    }
+    return "on length";
+}
 
 const Arguments = struct {
     map: []const u8,
@@ -299,7 +310,7 @@ fn writeProfile(allocator: std.mem.Allocator, io: std.Io, echo: game.Echo, path:
 }
 
 /// Plays the game and returns the process exit code, as `unswbc run` would.
-pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, args: []const [:0]const u8) !u8 {
+pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, args: []const [:0]const u8, native_library: ?*const native.Library, native_cuda_threads: ?usize) !u8 {
     const arguments = parse(args) catch |err| {
         fail("usage: loong-judge --engine E run --sandbox [--seed N] [-o REPLAY | --no-replay] [--no-debug] [--team-a NAME --team-b NAME] [--script-a|--script-b FILE] [--charge-first-read] [--profile] MAP A.wasm B.wasm ({s})", .{@errorName(err)});
         return 2;
@@ -408,7 +419,9 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
     const started = sync.monotonicNanos();
     const summary = game.play(allocator, .{
         .engine_module = &engine_module,
-        .modules = .{ &module_a, &module_b },
+        .native_library = native_library,
+        .native_cuda_threads = native_cuda_threads,
+        .policies = .{ .{ .bot = &module_a }, .{ .bot = &module_b } },
         .map = map,
         .seed = seed,
         .debug = arguments.debug,
@@ -425,8 +438,8 @@ pub fn main(allocator: std.mem.Allocator, io: std.Io, engine_path: []const u8, a
 
     const result = summary.result;
     const rounds = result.rounds + 1;
-    const reasons = if (result.winner == .none) &DRAW_REASONS else &END_REASONS;
-    const reason = if (result.end_reason >= 0 and result.end_reason < reasons.len) reasons[@intCast(result.end_reason)] else "over";
+    var reason_buffer: [128]u8 = undefined;
+    const reason = verdict(result, &reason_buffer);
     var took_buf: [24]u8 = undefined;
     const took = game.elapsed(@as(f64, @floatFromInt(sync.monotonicNanos() - started)) / std.time.ns_per_s, &took_buf);
     switch (result.winner) {
