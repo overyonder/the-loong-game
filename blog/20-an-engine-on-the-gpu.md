@@ -49,7 +49,7 @@ Splitting takes more work, because the child takes the rear segments in reverse 
 
 The rule functions compile for both machines. Under CUDA they have `__host__ __device__` on them, so the compiler produces a CPU and a GPU version of the same function. The CPU build adds a text interface that the judge can call. The GPU build wraps the functions in kernels that work through a batch. NVIDIA's [CUDA C++ guide](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html#device-and-host-functions) describes those qualifiers.
 
-Keeping the rules in one source removes a second port that could drift away from the first. It doesn't make the GPU build correct by itself. Its wrapper still decides which game and dragon a thread touches, where an observation is written and when the next kernel may read it, so those are checked separately.
+Keeping the rules in one source removes a second port that could drift away from the first. The GPU wrapper decides which game and dragon a thread touches, where an observation is written and when the next kernel may read it, so those are checked separately.
 
 These are the interfaces of the original training implementation. The public complete-match libraries described later use text replies and live WASM bots on both paths.
 
@@ -79,7 +79,7 @@ Running the simulation on the GPU would save less if every turn came back as tex
 
 The kernels use the same stream as the policy. A CUDA [stream runs its operations in order](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html#cuda-streams), so observation writing finishes before the policy reads it, and the policy finishes writing actions before the engine applies them. The host still reads small pieces of control information and training statistics. The useful saving is avoiding a round trip for the whole observation and action payload at every decision.
 
-The engine knows the full board, but the policy must only receive what a dragon could know. Its remembered observation is built from the dragon's view and permitted sonar messages. The privileged state used by the training critic has a separate output. Checking that boundary matters as much as checking movement: a network trained with an unseen enemy position in its input could appear to play well and fail as soon as it entered the judge.
+The engine knows the full board. The policy's remembered observation is built only from the dragon's view and permitted sonar messages. The privileged state used by the training critic has a separate output. Checking that boundary matters as much as checking movement: a network trained with an unseen enemy position in its input could appear to play well and fail as soon as it entered the judge.
 
 ## The same games
 
@@ -91,7 +91,7 @@ This is differential testing, as in McKeeman's [Differential Testing for Softwar
 
 Odd seeds use reckless replies, including bad splits and rejected moves. Even seeds use more careful replies, so the games last long enough to reach later rounds. That distinction is important: a million games that die immediately would say little about pearl spawning or the round limit. The seed also has to reproduce the random generator's draws in the same order, including pearl attempts that fail because their tile is occupied, as [Pearls from the seed](10-pearls-from-the-seed.md) explains.
 
-On 30 September, against toolkit 1.2.2, the check ran 100,000 games across all 122 maps in our evaluation pool. It compared 126,645,678 dragon turns, with no differences and no skipped games. Of those games, 8,534 reached round 500. That is evidence along those action sequences, rather than proof of every possible game or equality of internal state that never appeared in an observation.
+On 30 September, against toolkit 1.2.2, the check ran 100,000 games across all 122 maps in our evaluation pool. It compared 126,645,678 dragon turns, with no differences and no skipped games. Of those games, 8,534 reached round 500. Those counts describe the checked observations and results along the tested action sequences.
 
 | Check | Recorded SDK 1.2.2 result |
 | --- | --- |
@@ -127,17 +127,17 @@ CAPNP_PREFIX=/path/to/capnproto CXX=g++ NVCC=/path/to/nvcc \
   CUDART=/path/to/cudart CUDA_ARCH=120 just zig-native-build cuda
 ```
 
-Both builds write their source hashes, compiler versions and flags beside the library, and refuse an existing output directory. The checked CUDA build is ahead-of-time machine code for `sm_120`, with no PTX image or runtime JIT fallback. CUDA produces native GPU code. Our approach here is C++ on CPU and CUDA C++ on GPU; the proposed Rake GPU backend is separate and isn't needed to build either reference.
+Both builds write their source hashes, compiler versions and flags beside the library, and refuse an existing output directory. The checked CUDA build is ahead-of-time machine code for `sm_120`, with no PTX image or runtime JIT fallback. CUDA produces native GPU code. Our approach here is C++ on CPU and CUDA C++ on GPU. The proposed Rake GPU backend is separate and isn't needed to build either reference.
 
-The extraction passed clean-export builds, CPU replay and per-turn point comparisons against the official engine in both initial team orders, and a small lockstep check. The extracted CUDA library's device instruction sections match the accepted source build byte for byte. Its runtime evidence belongs to that original build: no fresh GPU execution was run for the extracted artifact. Fixed-capacity failures refuse a complete replay, rather than truncating one. The [reference documentation](../harness/zig_judge/reference/README.md#bounds-and-evidence) records the limits and separates those checks from the original runtime evidence. Releasing the source doesn't establish a new throughput figure.
+The extraction passed clean-export builds, CPU replay and per-turn point comparisons against the official engine in both initial team orders, and a small lockstep check. The extracted CUDA library's device instruction sections match the accepted source build byte for byte. Its runtime evidence belongs to that original build: no fresh GPU execution was run for the extracted artifact. Fixed-capacity failures refuse a complete replay, rather than truncating one. The [reference documentation](../harness/zig_judge/reference/README.md#bounds-and-evidence) records the limits and separates those checks from the original runtime evidence.
 
 ## 761,000 dragon-turns a second
 
 The recorded 1.2.2 throughput is 761,000 dragon-turns a second with 2,048 games and random actions on one RTX 5070 Ti, including observation construction. A dragon-turn is one dragon being observed and acted on. It is smaller than a round, which can contain many dragons, and very different from a complete game. The target I set for this engine was 100,000 dragon-turns a second.
 
-![Historical SDK 1.2.2 engine throughput with random actions and observation construction: 761,000 dragon-turns a second on an RTX 5070 Ti with 2,048 games, against a design target of 100,000. No network runs in this measurement. The target is a requirement, not a measured CPU baseline.](images/engine-throughput.svg)
+![Historical SDK 1.2.2 engine throughput with random actions and observation construction: 761,000 dragon-turns a second on an RTX 5070 Ti with 2,048 games, against a design target of 100,000. No network runs in this measurement. The design target was 100,000. A CPU baseline was unmeasured.](images/engine-throughput.svg)
 
-That number doesn't include running the teacher network or updating its weights. It measures the environment's capacity to supply decisions. It also isn't a speedup over the judge timings in the previous post, which included WebAssembly bots, startup and replay output. Training adds policy inference, rollout storage and optimisation, and its end-to-end samples per second have to be measured with all of those running.
+The number measures the environment's capacity to supply decisions with random actions and observation construction. The judge timings in the previous post measured a different workload: WebAssembly bots, startup and replay output. End-to-end training throughput includes policy inference, rollout storage and optimisation.
 
 The GPU engine gives us the environment for that training loop. The judge remains where we check a bot's actions and its competition budget against the official engine. Choosing a backend for many compiled bots needs complete-match measurements, including their execution and replay output. Spreading those games across workers is the next post.
 

@@ -85,19 +85,19 @@ It writes a `.profile.tsv` beside the replay, with each team's costliest functio
 | Stdout writes | The write fee and output byte charge |
 | Team total | The sum over that team's dragon instances |
 
-The extra counters are host observations, not extra charged bot instructions. The run prints its profile totals alongside the points recorded by completed turns. Those totals can differ by the work a sandbox does after its last completed turn, so compare the stated accounting boundary before treating a difference as a metering bug. And keep the first-read setting the same: our judge leaves it free by default, while the toolkit charges it.
+The host collects the extra counters while observing the bot's charged instructions. The run prints its profile totals alongside the points recorded by completed turns. Those totals can differ by the work a sandbox does after its last completed turn, so compare the stated accounting boundary before treating a difference as a metering bug. And keep the first-read setting the same: our judge leaves it free by default, while the toolkit charges it.
 
 ## Why a loop stayed scalar
 
 A hot function's SIMD share is a useful clue, but it doesn't tell us whether a different loop would cost less. The compiler can explain its choices too. [LLVM has two vectorisers](https://llvm.org/docs/Vectorizers.html): the loop vectoriser combines work from consecutive iterations, and the SLP vectoriser combines independent scalar operations. Their remarks record successful transformations and reasons for missed ones, such as an uncertain dependency or a cost model that prefers scalar code.
 
-The build saves those remarks while compiling the staged source with the judge's clang and flags. The vector-remarks tool reads that saved report and joins it to the function costs; it doesn't quietly rebuild the bot:
+The build saves those remarks while compiling the staged source with the judge's clang and flags. The vector-remarks tool reads that saved report and joins it to the function costs from the same build:
 
 ```sh
 just vector-remarks BUILD_GUID game.profile.tsv A 10
 ```
 
-That lets us start with the expensive function rather than a loop that merely looks worth optimising. A large SIMD share still isn't a result: clang's cost model is for a processor, while the judge has its own price list. After changing the loop, we profile the charged points again and check that the actions stayed the same. The [profile README](../harness/profiling/README.md) describes both sidecars and the joined columns.
+That lets us start with the expensive function rather than a loop that merely looks worth optimising. Clang's cost model is for a processor, while the judge has its own price list, so a large SIMD share alone says little about the charged cost. After changing the loop, we profile the charged points again and check that the actions stayed the same. The [profile README](../harness/profiling/README.md) describes both sidecars and the joined columns.
 
 ## Down to the instructions
 

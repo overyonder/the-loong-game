@@ -103,11 +103,11 @@ We counted, for each release, the battles it lost to teams rated below its own m
 
 Between two bots with level performance, we kept the one that lost fewer of those battles.
 
-## Opponents we named
+## Opponent styles
 
 Some opponents played in ways that went beyond good or bad, and we gave their styles labels so we could talk about them. The teams stay anonymous here.
 
-We found them in three ways. The first was a cheese screen: among teams rated 1350 to 1800, we looked for wins over teams rated 150 or more above them since 29 September, and found eight teams. Not every upset was real. In 10 of their 76 upset games the stronger team had failed 20 or more turns, a broken bot rather than a clever one. The second was the list of our own upsets, counted against each bot's measured strength as above. The third was replaying our own losses exactly: our judge can replay a ladder game from its seed, with the opponent's recorded moves, while our bot runs with its diagnostics on, so [the viewer](11-through-one-dragons-eyes.md) shows why each of our dragons did what it did. Of our 19 newest games at one point, 16 reproduced every one of our turns.
+We found them in three ways. The first was a cheese screen: among teams rated 1350 to 1800, we looked for wins over teams rated 150 or more above them since 29 September, and found eight teams. In 10 of their 76 upset games the stronger team had failed 20 or more turns, so those wins involved a broken bot. The second was the list of our own upsets, counted against each bot's measured strength as above. The third was replaying our own losses exactly: our judge can replay a ladder game from its seed, with the opponent's recorded moves, while our bot runs with its diagnostics on, so [the viewer](11-through-one-dragons-eyes.md) shows why each of our dragons did what it did. Of our 19 newest games at one point, 16 reproduced every one of our turns.
 
 To keep watching them, the replay collector pins every game of a style under study, so later pruning keeps them: 934 games for the two ram rushers and 285 for the cheese candidates. Its regular refresh keeps each team rated above us to its newest 40 games, and we tracked which teams upset us more than once. One team took 18 of 25 games from us while rated below us.
 
@@ -135,7 +135,7 @@ Swarm Lord 2 combined numbers with rams. Its dragons moved into ours head-on fro
 
 ### Ram rushers
 
-Two mid-pack teams, Rammer 1 and Rammer 2, sent their dragons straight at enemy heads, accepting heavy losses of their own, and eliminated much stronger teams early. Rammer 2's own dragons died almost only of turns with no valid action. We took the 450 games they lost to teams rated no more than 50 above them. The defenders didn't avoid the trades. They lost more heads in head-on collisions than the rushers did, 26,645 against 22,587, and 332 of the 450 games went the full 500 rounds, where the longest dragon wins. So a rush is absorbed with numbers and beaten on length, and the defence is a strong economy, not caution, which is what the ramming swarm had already taught us. The foil wrote a rush sparring bot to measure it. Our live release beat it 4–0 locally, so it's weaker than the live rushers, whose strength is their numbers.
+Two mid-pack teams, Rammer 1 and Rammer 2, sent their dragons straight at enemy heads, accepting heavy losses of their own, and eliminated much stronger teams early. Rammer 2's own dragons died almost only of turns with no valid action. We took the 450 games they lost to teams rated no more than 50 above them. The defenders didn't avoid the trades. They lost more heads in head-on collisions than the rushers did, 26,645 against 22,587, and 332 of the 450 games went the full 500 rounds, where the longest dragon wins. So a rush is absorbed with numbers and beaten on length. A strong economy supplies both, as the ramming swarm had already taught us. The foil wrote a rush sparring bot to measure it. Our live release beat it 4–0 locally, so it's weaker than the live rushers, whose strength is their numbers.
 
 ### The wall
 

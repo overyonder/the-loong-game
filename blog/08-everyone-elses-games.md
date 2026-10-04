@@ -8,7 +8,7 @@ Every test so far has pitted our bots against our own bots. But the opponents th
 
 The toolkit can make replays of our own games, but it can't fetch anyone else's, since the documented API only lists your own team's recent battles. The public archive is reachable through its web pages.
 
-The [Battles page](https://game.battlecode.au/battles) lists every ladder series, 25 to a page, and adding `?sort=at&dir=desc` puts the newest first. Each series has its own page listing its games, and each game's replay is one more request: the site's own viewer loads it from `/api/matches/<game>/replay`, which redirects to the file in storage. So one replay takes a request for the listing, one for the series page and one for the file, and the first two are shared by every game in the series. The collector starts from the newest series and works back, because teams upload new bots all the time and the newest games show how they play now. A small `--count` asks for a sample; `--all` walks the archive index, while the retention policy still decides which files belong in the store.
+The [Battles page](https://game.battlecode.au/battles) lists every ladder series, 25 to a page, and adding `?sort=at&dir=desc` puts the newest first. Each series has its own page listing its games, and each game's replay is one more request: the site's own viewer loads it from `/api/matches/<game>/replay`, which redirects to the file in storage. So one replay takes a request for the listing, one for the series page and one for the file, and the first two are shared by every game in the series. The collector starts from the newest series and works back, because teams upload new bots all the time and the newest games show how they play now. A small `--count` asks for a sample. `--all` walks the archive index, while the retention policy still decides which files belong in the store.
 
 ![The requests behind one replay. The Battles page, newest first with 25 series a page, leads to a series page listing its games, which leads to the replay API, which redirects to the packed, gzipped replay file. The first two requests are shared by every game in a series, and every request waits its turn.](images/replay-requests.svg)
 
@@ -31,7 +31,7 @@ When it does give up, it saves how long the site asked it to wait, and a rerun r
 
 ## Keeping the games we study
 
-A growing archive needs a rule for what to keep. Each run takes one leaderboard snapshot and applies the policy to the indexed games. The public tool takes the team we're studying as configuration; it doesn't contain our account identity.
+A growing archive needs a rule for what to keep. Each run takes one leaderboard snapshot and applies the policy to the indexed games. The public tool takes the team we're studying as configuration. It doesn't contain our account identity.
 
 | Priority, highest first | Games selected |
 | --- | --- |
@@ -40,13 +40,13 @@ A growing archive needs a rule for what to keep. Each run takes one leaderboard 
 | Pinned games | Games named for a particular review or experiment |
 | Teams above us | The newest 40 per team above our current rating |
 
-A game can qualify in several ways and gets the highest of those priorities. The store's default cap is 100 GB. Retention counts stored bytes, drops unselected files first, and then works from the least protected, oldest games upwards. A pin records who needs the game and why, but isn't a promise that it can exceed the hard cap.
+A game can qualify in several ways and gets the highest of those priorities. The store's default cap is 100 GB. Retention counts stored bytes, drops unselected files first, and then works from the least protected, oldest games upwards. A pin records who needs the game and why, and sets its retention priority within the hard cap.
 
 ![The replay collector's retention policy. Our indexed games, recent top-team games, pinned games and recent games from teams above us feed one selection. The manifest records membership and bytes. Files outside the selection are removed first; lower-priority, older selected files yield when the storage cap needs room.](images/collector-retention.svg)
 
 The manifest keeps the battle index even when the file goes, so a later run knows what it has already seen. Pins have an owner role and a reason, which lets us release the claim when the review is done. For a manual deletion, `--prune-plan` writes exact replay filenames and reports counts and bytes by priority. It deletes nothing. After reviewing and removing those files, `--prune-drop` removes their manifest rows only if the files are gone. Pins remain until explicitly released.
 
-The cap limits disk use, not the cost of walking every archive page. A narrow sample is still the right starting point:
+Walking every archive page still costs requests and time, so start with a narrow sample:
 
 ```sh
 just sample-replays --own-team YOUR_TEAM_ID --count 5 --output public-replays

@@ -4,7 +4,7 @@
 
 With the tools in place, the series turns to strategy. Before writing any, it's worth working out what kind of problem this is, because that decides what kind of bot is worth building. Maps and opponents keep changing, and when a dragon makes a bad choice we need to understand it well enough to change the right piece. That makes the organisation of the bot part of the problem.
 
-## Not a problem to grind
+## Changing maps and opponents
 
 When a game has a fixed simulator and a clear score, it's tempting to throw compute at it: generate thousands of candidate bots, play them against each other for a week, and keep whatever wins. That works when the thing you're optimising against holds still, and in Battlecode very little does. Every team can upload a new bot twelve times an hour, so a bot trained on this week's field is tuned for opponents that won't exist at the tournament. Every tournament map will be new. Even the rules move: until 25 September every match on a map used the same pearl schedule, more than 20 teams had hardcoded those schedules, and when the toolkit started seeding matches randomly all of that tuning stopped working overnight.
 
@@ -90,7 +90,7 @@ Each behaviour is one short module. Roam keeps the most room, exactly as the flo
 
 ![examples/repertoire/games/loong/behaviours/evade.nim. Its objective returns the room a step leaves plus four times the gap from the step to the nearest enemy head. Its hsmState factory builds a state named Evade that applies when an enemy head is within the given distance of ours, and acts by taking the best step under that objective.](images/first-bot-evade.png)
 
-Both behaviours use movement's safety checks. It drops steps into kelp and bodies, and steps next to an enemy head, since dragons move in turn and a head-on collision kills both. It also drops portals, because vision doesn't reach through them. If no safe step remains, the fallback relaxes those checks, so it can't promise survival:
+Both behaviours use movement's safety checks. It drops steps into kelp and bodies, and steps next to an enemy head, since dragons move in turn and a head-on collision kills both. It also drops portals, because vision doesn't reach through them. If no safe step remains, the fallback relaxes those checks and can enter a dangerous tile:
 
 ![examples/repertoire/games/loong/movement.nim. safeSteps keeps the first steps that are open and, unless allowed, not next to an enemy head. best takes the safe steps, falls back to steps within an enemy head's reach, then to an unseen portal, then to the current facing, and otherwise returns the step the behaviour's objective scores highest.](images/first-bot-movement.png)
 

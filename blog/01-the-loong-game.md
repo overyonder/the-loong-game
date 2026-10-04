@@ -13,7 +13,7 @@ I'm Kieran Hannigan, and I run [over|yonder](https://over-yonder.tech), a perfor
 - **Tools for unswbc.** Round-robin harnesses, offline Elo ladders, replay analysis and whatever else I end up wanting at 2am.
 - **WASM deep dives.** What our code compiles to under the judge's toolchain: SIMD, instruction counts, where the points go, and how to fit more search into the same budget.
 
-Will this win you the tournament? Probably not on its own. The top teams will turn up with advanced strategies and plenty of tooling, and most teams won't have either. The point is to raise the tide a little: share the tools, techniques and mistakes so more teams can give the top of the ladder a proper game. Everything's open source, and each post links to the code and results behind it.
+The top teams will turn up with advanced strategies and plenty of tooling, and most teams won't have either. The point is to raise the tide a little: share the tools, techniques and mistakes so more teams can give the top of the ladder a proper game. Everything's open source, and each post links to the code and results behind it.
 
 ![The series in five stages: understanding the problem, with the tournament, the wishlist and the language. Building our tooling, with the harness, statistics, maps, ladder, replays, viewer and profiling. Grand strategy, with the architecture and roles. Tactical ideas and espionage, with tactics and sonar. Performance, with faster kernels and our own judge.](images/series-stages.svg)
 

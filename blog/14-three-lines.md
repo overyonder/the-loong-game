@@ -2,7 +2,7 @@
 
 > **Editor's note, 2 October 2026.** Added the assembly of a bot from its numbered strategy, pinned library pieces and shared runtime.
 
-Before comparing our textbook, foil and learned bots, it helps to define what one bot actually is. The source tree is a catalogue, not an execution diagram. A numbered directory under `main/` holds one bot's assembly. The libraries hold pieces that assemblies may select. The runtime is the common boundary with the judge.
+Before comparing our textbook, foil and learned bots, it helps to define what one bot actually is. The source tree catalogues the assemblies and library pieces. A numbered directory under `main/` holds one bot's assembly. The libraries hold pieces that assemblies may select. The runtime is the common boundary with the judge.
 
 ```text
 bots/
@@ -37,9 +37,9 @@ mount = "repertoire"
 "techniques/cryptography/speck.nim" = "common/lib/techniques/cryptography/speck/0001.nim"
 ```
 
-Before compilation, the build materialises the numbered bot directory and every file named by `library.toml` into a content-addressed source tree. The selected pieces appear under the manifest's `mount`, so the strategy sees one ordinary `repertoire/` even though its contents came from several catalogues. This generated tree is build input, not another place where source is maintained.
+Before compilation, the build materialises the numbered bot directory and every file named by `library.toml` into a content-addressed source tree. The selected pieces appear under the manifest's `mount`, so the strategy sees one ordinary `repertoire/` even though its contents came from several catalogues. The build assembles this generated tree from the versioned source owners.
 
-The shared runtime is added separately. It supplies the entry point and judge integration, while the strategy and its pinned pieces decide how a dragon thinks. The build snapshots all three inputs, records their hashes and compiler settings, and registers the resulting WebAssembly. Sharing a runtime therefore does not force the lines to share an outer decision loop.
+The shared runtime is added separately. It supplies the entry point and judge integration, while the strategy and its pinned pieces decide how a dragon thinks. The build snapshots all three inputs, records their hashes and compiler settings, and registers the resulting WebAssembly. Each strategy owns its outer decision loop.
 
 ## Frozen versions
 
@@ -49,7 +49,7 @@ A line's highest numbered version is the one being developed. When it reaches a 
 
 This gives an old result a precise identity. An identifier such as `textbook-main-NNNN` identifies the assembly. Its manifest lists every selected library file, and the registered build records the runtime, compiler settings and WebAssembly that actually played. Later edits elsewhere in `bots/` cannot quietly alter that evidence.
 
-Keeping old versions costs some space, but deleting them would discard useful opponents and the exact program behind a replay. They become baselines in the [ladder of our own](07-a-ladder-of-our-own.md), regression cases and provenance for the viewer. The number records when a version was made, not whether it was better. The games say what happened.
+Keeping old versions costs some space, but deleting them would discard useful opponents and the exact program behind a replay. They become baselines in the [ladder of our own](07-a-ladder-of-our-own.md), regression cases and provenance for the viewer. The number records when a version was made. The games say what happened.
 
 ## Why three lines
 
@@ -79,7 +79,7 @@ The implementations remain separate even when one teaches the other something. O
 
 The learned line turns games into a policy. A large teacher can use more computation while training, then a smaller student learns its choices and fits inside the judge's time and memory limits. Its assembly pins the network code, observation format, search and other pieces that turn the trained parameters into moves. [Learning to play](27-learning-to-play.md) follows that pipeline from self-play through distillation.
 
-The lines share the judge runtime, build registry, generated maps, evaluation pool and replay viewer. Those are common ways to build and inspect a bot, not a common strategy. Each line remains free to assemble a different turn loop, architecture and collection of behaviours while its results stay comparable on the same terms.
+The lines share the judge runtime, build registry, generated maps, evaluation pool and replay viewer. They let us build and inspect each line on the same terms. Each line remains free to assemble a different turn loop, architecture and collection of behaviours while its results stay comparable on the same terms.
 
 ## Next up
 

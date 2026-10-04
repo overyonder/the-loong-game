@@ -77,7 +77,7 @@ The masks now cost about 435 points instead of 7,800, and the whole room count a
 
 ## Keeping it vectorised
 
-Vectorised C has one weakness: nothing promises it stays vectorised. A small edit elsewhere can let the compiler turn part of a kernel back into scalar code, and the only way to find out is to read the assembly or notice a slow benchmark.
+A small edit elsewhere can let the C compiler turn part of a vectorised kernel back into scalar code. Finding that change requires reading the assembly or noticing a slow benchmark.
 
 As I mentioned in [the choice](03-the-choice.md#rake-for-vector-kernels), Rake exists for exactly this problem: a kernel that would fall back to unsupported scalar code doesn't build. Its native targets also check physical register use. WebAssembly has virtual vector values, so this profile checks the emitted SIMD operations, leaving physical register allocation to the runtime. Here is the north mask in Rake:
 

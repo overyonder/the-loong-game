@@ -151,7 +151,7 @@ The third is the build. Zig's build system is written in Zig, and the judge's `b
 
 The fourth language is my own. [Rake](https://rake-lang.org) is a language for writing vector kernels, the small hot loops that do the same arithmetic to many values at once with SIMD instructions.
 
-I'm building it because the usual ways of getting SIMD code leave you checking it by hand. You can write a plain loop and hope the compiler vectorises it, but nothing promises it will, or that it still will after the next edit. You can write intrinsics, one function call per machine instruction, but then the code is tied to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
+I'm building it because the usual ways of getting SIMD code leave you checking it by hand. The compiler can leave a plain loop scalar, or turn a vectorised loop scalar after the next edit. You can write intrinsics, one function call per machine instruction, but then the code is tied to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
 
 Rake makes vector code a condition of compiling. A kernel works on racks, with one element in each lane. On its native x86 and Arm targets a rack occupies a physical vector register, and verification rejects spills or hidden helper calls. On WebAssembly, racks are virtual 128-bit values: Rake checks the emitted SIMD operations, but the runtime still decides which physical registers they occupy. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
 
@@ -169,7 +169,7 @@ crunch advance(positions: f32s, velocities: f32s) -> f32s:
   result
 ```
 
-Each `| name <| expression` line reads right to left, with the value flowing into its binding. The native AVX2 target can fuse this chain into a multiply-add. WebAssembly has separate multiply and add instructions, so the same source doesn't promise the same fusion on every target. These examples use the bare final-expression syntax introduced in 0.6.0-beta.
+Each `| name <| expression` line reads right to left, with the value flowing into its binding. The native AVX2 target can fuse this chain into a multiply-add. WebAssembly emits separate multiply and add instructions. These examples use the bare final-expression syntax introduced in 0.6.0-beta.
 
 This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. [Counting room faster](18-counting-room-faster.md) writes the room count's masks in Rake and compiles them to WebAssembly through C.
 

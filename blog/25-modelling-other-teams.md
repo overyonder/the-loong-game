@@ -41,7 +41,7 @@ The study covers one day of ranked play, because the replay collector has only r
 
 ### Imitation
 
-We tried predicting a team's moves from what its dragon saw. For seven submissions near the top, the better of a search over simple move-scoring rules and a nearest-neighbour match on the 7×7 window predicted the exact move 50% to 64% of the time on a held-out game, against 21% to 32% for always guessing the team's commonest move. That's a one-step predictor. It carries no memory and no sonar, and it isn't a copy of anyone's bot.
+We tried predicting a team's moves from what its dragon saw. For seven submissions near the top, the better of a search over simple move-scoring rules and a nearest-neighbour match on the 7×7 window predicted the exact move 50% to 64% of the time on a held-out game, against 21% to 32% for always guessing the team's commonest move. That's a one-step predictor. It carries no memory and no sonar.
 
 We built imitation only to give our own bots sparring partners. No bot of ours learned from a mimic's choices, and we never submitted a mimic.
 
@@ -61,4 +61,4 @@ Last, we asked whether the top teams' bots draw their moves at random. From the 
 
 We never fitted hidden modes, such as an input/output hidden Markov model of a dragon's role, and had no test to tell a bot built from roles and rules apart from a learned policy beyond the determinism check. Machine theory of mind, CompILE, inverse reinforcement learning and the playstyle metric never ran on our replays.
 
-So opponent modelling was a small part of our season. The census pointed our work at our own economy, and our bot models where enemy dragons are and how they move, not what kind of bot they belong to.
+So opponent modelling was a small part of our season. The census pointed our work at our own economy, and our bot models enemy positions and movement.

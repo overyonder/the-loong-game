@@ -2,17 +2,17 @@
 
 I had planned to finish this series with the bot we would take to the Grand Final: the planning design and the learned policy, finally working together. Then the rules changed. The design we were assembling was still in progress, and the version now in development uses a different architecture. So this is a tour of where we got to before the rewrite, while the reasons for building it this way are still worth explaining.
 
-> This article describes the pre-Queen design, including an unfinished integration experiment. It is being released because that design has been superseded. [Slay the Queen](29-slay-the-queen.md) explains the rule change. This is not the architecture of the new bot, or an account of a finished combined holdout.
+> This article describes the pre-Queen design, including an unfinished integration experiment. It is being released because that design has been superseded. [Slay the Queen](29-slay-the-queen.md) explains the rule change.
 
 [Planning to play](26-planning-to-play.md) followed textbook-main-0025 through its five layers. [Learning to play](27-learning-to-play.md) described the teacher, student and training pipeline. Here I bring the pieces together around the last frozen planning version, textbook-main-0026, and the student-mover experiment beside it. The planning version added guards at both ends of the champion and a dedicated assassin. Its ordinary movement still came from search. The student hook was left unset.
 
-## What the team was trying to do
+## Team roles
 
 Under the original rules, eliminating the other team won immediately. If both teams survived 500 rounds, the longest dragon decided the winner, with total team length breaking a tie. That gave the team a reason to collect food widely, then concentrate enough of it in one body without letting that body die.
 
 The champion was whichever dragon was best placed to serve that purpose, usually the longest. It wasn't a permanent identity assigned at birth. Early on, splitting made more mouths to collect food and more eyes to discover the board. Later, the champion stayed whole, smaller dragons protected it, and some could feed it by dying nearby and leaving pearls. A second long dragon could grow elsewhere as an understudy.
 
-![The pre-Queen team's roles. A champion grows and survives, an understudy grows separately late in the game, a vanguard watches ahead of the champion, a rearguard watches its tail, an assassin targets the enemy champion, scouts reveal the map and harvesters collect food. Each box describes the role's purpose, not a fixed dragon identity.](images/tour-team.svg)
+![The pre-Queen team's roles. A champion grows and survives, an understudy grows separately late in the game, a vanguard watches ahead of the champion, a rearguard watches its tail, an assassin targets the enemy champion, scouts reveal the map and harvesters collect food. Each box describes a role's purpose. Dragons can change roles.](images/tour-team.svg)
 
 The apparent wastefulness of sacrificing a small dragon made sense only against that scoring rule. Its remaining length could become food for the body that decided the result. Equally, trading a short head for a long enemy head could help, provided we had enough dragons left. A team down to its last dragon couldn't afford the same trade. These were conditions in behaviours, rather than permission for every dragon to charge at every enemy.
 
@@ -32,7 +32,7 @@ That distinction matters when reading an architectural diagram. A box labelled �
 
 The memory held one record per board cell. Edges could be unknown, open, kelp or a portal, with a landing when resolved. Pearls and spawn timers had their own source and round. Occupants were recorded as last seen. The same store held sightings, teammate statuses, tasks, path claims and deaths.
 
-Sight and a message didn't have equal authority. Seeing a tile rewrote it. A teammate's map report filled sides on cells we had never described by sight, and a pearl or timer report replaced an older one. A body turning into pearls could tell us a dragon had died, withdrawing its status and claims. A genuinely later status could overturn that death inference.
+Sight and a message didn't have equal authority. Seeing a tile rewrote it. A teammate's map report filled sides on cells we had never described by sight, and a pearl or timer report replaced an older one. A body turning into pearls could tell us a dragon had died, withdrawing its status and claims. A later status could overturn that death inference.
 
 | Question | What the bot retained | What it inferred |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ The protocol packed ten record kinds into frames, using short codes for small nu
 
 Two kinds of reservation helped dragons avoid competing with their own team. A cell-targeted task could claim its cell for eight rounds, renewed while the task continued. Other dragons yielded unless the owner was sufficiently unlikely to be as near. A champion could claim its immediate route or coil region as right of way, and the give-way interrupt moved a teammate out of it. The ordinary task claim and the champion's path claim were different records with different rules.
 
-The resemblance to Stone and Veloso's [locker-room agreement](https://www.cs.utexas.edu/~pstone/Papers/99aij/teamwork.html) is useful: agents arrive with common rules and communicate enough to apply them. It doesn't guarantee agreement in Loong. A stale task could survive on a teammate's side after its owner had stopped doing it. An unseen longer teammate could leave two dragons believing they were champion. The model had to allow for those gaps.
+The resemblance to Stone and Veloso's [locker-room agreement](https://www.cs.utexas.edu/~pstone/Papers/99aij/teamwork.html) is useful: agents arrive with common rules and communicate enough to apply them. A stale task could survive on a teammate's side after its owner had stopped doing it. An unseen longer teammate could leave two dragons believing they were champion. The model had to allow for those gaps.
 
 ## Roles narrowed the choices
 
@@ -88,11 +88,11 @@ A task was a behaviour bound to a target, which could be a cell, an enemy dragon
 
 The current pair stayed selected unless another beat it by more than 2. Changing the pair reset the behaviour's phase machine. Within a behaviour, phases were checked in priority order each turn. The coil checked escape before leave, follow and approach. The assassin checked strike, prepare, stalk and locate. Nine behaviours had phases, and fourteen acted directly.
 
-The generic state-machine library supported guarded transitions, but this assembly declared none. Its compounds were reactive lists: the first eligible child that produced an action won. An interrupt left the task's phase machine unticked, which preserved some history, unless selection changed the task meanwhile. This was a departure from [Harel's statecharts](https://www.weizmann.ac.il/math/harel/sites/math.harel/files/users/user50/Statecharts.pdf), not a new statechart rule.
+The generic state-machine library supported guarded transitions, but this assembly declared none. Its compounds were reactive lists: the first eligible child that produced an action won. An interrupt left the task's phase machine unticked, which preserved some history, unless selection changed the task meanwhile. This was a departure from [Harel's statecharts](https://www.weizmann.ac.il/math/harel/sites/math.harel/files/users/user50/Statecharts.pdf).
 
-For a concrete example, consider a harvester with food nearby and an enemy approaching. Its role can offer forage, race, hunt or strike, depending on the targets and conditions. A high forage score doesn't authorise walking into danger. When forage executes, movement can prefer a safer landing even if it goes away from the food. If there is no ordinary action, the task can yield. If rescue can save a trapped body by splitting, that interrupt gets the turn before the task does. This is an illustration of the control flow, not a reconstructed match.
+For a concrete example, consider a harvester with food nearby and an enemy approaching. Its role can offer forage, race, hunt or strike, depending on the targets and conditions. A high forage score doesn't authorise walking into danger. When forage executes, movement can prefer a safer landing even if it goes away from the food. If there is no ordinary action, the task can yield. If rescue can save a trapped body by splitting, that interrupt gets the turn before the task does. This example follows the assembly's control flow.
 
-## What movement could actually foresee
+## Movement forecasts
 
 Movement first worked out legal single steps. Then it assessed exits, threats, room, cycles, sealed teammates and survival. Eleven safety classes ordered those assessments before the caller's utility broke ties. A pearl couldn't buy its way past a worse hard safety class, but the safety classification could itself be wrong because it used an approximate local model.
 
@@ -104,7 +104,7 @@ The local search kept other bodies frozen except for the opponent in the duel. I
 
 The 100-million-point limit also shaped the design. Counted work estimated the cost of filters, routes and searches from units such as cells and expanded nodes. Optional assessment started below 60 million and stopped at 75 million counted points. The actual judge clock supplied emergency brakes, stopping optional work at 90 million and required searches at 92 million. If the policy couldn't run, movement supplied a fallback. A partly explored search had to leave enough time to send an action.
 
-## Where the student fitted
+## Student integration
 
 The teacher and critic belonged to training, as [Learning to play](27-learning-to-play.md) describes. Neither ran inside the submitted planning dragon. The small student was the possible runtime component. The question was which decision to give it without losing the strategic structure we could inspect.
 
@@ -112,13 +112,13 @@ We had built one concrete experiment, textbook-test-0091-student-mover. It kept 
 
 ![Ordinary planning and the implemented student-mover experiment, kept separate. The frozen flagship uses classical movement with no student hook. The test variant runs a student on its own encoding and recurrent memory, then substitutes its move or sprint where the task calls movement. The planning structure still owns splits, deliberate deaths and messages. The experiment does not feed the selected planning task into the student or run its reply through the classical safety ranking. A task-conditioned or learned-evaluation hybrid remained unfinished.](images/tour-integration.svg)
 
-The experiment reserved 40 million points per turn for the network, leaving less for the planning work. That reservation was a budget assumption recorded in its assembly, not a claim that every invocation cost exactly 40 million. The adapter kept its own remembered map and recurrent state. It didn't decode the planning team's sonar, whose protocol differed from the learned bot's, and it didn't receive the planning task as a goal.
+The experiment reserved 40 million points per turn for the network, leaving less for the planning work. The assembly recorded that reservation as its network allowance. The adapter kept its own remembered map and recurrent state. It didn't decode the planning team's sonar, whose protocol differed from the learned bot's, and it didn't receive the planning task as a goal.
 
-That made the experiment easy to connect and awkward to call a finished combination. A task could say “approach this pearl” while the substituted network chose a move for its own reasons. The delegated action bypassed the classical movement assessment, so the planning safety classes weren't a shield around it. The hook's presence showed that a student could be plugged into the runtime. It didn't establish that the two designs were cooperating, or that the result played better.
+That made the experiment easy to connect and awkward to call a finished combination. A task could say “approach this pearl” while the substituted network chose a move for its own reasons. The delegated action bypassed the classical movement assessment, so the planning safety classes weren't a shield around it. The hook's presence showed that a student could be plugged into the runtime. Task-conditioned cooperation and play quality remained unevaluated.
 
-The broader integration was still work to do: define what a planning decision asked of the learned component, make their observations and commitments compatible, and review the resulting choices. A learned evaluator for search was another possible integration point, rather than something the frozen bot already used. Distilling a teacher into a student, following [Rusu and colleagues](https://arxiv.org/abs/1511.06295), solved the runtime-size problem. It didn't by itself solve those interfaces.
+The broader integration was still work to do: define what a planning decision asked of the learned component, make their observations and commitments compatible, and review the resulting choices. A learned evaluator for search was another possible integration point, rather than something the frozen bot already used. Distilling a teacher into a student, following [Rusu and colleagues](https://arxiv.org/abs/1511.06295), solved the runtime-size problem. Those interfaces remained unfinished.
 
-## How we could tell what it was doing
+## Decision inspection
 
 The bot was assembled from a small strategy file and pinned library versions. A frozen version kept those pins, so a later library improvement couldn't silently change the bot behind an old replay. Generic techniques such as the histogram filter, utility selector and state machine lived apart from Loong-specific behaviours. Nim assembled them, and Rake supplied the bit-plane flood kernel used by the distance walks.
 
@@ -128,7 +128,7 @@ Diagnostics exposed the decision at each level: role suitability and exclusions,
 
 That made the useful review question quite specific. Had the dragon misunderstood an enemy's length? Had two dragons claimed the same food from different information? Was the task reasonable but its move unsafe, or had an interrupt displaced it? [Through one dragon's eyes](11-through-one-dragons-eyes.md) describes the viewer that lets us ask those questions with the dragon's window and memory, rather than the omniscient board. A rating or a death count couldn't answer them.
 
-## Where we left it
+## Implementation status
 
 | Piece | State before the rewrite |
 | --- | --- |

@@ -2,7 +2,7 @@
 
 The planning bot in the previous article makes its choices from rules and scores we wrote. Our learned bot gets the same incomplete view of the game, but learns those choices from games. We train a large network where compute is cheap, then teach a smaller one that can live inside the competition judge's 100-million-point turn budget.
 
-> **Training note, 2 October 2026.** This is the design we are running now, across a 16 GB workstation card and a four-H100 rental. Training and evaluation are still in progress, so the measurements and the final submitted bot may change.
+> **Training note, 2 October 2026.** This is the design we are running now, across a 16 GB workstation card and a four-H100 rental. Training and evaluation were in progress at the time of this account.
 
 The two networks have different jobs. These are the labels used in the diagrams.
 
@@ -33,7 +33,7 @@ The two networks have different jobs. These are the labels used in the diagrams.
 | Term | Meaning here |
 | --- | --- |
 | **Checkpoint** | A resumable file containing weights, AdamW state, update number, settings and the level-replay state. `latest.pt` is replaced atomically. |
-| **Snapshot** | An immutable copy used as a league opponent or a student candidate. It does not carry the optimiser state needed to resume training. |
+| **Snapshot** | An immutable copy of the weights used as a league opponent or a student candidate. Resuming training uses a checkpoint with optimiser state. |
 | **League** | The pool of past teachers, exploiters and learned imitations that supplies opponents. |
 | **Sidecar** | The student process that keeps distilling new teacher checkpoints while teacher training continues. |
 | **Distillation** | Training the student to reproduce the teacher's action distribution on positions the student itself reaches. |
@@ -57,7 +57,7 @@ The pool is generated before a training process starts. What changes dynamically
 
 ![The training machines and orchestration. A local AM4 workstation with a Ryzen 7 5800X3D, 32 GB DDR4 and a 16 GB RTX 5070 Ti connects both to a private S3 object store and, through a rental connector, to a Vast.ai host. The rental has two Xeon Gold 6448Y processors, 64 physical cores, 128 threads, 1 TB RAM and four H100 GPUs. Three GPUs train the teacher while one distils the student. The scripts pack inputs, connect and start jobs, run teacher, student and CPU demonstration workers, save atomic checkpoints and immutable snapshots, and pull durable copies every fifteen minutes and before shutdown. Credentials, addresses, account details and identifiers are absent.](images/rl-compute-topology.svg)
 
-The workstation is where a run begins and ends. It builds the judge and source bundle, prepares maps and demonstrations, starts the rental jobs, checks the exported student, and keeps the durable copy. Its RTX 5070 Ti can continue either network after the rental ends, although the 16 GB card must alternate between them.
+The workstation is where a run begins and ends. It builds the judge and source bundle, prepares maps and demonstrations, starts the rental jobs, checks the exported student, and keeps the durable copy. Its RTX 5070 Ti can continue either network after the rental ends, with the 16 GB card alternating between them.
 
 The four-H100 host was deliberately disposable. Three cards ran the teacher with local SGD; the fourth ran the student. Its 64 CPU cores generated and encoded more demonstrations while the GPUs trained.
 
@@ -93,7 +93,7 @@ The terminal reward is the game result. Potential-based shaping adds 0.02 for ea
 
 PPO clips each update, Generalized Advantage Estimation carries delayed results back through the rollout, and AdamW applies the gradients. Auxiliary heads ask the memory to reconstruct hidden cells, enemy heads three rounds ahead and the dragon's own future length.
 
-Opponent models are not alternative critics. A critic estimates our expected return. A learned imitation of another ladder bot changes the opponent, so our policy needs to cope with a different set of situations. Keeping those two jobs separate stops an opponent-specific value estimate from becoming the definition of success.
+A critic estimates our expected return. A learned imitation of another ladder bot changes the opponent, so our policy needs to cope with a different set of situations. Keeping those two jobs separate stops an opponent-specific value estimate from becoming the definition of success.
 
 ## Ladder play without ladder-map training
 
@@ -111,7 +111,7 @@ The separately released [complete-match CUDA reference](20-an-engine-on-the-gpu.
 
 ## The sidecar
 
-![Teacher and student execution. On separate GPUs, the teacher trains continuously while the student repeatedly copies the teacher's latest atomic checkpoint and distils for fifteen minutes. On a single 16 GB card, the same jobs alternate in forty-five-minute and fifteen-minute turns. The teacher writes latest.pt every five updates in the live setup, a league snapshot every twenty-five updates by default, and saves again at normal exit or SIGTERM. Each student round keeps an immutable round-HHMM.pt for evaluation. Every dragon-turn remains in the active rollout, but a model file is not written after every dragon-turn.](images/rl-sidecar.svg)
+![Teacher and student execution. On separate GPUs, the teacher trains continuously while the student repeatedly copies the teacher's latest atomic checkpoint and distils for fifteen minutes. On a single 16 GB card, the same jobs alternate in forty-five-minute and fifteen-minute turns. The teacher writes latest.pt every five updates in the live setup, a league snapshot every twenty-five updates by default, and saves again at normal exit or SIGTERM. Each student round keeps an immutable round-HHMM.pt for evaluation. Dragon-turns accumulate in the active rollout. Model files are saved at update and distillation intervals.](images/rl-sidecar.svg)
 
 The teacher writes `latest.pt` beside the live file and renames it into place, so the student can never open a half-written checkpoint. Our live command saves every five teacher updates, at normal exit, and when SIGTERM stops a rental. Separate league snapshots are written every 25 updates by default.
 
@@ -119,9 +119,9 @@ The student sidecar copies the newest complete teacher checkpoint at the start o
 
 ### One smaller card
 
-On the workstation's 16 GB card, both networks do not fit at once. The same protocol alternates: 45 minutes of resumable teacher training, then 15 minutes of resumable student training. Stopping the wrapper sends SIGTERM to the current child, and the teacher saves the last completed update before exiting.
+The workstation's 16 GB card runs the networks in alternating turns: 45 minutes of resumable teacher training, then 15 minutes of resumable student training. Stopping the wrapper sends SIGTERM to the current child, and the teacher saves the last completed update before exiting.
 
-Every environment turn is kept in the current rollout until that update trains. We do not write a model snapshot after each dragon-turn. At tens of thousands of samples a second, doing so would replace training with filesystem writes. The atomic checkpoint and immutable snapshot intervals give us the two properties we need: a run can resume after interruption, and every policy sent to evaluation can be reproduced.
+Every environment turn is kept in the current rollout until that update trains. Saving at update intervals leaves the filesystem out of the per-turn path. The atomic checkpoint and immutable snapshot intervals give us the two properties we need: a run can resume after interruption, and every policy sent to evaluation can be reproduced.
 
 ## The student
 
@@ -137,7 +137,7 @@ During the final third of each distillation round, training fakes the exact arit
 
 ### Export gate
 
-Export checks the student twice. PyTorch's integer path must choose the same action as the quantised student. Then the judge replays those turn blocks through the WebAssembly bot in inspection mode. Its observation tensor, remembered map, action and fixed status sonar must agree on every turn, and the judge measures its p99 point cost. Only after those checks does a student play verdicts against the foil and the latest reviewed planning bot.
+Export checks the student twice. The first check requires action agreement between PyTorch's integer path and the quantised student. Then the judge replays those turn blocks through the WebAssembly bot in inspection mode. The second requires agreement on the observation tensor, remembered map, action and fixed status sonar on every turn. The judge also measures its p99 point cost. Only after those checks does a student play verdicts against the foil and the latest reviewed planning bot.
 
 ## Literature used in the design
 
@@ -162,11 +162,11 @@ The diagram's keys cover every paper in the design plan. This list gives the ful
 | Loshchilov and Hutter, [Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101) (2019), and Jacob et al., [Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference](https://arxiv.org/abs/1712.05877) (2018) | AdamW carries the optimisation state in resumable checkpoints. Quantisation-aware training reproduces the submitted bot's integer arithmetic. |
 | Buro, [From Simple Features to Sophisticated Evaluation Functions](https://doi.org/10.1007/3-540-48957-6_8) (1999), and Szubert and Jaskowski, [Temporal Difference Learning of N-Tuple Networks for the Game 2048](https://doi.org/10.1109/CIG.2014.6932877) (2014) | The student's n-tuple tables cheaply recognise local arrangements that would otherwise need more convolutional capacity. |
 
-## Literature we reviewed but did not use directly
+## Other approaches reviewed
 
-Some papers were useful because they marked a path we should not take for this run.
+We reviewed these approaches against the game's constraints and the time available.
 
-| Paper | Why it is not part of the current design |
+| Paper | Reason for choosing another approach |
 | --- | --- |
 | Shao et al., [DeepSeekMath](https://arxiv.org/abs/2402.03300) (2024) | GRPO compares several sampled answers to the same prompt. A Loong decision changes a long sequential state and already has a learned value baseline, so full-game GRPO would discard useful temporal credit. We reserved it for isolated choices such as split size. |
 | Douillard et al., [DiLoCo](https://arxiv.org/abs/2311.08105) (2023) | DiLoCo is designed for weakly connected islands that communicate hundreds of times less often. Our three rented GPUs were on one host, so averaging weights and AdamW state every eight local steps was simpler and frequent enough. |

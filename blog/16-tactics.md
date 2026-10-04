@@ -86,13 +86,13 @@ Whatever the number one team is doing, it's more careful than this. Perhaps thei
 
 `just tactics` builds the tactics bot, the coiling champion with feeders that forage and deliver, and runs the verdict against the roles bot:
 
-The recorded verdict and ladder below used toolkit 1.2.2. The recipes use the installed official engine by default, so repeating them under a newer toolkit tests a different game. Keep the original engine version when reproducing these figures. The newly released [CPU and CUDA references](../harness/zig_judge/reference/README.md) implement SDK 1.2.7 and are not substitutes for that older ruleset.
+The recorded verdict and ladder below used toolkit 1.2.2. The recipes use the installed official engine by default, so repeating them under a newer toolkit tests a different game. Keep the original engine version when reproducing these figures. The newly released [CPU and CUDA references](../harness/zig_judge/reference/README.md) implement SDK 1.2.7. Reproducing the older figures requires the original 1.2.2 ruleset.
 
 | Candidate | Opponent | W–D–L | Elo (95% interval) | Decision | Games used |
 | --- | --- | --- | --- | --- | --- |
 | `tactics-bot` | `roles-bot` | 8–1–14 | −93 (−273 to +47) | not better | 23, decided at 23 (cap 155) |
 
-It isn't better, at least not by the +70 Elo the verdict looks for. After 23 games it had won 8 and lost 14, and the test crossed its lower line. It won all ten of its upset games against the starter, so whatever it gives away, it doesn't make the bot beatable by a bot that doesn't try. With the sacrifice's numbers still first guesses, that's roughly what to expect, and it's where the tuning will start. The code is in [examples/tactics-bot](../examples/tactics-bot/strategy.nim), and the sacrifice's three numbers are the obvious place to start experimenting.
+After 23 games it had won 8 and lost 14, so the test crossed its lower line and rejected a +70 Elo improvement. It won all ten of its upset games against the starter, so whatever it gives away, it doesn't make the bot beatable by a bot that doesn't try. With the sacrifice's numbers still first guesses, that's roughly what to expect, and it's where the tuning will start. The code is in [examples/tactics-bot](../examples/tactics-bot/strategy.nim), and the sacrifice's three numbers are the obvious place to start experimenting.
 
 ## Every version on one ladder
 

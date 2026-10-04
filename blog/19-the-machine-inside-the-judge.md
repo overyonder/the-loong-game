@@ -1,6 +1,6 @@
 # The machine inside the judge
 
-> **Editor's note, 4 October 2026.** The judge now offers native C++ CPU and CUDA references for SDK 1.2.7, selected explicitly. It reads the twelve-field engine result, including queen and longest lengths. Inspection isn't a competition-budget validation run. The original host comparisons and timings remain below.
+> **Editor's note, 4 October 2026.** The judge now offers native C++ CPU and CUDA references for SDK 1.2.7, selected explicitly. It reads the twelve-field engine result, including queen and longest lengths. Ordinary metered games validate the competition budget. The original host comparisons and timings remain below.
 
 We wrote our own judge. In the host comparisons below it played the official toolkit's games event for event and, apart from one deliberate accounting difference, point for point, in about a quarter of the time. Our bot evaluations run in it, with the toolkit kept as the reference we check it against. And it rules out a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
@@ -103,11 +103,11 @@ Peak memory in the long game fell from 467 MiB to 294 MiB.
 
 That's one game at a time. What matters on the fleet is how much machine a game takes when every core is busy, and there the judge used 2.85 times fewer core-seconds a game than the toolkit on a 32-vCPU worker, 16.3 against 46.3 on average over the 144 paired games. The saving depends on how much of a game is the host's work: 2.4 times for our main line against an older version, where the bots' own thinking dominates, and 3.6 times for that older version against a bot that moves at random.
 
-The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. These timings don't separate the two.
+The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. The timings cover both changes together.
 
 ## Other ways to run the host
 
-The ordinary game hosts the organisers' engine and metered WebAssembly bots. The same host also gives us three ways to inspect or check something without pretending it's a submitted bot:
+The ordinary game hosts the organisers' engine and metered WebAssembly bots. The same host also gives us three more modes for inspection, external policies and engine checks:
 
 ![Four uses of the judge. An ordinary game runs the official engine with metered bot instances. Inspection feeds recorded observations to a bot and collects actions, state and annotations. A served team exchanges turn messages with an external process whose work is not metered. Lockstep sends identical replies to the official engine and a CPU reference, stopping at the first different observation.](images/judge-modes.svg)
 
@@ -121,7 +121,7 @@ For a build using the observer imports, a scope saves the policy meter, runs the
 
 These imports are available only in inspection. Submission builds leave them out, and ordinary games refuse them. The flag-gated diagnostic blocks shown in [the viewer post](11-through-one-dragons-eyes.md#rebuilt-decisions) use a different route: they time their own work and subtract it from the clock the policy reads. The host still meters their instructions, under inspection's larger ceiling.
 
-Either block must only observe: writing to the bot's decision state would change the decision we're trying to explain. Scope boundaries and a different compiler layout can still change small instruction costs, so recovery checks every action against the replay and ordinary games check the budget. An explanation matching the action is useful evidence, not a licence to treat inspection as the online judge.
+Both kinds of block are read-only: writing to the bot's decision state would change the decision we're trying to explain. Scope boundaries and a different compiler layout can still change small instruction costs, so recovery checks every action against the replay and ordinary games check the budget.
 
 ### A team outside WebAssembly
 
@@ -133,7 +133,7 @@ We use this to play a large [teacher model](27-learning-to-play.md) against a ju
 
 Lockstep runs the official engine beside a CPU reference port and compares each observation block byte for byte. Both get the same reply, chosen deterministically from a hash of that block. Odd seeds exercise reckless actions, including invalid splits and rejected moves; even seeds use more careful actions so games can reach later rounds. A difference stops the run at the first mismatched block.
 
-This checks the observation interface along those action sequences. It doesn't prove every possible game, or equality of private engine state that never appeared in an observation. The released [CPU reference and command](../harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU:
+This checks each observation block along the tested action sequences. The released [CPU reference and command](../harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU:
 
 ```sh
 just zig-judge --engine /path/unswbc_engine.wasm \
@@ -167,7 +167,7 @@ just zig-judge --engine /path/unswbc_engine.wasm \
 
 The build refuses an existing output directory. It doesn't install the library or change any default. The engine argument still identifies the official module loaded by the host, while `--native-library` selects the simulation used for this game. `run` writes the replay and each turn's points. CUDA jobs add `--cuda-batch N --threads T --jobs FILE --debug 31`, with live WASM decisions handled by host workers and point aggregates in the jobs output. The [reference README](../harness/zig_judge/reference/README.md#use-through-the-judge) gives the full CUDA command and input table.
 
-The clean export built the host and both libraries. CPU games matched official packed replays and per-turn points in both initial team orders, and the small lockstep check compared 50 turns with no differences or skips. The extracted CUDA library has no fresh GPU execution result. Its device instruction sections are byte-identical to the accepted source build, whose runtime checks retain their original artifact identities. That is the release evidence, and it supplies no new speed figure.
+The clean export built the host and both libraries. CPU games matched official packed replays and per-turn points in both initial team orders, and the small lockstep check compared 50 turns with no differences or skips. The extracted CUDA library has no fresh GPU execution result. Its device instruction sections are byte-identical to the accepted source build, whose runtime checks retain their original artifact identities.
 
 The host accepts the older 32-byte engine result and reads all twelve fields of the later 48-byte result, including queen and longest lengths. Missing fields in the older layout stay zero. Standard batch figures keep their existing fields; accepting the larger result doesn't add columns to that report. Reproducing an old game still needs the engine version that played it.
 
