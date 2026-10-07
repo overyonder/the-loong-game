@@ -1,34 +1,6 @@
 # The final specification
 
-<div class="oy-specification-layout">
-<nav class="oy-specification-nav" aria-label="On this page">
-<h2>On this page</h2>
-<ul>
-      <li><a href="#reading">Reading this page</a></li>
-      <li><a href="#objective">Objective</a></li>
-      <li><a href="#game">The game in brief</a></li>
-      <li><a href="#design">The design</a></li>
-      <li><a href="#lineage">Systems it builds on</a></li>
-      <li><a href="#parts">The seven parts</a></li>
-      <li><a href="#belief">1. Belief</a></li>
-      <li><a href="#network">2. Network</a></li>
-      <li><a href="#options">3. Options</a></li>
-      <li><a href="#search">4. Search</a></li>
-      <li><a href="#teacher">5. Teacher</a></li>
-      <li><a href="#league">6. League</a></li>
-      <li><a href="#review">7. Review</a></li>
-      <li><a href="#gates">Gates</a></li>
-      <li><a href="#strategic">Strategic improvement</a></li>
-      <li><a href="#gpu">GPU training</a></li>
-      <li><a href="#budget">Budget</a></li>
-      <li><a href="#start">Starting point</a></li>
-      <li><a href="#knowledge">Game knowledge</a></li>
-      <li><a href="#explored">Explored ideas</a></li>
-      <li><a href="#concepts">Concept index</a></li>
-      <li><a href="#sources">Sources</a></li>
-    </ul>
-</nav>
-<div class="oy-prose oy-prose-wiki">
+<div class="oy-prose-wiki">
 
 <svg class="oy-diagram oy-diagram-defs" width="0" height="0" aria-hidden="true"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs></svg>
 <h2 id="reading">Reading this page</h2>
@@ -2530,5 +2502,4 @@
 <li>Dijkstra (1959) and Dial (1969): shortest routes priced by passability; Hoare, Algorithm 65: find (1961): selecting a filter's states; Seidman, Network structure and minimum degree (1983): the 2-core; Gray and Cheriton, Leases (1989): claims that lapse unless renewed; Gelman et al., <em>Bayesian Data Analysis</em> (2013): a Dirichlet prior over edge kinds; Russell and Norvig, <em>Artificial Intelligence: A Modern Approach</em> (2020).</li>
 </ul>
   
-</div>
 </div>

@@ -2,7 +2,7 @@
 
 An open source series running alongside the UNSW Battlecode competition, with weird bot ideas, beginner tips, `unswbc` tools and WASM performance deep dives.
 
-Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/games/loong/). This folder is the only source for them. Posts may contain authored HTML for diagrams and section navigation; Post 30 owns the final specification transferred from the private wiki. `tools/build_loong_series.py` in the `over-yonder.tech` repository reads the table below, turns each post into a page, and links files mentioned in posts to this repository on GitHub.
+Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/games/loong/). This folder is the only source for them. Posts may contain authored HTML for diagrams; the builder generates a sticky contents sidebar from each article's section headings. Post 30 owns the final specification transferred from the private wiki. `tools/build_loong_series.py` in the `over-yonder.tech` repository reads the table below, turns each post into a page, and links files mentioned in posts to this repository on GitHub.
 
 | # | Post | Stage | Summary |
 | ---: | --- | --- | --- |
