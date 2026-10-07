@@ -2,7 +2,7 @@
 
 An open source series running alongside the UNSW Battlecode competition, with weird bot ideas, beginner tips, `unswbc` tools and WASM performance deep dives.
 
-Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/games/loong/). This folder is the only source for them. `tools/build_loong_series.py` in the `over-yonder.tech` repository reads the table below, turns each post into a page, and links files mentioned in posts to this repository on GitHub.
+Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/games/loong/). This folder is the only source for them. Posts may contain authored HTML for diagrams and section navigation; Post 30 owns the final specification transferred from the private wiki. `tools/build_loong_series.py` in the `over-yonder.tech` repository reads the table below, turns each post into a page, and links files mentioned in posts to this repository on GitHub.
 
 | # | Post | Stage | Summary |
 | ---: | --- | --- | --- |
@@ -34,6 +34,7 @@ Posts are published at [over-yonder.tech/games/loong](https://over-yonder.tech/g
 | 27 | [Learning to play](27-learning-to-play.md) | Behind the bot | The learned line: a large teacher trained by self-play, a league of past selves, and distillation into an integer student that fits the judge. |
 | 28 | [A tour of our bot](28-a-tour-of-our-bot.md) | Behind the bot | The pre-Queen bot: its memory, sonar, roles and bounded planning, plus the unfinished experiment that put a learned student in charge of movement. |
 | 29 | [Slay the Queen](29-slay-the-queen.md) | Slay the Queen | The competition changes to Slay the Queen after the Sprint, so earlier planning and learning designs are being revisited under the new rules. |
+| 30 | [The final specification](30-the-final-specification.md) | The final specification | The final expert design for Loong: belief, a quantised policy and value network, options, online search, teacher training, league play and review. |
 
 Still planned: The whole bot in Rake, The Jev bot and The poker bot.
 
@@ -48,4 +49,5 @@ The series runs through these stages in order. The site shows them as a stepper 
 5. Performance
 6. Behind the bot
 7. Slay the Queen
-8. Fun and games
+8. The final specification
+9. Fun and games
