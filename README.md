@@ -54,3 +54,7 @@ The current random bot lives in [bots/random](bots/random/), and the viewer's
 small diagnostic examples live in [tools/viewer/examples](tools/viewer/examples/).
 Historical article links select the corresponding committed source where the
 tool implementation has since changed.
+
+Publishing utilities, including figure generators, the shared palette and
+terminal captures, live in [Over Yonder's tools](https://github.com/overyonder/over-yonder.tech/tree/main/tools).
+The article benchmark chart recipe uses that sibling checkout.

@@ -50,7 +50,7 @@ native-profile kernel="queue":
 bench-maps:
     for map in arena default Colosseum trophy big_empty stronghold; do just _game bench-bot $map | grep "LOG bench"; done > bench-six-maps.log
     just _profile-report < bench-six-maps.log
-    python3 ../../tools/kernel_chart.py bench-six-maps.log ../../blog/images/room-kernels.svg
+    python3 {{quote(root)}}/../over-yonder.tech/tools/kernel_chart.py bench-six-maps.log {{quote(root)}}/blog/images/room-kernels.svg
 
 # Compile the Rake mask kernel to C for the bench bot. Needs rakec from Rake's wasm-simd128 branch.
 # window_bits_polished.h is the same file with one change made by hand, described at its top.
