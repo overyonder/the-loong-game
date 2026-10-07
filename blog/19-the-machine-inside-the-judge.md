@@ -4,7 +4,7 @@
 
 We wrote our own judge. In the host comparisons below it played the official toolkit's games event for event and, apart from one deliberate accounting difference, point for point, in about a quarter of the time. Our bot evaluations run in it, with the toolkit kept as the reference we check it against. And it rules out a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
 
-This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](../harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay. The harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](../harness/zig_judge/harness.py).
+This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay. The harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/harness.py).
 
 ## Engine and host
 
@@ -12,7 +12,7 @@ The rules aren't in the judge. In its default mode, the organisers' WebAssembly 
 
 ![What a judge does. The game engine, unswbc_engine.wasm, owns every rule and writes the replay, and talks to the judge through bot_spawn, bot_reply and log. The judge hosts the engine, feeds each dragon its turn, meters CPU points and reads the reply. Each dragon is its own bot.wasm instance, reading its view on stdin and replying on stdout.](images/judge-parts.svg)
 
-The online judge runs bots in Wasmer. The toolkit reproduces it in wasmtime, with a metering pass that inserts the same point counting into each bot's module. In the comparisons below, our judge uses the same engine module, and meters each bot itself with a port of that pass, [metering.zig](../harness/zig_judge/src/metering.zig), checked byte for byte against the original. Only the host around them is new.
+The online judge runs bots in Wasmer. The toolkit reproduces it in wasmtime, with a metering pass that inserts the same point counting into each bot's module. In the comparisons below, our judge uses the same engine module, and meters each bot itself with a port of that pass, [metering.zig](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/src/metering.zig), checked byte for byte against the original. Only the host around them is new.
 
 ## The race in the official sandbox
 
@@ -133,7 +133,7 @@ We use this to play a large [teacher model](27-learning-to-play.md) against a ju
 
 Lockstep runs the official engine beside a CPU reference port and compares each observation block byte for byte. Both get the same reply, chosen deterministically from a hash of that block. Odd seeds exercise reckless actions, including invalid splits and rejected moves; even seeds use more careful actions so games can reach later rounds. A difference stops the run at the first mismatched block.
 
-This checks each observation block along the tested action sequences. The released [CPU reference and command](../harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU:
+This checks each observation block along the tested action sequences. The released [CPU reference and command](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU:
 
 ```sh
 just zig-judge --engine /path/unswbc_engine.wasm \
@@ -152,7 +152,7 @@ The same host can now run a complete game through a native library. Its bots sti
 | Native CPU | C++ on CPU | Wasmtime on CPU | Native host code |
 | Native CUDA | CUDA on GPU | Wasmtime on CPU | Native host code |
 
-The [released libraries](../harness/zig_judge/reference/README.md) share fixed-array rule code, a reply parser and a packed replay writer. They implement SDK 1.2.7, including queen ownership when either team appears first in the map. Training tensors, learner action encoders and models are absent from this release.
+The [released libraries](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md) share fixed-array rule code, a reply parser and a packed replay writer. They implement SDK 1.2.7, including queen ownership when either team appears first in the map. Training tensors, learner action encoders and models are absent from this release.
 
 From `examples/tooling`, build the CPU library with C++20 and Cap'n Proto's development libraries and code generator, then select it explicitly:
 
@@ -165,7 +165,7 @@ just zig-judge --engine /path/unswbc_engine.wasm \
   -o /path/cpu.replay /path/map.map /path/a.wasm /path/b.wasm
 ```
 
-The build refuses an existing output directory. It doesn't install the library or change any default. The engine argument still identifies the official module loaded by the host, while `--native-library` selects the simulation used for this game. `run` writes the replay and each turn's points. CUDA jobs add `--cuda-batch N --threads T --jobs FILE --debug 31`, with live WASM decisions handled by host workers and point aggregates in the jobs output. The [reference README](../harness/zig_judge/reference/README.md#use-through-the-judge) gives the full CUDA command and input table.
+The build refuses an existing output directory. It doesn't install the library or change any default. The engine argument still identifies the official module loaded by the host, while `--native-library` selects the simulation used for this game. `run` writes the replay and each turn's points. CUDA jobs add `--cuda-batch N --threads T --jobs FILE --debug 31`, with live WASM decisions handled by host workers and point aggregates in the jobs output. The [reference README](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md#use-through-the-judge) gives the full CUDA command and input table.
 
 The clean export built the host and both libraries. CPU games matched official packed replays and per-turn points in both initial team orders, and the small lockstep check compared 50 turns with no differences or skips. The extracted CUDA library has no fresh GPU execution result. Its device instruction sections are byte-identical to the accepted source build, whose runtime checks retain their original artifact identities.
 

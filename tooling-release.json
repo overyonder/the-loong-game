@@ -1,1123 +1,1641 @@
 {
-  "format_version": 1,
-  "source_repository": "overyonder/the-loong-game-private",
-  "source_base_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-  "policy": "Public files are releases of their private sources, simplified to leave out private infrastructure. Each entry records the public file's hash and, where known, the source's revision and hash. Changes originate in the private source.",
-  "files": [
-    {
-      "source": "tools/gamedata/replay.capnp",
-      "path": "replays/viewer/replay.capnp",
-      "sha256": "c43fa2635087639eb589121a1ee4cc5a856dd977e11af5708622ba2d3a61aeab",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "c43fa2635087639eb589121a1ee4cc5a856dd977e11af5708622ba2d3a61aeab",
-      "adaptation": "Retain canonical wire layout; include actual team-owned queen length and unknown/known seed union. Older absent fields retain wire defaults."
-    },
-    {
-      "source": "tools/viewer/board_drawing.odin",
-      "path": "replays/viewer/board_drawing.odin",
-      "sha256": "5dedda23a5262993e0602f268151bf3b72e3616686ec246547f8159e953efd0b",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "5dedda23a5262993e0602f268151bf3b72e3616686ec246547f8159e953efd0b"
-    },
-    {
-      "source": "tools/viewer/controls.odin",
-      "path": "replays/viewer/controls.odin",
-      "sha256": "3c83cee78d5d21c9efca1f9824eb064810015bb3f89604e9349bda97266edbb6",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "3c83cee78d5d21c9efca1f9824eb064810015bb3f89604e9349bda97266edbb6"
-    },
-    {
-      "source": "replays/viewer/inspector_drawing.odin",
-      "path": "replays/viewer/inspector_drawing.odin",
-      "sha256": "bf5d928eea818a77420bcce12367967a022fbe52107e25424a6a737b8aa777dd",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "bf5d928eea818a77420bcce12367967a022fbe52107e25424a6a737b8aa777dd"
-    },
-    {
-      "source": "tools/viewer/main.odin",
-      "path": "replays/viewer/main.odin",
-      "sha256": "e9f2f9cf76112494368940e8c6f40e4bcbdf21092112fe310ccc329c8e07a0e7",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "745e19c4e763a1086b36bef763077612d51c4f580b532c76323926e6d7e7b47c"
-    },
-    {
-      "source": "tools/viewer/palette.odin",
-      "path": "replays/viewer/palette.odin",
-      "sha256": "c1fb8f5f3864dbffe3d5f238139b8598d9bc70cd23b7942a9376560c86e5ac81",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "c1fb8f5f3864dbffe3d5f238139b8598d9bc70cd23b7942a9376560c86e5ac81"
-    },
-    {
-      "source": "tools/viewer/types.odin",
-      "path": "replays/viewer/types.odin",
-      "sha256": "9851683d997d22d0ed54eeb6fec1ec9f8fc23f75012e4d42404425a51d654997",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "9851683d997d22d0ed54eeb6fec1ec9f8fc23f75012e4d42404425a51d654997"
-    },
-    {
-      "source": "commands/match.just",
-      "path": "just/match.just",
-      "sha256": "5323368d475e9a531ae2738dcd855f0df01f3de17cae58bdccecac99129b3123"
-    },
-    {
-      "source": "evaluation/mapgen.py",
-      "path": "harness/mapgen.py",
-      "sha256": "16ea78a94f1b1cf12fa65b7d12b032c275a441129f89737688c1a94f285e8b3a",
-      "source_revision": "fdee26bc185ae7341cc5b375e6262d8e4dd31222",
-      "source_sha256": "c078051e200280816e206b8aeabbb2d624aff9b52f95ccbbf519c81454c7118b"
-    },
-    {
-      "source": "commands/checks.just",
-      "path": "just/checks.just",
-      "sha256": "1d0c44a8b35ef7753ea2fb272386cdeccd0712860f55b5fdf57835026fb7c3bb",
-      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "96be26fca053555e8175f87f61b6bbe9c9e15f95d4ae35c0b9195c06e2049284",
-      "recipe_sources": [
-        {
-          "recipe": "test-verdict",
-          "source": "justfile",
-          "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9"
-        }
-      ]
-    },
-    {
-      "source": "tools/viewer/annotations.odin",
-      "path": "replays/viewer/annotations.odin",
-      "sha256": "889015c85243d4eae68b91079dcd3e2266464d70dcaceb83b7036741dfe3cde9",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "e099b67dd8c873aad7e2c62fdfde610ae099174a8a877bc3d3312e2049324981"
-    },
-    {
-      "source": "replays/viewer/typography.odin",
-      "path": "replays/viewer/typography.odin",
-      "sha256": "ddbecf997156c8e3194c458fda681e5bbd009bd53080c13ca8c398c6e5688ef6",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "ddbecf997156c8e3194c458fda681e5bbd009bd53080c13ca8c398c6e5688ef6"
-    },
-    {
-      "source": "replays/viewer/fonts/DejaVuSans.ttf",
-      "path": "replays/viewer/fonts/DejaVuSans.ttf",
-      "sha256": "58568c88a01b80dfc056daca3eeafd434a0380df1a48dda53f0de0d716109bbd",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "58568c88a01b80dfc056daca3eeafd434a0380df1a48dda53f0de0d716109bbd"
-    },
-    {
-      "source": "replays/viewer/fonts/LICENSE",
-      "path": "replays/viewer/fonts/LICENSE",
-      "sha256": "f88d5294af5a772f9114eb385009e3478d62b21f3e5bbc34d159d328047c8867",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "f88d5294af5a772f9114eb385009e3478d62b21f3e5bbc34d159d328047c8867"
-    },
-    {
-      "source": "tools/judge/build.zig",
-      "path": "harness/zig_judge/build.zig",
-      "sha256": "74f171b065aa0540e20c65efa23c25671e0f3ee605db9cf4261c8d4d5ebf7a2d",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "f6588744355b312bb5c76e068a9d27b6ec0d4f0faf47d5cceabb351ae4d1b874",
-      "adaptation": "Link only the minimal CPU reference, with a replaceable C++ reference-source option."
-    },
-    {
-      "source": "tools/judge/build.zig.zon",
-      "path": "harness/zig_judge/build.zig.zon",
-      "sha256": "8210adb9237d336b4f33417d8a32904b17842d48184a1f344890ed804524aee0",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4",
-      "adaptation": "Include the minimal CPU reference in the package."
-    },
-    {
-      "source": "tools/judge/harness.py",
-      "path": "harness/zig_judge/harness.py",
-      "sha256": "e6860e39ce84b10102bee34ead7c922907b1a4e6798bdc281c08b6849eba7575",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "bd77af4be4df5ba6806c47c2727c1df8b2a12b106163d24dd85192b67d73dcb2",
-      "adaptation": "Retain the public harness; extend its source-age guard to the compiled reference headers and C++ inputs."
-    },
-    {
-      "source": "tools/judge/src/batch.zig",
-      "path": "harness/zig_judge/src/batch.zig",
-      "sha256": "29ab4fdaf17699bf9e2cbfd500390762cd6741b14807407d14cb0b4d573d07ea",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "29ab4fdaf17699bf9e2cbfd500390762cd6741b14807407d14cb0b4d573d07ea",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "source": "tools/judge/src/bot.zig",
-      "path": "harness/zig_judge/src/bot.zig",
-      "sha256": "77692f9d7626c8664e5120840a82e080ebe8c30ec6faf28cf3abdce74bca3488",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "source": "tools/judge/src/engine.zig",
-      "path": "harness/zig_judge/src/engine.zig",
-      "sha256": "9c827af45ea2d4de382604e0594f9ef167ef7b662a135cf9d88d4e5f03d137c0",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "9c827af45ea2d4de382604e0594f9ef167ef7b662a135cf9d88d4e5f03d137c0",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "source": "tools/judge/src/framer.zig",
-      "path": "harness/zig_judge/src/framer.zig",
-      "sha256": "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab"
-    },
-    {
-      "source": "tools/judge/src/game.zig",
-      "path": "harness/zig_judge/src/game.zig",
-      "sha256": "f332b2b393aaa70675626ffb51bac3741e68c3a0c45b44f19174f32bec29ced8",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "f332b2b393aaa70675626ffb51bac3741e68c3a0c45b44f19174f32bec29ced8",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "source": "tools/judge/src/inspection.zig",
-      "path": "harness/zig_judge/src/inspection.zig",
-      "sha256": "e56176ebbb9111f0637b452fd71164935a4a054d08582d92e783fd0eb7da1324",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "e56176ebbb9111f0637b452fd71164935a4a054d08582d92e783fd0eb7da1324"
-    },
-    {
-      "source": "tools/judge/src/main.zig",
-      "path": "harness/zig_judge/src/main.zig",
-      "sha256": "68c98ba0614fa45f89c54b11dac3c0dd5319401672eab45b61077a7641acdb89",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "567685482627480911b59a086a0dee719ea78bdf46cf7995014027571ccee34f",
-      "adaptation": "Expose the canonical native selectors, jobs/run and generic lockstep only; omit private focused case/example gate modes."
-    },
-    {
-      "source": "tools/judge/src/sync.zig",
-      "path": "harness/zig_judge/src/sync.zig",
-      "sha256": "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da"
-    },
-    {
-      "source": "tools/judge/src/wasmtime.zig",
-      "path": "harness/zig_judge/src/wasmtime.zig",
-      "sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900"
-    },
-    {
-      "source": "evaluation/parallel.py",
-      "path": "harness/parallel.py",
-      "sha256": "638c1861f81637b487dc799a9916e2f3474abea0e05b40aabc8ae0a31e59e505",
-      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "2533030adb8dcb69917b61a85b686c556c86911953730711b7c3c4bd955f6e00"
-    },
-    {
-      "source": "evaluation/toolkit.py",
-      "path": "harness/toolkit.py",
-      "sha256": "8e2f35d796d2161c34d643c81475f96bae559b6112d2545d8a3f534e97df8ecf",
-      "source_revision": "a9500dda86c9220d055b056417e3e7e20db18452",
-      "source_sha256": "0f1f45c6b0c9ba65d3585720a0d483984b5ca5d62a8640d8472b1d19b46a8678"
-    },
-    {
-      "source": "gamedata/columns.nim",
-      "path": "gamedata/columns.nim",
-      "sha256": "39502672a7ebccaf0792ca923983766bb893e05986da8ed6e091357fab444844",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "39502672a7ebccaf0792ca923983766bb893e05986da8ed6e091357fab444844"
-    },
-    {
-      "source": "tools/gamedata/capnp_replay.nim",
-      "path": "gamedata/capnp_replay.nim",
-      "sha256": "f7b45299f98415c3a71a18fbd3ee554e7f0a44b3fbf89cf601fd4d6fac701801",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "6e938b72e672be42641dd11d873fa4ab38ac6f69f36db51d5c458a8758036b48",
-      "adaptation": "Public schema path in comments."
-    },
-    {
-      "source": "tools/gamedata/gzip_inflate.nim",
-      "path": "gamedata/gzip_inflate.nim",
-      "sha256": "07965a0f4adcf1a96c1daaf02005c39460bf0ba90139264811e57314ca6cff47",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "07965a0f4adcf1a96c1daaf02005c39460bf0ba90139264811e57314ca6cff47"
-    },
-    {
-      "source": "tools/gamedata/sha256.nim",
-      "path": "gamedata/sha256.nim",
-      "sha256": "a5ad4abe67415e57eca6cb5ef3d2de0132ddd2c09fcc8048b8af736d100c2b4e",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "a5ad4abe67415e57eca6cb5ef3d2de0132ddd2c09fcc8048b8af736d100c2b4e"
-    },
-    {
-      "source": "gamedata/result.nim",
-      "path": "gamedata/result.nim",
-      "sha256": "34d9489412d17ab71dfe7ba5d67d05260cf2e5c295bab384829e889804dabdef",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "62aac6a55e40414d5943f175ef6cc8157b1d58816578354bd601c4ae721a2eb1"
-    },
-    {
-      "source": "gamedata/decode.nim",
-      "path": "gamedata/decode.nim",
-      "sha256": "9820c4254a7dee0f4bfad9d1f7710f1ee86a095cf9df83257e19cb08f8395805",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "9e966f1ba4da4ef6c320fa23dd1002717d84c7048bd375d40a0562276285e10c"
-    },
-    {
-      "source": "tools/gamedata/gamedata.nim",
-      "path": "gamedata/gamedata.nim",
-      "sha256": "a3ea410388f41266ab2df8732c503a263fb54d8cb921c9702e1b45d1d97e1710",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "6e3cdb27e29f043be93f3d511f6f9134f0ccefe22d9b1fac6ed1393af38d1dcd",
-      "adaptation": "Retain existing public CLI and separate its imports from the library API."
-    },
-    {
-      "source": "gamedata/format.md",
-      "path": "gamedata/format.md",
-      "sha256": "63723f57df33754fafb225d68322ae630c4d40832e6be0bfea4bb590eed3df07",
-      "source_revision": "7f4dee97ce1ec7bf39771232a84c727c889a664a",
-      "source_sha256": "b3e2d32f3db4f8deafd7e9d1ca8269016051d7397b03a9d1e246b186728156d4"
-    },
-    {
-      "source": "evaluation/report/report.nim",
-      "path": "harness/report/report.nim",
-      "sha256": "cc4003537398bdbaeeea22c5aeebf89aee6957280add1e7b1bc546aeefd5afc8",
-      "source_revision": "c71ccbd513f905e2d33e2a002b529083af4e8bfb",
-      "source_sha256": "b97dd25a35f430611d927db4173edab3558e4986a332a918338519758394f34c"
-    },
-    {
-      "source": "evaluation/report/rating.nim",
-      "path": "harness/report/rating.nim",
-      "sha256": "92ac1d6098b2daf4957ba9bb814ff1afc08323d2735bf80adc3289f9ecc4d9d1",
-      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
-      "source_sha256": "92ac1d6098b2daf4957ba9bb814ff1afc08323d2735bf80adc3289f9ecc4d9d1"
-    },
-    {
-      "source": "evaluation/report/records.nim",
-      "path": "harness/report/records.nim",
-      "sha256": "9d11087b6ebbde2b9580dad37029268f3de21cac22436fe5c9b0e509b0e99d4c",
-      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
-      "source_sha256": "5fd8fe4e0e7b14c145c0712c4b871970b327fe6df392b0ca393b6fb59f91ebd1"
-    },
-    {
-      "source": "evaluation/report/summary.nim",
-      "path": "harness/report/summary.nim",
-      "sha256": "568a3dce0c224197ce32d61ff037352c6afaca266f6f48db631b95111d845847",
-      "source_revision": "c8122226aca835b7bdb8e2b0963ab22f853652ba",
-      "source_sha256": "57ad51dd3c6276ca9bab1b85f99f25945871db37cf3bfa67c17435c86cae5bd5"
-    },
-    {
-      "source": "evaluation/report/maps.nim",
-      "path": "harness/report/maps.nim",
-      "sha256": "c6fff3e4cba43ae866d94daf8c1d1dc9922a3eb13bde4ae5fa66c2e734fdaad3",
-      "source_revision": "0d3df8a2d339547804887f92944bca0e6683eb3d",
-      "source_sha256": "2c7aab7f7a15f0ccfcec8073be57cd69a578c901926a7f36771ca9bec18728dd"
-    },
-    {
-      "source": "evaluation/batch.py",
-      "path": "harness/batch.py",
-      "sha256": "aa1a483cdae69671c4000367ff57e0947f5b2a140b0f972adc4909e9db1881e9",
-      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
-      "source_sha256": "3c629323a6216de77e686283424de7e95ed08d9a60c2d93ae3940391bdff044f"
-    },
-    {
-      "source": "evaluation/loong_report.py",
-      "path": "harness/loong_report.py",
-      "sha256": "12026f9f1d8a40c02b240ce9a77f8b37ba0a8bf24084720e97eed2686d219bdf",
-      "source_revision": "6e591cc3a44e6635e38843ff1b9e848dc564d9a8",
-      "source_sha256": "1af5f353424db111148baef2b592b94e5c4a03c8602616d106f0d79092ae04e2"
-    },
-    {
-      "source": "evaluation/tournament.py",
-      "path": "harness/tournament.py",
-      "sha256": "c55d298bac6badbb8d8e4711723158077aeaef07c2de32156f14c4c9adc9c9b5",
-      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
-      "source_sha256": "a57d6c7b7d15cf3e8cf21e46e25dd11e80ea85e7a24863e3ac561b2a8b6d4749"
-    },
-    {
-      "source": "evaluation/ladder.py",
-      "path": "harness/ladder.py",
-      "sha256": "b0b0c87290253f0fddf543721f6930ae6470ac3d452e08acab92d900e366e818",
-      "source_revision": "a9a373156b80ee75dc7c810b7c05cc27eb5ad00c",
-      "source_sha256": "cdd6b0cd2f1acc107aaec2a8ae20209e3780777a276b4c76c035edabff2e54d4"
-    },
-    {
-      "source": "tools/ladder/collector/collection.nim",
-      "path": "replays/collection.nim",
-      "sha256": "bb00fdb1cae4270d1026ad33e167b4d9a978aaf52f00f52af621d2d61ee46d3d",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "9b114baabc84a35ed2fb37407f802dd3d5c765d2f0049418072d3a8cf55d97b4",
-      "adaptation": "Configurable user team and saved ratings; preserve payload-size cap, retention and pin/plan/drop; remove private provenance and infrastructure defaults."
-    },
-    {
-      "source": "tools/ladder/collector/sqlite.nim",
-      "path": "replays/sqlite.nim",
-      "sha256": "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e"
-    },
-    {
-      "source": "tools/commands/evaluation.just",
-      "path": "just/evaluation.just",
-      "sha256": "f31ee001ee4c677e09a22825a31f0d5bf246b125e9149b799133313dd0344ace",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "1989ad38ad649132a1a9213ed161374d6ad1e6085565dbe55d20dc65321f656b",
-      "adaptation": "Retain existing public recipes and expose one discrete zig-native-build cpu|cuda stage; no game, implicit install or private imports."
-    },
-    {
-      "source": "tools/commands/inspection.just",
-      "path": "just/inspection.just",
-      "sha256": "a6fd205c01192d7c0f07bf23a344cf33c39bc1536bc331ee15d96e68ea7f6190",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "5a400dc6c41a75a91a78fc412d358e02f7d810d4ccaeb55394e826115c60628e",
-      "adaptation": "Expose local map fitting/regeneration and points-profile/vector-remarks under their canonical command names. Record the committed storage-path adaptation: retained registry snapshots use assets/registry.",
-      "public_adaptation_revision": "5ef0fd0abb475cd1575b8aea32b335a39051d69d"
-    },
-    {
-      "source": "evaluation/compare.py",
-      "path": "harness/compare.py",
-      "sha256": "180aca3249b7ebb78fad0309071b4f45b18a4e4f5819d45ac7ce475d3fe845c6",
-      "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
-      "source_sha256": "bdf8d9479ecaa71bab97d3719e5f4487c08c1e2829ec428292059b9306db0959"
-    },
-    {
-      "source": "evaluation/report/verdict.nim",
-      "path": "harness/report/verdict.nim",
-      "sha256": "fc06b6cb9300177bf7c829c864d06dded8029d05e2d6e73f28501b1be59d62c0",
-      "source_revision": "8432a2fd1e9e2e448d6eea1ebf42d263d1fbd2cd",
-      "source_sha256": "16d62fc54d98aa56b60c69f03d989c14ff7e3260153fdcc0c8a0a7b54b8c1ee3"
-    },
-    {
-      "source": "evaluation/tests/compare.py",
-      "path": "harness/tests/compare.py",
-      "sha256": "b4a64fb3318e5c482bf7ac437002e44af0ab4f1c51a8c991b249454ae39d3705",
-      "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
-      "source_sha256": "2df691d52079475aa55d81010182dc950a87dbfb00e9371aa852e1b848daec1b"
-    },
-    {
-      "source": "evaluation/report/tests/verdict.nim",
-      "path": "harness/report/tests/verdict.nim",
-      "sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4",
-      "source_revision": "15c7ef5bd0f02731a557efaf5209bae89c9adbc9",
-      "source_sha256": "2fca8e164bb4b1e5d51fc75c715bb6cb5d18927341f70a5db3794d18c7da0bc4"
-    },
-    {
-      "source": "tools/judge/src/run.zig",
-      "path": "harness/zig_judge/src/run.zig",
-      "sha256": "10999935cbb3fa4807a64548007e19e3bea9017204d3452a0878013d773f6b4b",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "8668d87b9b4fd47a9588878710df8e368ad599aa9ab027d24c6aae6ae4768ab8",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "source": "tools/judge/src/metering.zig",
-      "path": "harness/zig_judge/src/metering.zig",
-      "sha256": "7e29301dd605cbfab130a6f7e27cabd6449476e1dc416c2cbbbc8bb481b87aed",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "7e29301dd605cbfab130a6f7e27cabd6449476e1dc416c2cbbbc8bb481b87aed"
-    },
-    {
-      "source": "evaluation/zig_judge/fidelity.py",
-      "path": "harness/zig_judge/fidelity.py",
-      "sha256": "31c713d5b3615d6f815f5f575d24bf87f2f2e67cfeeba0549fa44ce1c9ec5e45",
-      "source_revision": "43dd002ec5fb8c516f1a46c5d44578acef81e93e",
-      "source_sha256": "482bc8a5339a28185e78d8e2bf5fda46d434aa24202f9fbcb0d838d7cf9108b8"
-    },
-    {
-      "source": "tools/viewer/README.md",
-      "path": "replays/viewer/README.md",
-      "sha256": "d60be860cb61e4576a7838889d8f91b7d53f49232b85b3bc7c017899727b5517",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "f1fb77e7acbb6e4b4c697cb36581a0a4b08ab912572caa53fa9d45e82cfad8b6"
-    },
-    {
-      "source": "tools/viewer/accuracy.odin",
-      "path": "replays/viewer/accuracy.odin",
-      "sha256": "277c26242ea432d0eecd812bbd74e0f23039f207209d90466c5dbfd5b931620a",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "277c26242ea432d0eecd812bbd74e0f23039f207209d90466c5dbfd5b931620a"
-    },
-    {
-      "source": "replays/viewer/belief_map.odin",
-      "path": "replays/viewer/belief_map.odin",
-      "sha256": "10fe5c88825298374334475156e5b5aad4dfe6340c2ae2580ec5bd4c2fa52bb0",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "10fe5c88825298374334475156e5b5aad4dfe6340c2ae2580ec5bd4c2fa52bb0"
-    },
-    {
-      "source": "tools/viewer/beliefs.odin",
-      "path": "replays/viewer/beliefs.odin",
-      "sha256": "6c9798d1e0262c88decba6fdea783d6d6b16086f27b72004f44a01d85fb2a3a3",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "6c9798d1e0262c88decba6fdea783d6d6b16086f27b72004f44a01d85fb2a3a3"
-    },
-    {
-      "source": "replays/viewer/board_replay.odin",
-      "path": "replays/viewer/board_replay.odin",
-      "sha256": "50c126a04b07f9024bcaf48ec5fb26376c40d8bc151e2d5456054b4901c7aa32",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "d7797e3d92f4c3a1205da97f1134b7b2398f00554ccde450d8fde46de151a1f3"
-    },
-    {
-      "source": "tools/viewer/breakdown.odin",
-      "path": "replays/viewer/breakdown.odin",
-      "sha256": "57f4bfc54a845e388960bf881b0103284308047494474de95990b2a9f1b6299f",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "57f4bfc54a845e388960bf881b0103284308047494474de95990b2a9f1b6299f"
-    },
-    {
-      "source": "replays/viewer/columns.odin",
-      "path": "replays/viewer/columns.odin",
-      "sha256": "c95e7bbdd905fc71a712c6934ff4ec3e79210c270e6eec7306625d077e864788",
-      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
-      "source_sha256": "407c32754d3d835ef408123d2de37c1e7ab985e95362e315addeafa8e0c148ea"
-    },
-    {
-      "source": "replays/viewer/consensus.odin",
-      "path": "replays/viewer/consensus.odin",
-      "sha256": "c3e02b27237b1ec77789e34f950f2c5b49cb63a8f2e9d58428e631de4c4dc1d0",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "c3e02b27237b1ec77789e34f950f2c5b49cb63a8f2e9d58428e631de4c4dc1d0"
-    },
-    {
-      "source": "replays/viewer/diagnostic_tables.odin",
-      "path": "replays/viewer/diagnostic_tables.odin",
-      "sha256": "e73b3d8ff8fb489f61dfa8d2be4a0fc924860a6f83e70969a3f636a083986e20",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "e73b3d8ff8fb489f61dfa8d2be4a0fc924860a6f83e70969a3f636a083986e20"
-    },
-    {
-      "source": "tools/viewer/diagnostics.md",
-      "path": "replays/viewer/diagnostics.md",
-      "sha256": "1c22a8e15fffb4478633e599aa19dce45b7cdd93cbf88dfd2aad0fbe7f5f3110",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "95c5bcfab7006b850f05dda145cbf3f078f8379c745a3df86f184c7c5a01c71c"
-    },
-    {
-      "source": "replays/viewer/evaluation.odin",
-      "path": "replays/viewer/evaluation.odin",
-      "sha256": "10a5d9d72df32bb9345337fb7ebc123791a4acfd3945978af3a58aa8415cf81c",
-      "source_revision": "f07d08640254d0167ebd4b33d51578b8e63a3cd4",
-      "source_sha256": "10a5d9d72df32bb9345337fb7ebc123791a4acfd3945978af3a58aa8415cf81c"
-    },
-    {
-      "source": "tools/viewer/game_data.odin",
-      "path": "replays/viewer/game_data.odin",
-      "sha256": "0cf76288bc6df22e1c5d2ee2273dab04c525f71514446ed8f6d5892f108b5215",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "7da4069aa1cb9fdd08a516096770d40b4809797b94853a228df3b375169cc5cf"
-    },
-    {
-      "source": "tools/viewer/gizmo_inspector.odin",
-      "path": "replays/viewer/gizmo_inspector.odin",
-      "sha256": "036ba546399acc76aeda796a54868b8f219ed8a15b4a45c6b5502fe562ea4470",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "036ba546399acc76aeda796a54868b8f219ed8a15b4a45c6b5502fe562ea4470"
-    },
-    {
-      "source": "tools/viewer/gizmos.odin",
-      "path": "replays/viewer/gizmos.odin",
-      "sha256": "73514ea0cd9ec4fcdc2fc8dcec559aee46e2b4dbc51c4d37f41e7ee321f4642e",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "73514ea0cd9ec4fcdc2fc8dcec559aee46e2b4dbc51c4d37f41e7ee321f4642e"
-    },
-    {
-      "source": "replays/viewer/issues.odin",
-      "path": "replays/viewer/issues.odin",
-      "sha256": "4d3de57a9c4e6d255f14b9be11343731661e80aff9334033289042754e21cde5",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "4d3de57a9c4e6d255f14b9be11343731661e80aff9334033289042754e21cde5"
-    },
-    {
-      "source": "replays/viewer/judge_points.odin",
-      "path": "replays/viewer/judge_points.odin",
-      "sha256": "2e7a89aba99e3f4de7f6e700f0614429d1322635a945e3977250cd01dcdbe1c1",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "2e7a89aba99e3f4de7f6e700f0614429d1322635a945e3977250cd01dcdbe1c1"
-    },
-    {
-      "source": "tools/viewer/mental_map.odin",
-      "path": "replays/viewer/mental_map.odin",
-      "sha256": "2491cd1a69433f5bd40ffcc1a9c2287ccd778812ecc76e83a5276c6ddda69b70",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "2491cd1a69433f5bd40ffcc1a9c2287ccd778812ecc76e83a5276c6ddda69b70"
-    },
-    {
-      "source": "tools/viewer/objective_inspector.odin",
-      "path": "replays/viewer/objective_inspector.odin",
-      "sha256": "b6af9dc96e1681e90786e745f5848b84c83a1737e024fcfde57390895c16b85a",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "b6af9dc96e1681e90786e745f5848b84c83a1737e024fcfde57390895c16b85a"
-    },
-    {
-      "source": "tools/viewer/position.odin",
-      "path": "replays/viewer/position.odin",
-      "sha256": "41a6369046ece17485c89b0402c6554f6b228ace6956bc929008cf4d299c74ac",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "fdb9164f8baaadb44012332091f843569dcfab7ec94974aa114b4bea7bd8f373"
-    },
-    {
-      "source": "replays/viewer/radio.odin",
-      "path": "replays/viewer/radio.odin",
-      "sha256": "62f06f6fa7844a840f9b1013a0adbe1a4d5ae8809315a3de41b306b84143920d",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "62f06f6fa7844a840f9b1013a0adbe1a4d5ae8809315a3de41b306b84143920d"
-    },
-    {
-      "source": "tools/viewer/recovery_stream.odin",
-      "path": "replays/viewer/recovery_stream.odin",
-      "sha256": "f380afad4265030d2f68a3c518a03684223b0d0a6954832805b1d0735304b62e",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "894443393e40959c5373f16bda06e8ed58b000d31b3915475b3b880d51ca9dd6"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/.gitignore",
-      "path": "replays/viewer/references/battlecode-eval/.gitignore",
-      "sha256": "848236e22c0a0631ebea0844a686cdb03baad8eacd69594df697f6a32b1ae46e",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "848236e22c0a0631ebea0844a686cdb03baad8eacd69594df697f6a32b1ae46e"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/LICENSE",
-      "path": "replays/viewer/references/battlecode-eval/LICENSE",
-      "sha256": "2cd6a320cf6b6fe4c6b274a77cca9141fb0dd30dbe9a41bebed820ac8185372c",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "2cd6a320cf6b6fe4c6b274a77cca9141fb0dd30dbe9a41bebed820ac8185372c"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/README.md",
-      "path": "replays/viewer/references/battlecode-eval/README.md",
-      "sha256": "6cc6a666bcf54bc3033cbe7b9ee37ddb04df67f300b4abf8a8d3e3a6e029540e",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "6cc6a666bcf54bc3033cbe7b9ee37ddb04df67f300b4abf8a8d3e3a6e029540e"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/__init__.py",
-      "path": "replays/viewer/references/battlecode-eval/bceval/__init__.py",
-      "sha256": "118141202867437f10cbe62a9e5148167e045287703db4777e82aac4e1ed0481",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "118141202867437f10cbe62a9e5148167e045287703db4777e82aac4e1ed0481"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/__main__.py",
-      "path": "replays/viewer/references/battlecode-eval/bceval/__main__.py",
-      "sha256": "8bf993cfcb85dc815de46a81fb227584e5050828e568005cc18e8009abaeb984",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "8bf993cfcb85dc815de46a81fb227584e5050828e568005cc18e8009abaeb984"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/features.py",
-      "path": "replays/viewer/references/battlecode-eval/bceval/features.py",
-      "sha256": "44960c22c82ec66a1dcd3c1cbb623685dfa8819deb5f00176a6e9129908da245",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "44960c22c82ec66a1dcd3c1cbb623685dfa8819deb5f00176a6e9129908da245"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/mapdata.py",
-      "path": "replays/viewer/references/battlecode-eval/bceval/mapdata.py",
-      "sha256": "0a84caa0e2b5e283257ec7c9317a0a7cbff0cfd14590f3c77322e3c9a2e12ffa",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "0a84caa0e2b5e283257ec7c9317a0a7cbff0cfd14590f3c77322e3c9a2e12ffa"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/model.json",
-      "path": "replays/viewer/references/battlecode-eval/bceval/model.json",
-      "sha256": "6cf898c349076dee18f345bbcfdc03ca36457d3633ccac0aaf30b6db7be31403",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "6cf898c349076dee18f345bbcfdc03ca36457d3633ccac0aaf30b6db7be31403"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/replay.capnp",
-      "path": "replays/viewer/references/battlecode-eval/bceval/replay.capnp",
-      "sha256": "811bbacd5702f887c67b76aaace5aa6997b87bb96246452f686f268a20e2d90f",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "811bbacd5702f887c67b76aaace5aa6997b87bb96246452f686f268a20e2d90f"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/replay.py",
-      "path": "replays/viewer/references/battlecode-eval/bceval/replay.py",
-      "sha256": "27a56646c105523c6daf63e12037f964eb450f1c177a321147392df2166e4f07",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "27a56646c105523c6daf63e12037f964eb450f1c177a321147392df2166e4f07"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/bceval/score.py",
-      "path": "replays/viewer/references/battlecode-eval/bceval/score.py",
-      "sha256": "adb0666ee51fe50bc48e332aab729160f2331cc55b07bfaf97eb1b6f04dfea72",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "adb0666ee51fe50bc48e332aab729160f2331cc55b07bfaf97eb1b6f04dfea72"
-    },
-    {
-      "source": "replays/viewer/references/battlecode-eval/pyproject.toml",
-      "path": "replays/viewer/references/battlecode-eval/pyproject.toml",
-      "sha256": "64dc10cd32b10edf3b3c02323de626d0ec6c3cf635a59e4a1d4466b3223d4e7d",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "64dc10cd32b10edf3b3c02323de626d0ec6c3cf635a59e4a1d4466b3223d4e7d"
-    },
-    {
-      "source": "tools/viewer/retained_gizmos.odin",
-      "path": "replays/viewer/retained_gizmos.odin",
-      "sha256": "c0c4fd96dccccb75466413679607e7d29f8425f77ec2c0a441ec58b2e49e9b90",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "c0c4fd96dccccb75466413679607e7d29f8425f77ec2c0a441ec58b2e49e9b90"
-    },
-    {
-      "source": "tools/viewer/scroll_sections.odin",
-      "path": "replays/viewer/scroll_sections.odin",
-      "sha256": "be0bf3f703c55b7b2e4b0f7220241b2217f29a7f745d6858b98d5d1960df5ee4",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "be0bf3f703c55b7b2e4b0f7220241b2217f29a7f745d6858b98d5d1960df5ee4"
-    },
-    {
-      "source": "replays/viewer/turn_playback.odin",
-      "path": "replays/viewer/turn_playback.odin",
-      "sha256": "d7d7265c2ae9858e2556c0a73c3d755bf318df7bca2172ef2c59c84858793ea3",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "d7d7265c2ae9858e2556c0a73c3d755bf318df7bca2172ef2c59c84858793ea3"
-    },
-    {
-      "source": "replays/recovery/decisions.nim",
-      "path": "replays/recovery/decisions.nim",
-      "sha256": "96482172e691213a3144a5e1204617df51784a83c45b3fbe131886e71297a66f",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "68dbbf0d27c83f1611290fdfab893ed7add4b7844f68d2f8803c739ed98853cd"
-    },
-    {
-      "source": "replays/recovery/game_facts.nim",
-      "path": "replays/recovery/game_facts.nim",
-      "sha256": "97b9347cbdad0f83d8a3fa8f7f39b2095d82e78a9356f9810d9b84785c40d875",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "1c2ebc90157e94621ab3781b632ed33d2beec2110b7b2996be35f820422c0cf2"
-    },
-    {
-      "source": "tools/viewer/recovery/gizmos.nim",
-      "path": "replays/recovery/gizmos.nim",
-      "sha256": "9c8d901e6142e234c96bc3ccf5380e9525a8d610ff77839b3bd97642273b17ce",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "6c108f17d9a13dc57adde0596c46cb34556de9cc997914957ee42c9ceb94a21e"
-    },
-    {
-      "source": "tools/viewer/recovery/recover.nim",
-      "path": "replays/recovery/recover.nim",
-      "sha256": "de994af7aa9371fe29c2ce4e80ff85165b678c5fb6c2d832570f0eb7e57f4243",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "2d8ae77f68bdf2d52fcf217f19d18999b863305f1c1a5b4ea56326188e8ee712"
-    },
-    {
-      "source": "tools/viewer/recovery/registry.nim",
-      "path": "replays/recovery/registry.nim",
-      "sha256": "ca2133ef428c38722b2f1789baeb5f8295c770f63f5964f98b31f5627514093d",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "458cec613db3150135ce0a82678d3e937d425ade0a92f082c1e87d8bfef7b780",
-      "adaptation": "Retain public GUID codec and validate optional compiler sidecars; CLI-independent warning-free imports."
-    },
-    {
-      "source": "tools/viewer/recovery/serve.nim",
-      "path": "replays/recovery/serve.nim",
-      "sha256": "ce32d4f688b2f3a2edbc5e3ac2d289a4015b98bb88fa1ee24a2df67122e4c57e",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "5b5e35b54985bbfac47b5281e5b12cc598ccdad39836b1de1ed0b370680dd811"
-    },
-    {
-      "source": "tools/gamedata/README.md",
-      "path": "gamedata/README.md",
-      "sha256": "2cb506bcd60ae33b5ce4ef02f55dbb3940fa23c9d90dcc048375711c32748513",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "3b84ca1123cc179be162a720dc7bd597c9efb3a5f5cc85bd5c0c3f70d2d0a502",
-      "adaptation": "Document released decoder use by the compiled map tools."
-    },
-    {
-      "source": "tools/gamedata/board.nim",
-      "path": "gamedata/board.nim",
-      "sha256": "9f6313c7ce16934b0f321d5dc6ef8a3cfc09296316f243dacbe9888bf5bfc00b",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "9f6313c7ce16934b0f321d5dc6ef8a3cfc09296316f243dacbe9888bf5bfc00b"
-    },
-    {
-      "source": "gamedata/observations.nim",
-      "path": "gamedata/observations.nim",
-      "sha256": "b7f112433ee56f0e76f19db1fbca51f50f948b91bde0ace486607d2e3882a9ad",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "b7f112433ee56f0e76f19db1fbca51f50f948b91bde0ace486607d2e3882a9ad"
-    },
-    {
-      "source": "tools/gamedata/replay_board.nim",
-      "path": "gamedata/replay_board.nim",
-      "sha256": "be2b36f728c0d2657331872da9d9a77b70a7e0af390827a1495d1ad20dc50d44",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "be2b36f728c0d2657331872da9d9a77b70a7e0af390827a1495d1ad20dc50d44"
-    },
-    {
-      "source": "runtime/gizmos.h",
-      "path": "runtime/gizmos.h",
-      "sha256": "a087290b48a405d29303d7c821580a8a1998b553305f2803ec74adc4db97e0e3",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "2f5658d64e15d828e2ade3f0493f358b5c44695607ce708f5eff8460964a9aeb"
-    },
-    {
-      "source": "runtime/gizmos.nim",
-      "path": "runtime/gizmos.nim",
-      "sha256": "c5d0e13f5d76ff8e8c29405a3ac758bfa7103393ad0e81af2581907ec514bdbd",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "62ce4baed620348aec735d07749a6d06bc2a2c9b8523debef2ccc8ce90bd6a90"
-    },
-    {
-      "source": "runtime/diagnostic_descriptions.nim",
-      "path": "runtime/diagnostic_descriptions.nim",
-      "sha256": "360a59f4f81d280e623085b35612f4563d27033d7fe22bc6d44a5461a6593d2f",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "360a59f4f81d280e623085b35612f4563d27033d7fe22bc6d44a5461a6593d2f"
-    },
-    {
-      "source": "runtime/helper.c",
-      "path": "runtime/helper.c",
-      "sha256": "b1aaceb218a7e9b8968e721c73642778ef8213b4e2f00f5e8f2c25e8f6ce8872",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "b1aaceb218a7e9b8968e721c73642778ef8213b4e2f00f5e8f2c25e8f6ce8872"
-    },
-    {
-      "source": "runtime/helper.h",
-      "path": "runtime/helper.h",
-      "sha256": "e3137ac211864468b94e12098bfbe7ff58699f4c1a59a25cf6a830c6429c21d7",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "e3137ac211864468b94e12098bfbe7ff58699f4c1a59a25cf6a830c6429c21d7"
-    },
-    {
-      "source": "runtime/entry.c",
-      "path": "runtime/points.c",
-      "sha256": "b7f4da8d5d7c7448c8eaef661f0828f3c496040b61bc8aeea1d4338ab04961b9",
-      "source_revision": "bebdab69ad3f77346c66355988d09dd6ed7673d0",
-      "source_sha256": "13ef9e50761852ee2180705c5db1a10ce9a1066889a71c099611b9e15440beb9"
-    },
-    {
-      "source": "tools/evaluation/build_registry.py",
-      "path": "harness/build_registry.py",
-      "sha256": "066fefb87a6cf6428cbea1f76dceeb38fbf17a71f110e49ce00a569a86fe7e73",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
-      "adaptation": "Keep the public C/C++ registry; add hashed compiler sidecars and adapter identity. Record the committed storage-path adaptation: retained registry snapshots use assets/registry.",
-      "public_adaptation_revision": "5ef0fd0abb475cd1575b8aea32b335a39051d69d"
-    },
-    {
-      "source": "tools/viewer/knowledge.odin",
-      "path": "replays/viewer/knowledge.odin",
-      "sha256": "c037cf2ec96bdeda1239ca9cafd221aeeb8fb85f3c0446549b85feaa2701967e",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "13faf08fd27802590b03d0c6db2237e71f8159b11447a2717e992aff57be26d0"
-    },
-    {
-      "source": "tools/judge/src/state.zig",
-      "path": "harness/zig_judge/src/state.zig",
-      "sha256": "384c251928082f4e96b87387ad7f57413c91d31ed1d88aae83699a550209a5c6",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "fbbed2e8df8c70991add7dd30ffe2067c045800cfcda07847f00dfee9cb6c5c6",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "path": "replays/recovery/brain.nim",
-      "sha256": "5f2263e27fb53d841facdb63dc854258a7e3965a93c0dd89a5478c17757b7a54",
-      "source": "tools/viewer/recovery/brain.nim",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "3a68ffbddb79d7cdb6eb42ae06e4d4727c8cc86c6933610e723a074d24b6c868"
-    },
-    {
-      "path": "replays/recovery/costs.nim",
-      "sha256": "c74d9d4b271c88c7f141f7e52bc45785bd1659cac39f87aca1ed7619d7d8b81d",
-      "source": "tools/viewer/recovery/costs.nim",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "c74d9d4b271c88c7f141f7e52bc45785bd1659cac39f87aca1ed7619d7d8b81d"
-    },
-    {
-      "path": "replays/recovery/state.nim",
-      "sha256": "b22f74ff6feaa32b93b2e8d47e94650e9cede0b05fef78728a920ef129b9ca17",
-      "source": "tools/viewer/recovery/state.nim",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "1a6b10e114bd5edd458ce49260319ce757d50990dcaa0aee4911ee6e6a069f0f"
-    },
-    {
-      "path": "replays/viewer/annotations_test.odin",
-      "sha256": "42c6a1cac8031f494a5998ee638b832e511ea41b8b58d5da5d5917e92cb84757",
-      "source": "tools/viewer/annotations_test.odin",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "619c97e230ce10741a59902e8315a9cab52b6b289c1c1007f2e0003a24165af8"
-    },
-    {
-      "path": "replays/viewer/board_drawing_test.odin",
-      "sha256": "b93808f90bd00633bff3af015701069232b45fa445f64db0b6db9f2b28e7f6c8",
-      "source": "tools/viewer/board_drawing_test.odin",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "b93808f90bd00633bff3af015701069232b45fa445f64db0b6db9f2b28e7f6c8"
-    },
-    {
-      "path": "replays/viewer/breakdown_test.odin",
-      "sha256": "8120a742a4268fb1c0fdbc8dcee32c03bf84a0a1f694a8eac058874fddd2e3ca",
-      "source": "tools/viewer/breakdown_test.odin",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "8120a742a4268fb1c0fdbc8dcee32c03bf84a0a1f694a8eac058874fddd2e3ca"
-    },
-    {
-      "path": "replays/viewer/gizmos_test.odin",
-      "sha256": "49c82e08f8d73c4ccbad79c0719025073642ebd4f4006d407b3742d3c14d4c1c",
-      "source": "tools/viewer/gizmos_test.odin",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "49c82e08f8d73c4ccbad79c0719025073642ebd4f4006d407b3742d3c14d4c1c"
-    },
-    {
-      "path": "replays/viewer/mirror.odin",
-      "sha256": "df52f08fdb6ddefc47030b600d840d564679ced7053e199a68a0f8f9c1fd06b1",
-      "source": "tools/viewer/mirror.odin",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "df52f08fdb6ddefc47030b600d840d564679ced7053e199a68a0f8f9c1fd06b1"
-    },
-    {
-      "path": "examples/repertoire/techniques/introspection/inspect.nim",
-      "sha256": "735b04709d54c0379227d2020c5a8a4437dacc872fe3afe39b56ddfb0d79f416",
-      "source": "bots/textbook/lib/techniques/introspection/inspect/0001.nim",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "4e04da815a986139c9b52d620ac18d999d389588f9eb1675792a3234fb57dace"
-    },
-    {
-      "path": "replays/recovery/tests/gizmos.jsonl",
-      "sha256": "89cbcb8199efe19505dc9dfd2818de2f64f60c6da1d15cfe33d6ec2be4cc14e4",
-      "source": "tools/viewer/recovery/tests/gizmos.jsonl",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "89cbcb8199efe19505dc9dfd2818de2f64f60c6da1d15cfe33d6ec2be4cc14e4"
-    },
-    {
-      "path": "replays/recovery/tests/gizmos.nim",
-      "sha256": "926e45bfcc03c300d8096b99f01151f522b34d946f0edf729b47a69a1659ed05",
-      "source": "tools/viewer/recovery/tests/gizmos.nim",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "926e45bfcc03c300d8096b99f01151f522b34d946f0edf729b47a69a1659ed05"
-    },
-    {
-      "path": "replays/recovery/tests/gizmos.verdicts",
-      "sha256": "b58976a564f147a2a94a917f70e1ea3dcd88bc3b334528723eda1be43689db48",
-      "source": "tools/viewer/recovery/tests/gizmos.verdicts",
-      "source_revision": "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
-      "source_sha256": "b58976a564f147a2a94a917f70e1ea3dcd88bc3b334528723eda1be43689db48"
-    },
-    {
-      "source": "tools/evaluation/README.md",
-      "path": "harness/README.md",
-      "sha256": "d199832a37965d0ef5ea939e7d9e4a1b684b7a4446e467baa0ea5c55d49ce74c",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "828f727d6690a8cb7f63a62a03aa82fffb9e45c8a0e413597a87121cbe927869",
-      "adaptation": "Document native C++/Capnp/CUDA prerequisites and replace the older-reference limit; preserve existing map and regeneration workflow."
-    },
-    {
-      "source": "tools/evaluation/build_registry.py",
-      "path": "harness/compiler.py",
-      "sha256": "1c32a41c305fca324317c5f8423ebc3b3264d3992cdfbf8581b4033686d9bd97",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
-      "adaptation": "Simplify committed object/name/remark compilation to a sequential SDK adapter; compile once for playing WASM and sidecars."
-    },
-    {
-      "source": "tools/evaluation/regenerate.py",
-      "path": "harness/engine_adapter.py",
-      "sha256": "59f2efecb2e4a504e2065373d68bda4d34a342c240382fbed5c4891ccdde2711",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "7ad681b14297009066662a613cd33e256459b1041959e2fe817a717a607ef8e3",
-      "adaptation": "Thin organiser SDK pipe boundary for the compiled regeneration driver; guard older 32-byte SDKs against replacement engines."
-    },
-    {
-      "source": "tools/ladder/map_variants.py",
-      "path": "harness/map_variants.nim",
-      "sha256": "c66c6618ff37aee888c3fb7048dd2fac258e6513a7b0f3b7fca56fcdc632c5a1",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "833eb63f70d5d7a5becd02a5be6c1cc3eba378daff4dd6dbc92119650d858131",
-      "adaptation": "Port fitting and table lookup to Nim and the released decoder; explicit local seed/replay inputs, free-tile contradiction checks and unresolved-table refusal."
-    },
-    {
-      "source": "tools/commands/profiling.just",
-      "path": "harness/profiling/README.md",
-      "sha256": "228e77280a10fd71090690eb30b025b0b194edd468aceae9b3d2c2ebaad4e0ea",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "b453b99991e1719faf4ecd70bed9723c5dc5beef2caf6c982a0c2a61ffaeccae",
-      "adaptation": "Document released profile, saved sidecars and schemas; omit private source recompile/profiling workflows."
-    },
-    {
-      "source": "tools/evaluation/build_registry.py",
-      "path": "harness/profiling/profile.nim",
-      "sha256": "eef985cd97c5e7df9378c8f6c5721a5dd6e1b4721518ed3e7dfcd2710da5101c",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "bc696dbbd7a1a306a687148d20820baa164c8e261e98fdfc81ef7824d62b23d0",
-      "adaptation": "Compile WASM function-name and selected LLVM vectoriser-record decoding; join the judge TSV by raw names."
-    },
-    {
-      "source": "tools/evaluation/regenerate.py",
-      "path": "harness/regenerate.nim",
-      "sha256": "7ed62f2c691480fe847062ad198f0ef56c641cc2b02d5eb326a61316445510da",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "7ad681b14297009066662a613cd33e256459b1041959e2fe817a717a607ef8e3",
-      "adaptation": "Port recorded replies and state comparison to Nim; local inputs and immutable public build GUIDs; refuse missing, ambiguous or divergent reconstruction."
-    },
-    {
-      "source": "tools/judge/README.md",
-      "path": "harness/zig_judge/README.md",
-      "sha256": "808e8c17f1893fa05c992eed0b3328cc83f18208d55aaa76000ff4e80780ec9a",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "15604dacffc67031e146c4cd4e68b5791c5c256765747a217505ff71fc959234",
-      "adaptation": "Document the released native selectors, twelve-int engine/lockstep results and current dual-served interface; ordinary official-engine default retained."
-    },
-    {
-      "source": "tools/judge/src/bot.zig",
-      "path": "harness/zig_judge/inspection.h",
-      "sha256": "a418639e3f129e97d13c0c28974bda3a4fbb7fc4d469986560c834ac4c2088c6",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d",
-      "adaptation": "Expose the committed host observer imports as inspection-only C declarations."
-    },
-    {
-      "source": "tools/engine/engine.h",
-      "path": "harness/zig_judge/reference/engine.h",
-      "sha256": "1ff09b0cd284d92c4c80bfde79d124f5b73676d069bc30129a00d995ba128f4d",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "25726dda9b42793cb0bc0df1cc572e8f0dfae4590de31b735c69c2499218f08e",
-      "adaptation": "Retain SDK 1.2.7 simulation, Game layout and event sink unchanged; remove packed learner actions and legal-action helpers."
-    },
-    {
-      "source": "tools/engine/host.cc",
-      "path": "harness/zig_judge/reference/host.cc",
-      "sha256": "ea190f384228adfdd9a3b631ca4a3a1a93a9b483e26f8a15260d160c711daff9",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "432f71a2846b66743427040d61159d197373001a6e2157be61b17883b9cf3c31",
-      "adaptation": "Retain map loading, full text observation/reply parser and 12-int lockstep port; remove learner TextView, state/tensor encoding and training exports."
-    },
-    {
-      "source": "tools/engine/host.cc",
-      "path": "harness/zig_judge/reference/port.h",
-      "sha256": "ec8da3ef34665c9ad05d03cdef3f3365880a736e8934fa2df4200ebea9bf9b34",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "432f71a2846b66743427040d61159d197373001a6e2157be61b17883b9cf3c31",
-      "adaptation": "Declare the standalone twelve-int lockstep port; this result order is distinct from native ABI 1."
-    },
-    {
-      "source": "tools/judge/src/lockstep.zig",
-      "path": "harness/zig_judge/src/lockstep.zig",
-      "sha256": "f98aabb9b7f25a535a1c0b84ed22dddc73d2f43d6fa16da68b1a79b00f4395f9",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "7d634fff499907d08e3ee569abb4573352f4024e81f082a9210f3662b1ad1c72",
-      "adaptation": "Keep the existing released deterministic generic policy; compare zero-based rounds and all twelve current result fields, including actual-owned queens. Private gates/examples stay private."
-    },
-    {
-      "source": "tools/judge/src/served.zig",
-      "path": "harness/zig_judge/src/served.zig",
-      "sha256": "4a8fcc2f603d82a9074417679fc441dbb074c23cd02aab1dcbdf41682a0fae26",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "4d74bc9ba89e80d6a654b85c4799e654e70f6c994dcb995b9e455099ac76f3db",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration."
-    },
-    {
-      "source": "tools/ladder/collector/README.md",
-      "path": "replays/README.md",
-      "sha256": "b42a9ab3c713b068933868d4edd12d93d3a6b37d0a7d7111762fa2d5491a5ff7",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "d7666e87fb8c51ffc19e36cd0548e813422902cb442407e430ad31d82595732f",
-      "adaptation": "Document the configurable public collector without private paths or identity."
-    },
-    {
-      "source": "tools/ladder/collector/retention.nim",
-      "path": "replays/retention.nim",
-      "sha256": "78ff2634bb1b21b80886b4d2b4b69dce2b72e2e5235c71fa868d0fde936adf9b",
-      "source_revision": "f5f3628c6d2aa31ff03a5c787467da80e7d01a81",
-      "source_sha256": "423575f635c3eab47bb61a6ba5d6e39fb16db39fdd9aacdaa8fe834fb857afe2",
-      "adaptation": "Preserve retention priorities; require the CLI to supply a positive user team instead of a private default."
-    },
-    {
-      "path": "harness/zig_judge/reference/native.h",
-      "source": "tools/engine/native.h",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "e8fdcc02d99843c17b0071d36d2ada568ad091612a7c2c45b71a73415a4e614a",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "e8fdcc02d99843c17b0071d36d2ada568ad091612a7c2c45b71a73415a4e614a"
-    },
-    {
-      "path": "harness/zig_judge/reference/native.cc",
-      "source": "tools/engine/native.cc",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "2d2fdf986e9b3ab27bcea20c2255e4470ee4c08206af175fd8d00fbbeb9bf7a6",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "2d2fdf986e9b3ab27bcea20c2255e4470ee4c08206af175fd8d00fbbeb9bf7a6"
-    },
-    {
-      "path": "harness/zig_judge/reference/native_replay.h",
-      "source": "tools/engine/native_replay.h",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "23cf2a061a5c6b782db017ff1a24d58dd1b9196004975fc8a2241a3aef3b7d58",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "23cf2a061a5c6b782db017ff1a24d58dd1b9196004975fc8a2241a3aef3b7d58"
-    },
-    {
-      "path": "harness/zig_judge/reference/native_replay.cc",
-      "source": "tools/engine/native_replay.cc",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "b7be04d02e6007bdbceea5458b4d88a51f7c4a4dd3ef25e04f717800328d0b9c",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "1ba25c1e5a90df51cc02f23d031198c30c7137f6b7e5cc9b490c4ce38e1acc03"
-    },
-    {
-      "path": "harness/zig_judge/reference/reply_replay.h",
-      "source": "tools/engine/reply_replay.h",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "4f163668a05e13a9ccac541e6b69304579693ba14c0b03cea2d1d10a1a88598e",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "4f163668a05e13a9ccac541e6b69304579693ba14c0b03cea2d1d10a1a88598e"
-    },
-    {
-      "path": "harness/zig_judge/reference/native_batch.cuh",
-      "source": "tools/engine/native_batch.cuh",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "41d56288180244217e8bc4f8cc65cd58320af05d0287a52984c2122e5de86c8a",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "f2c7becd437dbf332f0b2f49dd69c704f3c7627fe4f717651e4401599927fadf"
-    },
-    {
-      "path": "harness/zig_judge/reference/replay_events.h",
-      "source": "tools/engine/replay_events.h",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "efd9d3b794cce992e7c379c615163332d8ab5e8bd08f0a06b8543098d8ec3049",
-      "adaptation": "Release the generic ABI 1 match/replay owner; relocate the canonical schema include and omit training-only consumers.",
-      "sha256": "55374bb8bda7b281fc60555e55e3f28ec81e0b5230955555367daf878f6daf64"
-    },
-    {
-      "path": "harness/zig_judge/reference/batch.cu",
-      "source": "tools/engine/batch.cu",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "ab67c628fa546f9aff2cd8e524311ef48fcadfd37171e73d1f4d1b43ea695eb6",
-      "adaptation": "Use only the committed native_batch.cuh complete-match path; omit all learner kernels, observations, state planes and loong_batch_* exports.",
-      "sha256": "ade00c47147c5ba29652706d05ad841e5966e981e2340fd8219ff44539518dda"
-    },
-    {
-      "path": "harness/zig_judge/src/native.zig",
-      "source": "tools/judge/src/native.zig",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "60c1872ae61e7782f4415920b921605192b8d86d7031d196f60223f76e7745ec",
-      "adaptation": "Retain committed generic live-WASM policies, metering, lifecycle, twelve-int engine result and explicit native CPU/CUDA selection; no private bot or learning integration.",
-      "sha256": "60c1872ae61e7782f4415920b921605192b8d86d7031d196f60223f76e7745ec"
-    },
-    {
-      "path": "harness/zig_judge/reference/build-native.sh",
-      "source": "tools/engine/build-native.sh",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "b0bdafe898feea96eae388a9df933e01f41d3deb172a764c3e2c56ef4d27a028",
-      "adaptation": "Relocate source/schema inputs to public owners; build only CPU or CUDA complete-match exports and refuse existing output directories.",
-      "sha256": "2b84762305c0f2246d459a2e4d92db307d0c35fc200e93f8871fdfeaefe724a0"
-    },
-    {
-      "path": "harness/zig_judge/reference/README.md",
-      "source": "tools/engine/README.md",
-      "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-      "source_sha256": "ff48d3cdb4649bbc335097b0775edb54a97e9becdaac994c6d0ac6805bb83148",
-      "adaptation": "Document the generic native references, ABI 1, pinned toolchains, builds, output schemas and evidence limits; exclude training and private results.",
-      "sha256": "736becf08cc697f9dbd99515bbb959c68e89a582f6ce0a0702d813cc02123262"
-    }
-  ],
-  "native_reference": {
-    "rules_sdk": "1.2.7",
-    "source_revision": "9bc3df609ecbcf59117ce2b1be35d05216e04fc8",
-    "official_engine_sha256": "26e68680e45eb0f221db702aead9eefde776c2ad2ba066f4ddf8c12500c6a546",
-    "c_abi": 1,
-    "cpu": "C++20 O2",
-    "cuda": "CUDA C++20, nvcc O3, AOT sm_120, no PTX image",
-    "schema": "replays/viewer/replay.capnp, packed format 2",
-    "scope": "Generic simulation, full protocol and complete replay capture. Live WASM policies remain in the judge host. No learning, training, student, competitive bot or private data.",
-    "performance": "No full CUDA workload or paired profiling overhead claim.",
-    "verification": "Clean-export host/CPU/CUDA builds; both-order CPU packed-replay and per-turn-points agreement; unchanged generic source and exact NativeBegin/Advance/Apply device instruction sections inherit original accepted runtime evidence. No fresh extracted-library CUDA execution."
-  }
+   "files" : [
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : ".envrc",
+         "sha256" : "1d26c74fd25a4c3dbb09e029fc609588da499fd4af2a41c88f6316c7f8c54cf1",
+         "source" : ".envrc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "2620d43494f77a6c7f0e8ed73bc4cb987b045f562003ba702df9691e17c28f7f"
+      },
+      {
+         "path" : "bots/common/runtime/basic_policy.inc",
+         "sha256" : "bcfd084cc909ab376b81bd51730e407cc57c405dbc24a792fc84044bd9ca0a2b",
+         "source" : "bots/common/runtime/basic_policy.inc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "bcfd084cc909ab376b81bd51730e407cc57c405dbc24a792fc84044bd9ca0a2b"
+      },
+      {
+         "path" : "bots/common/runtime/controller.nim",
+         "sha256" : "33100c2c12279b42f942af71c83588f87d32bd2db68fde837d9dff41ebfa5390",
+         "source" : "bots/common/runtime/controller.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "33100c2c12279b42f942af71c83588f87d32bd2db68fde837d9dff41ebfa5390"
+      },
+      {
+         "path" : "bots/common/runtime/diagnostic_descriptions.nim",
+         "sha256" : "360a59f4f81d280e623085b35612f4563d27033d7fe22bc6d44a5461a6593d2f",
+         "source" : "bots/common/runtime/diagnostic_descriptions.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "360a59f4f81d280e623085b35612f4563d27033d7fe22bc6d44a5461a6593d2f"
+      },
+      {
+         "path" : "bots/common/runtime/entry.c",
+         "sha256" : "13ef9e50761852ee2180705c5db1a10ce9a1066889a71c099611b9e15440beb9",
+         "source" : "bots/common/runtime/entry.c",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "13ef9e50761852ee2180705c5db1a10ce9a1066889a71c099611b9e15440beb9"
+      },
+      {
+         "path" : "bots/common/runtime/gizmos.h",
+         "sha256" : "13db9d9c9a5d81efeb30c5db8e36a0257b86ef8acbbf59ab400a5f8231a21174",
+         "source" : "bots/common/runtime/gizmos.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "13db9d9c9a5d81efeb30c5db8e36a0257b86ef8acbbf59ab400a5f8231a21174"
+      },
+      {
+         "path" : "bots/common/runtime/gizmos.nim",
+         "sha256" : "62ce4baed620348aec735d07749a6d06bc2a2c9b8523debef2ccc8ce90bd6a90",
+         "source" : "bots/common/runtime/gizmos.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "62ce4baed620348aec735d07749a6d06bc2a2c9b8523debef2ccc8ce90bd6a90"
+      },
+      {
+         "path" : "bots/common/runtime/helper.c",
+         "sha256" : "b1aaceb218a7e9b8968e721c73642778ef8213b4e2f00f5e8f2c25e8f6ce8872",
+         "source" : "bots/common/runtime/helper.c",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b1aaceb218a7e9b8968e721c73642778ef8213b4e2f00f5e8f2c25e8f6ce8872"
+      },
+      {
+         "path" : "bots/common/runtime/helper.h",
+         "sha256" : "e3137ac211864468b94e12098bfbe7ff58699f4c1a59a25cf6a830c6429c21d7",
+         "source" : "bots/common/runtime/helper.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e3137ac211864468b94e12098bfbe7ff58699f4c1a59a25cf6a830c6429c21d7"
+      },
+      {
+         "path" : "bots/random/.gitignore",
+         "sha256" : "2c147c477a5e7050bebb482645844eda308cf71e61f85e491d5d2d0d4fb71b89",
+         "source" : "bots/random/.gitignore",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "2c147c477a5e7050bebb482645844eda308cf71e61f85e491d5d2d0d4fb71b89"
+      },
+      {
+         "path" : "bots/random/bot.toml",
+         "sha256" : "dd66a8773541ffbb96f8a28a55ad89ae4ad72ccff1c2f57b55cb96614fd6c6e4",
+         "source" : "bots/random/bot.toml",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "dd66a8773541ffbb96f8a28a55ad89ae4ad72ccff1c2f57b55cb96614fd6c6e4"
+      },
+      {
+         "path" : "bots/random/main.c",
+         "sha256" : "f2f1f3a2678c36d62675afcac2d55b2921e02373f4460adfc36386b2beee7076",
+         "source" : "bots/random/main.c",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "f2f1f3a2678c36d62675afcac2d55b2921e02373f4460adfc36386b2beee7076"
+      },
+      {
+         "path" : "flake.lock",
+         "sha256" : "aa73a427919003af3f4f863ba51d5bc8ba237e329614dfa19f68c0cada9f2d60",
+         "source" : "flake.lock",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "aa73a427919003af3f4f863ba51d5bc8ba237e329614dfa19f68c0cada9f2d60"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "flake.nix",
+         "sha256" : "172070efde46c27fb03ed38e51728f06e1585c9b0756e71ce04ff882a9d3dcff",
+         "source" : "flake.nix",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "65aadb53ffdfebe5b0beae6e85fcfaff0f68ae7ac2436ca4fe54f35422e1a102"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "justfile",
+         "sha256" : "b53d1c21744757f66afbe7a932bc99d46a6e531472c40b433ba1d2e3e2b33f09",
+         "source" : "justfile",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4daeccfd5d34e9b7750615680e86c56827d7776d5b3b061f472185c4a2db66ab"
+      },
+      {
+         "path" : "tools/analysis/activation_stage.nim",
+         "sha256" : "a2cfa4f11968a2a79f3c1a87b7d390c00f3c0cb2a565b3397f53c8faa062a2b0",
+         "source" : "tools/analysis/activation_stage.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "a2cfa4f11968a2a79f3c1a87b7d390c00f3c0cb2a565b3397f53c8faa062a2b0"
+      },
+      {
+         "path" : "tools/analysis/economy.nim",
+         "sha256" : "3062944acc6b614871ae371268458fb53df55a343457f620132b552282563c88",
+         "source" : "tools/analysis/economy.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3062944acc6b614871ae371268458fb53df55a343457f620132b552282563c88"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/commands/build.just",
+         "sha256" : "9ca7c480e419b1d45cb73fc9c59e271eb7174bff55d925c03b822266539beb6b",
+         "source" : "tools/commands/build.just",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "1acd71181a684e3d9978cd783ad72142664a0dc1f9b125ed4508954425b29701"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/README.md",
+         "sha256" : "c50177142141395da6ab81da47407244a45e26a7154de23ec565be0bc1217ed2",
+         "source" : "tools/engine/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "26cb97a9ceca8f929454b3da97f582bf701d29c88d7ccb51d223ae56f5254151"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/batch.cu",
+         "sha256" : "ade00c47147c5ba29652706d05ad841e5966e981e2340fd8219ff44539518dda",
+         "source" : "tools/engine/batch.cu",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "a777d7e2381318d48c62dd4d2d91da6c14c78bd6dc1b91ef317c6d9fbd8faacd"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/build-native.sh",
+         "sha256" : "95f8965b2c372497aea500a5fc31726f0ea7013634c900f751c4bc83fc534381",
+         "source" : "tools/engine/build-native.sh",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "acec2024fa40ee834384f00d141bb8ad14d47643b7476b82e961bd0cf142e6b5"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/engine.h",
+         "sha256" : "4097d59bd3a98bba680e331c562ce0b72f770136234d1bce3a9e30caab1b5504",
+         "source" : "bots/expert/lib/games/loong/rules/0001.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "91a7df02234d201a9bedd7ca3a0a495c06aca5032cd945b1fb3a507529c44f70"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/host.cc",
+         "sha256" : "0fa77babbd69a28942eed3573fe2f191828585d73c15fbfd5a3aece14de46e10",
+         "source" : "tools/engine/host.cc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "fd5c350bc3f5012de920f26cb6e0aceec5ded47db7d27fe79ea889728e81919d"
+      },
+      {
+         "path" : "tools/engine/native.cc",
+         "sha256" : "2d2fdf986e9b3ab27bcea20c2255e4470ee4c08206af175fd8d00fbbeb9bf7a6",
+         "source" : "tools/engine/native.cc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "2d2fdf986e9b3ab27bcea20c2255e4470ee4c08206af175fd8d00fbbeb9bf7a6"
+      },
+      {
+         "path" : "tools/engine/native.h",
+         "sha256" : "e8fdcc02d99843c17b0071d36d2ada568ad091612a7c2c45b71a73415a4e614a",
+         "source" : "tools/engine/native.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e8fdcc02d99843c17b0071d36d2ada568ad091612a7c2c45b71a73415a4e614a"
+      },
+      {
+         "path" : "tools/engine/native_batch.cuh",
+         "sha256" : "7dd6fac932bd662b8bbee8803c36b2f882e70022eb6e4a9ae0274ddc7be630bd",
+         "source" : "tools/engine/native_batch.cuh",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "7dd6fac932bd662b8bbee8803c36b2f882e70022eb6e4a9ae0274ddc7be630bd"
+      },
+      {
+         "path" : "tools/engine/native_profile.h",
+         "sha256" : "143ba9887ed56cbff0e452a26660d996af0ae541179a69204b78f2fda28126a6",
+         "source" : "tools/engine/native_profile.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "143ba9887ed56cbff0e452a26660d996af0ae541179a69204b78f2fda28126a6"
+      },
+      {
+         "path" : "tools/engine/native_replay.cc",
+         "sha256" : "b7be04d02e6007bdbceea5458b4d88a51f7c4a4dd3ef25e04f717800328d0b9c",
+         "source" : "tools/engine/native_replay.cc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b7be04d02e6007bdbceea5458b4d88a51f7c4a4dd3ef25e04f717800328d0b9c"
+      },
+      {
+         "path" : "tools/engine/native_replay.h",
+         "sha256" : "23cf2a061a5c6b782db017ff1a24d58dd1b9196004975fc8a2241a3aef3b7d58",
+         "source" : "tools/engine/native_replay.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "23cf2a061a5c6b782db017ff1a24d58dd1b9196004975fc8a2241a3aef3b7d58"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/port.h",
+         "sha256" : "ec8da3ef34665c9ad05d03cdef3f3365880a736e8934fa2df4200ebea9bf9b34",
+         "source" : "tools/engine/loong.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9fd27d694375eb02b58c726797e3c77f09d5e5225a55704c34bb4ceb1dd4c003"
+      },
+      {
+         "path" : "tools/engine/replay_events.h",
+         "sha256" : "efd9d3b794cce992e7c379c615163332d8ab5e8bd08f0a06b8543098d8ec3049",
+         "source" : "bots/expert/lib/games/loong/events/0001.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "efd9d3b794cce992e7c379c615163332d8ab5e8bd08f0a06b8543098d8ec3049"
+      },
+      {
+         "path" : "tools/engine/reply_replay.h",
+         "sha256" : "4f163668a05e13a9ccac541e6b69304579693ba14c0b03cea2d1d10a1a88598e",
+         "source" : "tools/engine/reply_replay.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4f163668a05e13a9ccac541e6b69304579693ba14c0b03cea2d1d10a1a88598e"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/engine/turn.h",
+         "sha256" : "4718e5b460120cf18b27651a999077b56c6670880d234fd8743462810defdb53",
+         "source" : "bots/expert/lib/games/loong/turn/0001.h",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "a23d868192e5b1b0d0b1f97a44d55b0e872653f0596ca703493f9790c1fd2336"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/evaluation/README.md",
+         "sha256" : "1c565576af6f58f8f64621bdc8b8d09d67fa97a026e6248198e15978a281a1d6",
+         "source" : "tools/evaluation/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9b4683fcff00b03ea74f812bd53dae1359727b84f8a853c324b0f2cc492e1f80"
+      },
+      {
+         "path" : "tools/evaluation/arguments.nim",
+         "sha256" : "3cd61cba7ba74aca22f3d04766a3354c66c13325596c52f5cd74e177cadcaec5",
+         "source" : "tools/evaluation/arguments.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3cd61cba7ba74aca22f3d04766a3354c66c13325596c52f5cd74e177cadcaec5"
+      },
+      {
+         "path" : "tools/evaluation/batch.nim",
+         "sha256" : "7decb8284e47e5dd2b1b274f01745edbb453bffbda893b1894aed355192614d6",
+         "source" : "tools/evaluation/batch.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "7decb8284e47e5dd2b1b274f01745edbb453bffbda893b1894aed355192614d6"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/bot_build.nim",
+         "sha256" : "098780dbd1b08538d6cfa6a3937960a73073acb8e060ae0fa22368518d91e395",
+         "source" : "tools/evaluation/bot_build/bot_build.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "098780dbd1b08538d6cfa6a3937960a73073acb8e060ae0fa22368518d91e395"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/compile.nim",
+         "sha256" : "114b4a7ac89807804ac0c788eb7391b708aa4bf5071c3ef238c303042f786fc7",
+         "source" : "tools/evaluation/bot_build/compile.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "114b4a7ac89807804ac0c788eb7391b708aa4bf5071c3ef238c303042f786fc7"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/identity.nim",
+         "sha256" : "034c2253991e9e60c872b103f409c9000b6089f44f8842b641515b5689512bbd",
+         "source" : "tools/evaluation/bot_build/identity.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "034c2253991e9e60c872b103f409c9000b6089f44f8842b641515b5689512bbd"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/evaluation/bot_build/judge_clang.nim",
+         "sha256" : "e513c0dfdb3315a57966932885100a88c8910b9debf07caef8dd98e414179997",
+         "source" : "tools/evaluation/bot_build/judge_clang.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "58bbb09adeae01a83d13d3be7f780f80340ee0601b17086729f5f4e36cc0dffa"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/registry.nim",
+         "sha256" : "e1133ef3607cb0b8e6de8cebc5c1a4da284238aa3268bec6afbc1bc557a7f214",
+         "source" : "tools/evaluation/bot_build/registry.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e1133ef3607cb0b8e6de8cebc5c1a4da284238aa3268bec6afbc1bc557a7f214"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/remarks.nim",
+         "sha256" : "2dcac8ab847f9e52377c44cd9955b0cff95d5be24a0b7018938c274db565f532",
+         "source" : "tools/evaluation/bot_build/remarks.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "2dcac8ab847f9e52377c44cd9955b0cff95d5be24a0b7018938c274db565f532"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/settings.nim",
+         "sha256" : "0fff7e049f4722effbdf7c54c1db61826233181d255f01bf2cf2b65f4484f76e",
+         "source" : "tools/evaluation/bot_build/settings.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "0fff7e049f4722effbdf7c54c1db61826233181d255f01bf2cf2b65f4484f76e"
+      },
+      {
+         "path" : "tools/evaluation/bot_build/snapshot.nim",
+         "sha256" : "49311a9cd2569bb98c46aee52e26b1568db6c6f5bb7c6e9cb39843f46e611c05",
+         "source" : "tools/evaluation/bot_build/snapshot.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "49311a9cd2569bb98c46aee52e26b1568db6c6f5bb7c6e9cb39843f46e611c05"
+      },
+      {
+         "path" : "tools/evaluation/bots.nim",
+         "sha256" : "9c71365eceb9d5ee2d746887fab19148ef396b37a8943afabd4a490dc4d710b0",
+         "source" : "tools/evaluation/bots.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9c71365eceb9d5ee2d746887fab19148ef396b37a8943afabd4a490dc4d710b0"
+      },
+      {
+         "path" : "tools/evaluation/freeze.nim",
+         "sha256" : "af953f63282076216a2197d21fecb64304d604d83ea0a9800a8c07ff0214f1e4",
+         "source" : "tools/evaluation/freeze.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "af953f63282076216a2197d21fecb64304d604d83ea0a9800a8c07ff0214f1e4"
+      },
+      {
+         "path" : "tools/evaluation/isotime.nim",
+         "sha256" : "b16f61f9d8cde2c33e36e348b5b5d96fb32a31f86934caa5a24133b5953eab9a",
+         "source" : "tools/evaluation/isotime.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b16f61f9d8cde2c33e36e348b5b5d96fb32a31f86934caa5a24133b5953eab9a"
+      },
+      {
+         "path" : "tools/evaluation/ladder.nim",
+         "sha256" : "899c0b9ce2c2f70f9793fe63510b4cb8ed68069a670479974057f2abcae56d32",
+         "source" : "tools/evaluation/ladder.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "899c0b9ce2c2f70f9793fe63510b4cb8ed68069a670479974057f2abcae56d32"
+      },
+      {
+         "path" : "tools/evaluation/ladder_plot.nim",
+         "sha256" : "c609d3572865698913354062761030a2ba71598070b959a03d641ebb7789a583",
+         "source" : "tools/evaluation/ladder_plot.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c609d3572865698913354062761030a2ba71598070b959a03d641ebb7789a583"
+      },
+      {
+         "path" : "tools/evaluation/locks.nim",
+         "sha256" : "aef02dc36da518533cefcd7ef7833cd8f72011fe0bfe27cad3230cb11d859fe4",
+         "source" : "tools/evaluation/locks.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "aef02dc36da518533cefcd7ef7833cd8f72011fe0bfe27cad3230cb11d859fe4"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/buildings.nim",
+         "sha256" : "b6c653da190a8814c4e567f7665d9a0ff4b47918e770c3a67e291065912ca764",
+         "source" : "tools/evaluation/mapgen/buildings.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b6c653da190a8814c4e567f7665d9a0ff4b47918e770c3a67e291065912ca764"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/canvas.nim",
+         "sha256" : "b1fcbbf68f8636ddb1259dd884b6984375d2fcc83fa1e05938bf49451cd2f4c8",
+         "source" : "tools/evaluation/mapgen/canvas.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b1fcbbf68f8636ddb1259dd884b6984375d2fcc83fa1e05938bf49451cd2f4c8"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/generate.nim",
+         "sha256" : "0aa38a0063355593ebe1f25ad7d7ebe076fb2fc73522b14cf8758e45f7d4e6fd",
+         "source" : "tools/evaluation/mapgen/generate.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "0aa38a0063355593ebe1f25ad7d7ebe076fb2fc73522b14cf8758e45f7d4e6fd"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/landmarks.nim",
+         "sha256" : "16b7e27f7952a5681acae08f7cbc6d58815e96a2b9c4e7230f5307c1df984003",
+         "source" : "tools/evaluation/mapgen/landmarks.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "16b7e27f7952a5681acae08f7cbc6d58815e96a2b9c4e7230f5307c1df984003"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/mapgen.nim",
+         "sha256" : "ae762b548854e546aebe241dd1e6ecc341f4d2bccb64e904e4b7dd119ee42fc2",
+         "source" : "tools/evaluation/mapgen/mapgen.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ae762b548854e546aebe241dd1e6ecc341f4d2bccb64e904e4b7dd119ee42fc2"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/profile.nim",
+         "sha256" : "900680125ca62b6bcecf3cdc5c01ae9fa737ffd952e170f9b5a0255f756af224",
+         "source" : "tools/evaluation/mapgen/profile.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "900680125ca62b6bcecf3cdc5c01ae9fa737ffd952e170f9b5a0255f756af224"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/stages.nim",
+         "sha256" : "cdbcfbaf45052603d4a2c61eab8be03c4955a55155061428941bdc923b867772",
+         "source" : "tools/evaluation/mapgen/stages.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "cdbcfbaf45052603d4a2c61eab8be03c4955a55155061428941bdc923b867772"
+      },
+      {
+         "path" : "tools/evaluation/mapgen/world.nim",
+         "sha256" : "00d53b4d77ba29708705c00461cf40641e615c82bcdd16ac89f02c72bb9c7819",
+         "source" : "tools/evaluation/mapgen/world.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "00d53b4d77ba29708705c00461cf40641e615c82bcdd16ac89f02c72bb9c7819"
+      },
+      {
+         "path" : "tools/evaluation/maps/Colosseum.map",
+         "sha256" : "cf79223957ea28c3a88eac4826b3ccb6c213d19703de9f58c18bcdde3bc6b9b2",
+         "source" : "tools/evaluation/maps/Colosseum.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "cf79223957ea28c3a88eac4826b3ccb6c213d19703de9f58c18bcdde3bc6b9b2"
+      },
+      {
+         "path" : "tools/evaluation/maps/arena.map",
+         "sha256" : "b4bab09603289c2d186ca94d6cf5362e5cc8f24637736c497d9651c0dd921937",
+         "source" : "tools/evaluation/maps/arena.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b4bab09603289c2d186ca94d6cf5362e5cc8f24637736c497d9651c0dd921937"
+      },
+      {
+         "path" : "tools/evaluation/maps/australia.map",
+         "sha256" : "7fccdee8a73a971bc3dc7a07b13aa56bb214f311249b942869bcc9708084d539",
+         "source" : "tools/evaluation/maps/australia.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "7fccdee8a73a971bc3dc7a07b13aa56bb214f311249b942869bcc9708084d539"
+      },
+      {
+         "path" : "tools/evaluation/maps/autarky.map",
+         "sha256" : "c622b9afe8fea2d034999511f07fc561a4e5e7120615f0f9bf454b3f27fc0a16",
+         "source" : "tools/evaluation/maps/autarky.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c622b9afe8fea2d034999511f07fc561a4e5e7120615f0f9bf454b3f27fc0a16"
+      },
+      {
+         "path" : "tools/evaluation/maps/big_empty.map",
+         "sha256" : "6cb3b7be72a4e27ed19363e9009d46742851709f701e61d73b56437314fdd827",
+         "source" : "tools/evaluation/maps/big_empty.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "6cb3b7be72a4e27ed19363e9009d46742851709f701e61d73b56437314fdd827"
+      },
+      {
+         "path" : "tools/evaluation/maps/default.map",
+         "sha256" : "42d4766ffede5f445692b119a26a6eee687fdc63b5b86776fefdf7fd755789b8",
+         "source" : "tools/evaluation/maps/default.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "42d4766ffede5f445692b119a26a6eee687fdc63b5b86776fefdf7fd755789b8"
+      },
+      {
+         "path" : "tools/evaluation/maps/default_small.map",
+         "sha256" : "1b9d21bdec23388e8c72f3e7095cd70696b8dd816584627f44c05dd9e2d118b6",
+         "source" : "tools/evaluation/maps/default_small.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "1b9d21bdec23388e8c72f3e7095cd70696b8dd816584627f44c05dd9e2d118b6"
+      },
+      {
+         "path" : "tools/evaluation/maps/devil.map",
+         "sha256" : "a09e8f2d3bdd1e40fad31a0ecdf00166cd1090c232c56dcc2557729de737f6aa",
+         "source" : "tools/evaluation/maps/devil.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "a09e8f2d3bdd1e40fad31a0ecdf00166cd1090c232c56dcc2557729de737f6aa"
+      },
+      {
+         "path" : "tools/evaluation/maps/dilemma.map",
+         "sha256" : "fd02547854cbcbe36274d4341900610ba1aa1caa35e553c38135def95e0db68d",
+         "source" : "tools/evaluation/maps/dilemma.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "fd02547854cbcbe36274d4341900610ba1aa1caa35e553c38135def95e0db68d"
+      },
+      {
+         "path" : "tools/evaluation/maps/help.map",
+         "sha256" : "509acb1a4ac6b1bb03131cc59e3afc1626eedbf8e071084660aa935b4868ce5d",
+         "source" : "tools/evaluation/maps/help.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "509acb1a4ac6b1bb03131cc59e3afc1626eedbf8e071084660aa935b4868ce5d"
+      },
+      {
+         "path" : "tools/evaluation/maps/islands.map",
+         "sha256" : "8a403c0aa6c7affc53ee27283fed1568840bb82517c9d7eb59c69462f66d5fb6",
+         "source" : "tools/evaluation/maps/islands.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8a403c0aa6c7affc53ee27283fed1568840bb82517c9d7eb59c69462f66d5fb6"
+      },
+      {
+         "path" : "tools/evaluation/maps/maze.map",
+         "sha256" : "f154114e3ed9d39efd8516529acf8462328866b1580662228ff35dedd3cd3bdf",
+         "source" : "tools/evaluation/maps/maze.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "f154114e3ed9d39efd8516529acf8462328866b1580662228ff35dedd3cd3bdf"
+      },
+      {
+         "path" : "tools/evaluation/maps/portals.map",
+         "sha256" : "56341e6577da7429efb6f33b64b79b0c4223c4fbd9df995713ad781bead5f423",
+         "source" : "tools/evaluation/maps/portals.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "56341e6577da7429efb6f33b64b79b0c4223c4fbd9df995713ad781bead5f423"
+      },
+      {
+         "path" : "tools/evaluation/maps/queen_of_spades.map",
+         "sha256" : "126d71b46443268596285918d910b7f8d875bf3028ca9c5ff6bad97b4e868938",
+         "source" : "tools/evaluation/maps/queen_of_spades.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "126d71b46443268596285918d910b7f8d875bf3028ca9c5ff6bad97b4e868938"
+      },
+      {
+         "path" : "tools/evaluation/maps/queen_of_spades_but_she_ages.map",
+         "sha256" : "970ccbbbecc14a3e1276714e4f7a7d2ee3c92496116e7b65eed6eb2735e5220f",
+         "source" : "tools/evaluation/maps/queen_of_spades_but_she_ages.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "970ccbbbecc14a3e1276714e4f7a7d2ee3c92496116e7b65eed6eb2735e5220f"
+      },
+      {
+         "path" : "tools/evaluation/maps/schooltime.map",
+         "sha256" : "5b9481d0c65454b6d0a6747a581c582414cba37dd99273cc5a23dbca63b31724",
+         "source" : "tools/evaluation/maps/schooltime.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "5b9481d0c65454b6d0a6747a581c582414cba37dd99273cc5a23dbca63b31724"
+      },
+      {
+         "path" : "tools/evaluation/maps/slithery_fight.map",
+         "sha256" : "001f3501dc5b76cb35b796f03fcaaed6c90be34741b5da03ab061ba0908347e7",
+         "source" : "tools/evaluation/maps/slithery_fight.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "001f3501dc5b76cb35b796f03fcaaed6c90be34741b5da03ab061ba0908347e7"
+      },
+      {
+         "path" : "tools/evaluation/maps/small.map",
+         "sha256" : "5b71acb22b56a16193cecedb5febdfb01cd8f2a6c3f8daf5e6c1137c3d6eacd2",
+         "source" : "tools/evaluation/maps/small.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "5b71acb22b56a16193cecedb5febdfb01cd8f2a6c3f8daf5e6c1137c3d6eacd2"
+      },
+      {
+         "path" : "tools/evaluation/maps/stripes.map",
+         "sha256" : "31b22a24c467edb146f8c6fc291beccce1493617d90ff5bb6eff538c3af24715",
+         "source" : "tools/evaluation/maps/stripes.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "31b22a24c467edb146f8c6fc291beccce1493617d90ff5bb6eff538c3af24715"
+      },
+      {
+         "path" : "tools/evaluation/maps/stronghold.map",
+         "sha256" : "c83cb7579e89fff0064b075f38250fa06487a10b6ddf320f6c57d63a84e9f32c",
+         "source" : "tools/evaluation/maps/stronghold.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c83cb7579e89fff0064b075f38250fa06487a10b6ddf320f6c57d63a84e9f32c"
+      },
+      {
+         "path" : "tools/evaluation/maps/tower_defense.map",
+         "sha256" : "1f097251f44508a5db71c691a361362052934817e99a8975a2521bcaf81c9725",
+         "source" : "tools/evaluation/maps/tower_defense.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "1f097251f44508a5db71c691a361362052934817e99a8975a2521bcaf81c9725"
+      },
+      {
+         "path" : "tools/evaluation/maps/trauma.map",
+         "sha256" : "dcf39d713c060e5ded2d031a7ffe1a27ea60fe4b72ff8fb3fffbabc4f81e2066",
+         "source" : "tools/evaluation/maps/trauma.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "dcf39d713c060e5ded2d031a7ffe1a27ea60fe4b72ff8fb3fffbabc4f81e2066"
+      },
+      {
+         "path" : "tools/evaluation/maps/trophy.map",
+         "sha256" : "4f84e990688c1e96ee4c2a7ff0706e4b44f4ee63531dd5c5582cf9157b134fb1",
+         "source" : "tools/evaluation/maps/trophy.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4f84e990688c1e96ee4c2a7ff0706e4b44f4ee63531dd5c5582cf9157b134fb1"
+      },
+      {
+         "path" : "tools/evaluation/maps/unsw.map",
+         "sha256" : "ea443f10a63c1a37521cfef814b2e9316acf5e56f29e74b9e2c20987ccd0b72a",
+         "source" : "tools/evaluation/maps/unsw.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ea443f10a63c1a37521cfef814b2e9316acf5e56f29e74b9e2c20987ccd0b72a"
+      },
+      {
+         "path" : "tools/evaluation/maps/weakhold.map",
+         "sha256" : "4cf0e4e57c12fd4dfbd2ad997e29994e736dd5d8eca1e0f3353e3020d94b08c1",
+         "source" : "tools/evaluation/maps/weakhold.map",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4cf0e4e57c12fd4dfbd2ad997e29994e736dd5d8eca1e0f3353e3020d94b08c1"
+      },
+      {
+         "path" : "tools/evaluation/outcome.nim",
+         "sha256" : "79bd683d409a23258e0446b7aab153ca994ee85ba50455df005249897ab11e97",
+         "source" : "tools/evaluation/outcome.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "79bd683d409a23258e0446b7aab153ca994ee85ba50455df005249897ab11e97"
+      },
+      {
+         "path" : "tools/evaluation/paths.nim",
+         "sha256" : "21620b876ce6f4388284787bb45d0fd8e9b76b553835307f760bf80d777ccf7a",
+         "source" : "tools/evaluation/paths.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "21620b876ce6f4388284787bb45d0fd8e9b76b553835307f760bf80d777ccf7a"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/evaluation/play.nim",
+         "sha256" : "b9b5d66dcc50a97c66bd77f8cb57e6cc2c5d957855d7829bcb789d8df4fb3285",
+         "source" : "tools/evaluation/play.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "5b9b42abaaa5adc30719dada94bbb396209dfe12a3f8aeb52cb3588a317168da"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/evaluation/pool.toml",
+         "sha256" : "be5f4b03d790f3b6d480705e27fea1ae46698121678c420ea7e68a253f722720",
+         "source" : "tools/evaluation/pool.toml",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9af719839acc9a9ee6233091c75fd3d1645f812925de9cb5786b32019c637ffe"
+      },
+      {
+         "path" : "tools/evaluation/processes.nim",
+         "sha256" : "b1df93afe9fc48e13c40bae6faf25bfc6ade35a169fdf3383159947d4d9cfde9",
+         "source" : "tools/evaluation/processes.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b1df93afe9fc48e13c40bae6faf25bfc6ade35a169fdf3383159947d4d9cfde9"
+      },
+      {
+         "path" : "tools/evaluation/python_json.nim",
+         "sha256" : "69f7c111f9826836dc407088d4dbf45b4c6bc8b9f7d69c3b2b61216ff504d5b8",
+         "source" : "tools/evaluation/python_json.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "69f7c111f9826836dc407088d4dbf45b4c6bc8b9f7d69c3b2b61216ff504d5b8"
+      },
+      {
+         "path" : "tools/evaluation/python_math.nim",
+         "sha256" : "59ee1a2949a5711290a44a0f5180d49a9e56bcf81d3ddd61c612c316a71b77b6",
+         "source" : "tools/evaluation/python_math.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "59ee1a2949a5711290a44a0f5180d49a9e56bcf81d3ddd61c612c316a71b77b6"
+      },
+      {
+         "path" : "tools/evaluation/python_random.nim",
+         "sha256" : "158955cd67b4f09e54b6d8ee83cd532cce80e5504e5f86aab63476a9fb7b195f",
+         "source" : "tools/evaluation/python_random.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "158955cd67b4f09e54b6d8ee83cd532cce80e5504e5f86aab63476a9fb7b195f"
+      },
+      {
+         "path" : "tools/evaluation/python_set.nim",
+         "sha256" : "59db57d4c05d7a50e129baeb63b0c7f3b4eb82664a35d514587044a84660cf24",
+         "source" : "tools/evaluation/python_set.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "59db57d4c05d7a50e129baeb63b0c7f3b4eb82664a35d514587044a84660cf24"
+      },
+      {
+         "path" : "tools/evaluation/regenerate.nim",
+         "sha256" : "3fe47005d7dcbd85d10dd30a7e401a27cc994549723c10bc6a5083ac89a2ed63",
+         "source" : "tools/evaluation/regenerate.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3fe47005d7dcbd85d10dd30a7e401a27cc994549723c10bc6a5083ac89a2ed63"
+      },
+      {
+         "path" : "tools/evaluation/report/archive.nim",
+         "sha256" : "0d4ac8cf3a4ed0f1a2fff9e268f0710cda4ac3430de0fa99681f41ca391efdd8",
+         "source" : "tools/evaluation/report/archive.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "0d4ac8cf3a4ed0f1a2fff9e268f0710cda4ac3430de0fa99681f41ca391efdd8"
+      },
+      {
+         "path" : "tools/evaluation/report/checks/native_profile/check.nim",
+         "sha256" : "8808d3d83a7756ca6f41e076e6584a0f4de547a3b0a199ae8c49e577ef33d695",
+         "source" : "tools/evaluation/report/checks/native_profile/check.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8808d3d83a7756ca6f41e076e6584a0f4de547a3b0a199ae8c49e577ef33d695"
+      },
+      {
+         "path" : "tools/evaluation/report/checks/native_profile/producer.cc",
+         "sha256" : "8f3766ed2c02cf98042b4a956baaa8244c40e24dba8feb251467d8ffefb7f021",
+         "source" : "tools/evaluation/report/checks/native_profile/producer.cc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8f3766ed2c02cf98042b4a956baaa8244c40e24dba8feb251467d8ffefb7f021"
+      },
+      {
+         "path" : "tools/evaluation/report/economy.nim",
+         "sha256" : "8b3db7ff0c94a7b245489f7b64b1a45c37f9a73fbe56f3dee9ea735a6a2dbc44",
+         "source" : "tools/evaluation/report/economy.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8b3db7ff0c94a7b245489f7b64b1a45c37f9a73fbe56f3dee9ea735a6a2dbc44"
+      },
+      {
+         "path" : "tools/evaluation/report/knowledge.nim",
+         "sha256" : "8ac13218721d09623b0fafc5efa84053415cd160b5c0af82dcdcdd288fd07d7a",
+         "source" : "tools/evaluation/report/knowledge.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8ac13218721d09623b0fafc5efa84053415cd160b5c0af82dcdcdd288fd07d7a"
+      },
+      {
+         "path" : "tools/evaluation/report/likeness.nim",
+         "sha256" : "9685b5dc496f198b8d98636c844a80e2880e831f8b3b39a91413d0466eb186a2",
+         "source" : "tools/evaluation/report/likeness.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9685b5dc496f198b8d98636c844a80e2880e831f8b3b39a91413d0466eb186a2"
+      },
+      {
+         "path" : "tools/evaluation/report/maps.nim",
+         "sha256" : "086e4ee9f9bc53c9b7cba2335911527e31972c9915b3b2c4040a8ed3274f8405",
+         "source" : "tools/evaluation/report/maps.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "086e4ee9f9bc53c9b7cba2335911527e31972c9915b3b2c4040a8ed3274f8405"
+      },
+      {
+         "path" : "tools/evaluation/report/native_pilot.nim",
+         "sha256" : "65d9f3cc72cc6c7a94ba246db1fa6e0edd370f3dc3d5098daebff2a19faea4df",
+         "source" : "tools/evaluation/report/native_pilot.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "65d9f3cc72cc6c7a94ba246db1fa6e0edd370f3dc3d5098daebff2a19faea4df"
+      },
+      {
+         "path" : "tools/evaluation/report/native_profile.nim",
+         "sha256" : "d3991a6203e6afb50250ac970afc8d09c1b22c6e8f998ca28d21194a0fe81e8c",
+         "source" : "tools/evaluation/report/native_profile.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "d3991a6203e6afb50250ac970afc8d09c1b22c6e8f998ca28d21194a0fe81e8c"
+      },
+      {
+         "path" : "tools/evaluation/report/native_schedule.nim",
+         "sha256" : "00ca158dd29a5ae6e83d103b245867953d793b46776f7f2245287f0e9eef75c4",
+         "source" : "tools/evaluation/report/native_schedule.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "00ca158dd29a5ae6e83d103b245867953d793b46776f7f2245287f0e9eef75c4"
+      },
+      {
+         "path" : "tools/evaluation/report/rating.nim",
+         "sha256" : "92ac1d6098b2daf4957ba9bb814ff1afc08323d2735bf80adc3289f9ecc4d9d1",
+         "source" : "tools/evaluation/report/rating.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "92ac1d6098b2daf4957ba9bb814ff1afc08323d2735bf80adc3289f9ecc4d9d1"
+      },
+      {
+         "path" : "tools/evaluation/report/records.nim",
+         "sha256" : "c7567fc45d299e2bf3a0a2900fb6f985cdf6dd66e07f23536837d538fbcbb1c8",
+         "source" : "tools/evaluation/report/records.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c7567fc45d299e2bf3a0a2900fb6f985cdf6dd66e07f23536837d538fbcbb1c8"
+      },
+      {
+         "path" : "tools/evaluation/report/report.nim",
+         "sha256" : "e471b44c5422ccc3fbe2e418eae61f1505eb4d6a01e39c903bbd12f40a1c9c41",
+         "source" : "tools/evaluation/report/report.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e471b44c5422ccc3fbe2e418eae61f1505eb4d6a01e39c903bbd12f40a1c9c41"
+      },
+      {
+         "path" : "tools/evaluation/report/summary.nim",
+         "sha256" : "60e89114ccb1a2e62b8ffb500bac388b68b00225f84beb6245b926c76e09bafa",
+         "source" : "tools/evaluation/report/summary.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "60e89114ccb1a2e62b8ffb500bac388b68b00225f84beb6245b926c76e09bafa"
+      },
+      {
+         "path" : "tools/evaluation/report/tests/verdict.nim",
+         "sha256" : "10097dc1559ed8651bf6dc7b1ed268be753799de30e3db6b7e1664b600e1745b",
+         "source" : "tools/evaluation/report/tests/verdict.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "10097dc1559ed8651bf6dc7b1ed268be753799de30e3db6b7e1664b600e1745b"
+      },
+      {
+         "path" : "tools/evaluation/report/verdict.nim",
+         "sha256" : "138a28005a19098cd68b260edfd78eb237266a9d6011bd333fbd5eae60c168c0",
+         "source" : "tools/evaluation/report/verdict.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "138a28005a19098cd68b260edfd78eb237266a9d6011bd333fbd5eae60c168c0"
+      },
+      {
+         "path" : "tools/evaluation/round_robin.nim",
+         "sha256" : "69563b8b896d0ea797ab9a9841d3d89d5e19a63a2788ffd908ddbadae3f53e2b",
+         "source" : "tools/evaluation/round_robin.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "69563b8b896d0ea797ab9a9841d3d89d5e19a63a2788ffd908ddbadae3f53e2b"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/evaluation/runner.nim",
+         "sha256" : "67ec17203704f4acfd93ad8a03bdb1e2d3088b3f27bc972af7cca1f92a562c20",
+         "source" : "tools/evaluation/runner.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "22964bd333b8685274130e841f92b42c5a253158ae7a935978dd617c4a1d0704"
+      },
+      {
+         "path" : "tools/evaluation/seeds.nim",
+         "sha256" : "ea9e52d9ba1d190b3cd9f60c46741232e4331122303a47d572ea493a47c34ca5",
+         "source" : "tools/evaluation/seeds.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ea9e52d9ba1d190b3cd9f60c46741232e4331122303a47d572ea493a47c34ca5"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/evaluation/sequential.nim",
+         "sha256" : "90b4796c8bdef9ef6420a028f036d2c329fa8f01d124dc3cec48a074821a7c1a",
+         "source" : "tools/evaluation/sequential.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e2e0b47294856eb88a67ba491db305e12e3dc6f9910cc9b1062d20c85685423e"
+      },
+      {
+         "path" : "tools/evaluation/toml.nim",
+         "sha256" : "482f516802fdb6aa3f292e7a42f38818cc76ef85a6b655b0a91807d041169867",
+         "source" : "tools/evaluation/toml.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "482f516802fdb6aa3f292e7a42f38818cc76ef85a6b655b0a91807d041169867"
+      },
+      {
+         "path" : "tools/evaluation/tournament.nim",
+         "sha256" : "7475489a9a0da463696e133db4d92259e9e39a6e3458746df6ee50cfba592617",
+         "source" : "tools/evaluation/tournament.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "7475489a9a0da463696e133db4d92259e9e39a6e3458746df6ee50cfba592617"
+      },
+      {
+         "path" : "tools/evaluation/tournament_cli.nim",
+         "sha256" : "ada2e021b2e5d00a6cd7df3f52e0b0eb9a8dc28b32f55ffad51194fbbb5f7878",
+         "source" : "tools/evaluation/tournament_cli.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ada2e021b2e5d00a6cd7df3f52e0b0eb9a8dc28b32f55ffad51194fbbb5f7878"
+      },
+      {
+         "path" : "tools/gamedata/README.md",
+         "sha256" : "42517b5e3633cd08c0a8c681a21a67914effb2efcff9a45720cafd6386aa05fe",
+         "source" : "tools/gamedata/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "42517b5e3633cd08c0a8c681a21a67914effb2efcff9a45720cafd6386aa05fe"
+      },
+      {
+         "path" : "tools/gamedata/board.nim",
+         "sha256" : "d0196ef9343b80beb923f98284ca09c5772dd013846d397bbdd2393530b47e77",
+         "source" : "tools/gamedata/board.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "d0196ef9343b80beb923f98284ca09c5772dd013846d397bbdd2393530b47e77"
+      },
+      {
+         "path" : "tools/gamedata/capnp_replay.nim",
+         "sha256" : "5f9a5a1f6cf51c7f2da4f422710efc140361009ce7b0300839b2eae779a88853",
+         "source" : "tools/gamedata/capnp_replay.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "5f9a5a1f6cf51c7f2da4f422710efc140361009ce7b0300839b2eae779a88853"
+      },
+      {
+         "path" : "tools/gamedata/columns.nim",
+         "sha256" : "00f00c5253e33925f7fc9c638960865558e311306b10f17ec5a120348d992855",
+         "source" : "tools/gamedata/columns.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "00f00c5253e33925f7fc9c638960865558e311306b10f17ec5a120348d992855"
+      },
+      {
+         "path" : "tools/gamedata/compare.nim",
+         "sha256" : "3bfe229ea20ec0c2520c661aa911ce03f7e71338028114deba236ddf6c83d12a",
+         "source" : "tools/gamedata/compare.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3bfe229ea20ec0c2520c661aa911ce03f7e71338028114deba236ddf6c83d12a"
+      },
+      {
+         "path" : "tools/gamedata/decode.nim",
+         "sha256" : "9e966f1ba4da4ef6c320fa23dd1002717d84c7048bd375d40a0562276285e10c",
+         "source" : "tools/gamedata/decode.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9e966f1ba4da4ef6c320fa23dd1002717d84c7048bd375d40a0562276285e10c"
+      },
+      {
+         "path" : "tools/gamedata/event_json.nim",
+         "sha256" : "cc91430167fb6780764c334f5c42056f4195632ed79e66d83196bd8e3786f6f1",
+         "source" : "tools/gamedata/event_json.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "cc91430167fb6780764c334f5c42056f4195632ed79e66d83196bd8e3786f6f1"
+      },
+      {
+         "path" : "tools/gamedata/format.md",
+         "sha256" : "b50b506aa3eef560a195317c345daf24c925afbf84a0f1f490614880f840ca0a",
+         "source" : "tools/gamedata/format.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b50b506aa3eef560a195317c345daf24c925afbf84a0f1f490614880f840ca0a"
+      },
+      {
+         "path" : "tools/gamedata/gamedata.nim",
+         "sha256" : "ca3982cffc5b19589f65602d28d8578c762a1df5262199975de71c59878dbfcd",
+         "source" : "tools/gamedata/gamedata.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ca3982cffc5b19589f65602d28d8578c762a1df5262199975de71c59878dbfcd"
+      },
+      {
+         "path" : "tools/gamedata/gzip_inflate.nim",
+         "sha256" : "0f5e17d3e6e148fe5d47daa01a646bfc8cf548e16447e4544872cd7b7eb2bf56",
+         "source" : "tools/gamedata/gzip_inflate.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "0f5e17d3e6e148fe5d47daa01a646bfc8cf548e16447e4544872cd7b7eb2bf56"
+      },
+      {
+         "path" : "tools/gamedata/observations.nim",
+         "sha256" : "3f711b6bd71678b7b49df5412bcd19dc4d6733f742cbfce017c20d8546a82e67",
+         "source" : "tools/gamedata/observations.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3f711b6bd71678b7b49df5412bcd19dc4d6733f742cbfce017c20d8546a82e67"
+      },
+      {
+         "path" : "tools/gamedata/regeneration.nim",
+         "sha256" : "53db9e7548c7e289a6b257d467490e3e72427cb95c1e36dff212e57fad3a8b08",
+         "source" : "tools/gamedata/regeneration.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "53db9e7548c7e289a6b257d467490e3e72427cb95c1e36dff212e57fad3a8b08"
+      },
+      {
+         "path" : "tools/gamedata/replay.capnp",
+         "sha256" : "c43fa2635087639eb589121a1ee4cc5a856dd977e11af5708622ba2d3a61aeab",
+         "source" : "tools/gamedata/replay.capnp",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c43fa2635087639eb589121a1ee4cc5a856dd977e11af5708622ba2d3a61aeab"
+      },
+      {
+         "path" : "tools/gamedata/replay_board.nim",
+         "sha256" : "be2b36f728c0d2657331872da9d9a77b70a7e0af390827a1495d1ad20dc50d44",
+         "source" : "tools/gamedata/replay_board.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "be2b36f728c0d2657331872da9d9a77b70a7e0af390827a1495d1ad20dc50d44"
+      },
+      {
+         "path" : "tools/gamedata/result.nim",
+         "sha256" : "b2155e2b4d18e237e4d3c16ece9bb43928984d3959939f8cfa31d9118de3b5ef",
+         "source" : "tools/gamedata/result.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b2155e2b4d18e237e4d3c16ece9bb43928984d3959939f8cfa31d9118de3b5ef"
+      },
+      {
+         "path" : "tools/gamedata/sha256.nim",
+         "sha256" : "fdd941612b0885e6987fbe104df4843f5e27971bb12f45e7762dd54cd7d69b33",
+         "source" : "tools/gamedata/sha256.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "fdd941612b0885e6987fbe104df4843f5e27971bb12f45e7762dd54cd7d69b33"
+      },
+      {
+         "path" : "tools/gamedata/store.nim",
+         "sha256" : "1f231921fc47a9433d6461c42691bb1c838201cebf499e7dfec946b3ee06db2b",
+         "source" : "tools/gamedata/store.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "1f231921fc47a9433d6461c42691bb1c838201cebf499e7dfec946b3ee06db2b"
+      },
+      {
+         "path" : "tools/gamedata/tests/reconstruction.nim",
+         "sha256" : "3d1bb0673a7ebb6c0f7a5129eb049e75199b9ea270c5eb2fe5d756e439781734",
+         "source" : "tools/gamedata/tests/reconstruction.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3d1bb0673a7ebb6c0f7a5129eb049e75199b9ea270c5eb2fe5d756e439781734"
+      },
+      {
+         "path" : "tools/gamedata/world.nim",
+         "sha256" : "adb274ea4950a717ea535567d82354d178e11d91cf38e330502352e5627d791e",
+         "source" : "tools/gamedata/world.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "adb274ea4950a717ea535567d82354d178e11d91cf38e330502352e5627d791e"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/judge/README.md",
+         "sha256" : "718f1f2fd4ae2d9dd33c4f6dd8747bca629457db190285ebd48f30bc13eff2ed",
+         "source" : "tools/judge/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4fbde3f69d7ef703a3f8e3f738b9c07c24f9310ecd1ce60cfff2946b586c6b5f"
+      },
+      {
+         "path" : "tools/judge/build.zig",
+         "sha256" : "f6588744355b312bb5c76e068a9d27b6ec0d4f0faf47d5cceabb351ae4d1b874",
+         "source" : "tools/judge/build.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "f6588744355b312bb5c76e068a9d27b6ec0d4f0faf47d5cceabb351ae4d1b874"
+      },
+      {
+         "path" : "tools/judge/build.zig.zon",
+         "sha256" : "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4",
+         "source" : "tools/judge/build.zig.zon",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "0122af0f54958f54eb30f192845d94a755496beffa316ed34bdcbda25f5be3c4"
+      },
+      {
+         "path" : "tools/judge/harness.nim",
+         "sha256" : "44310bc2ae72d8eeb962bbcd3c7388f751f1258f3cd317e5da275b78942dfa6e",
+         "source" : "tools/judge/harness.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "44310bc2ae72d8eeb962bbcd3c7388f751f1258f3cd317e5da275b78942dfa6e"
+      },
+      {
+         "path" : "tools/judge/src/batch.zig",
+         "sha256" : "29ab4fdaf17699bf9e2cbfd500390762cd6741b14807407d14cb0b4d573d07ea",
+         "source" : "tools/judge/src/batch.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "29ab4fdaf17699bf9e2cbfd500390762cd6741b14807407d14cb0b4d573d07ea"
+      },
+      {
+         "path" : "tools/judge/src/bot.zig",
+         "sha256" : "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d",
+         "source" : "tools/judge/src/bot.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "af09798b22e89e8e57016e3e1cbb64b888adf9497ab9518d9b1954f50f2ffc2d"
+      },
+      {
+         "path" : "tools/judge/src/engine.zig",
+         "sha256" : "9c827af45ea2d4de382604e0594f9ef167ef7b662a135cf9d88d4e5f03d137c0",
+         "source" : "tools/judge/src/engine.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9c827af45ea2d4de382604e0594f9ef167ef7b662a135cf9d88d4e5f03d137c0"
+      },
+      {
+         "path" : "tools/judge/src/framer.zig",
+         "sha256" : "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab",
+         "source" : "tools/judge/src/framer.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e7f5068bb87d2a5d02744b96fdbd09342592a3a57495b8031b39a534be332cab"
+      },
+      {
+         "path" : "tools/judge/src/game.zig",
+         "sha256" : "9627cd86b9a490298799ad4fc41c45fdb369ef6d3990d9400db8b6f17dc8c37b",
+         "source" : "tools/judge/src/game.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9627cd86b9a490298799ad4fc41c45fdb369ef6d3990d9400db8b6f17dc8c37b"
+      },
+      {
+         "path" : "tools/judge/src/inspection.zig",
+         "sha256" : "e56176ebbb9111f0637b452fd71164935a4a054d08582d92e783fd0eb7da1324",
+         "source" : "tools/judge/src/inspection.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e56176ebbb9111f0637b452fd71164935a4a054d08582d92e783fd0eb7da1324"
+      },
+      {
+         "path" : "tools/judge/src/lockstep.zig",
+         "sha256" : "7d634fff499907d08e3ee569abb4573352f4024e81f082a9210f3662b1ad1c72",
+         "source" : "tools/judge/src/lockstep.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "7d634fff499907d08e3ee569abb4573352f4024e81f082a9210f3662b1ad1c72"
+      },
+      {
+         "path" : "tools/judge/src/main.zig",
+         "sha256" : "567685482627480911b59a086a0dee719ea78bdf46cf7995014027571ccee34f",
+         "source" : "tools/judge/src/main.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "567685482627480911b59a086a0dee719ea78bdf46cf7995014027571ccee34f"
+      },
+      {
+         "path" : "tools/judge/src/metering.zig",
+         "sha256" : "7e29301dd605cbfab130a6f7e27cabd6449476e1dc416c2cbbbc8bb481b87aed",
+         "source" : "tools/judge/src/metering.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "7e29301dd605cbfab130a6f7e27cabd6449476e1dc416c2cbbbc8bb481b87aed"
+      },
+      {
+         "path" : "tools/judge/src/native.zig",
+         "sha256" : "60c1872ae61e7782f4415920b921605192b8d86d7031d196f60223f76e7745ec",
+         "source" : "tools/judge/src/native.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "60c1872ae61e7782f4415920b921605192b8d86d7031d196f60223f76e7745ec"
+      },
+      {
+         "path" : "tools/judge/src/queen_cases.zig",
+         "sha256" : "c0b184db19d18e5ca5b551975cc0092a8e8dff442fab30c8335ad8d60f721150",
+         "source" : "tools/judge/src/queen_cases.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c0b184db19d18e5ca5b551975cc0092a8e8dff442fab30c8335ad8d60f721150"
+      },
+      {
+         "path" : "tools/judge/src/run.zig",
+         "sha256" : "5acfba649aa4ad3557bc373a75dff414f634999f69e51cb95c34821e02b83cb7",
+         "source" : "tools/judge/src/run.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "5acfba649aa4ad3557bc373a75dff414f634999f69e51cb95c34821e02b83cb7"
+      },
+      {
+         "path" : "tools/judge/src/served.zig",
+         "sha256" : "ff3e2b73e26530f371e48d5300a08f415c8fa296dfc961811df3357c6fb8fe26",
+         "source" : "tools/judge/src/served.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ff3e2b73e26530f371e48d5300a08f415c8fa296dfc961811df3357c6fb8fe26"
+      },
+      {
+         "path" : "tools/judge/src/state.zig",
+         "sha256" : "fbbed2e8df8c70991add7dd30ffe2067c045800cfcda07847f00dfee9cb6c5c6",
+         "source" : "tools/judge/src/state.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "fbbed2e8df8c70991add7dd30ffe2067c045800cfcda07847f00dfee9cb6c5c6"
+      },
+      {
+         "path" : "tools/judge/src/sync.zig",
+         "sha256" : "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da",
+         "source" : "tools/judge/src/sync.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "afd2679da547533ece5cfd1e322ac69919268fa29d7fbfc9516dd9f982ba52da"
+      },
+      {
+         "path" : "tools/judge/src/wasmtime.zig",
+         "sha256" : "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900",
+         "source" : "tools/judge/src/wasmtime.zig",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e10ab2d8a39d8cbd6c5c39dbbe201633aa641e073eeac236eb0c25df0bcc0900"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/ladder/collector/README.md",
+         "sha256" : "8012c5eb6930f1b3306b20f07018170fb5ddb8bba89fa22a24c4896ed844d6bf",
+         "source" : "tools/ladder/collector/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "6d0673818757dbfb4cbf7b5b15db40920d4fe4ac8a652e03ebcd0ede8c3ea52d"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/ladder/collector/collection.nim",
+         "sha256" : "28cc110c72825b94045aea887d1aa106b160639af7d8b8d99a2148681ffaabef",
+         "source" : "tools/ladder/collector/collection.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "aef1bb2f39b4323fb2a7485faeed9df2916f123e72e839d6ce636359e94b9f68"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/ladder/collector/retention.nim",
+         "sha256" : "e5860313781bdfe0b62869dc31da80130b078d59de326b408473283a86f1b7ad",
+         "source" : "tools/ladder/collector/retention.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "423575f635c3eab47bb61a6ba5d6e39fb16db39fdd9aacdaa8fe834fb857afe2"
+      },
+      {
+         "path" : "tools/ladder/collector/sqlite.nim",
+         "sha256" : "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e",
+         "source" : "tools/ladder/collector/sqlite.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8a2e168f24af3c1f2abd5d1c9886858ee51211862f468dd166104bba3f52912e"
+      },
+      {
+         "path" : "tools/ladder/map_fit/build.sh",
+         "sha256" : "150163b0808ccb5eff9e7ce21cf8b2a5dac8138df15bc87e25d1dec21fcae34d",
+         "source" : "tools/ladder/map_fit/build.sh",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "150163b0808ccb5eff9e7ce21cf8b2a5dac8138df15bc87e25d1dec21fcae34d"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/ladder/map_fit/map_fit.cc",
+         "sha256" : "43b4a88a7af53b01265a8d44da16bd5f96abce4b4c4a68f21b4e176facb84f2d",
+         "source" : "tools/ladder/map_fit/map_fit.cc",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "37c8f38887fafa5b3d0f48f1dc22fcfac7e1dc52a4a32ce120e267e1551c40e8"
+      },
+      {
+         "path" : "tools/ladder/map_variants.nim",
+         "sha256" : "05202c7fbe04f267bbccea80e9fca36d2f7f02af21ecfb8434a9683da7f3bb66",
+         "source" : "tools/ladder/map_variants.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "05202c7fbe04f267bbccea80e9fca36d2f7f02af21ecfb8434a9683da7f3bb66"
+      },
+      {
+         "path" : "tools/ladder/site.nim",
+         "sha256" : "4353ec13871bf6f8e1d33cf50c87fdce6fa4d5491c07146911576ae1d0b1b3de",
+         "source" : "tools/ladder/site.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4353ec13871bf6f8e1d33cf50c87fdce6fa4d5491c07146911576ae1d0b1b3de"
+      },
+      {
+         "adaptation" : "Public release adaptation; see release_adaptations.",
+         "path" : "tools/viewer/README.md",
+         "sha256" : "abd02606b4e4980756643753e417b7af5cfb3fef5b57c2aac3cd78d4de24f754",
+         "source" : "tools/viewer/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "0dd49cff28b132ed615fb86698eb59e3212b5972c014b155cfce0dcfe6d902e4"
+      },
+      {
+         "path" : "tools/viewer/accuracy.odin",
+         "sha256" : "277c26242ea432d0eecd812bbd74e0f23039f207209d90466c5dbfd5b931620a",
+         "source" : "tools/viewer/accuracy.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "277c26242ea432d0eecd812bbd74e0f23039f207209d90466c5dbfd5b931620a"
+      },
+      {
+         "path" : "tools/viewer/annotations.odin",
+         "sha256" : "47757c87d11c398fbc3332d4fc0fb605b02e21510fa1b63098b487fbb444c24a",
+         "source" : "tools/viewer/annotations.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "47757c87d11c398fbc3332d4fc0fb605b02e21510fa1b63098b487fbb444c24a"
+      },
+      {
+         "path" : "tools/viewer/annotations_test.odin",
+         "sha256" : "619c97e230ce10741a59902e8315a9cab52b6b289c1c1007f2e0003a24165af8",
+         "source" : "tools/viewer/annotations_test.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "619c97e230ce10741a59902e8315a9cab52b6b289c1c1007f2e0003a24165af8"
+      },
+      {
+         "path" : "tools/viewer/belief_map.odin",
+         "sha256" : "10fe5c88825298374334475156e5b5aad4dfe6340c2ae2580ec5bd4c2fa52bb0",
+         "source" : "tools/viewer/belief_map.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "10fe5c88825298374334475156e5b5aad4dfe6340c2ae2580ec5bd4c2fa52bb0"
+      },
+      {
+         "path" : "tools/viewer/beliefs.odin",
+         "sha256" : "1106163b00104cc55985304a144702b3bb862da87c399a08725f7043adee3378",
+         "source" : "tools/viewer/beliefs.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "1106163b00104cc55985304a144702b3bb862da87c399a08725f7043adee3378"
+      },
+      {
+         "path" : "tools/viewer/board_drawing.odin",
+         "sha256" : "04b1206d2a52549380f47ad42b1033ef41dee444d42d5d9d6ec03506490cd6bf",
+         "source" : "tools/viewer/board_drawing.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "04b1206d2a52549380f47ad42b1033ef41dee444d42d5d9d6ec03506490cd6bf"
+      },
+      {
+         "path" : "tools/viewer/board_drawing_test.odin",
+         "sha256" : "b93808f90bd00633bff3af015701069232b45fa445f64db0b6db9f2b28e7f6c8",
+         "source" : "tools/viewer/board_drawing_test.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b93808f90bd00633bff3af015701069232b45fa445f64db0b6db9f2b28e7f6c8"
+      },
+      {
+         "path" : "tools/viewer/board_replay.odin",
+         "sha256" : "d7797e3d92f4c3a1205da97f1134b7b2398f00554ccde450d8fde46de151a1f3",
+         "source" : "tools/viewer/board_replay.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "d7797e3d92f4c3a1205da97f1134b7b2398f00554ccde450d8fde46de151a1f3"
+      },
+      {
+         "path" : "tools/viewer/breakdown.odin",
+         "sha256" : "9933da018894777399a80921c16f6010cee878e2b3918334af40028b7c91f820",
+         "source" : "tools/viewer/breakdown.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "9933da018894777399a80921c16f6010cee878e2b3918334af40028b7c91f820"
+      },
+      {
+         "path" : "tools/viewer/breakdown_test.odin",
+         "sha256" : "8120a742a4268fb1c0fdbc8dcee32c03bf84a0a1f694a8eac058874fddd2e3ca",
+         "source" : "tools/viewer/breakdown_test.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8120a742a4268fb1c0fdbc8dcee32c03bf84a0a1f694a8eac058874fddd2e3ca"
+      },
+      {
+         "path" : "tools/viewer/columns.odin",
+         "sha256" : "407c32754d3d835ef408123d2de37c1e7ab985e95362e315addeafa8e0c148ea",
+         "source" : "tools/viewer/columns.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "407c32754d3d835ef408123d2de37c1e7ab985e95362e315addeafa8e0c148ea"
+      },
+      {
+         "path" : "tools/viewer/consensus.odin",
+         "sha256" : "c3e02b27237b1ec77789e34f950f2c5b49cb63a8f2e9d58428e631de4c4dc1d0",
+         "source" : "tools/viewer/consensus.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c3e02b27237b1ec77789e34f950f2c5b49cb63a8f2e9d58428e631de4c4dc1d0"
+      },
+      {
+         "path" : "tools/viewer/controls.odin",
+         "sha256" : "8c413d1d69ee033770df8e777bcb78f88627cf9c84202b2d35d9cc3d2f00258a",
+         "source" : "tools/viewer/controls.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8c413d1d69ee033770df8e777bcb78f88627cf9c84202b2d35d9cc3d2f00258a"
+      },
+      {
+         "path" : "tools/viewer/diagnostic_tables.odin",
+         "sha256" : "e73b3d8ff8fb489f61dfa8d2be4a0fc924860a6f83e70969a3f636a083986e20",
+         "source" : "tools/viewer/diagnostic_tables.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "e73b3d8ff8fb489f61dfa8d2be4a0fc924860a6f83e70969a3f636a083986e20"
+      },
+      {
+         "path" : "tools/viewer/diagnostics.md",
+         "sha256" : "10846aa44c7f6ff10724583b0754e53d1615cba646a8804b8c02218cac086a1a",
+         "source" : "tools/viewer/diagnostics.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "10846aa44c7f6ff10724583b0754e53d1615cba646a8804b8c02218cac086a1a"
+      },
+      {
+         "path" : "tools/viewer/evaluation.odin",
+         "sha256" : "4c256ae02df1759cca8fcf90a5d79119aea1d1aa4106d7b46a8d43ca626b4650",
+         "source" : "tools/viewer/evaluation.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4c256ae02df1759cca8fcf90a5d79119aea1d1aa4106d7b46a8d43ca626b4650"
+      },
+      {
+         "path" : "tools/viewer/examples/alternating/strategy.nim",
+         "sha256" : "170ca44d9dba5450322c7b3f256c38a87c87074accf751f7d044892de29164e1",
+         "source" : "tools/viewer/examples/alternating/strategy.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "170ca44d9dba5450322c7b3f256c38a87c87074accf751f7d044892de29164e1"
+      },
+      {
+         "path" : "tools/viewer/examples/north/bot.toml",
+         "sha256" : "434beb7fd75b4452961255d7e4f472b44e33c654b3d1df72466f1c98b1e84083",
+         "source" : "tools/viewer/examples/north/bot.toml",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "434beb7fd75b4452961255d7e4f472b44e33c654b3d1df72466f1c98b1e84083"
+      },
+      {
+         "path" : "tools/viewer/examples/north/main.c",
+         "sha256" : "ed182f710a9d7ad982ef12f350a83fe2b894215882ddb6bb16df0cda43a88d85",
+         "source" : "tools/viewer/examples/north/main.c",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ed182f710a9d7ad982ef12f350a83fe2b894215882ddb6bb16df0cda43a88d85"
+      },
+      {
+         "path" : "tools/viewer/fonts/DejaVuSans.ttf",
+         "sha256" : "58568c88a01b80dfc056daca3eeafd434a0380df1a48dda53f0de0d716109bbd",
+         "source" : "tools/viewer/fonts/DejaVuSans.ttf",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "58568c88a01b80dfc056daca3eeafd434a0380df1a48dda53f0de0d716109bbd"
+      },
+      {
+         "path" : "tools/viewer/fonts/LICENSE",
+         "sha256" : "f88d5294af5a772f9114eb385009e3478d62b21f3e5bbc34d159d328047c8867",
+         "source" : "tools/viewer/fonts/LICENSE",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "f88d5294af5a772f9114eb385009e3478d62b21f3e5bbc34d159d328047c8867"
+      },
+      {
+         "path" : "tools/viewer/game_data.odin",
+         "sha256" : "b5e794df0b94b952bdd8178496b95f4cacbcb167e071a4e912d447f790e63dc3",
+         "source" : "tools/viewer/game_data.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b5e794df0b94b952bdd8178496b95f4cacbcb167e071a4e912d447f790e63dc3"
+      },
+      {
+         "path" : "tools/viewer/ghost.odin",
+         "sha256" : "67ed584d1a81886ff918fe0fa859f99b5718b3f981c5ab2a5fdfede724b8838c",
+         "source" : "tools/viewer/ghost.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "67ed584d1a81886ff918fe0fa859f99b5718b3f981c5ab2a5fdfede724b8838c"
+      },
+      {
+         "path" : "tools/viewer/ghost_test.odin",
+         "sha256" : "b878ead769efdc078eaff503cc44fc0a5275a8dfb279a774d548d1f265a7de32",
+         "source" : "tools/viewer/ghost_test.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b878ead769efdc078eaff503cc44fc0a5275a8dfb279a774d548d1f265a7de32"
+      },
+      {
+         "path" : "tools/viewer/gizmo_inspector.odin",
+         "sha256" : "036ba546399acc76aeda796a54868b8f219ed8a15b4a45c6b5502fe562ea4470",
+         "source" : "tools/viewer/gizmo_inspector.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "036ba546399acc76aeda796a54868b8f219ed8a15b4a45c6b5502fe562ea4470"
+      },
+      {
+         "path" : "tools/viewer/gizmos.odin",
+         "sha256" : "84ebe5b94bcec22a2ce63b4ffc812dbcaa0587952051e8214b19b17941cf21e7",
+         "source" : "tools/viewer/gizmos.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "84ebe5b94bcec22a2ce63b4ffc812dbcaa0587952051e8214b19b17941cf21e7"
+      },
+      {
+         "path" : "tools/viewer/gizmos_test.odin",
+         "sha256" : "49c82e08f8d73c4ccbad79c0719025073642ebd4f4006d407b3742d3c14d4c1c",
+         "source" : "tools/viewer/gizmos_test.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "49c82e08f8d73c4ccbad79c0719025073642ebd4f4006d407b3742d3c14d4c1c"
+      },
+      {
+         "path" : "tools/viewer/inspector_drawing.odin",
+         "sha256" : "bf5d928eea818a77420bcce12367967a022fbe52107e25424a6a737b8aa777dd",
+         "source" : "tools/viewer/inspector_drawing.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "bf5d928eea818a77420bcce12367967a022fbe52107e25424a6a737b8aa777dd"
+      },
+      {
+         "path" : "tools/viewer/issues.odin",
+         "sha256" : "4d3de57a9c4e6d255f14b9be11343731661e80aff9334033289042754e21cde5",
+         "source" : "tools/viewer/issues.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "4d3de57a9c4e6d255f14b9be11343731661e80aff9334033289042754e21cde5"
+      },
+      {
+         "path" : "tools/viewer/judge_points.odin",
+         "sha256" : "2e7a89aba99e3f4de7f6e700f0614429d1322635a945e3977250cd01dcdbe1c1",
+         "source" : "tools/viewer/judge_points.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "2e7a89aba99e3f4de7f6e700f0614429d1322635a945e3977250cd01dcdbe1c1"
+      },
+      {
+         "path" : "tools/viewer/knowledge.odin",
+         "sha256" : "bd2676c18ba43ea4065f4ef9890c4abde36b84c06a2c5c7f974e5c69cebee0df",
+         "source" : "tools/viewer/knowledge.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "bd2676c18ba43ea4065f4ef9890c4abde36b84c06a2c5c7f974e5c69cebee0df"
+      },
+      {
+         "path" : "tools/viewer/main.odin",
+         "sha256" : "3b5b2b541591dc9ad398a7c651dc7ac5144d45b52a0c40873cdf6aa5e13242f0",
+         "source" : "tools/viewer/main.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "3b5b2b541591dc9ad398a7c651dc7ac5144d45b52a0c40873cdf6aa5e13242f0"
+      },
+      {
+         "path" : "tools/viewer/mental_map.odin",
+         "sha256" : "a6b83520a97caab3c0ca71c710a937c018f062ff540d7b1e211ce98951a33c9b",
+         "source" : "tools/viewer/mental_map.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "a6b83520a97caab3c0ca71c710a937c018f062ff540d7b1e211ce98951a33c9b"
+      },
+      {
+         "path" : "tools/viewer/mirror.odin",
+         "sha256" : "df52f08fdb6ddefc47030b600d840d564679ced7053e199a68a0f8f9c1fd06b1",
+         "source" : "tools/viewer/mirror.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "df52f08fdb6ddefc47030b600d840d564679ced7053e199a68a0f8f9c1fd06b1"
+      },
+      {
+         "path" : "tools/viewer/objective_inspector.odin",
+         "sha256" : "8e60e90422c8a89aab1598aa4225acecc0437f5bf83b9bb0f557855393850251",
+         "source" : "tools/viewer/objective_inspector.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8e60e90422c8a89aab1598aa4225acecc0437f5bf83b9bb0f557855393850251"
+      },
+      {
+         "adaptation" : "Public release configuration or documentation.",
+         "path" : "tools/viewer/open.sh",
+         "sha256" : "3eb6af3de1793b731387b5e5f43d8da77c0b9e4fc4442a8ffa7d772f8ada2236"
+      },
+      {
+         "path" : "tools/viewer/palette.odin",
+         "sha256" : "b4b1ad715767dae4210c653833050d2e1dbdfeabbbda9d811b1bfc0b54683565",
+         "source" : "tools/viewer/palette.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b4b1ad715767dae4210c653833050d2e1dbdfeabbbda9d811b1bfc0b54683565"
+      },
+      {
+         "path" : "tools/viewer/position.odin",
+         "sha256" : "5f6d7929f1ceaea14f355d339d9075c637f938944dc791b2c5095de7821dd02a",
+         "source" : "tools/viewer/position.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "5f6d7929f1ceaea14f355d339d9075c637f938944dc791b2c5095de7821dd02a"
+      },
+      {
+         "path" : "tools/viewer/radio.odin",
+         "sha256" : "885cfec8e9a2a3486642ae6eb0ee6c95af7208d4465b09e3849a94d2b074c7c7",
+         "source" : "tools/viewer/radio.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "885cfec8e9a2a3486642ae6eb0ee6c95af7208d4465b09e3849a94d2b074c7c7"
+      },
+      {
+         "path" : "tools/viewer/recovery/brain.nim",
+         "sha256" : "bb51b547e64ef99a481901be5619d80af32877bdde2ab998ae7d09168ba3e5c9",
+         "source" : "tools/viewer/recovery/brain.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "bb51b547e64ef99a481901be5619d80af32877bdde2ab998ae7d09168ba3e5c9"
+      },
+      {
+         "path" : "tools/viewer/recovery/costs.nim",
+         "sha256" : "c74d9d4b271c88c7f141f7e52bc45785bd1659cac39f87aca1ed7619d7d8b81d",
+         "source" : "tools/viewer/recovery/costs.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c74d9d4b271c88c7f141f7e52bc45785bd1659cac39f87aca1ed7619d7d8b81d"
+      },
+      {
+         "path" : "tools/viewer/recovery/decisions.nim",
+         "sha256" : "417923c021b6493e8888337a35dafa553972c4775f362babe4013b91de513737",
+         "source" : "tools/viewer/recovery/decisions.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "417923c021b6493e8888337a35dafa553972c4775f362babe4013b91de513737"
+      },
+      {
+         "path" : "tools/viewer/recovery/game_facts.nim",
+         "sha256" : "1c2ebc90157e94621ab3781b632ed33d2beec2110b7b2996be35f820422c0cf2",
+         "source" : "tools/viewer/recovery/game_facts.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "1c2ebc90157e94621ab3781b632ed33d2beec2110b7b2996be35f820422c0cf2"
+      },
+      {
+         "path" : "tools/viewer/recovery/gizmos.nim",
+         "sha256" : "6c108f17d9a13dc57adde0596c46cb34556de9cc997914957ee42c9ceb94a21e",
+         "source" : "tools/viewer/recovery/gizmos.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "6c108f17d9a13dc57adde0596c46cb34556de9cc997914957ee42c9ceb94a21e"
+      },
+      {
+         "path" : "tools/viewer/recovery/recover.nim",
+         "sha256" : "ec2abfdf4d2ae4d5955217a55d425b3079270286c6b2fc603a32dbeb7cdf0fbf",
+         "source" : "tools/viewer/recovery/recover.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ec2abfdf4d2ae4d5955217a55d425b3079270286c6b2fc603a32dbeb7cdf0fbf"
+      },
+      {
+         "path" : "tools/viewer/recovery/registry.nim",
+         "sha256" : "011e9c30ba9d6514d589345bd1e571eb43112726f7376bde6a10dddafd36ca07",
+         "source" : "tools/viewer/recovery/registry.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "011e9c30ba9d6514d589345bd1e571eb43112726f7376bde6a10dddafd36ca07"
+      },
+      {
+         "path" : "tools/viewer/recovery/serve.nim",
+         "sha256" : "84d0b8b25ac1b2c61094f5172481d14f3babee8133ed67b8da0e97a58a14ebe4",
+         "source" : "tools/viewer/recovery/serve.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "84d0b8b25ac1b2c61094f5172481d14f3babee8133ed67b8da0e97a58a14ebe4"
+      },
+      {
+         "path" : "tools/viewer/recovery/state.nim",
+         "sha256" : "78da12710ee8eae94ca7edcb795ea32cc1eb719f6146765e56c7dddc8c1950d0",
+         "source" : "tools/viewer/recovery/state.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "78da12710ee8eae94ca7edcb795ea32cc1eb719f6146765e56c7dddc8c1950d0"
+      },
+      {
+         "path" : "tools/viewer/recovery/tests/gizmos.jsonl",
+         "sha256" : "89cbcb8199efe19505dc9dfd2818de2f64f60c6da1d15cfe33d6ec2be4cc14e4",
+         "source" : "tools/viewer/recovery/tests/gizmos.jsonl",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "89cbcb8199efe19505dc9dfd2818de2f64f60c6da1d15cfe33d6ec2be4cc14e4"
+      },
+      {
+         "path" : "tools/viewer/recovery/tests/gizmos.nim",
+         "sha256" : "926e45bfcc03c300d8096b99f01151f522b34d946f0edf729b47a69a1659ed05",
+         "source" : "tools/viewer/recovery/tests/gizmos.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "926e45bfcc03c300d8096b99f01151f522b34d946f0edf729b47a69a1659ed05"
+      },
+      {
+         "path" : "tools/viewer/recovery/tests/gizmos.verdicts",
+         "sha256" : "b58976a564f147a2a94a917f70e1ea3dcd88bc3b334528723eda1be43689db48",
+         "source" : "tools/viewer/recovery/tests/gizmos.verdicts",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "b58976a564f147a2a94a917f70e1ea3dcd88bc3b334528723eda1be43689db48"
+      },
+      {
+         "path" : "tools/viewer/recovery/tests/state.nim",
+         "sha256" : "8e27fe4d45a15ab9de0a44262f1f249121558f03e4519b0fac91f5d755554f68",
+         "source" : "tools/viewer/recovery/tests/state.nim",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "8e27fe4d45a15ab9de0a44262f1f249121558f03e4519b0fac91f5d755554f68"
+      },
+      {
+         "path" : "tools/viewer/recovery_stream.odin",
+         "sha256" : "894443393e40959c5373f16bda06e8ed58b000d31b3915475b3b880d51ca9dd6",
+         "source" : "tools/viewer/recovery_stream.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "894443393e40959c5373f16bda06e8ed58b000d31b3915475b3b880d51ca9dd6"
+      },
+      {
+         "path" : "tools/viewer/references/battlecode-eval/.gitignore",
+         "sha256" : "848236e22c0a0631ebea0844a686cdb03baad8eacd69594df697f6a32b1ae46e",
+         "source" : "tools/viewer/references/battlecode-eval/.gitignore",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "848236e22c0a0631ebea0844a686cdb03baad8eacd69594df697f6a32b1ae46e"
+      },
+      {
+         "path" : "tools/viewer/references/battlecode-eval/LICENSE",
+         "sha256" : "2cd6a320cf6b6fe4c6b274a77cca9141fb0dd30dbe9a41bebed820ac8185372c",
+         "source" : "tools/viewer/references/battlecode-eval/LICENSE",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "2cd6a320cf6b6fe4c6b274a77cca9141fb0dd30dbe9a41bebed820ac8185372c"
+      },
+      {
+         "path" : "tools/viewer/references/battlecode-eval/README.md",
+         "sha256" : "6cc6a666bcf54bc3033cbe7b9ee37ddb04df67f300b4abf8a8d3e3a6e029540e",
+         "source" : "tools/viewer/references/battlecode-eval/README.md",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "6cc6a666bcf54bc3033cbe7b9ee37ddb04df67f300b4abf8a8d3e3a6e029540e"
+      },
+      {
+         "path" : "tools/viewer/references/battlecode-eval/bceval/model.json",
+         "sha256" : "6cf898c349076dee18f345bbcfdc03ca36457d3633ccac0aaf30b6db7be31403",
+         "source" : "tools/viewer/references/battlecode-eval/bceval/model.json",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "6cf898c349076dee18f345bbcfdc03ca36457d3633ccac0aaf30b6db7be31403"
+      },
+      {
+         "path" : "tools/viewer/references/battlecode-eval/bceval/replay.capnp",
+         "sha256" : "811bbacd5702f887c67b76aaace5aa6997b87bb96246452f686f268a20e2d90f",
+         "source" : "tools/viewer/references/battlecode-eval/bceval/replay.capnp",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "811bbacd5702f887c67b76aaace5aa6997b87bb96246452f686f268a20e2d90f"
+      },
+      {
+         "path" : "tools/viewer/retained_gizmos.odin",
+         "sha256" : "c0c4fd96dccccb75466413679607e7d29f8425f77ec2c0a441ec58b2e49e9b90",
+         "source" : "tools/viewer/retained_gizmos.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "c0c4fd96dccccb75466413679607e7d29f8425f77ec2c0a441ec58b2e49e9b90"
+      },
+      {
+         "path" : "tools/viewer/scroll_sections.odin",
+         "sha256" : "33ca6c7a87d65a94e2ca26bed1e21c6dce059261effc7e0be10c55bf7cff2c74",
+         "source" : "tools/viewer/scroll_sections.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "33ca6c7a87d65a94e2ca26bed1e21c6dce059261effc7e0be10c55bf7cff2c74"
+      },
+      {
+         "path" : "tools/viewer/teacher_review.odin",
+         "sha256" : "95c182c1f941614bcb3b2b88e71766a6f9a61074f65e8e64ee1698ad3ba55412",
+         "source" : "tools/viewer/teacher_review.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "95c182c1f941614bcb3b2b88e71766a6f9a61074f65e8e64ee1698ad3ba55412"
+      },
+      {
+         "path" : "tools/viewer/turn_playback.odin",
+         "sha256" : "d7d7265c2ae9858e2556c0a73c3d755bf318df7bca2172ef2c59c84858793ea3",
+         "source" : "tools/viewer/turn_playback.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "d7d7265c2ae9858e2556c0a73c3d755bf318df7bca2172ef2c59c84858793ea3"
+      },
+      {
+         "path" : "tools/viewer/types.odin",
+         "sha256" : "275258efa1b28310d06275a0a45f6ceb40ab44842e24d5cb737c59ea37d7ce7e",
+         "source" : "tools/viewer/types.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "275258efa1b28310d06275a0a45f6ceb40ab44842e24d5cb737c59ea37d7ce7e"
+      },
+      {
+         "path" : "tools/viewer/typography.odin",
+         "sha256" : "ddbecf997156c8e3194c458fda681e5bbd009bd53080c13ca8c398c6e5688ef6",
+         "source" : "tools/viewer/typography.odin",
+         "source_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+         "source_sha256" : "ddbecf997156c8e3194c458fda681e5bbd009bd53080c13ca8c398c6e5688ef6"
+      },
+      {
+         "path" : "examples/repertoire/techniques/introspection/inspect.nim",
+         "sha256" : "735b04709d54c0379227d2020c5a8a4437dacc872fe3afe39b56ddfb0d79f416",
+         "source" : "bots/textbook/lib/techniques/introspection/inspect/0001.nim",
+         "source_revision" : "bbd6951133c94fc3fb8569d106c7dfe5f95fcc07",
+         "source_sha256" : "4e04da815a986139c9b52d620ac18d999d389588f9eb1675792a3234fb57dace"
+      }
+   ],
+   "format_version" : 2,
+   "policy" : "Frozen release of generic tools, runtime and demonstration bots. Competitive bots, learned models, training, private results and infrastructure are excluded. Historical article examples retain their existing provenance.",
+   "release_adaptations" : {
+      "documentation" : "Document the public commands and released scope.",
+      "flake.nix, justfile, .envrc" : "Pin the development environment and expose public build/run stages with repository-local storage, without private infrastructure or mounts.",
+      "tools/commands/build.just" : "Select the current runtime entry point while retaining compatibility with historical article bots.",
+      "tools/engine" : "Extract generic game rules, turn protocol and engine ABI. Exclude competitive policy, belief and training interfaces. Relocate includes and retain a standalone CPU/CUDA build and batch shim.",
+      "tools/evaluation" : "Run locally, disable cloud runners, use random as the released baseline and include staged source headers when compiling historical examples.",
+      "tools/ladder" : "Require an explicit own-team ID for public replay collection; use local storage defaults and the released engine header for map fitting.",
+      "tools/viewer" : "Use the public replay launcher and local build commands; omit private URL handlers."
+   },
+   "source_base_revision" : "692e7e09353531c09cf1022bc6196f99ae073b33",
+   "source_repository" : "overyonder/the-loong-game-private"
 }

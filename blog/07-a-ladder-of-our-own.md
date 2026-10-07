@@ -20,7 +20,7 @@ Offline we're in a better position. The harness plays every game first, so we ha
 
 ## Fitting all the games at once
 
-The fit is in [harness/report/rating.nim](../harness/report/rating.nim), and `loong-report ratings` runs it. It fits Bradley and Terry's model of paired comparisons ([Rank Analysis of Incomplete Block Designs](https://doi.org/10.2307/2334029), 1952): it looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
+The fit is in [harness/report/rating.nim](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/report/rating.nim), and `loong-report ratings` runs it. It fits Bradley and Terry's model of paired comparisons ([Rank Analysis of Incomplete Block Designs](https://doi.org/10.2307/2334029), 1952): it looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
 
 ```nim
 for i in 0 ..< size:
@@ -43,7 +43,7 @@ An older, simpler way to fit the same model nudges one bot's strength at a time 
 
 ## Playing a ladder in rounds
 
-The ladder, `just ladder` with its schedule in [harness/ladder.py](../harness/ladder.py), plays its games in rounds, and refits the ratings after each one. In a round every bot plays at most one game, with one bot sitting out in turn when the pool is odd. Sides reverse each time the opponents come round again, and the map changes after every full two-sided cycle, so over enough rounds every pair meets on every map from both sides. Seeds come from the map and the round, so a ladder can be stopped and resumed with `--resume` and still play exactly the same games, and the bots and maps it started with are kept as frozen copies and checked by hash when it resumes.
+The ladder, `just ladder` with its schedule in [harness/ladder.py](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/ladder.py), plays its games in rounds, and refits the ratings after each one. In a round every bot plays at most one game, with one bot sitting out in turn when the pool is odd. Sides reverse each time the opponents come round again, and the map changes after every full two-sided cycle, so over enough rounds every pair meets on every map from both sides. Seeds come from the map and the round, so a ladder can be stopped and resumed with `--resume` and still play exactly the same games, and the bots and maps it started with are kept as frozen copies and checked by hash when it resumes.
 
 A ladder writes three things: `results.json` with every game and every refit, `ratings.csv` with each bot's rating round by round, and a `summary.md` with the ratings, each bot's record, and a head-to-head table.
 

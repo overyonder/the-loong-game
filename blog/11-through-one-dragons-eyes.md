@@ -44,7 +44,7 @@ template diagnosticBlock*(body: untyped) =
         body
 ```
 
-Each explanation is one JSON record on its own `LOG` line, which the judge lifts out of the bot's output before the engine sees it. The records follow a small [public contract](../replays/viewer/diagnostics.md), and the viewer knows nothing about any strategy. It doesn't know what a role is, or a score formula, or a pearl protocol. It draws what the bot says, in the bot's own words.
+Each explanation is one JSON record on its own `LOG` line, which the judge lifts out of the bot's output before the engine sees it. The records follow a small [public contract](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/viewer/diagnostics.md), and the viewer knows nothing about any strategy. It doesn't know what a role is, or a score formula, or a pearl protocol. It draws what the bot says, in the bot's own words.
 
 ## The showcase bot
 

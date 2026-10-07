@@ -1,0 +1,8 @@
+[project]
+protocol_every_turn = true
+language = "c"
+include = ["*.c", "*.h"]
+
+[evaluation]
+sandbox = true
+status = "active"

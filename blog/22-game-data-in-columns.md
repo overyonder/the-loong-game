@@ -22,7 +22,7 @@ The header says this is version 1 of the container, with 57 columns, a directory
 
 ## Reading in place
 
-That makes the reader short. This is [the viewer's](../replays/viewer/columns.odin), in [Odin](https://odin-lang.org). It maps the file, checks the header, and indexes the directory by name:
+That makes the reader short. This is [the viewer's](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/viewer/columns.odin), in [Odin](https://odin-lang.org). It maps the file, checks the header, and indexes the directory by name:
 
 ```odin columns.odin
 open_columns_file :: proc(path: string, allocator := context.allocator) -> (file: Columns_File, ok: bool) {
@@ -95,11 +95,11 @@ A game that never finished loading now draws its first frame in under a second. 
 
 ## Writing and merging
 
-Our converter, [gamedata/gamedata.nim](../gamedata/gamedata.nim), turns a replay into a game file in 0.37 s with a peak of 100 MB, and `loong-gamedata REPLAY` writes one beside any replay. It builds each column in memory, writes the header, the columns and the directory to a `.partial` file beside the destination, and renames it into place. A reader never sees half a file, and nothing ever changes a file once it's written.
+Our converter, [gamedata/gamedata.nim](https://github.com/overyonder/the-loong-game/blob/ca25234/gamedata/gamedata.nim), turns a replay into a game file in 0.37 s with a peak of 100 MB, and `loong-gamedata REPLAY` writes one beside any replay. It builds each column in memory, writes the header, the columns and the directory to a `.partial` file beside the destination, and renames it into place. A reader never sees half a file, and nothing ever changes a file once it's written.
 
 The format isn't only for the viewer. Each game the harness plays also gets a small `result` file, one row per game and one per side, with how it ended and each side's economy: pearls eaten, splits, deaths by cause, peak points and how much of the map its heads covered. When a run ends, its games merge into one file of the same kind, table by table, with list starts and row indices shifted past the rows before them.
 
-New columns can appear without breaking anything, because readers look columns up by name and ignore the ones they don't know. Removing a column or changing its meaning raises the version that each kind records in its own `meta.version` column, so an old reader can refuse a file instead of misreading it. The container and the public tools' kinds are written up in [gamedata/format.md](../gamedata/format.md).
+New columns can appear without breaking anything, because readers look columns up by name and ignore the ones they don't know. Removing a column or changing its meaning raises the version that each kind records in its own `meta.version` column, so an old reader can refuse a file instead of misreading it. The container and the public tools' kinds are written up in [gamedata/format.md](https://github.com/overyonder/the-loong-game/blob/ca25234/gamedata/format.md).
 
 ## Team knowledge
 

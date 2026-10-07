@@ -14,7 +14,7 @@ The [organisers' engine](https://github.com/unswcpmsoc/unswbc/tree/main/engine) 
 
 The board is at most 64 by 64, so a cell fits in a signed 16-bit index, with `-1` for no cell. Arrays indexed by `y * width + x` hold pearls, spawn countdowns and the dragon occupying each tile. Dragons live in 128 reusable slots, and the turn queue has room for 512 entries. Those bounds are part of the port: an overflow is recorded, and a game that reaches one cannot count as an agreeing check.
 
-Here are the body fields from the released [CPU reference](../harness/zig_judge/reference/engine.h), with the other game fields omitted:
+Here are the body fields from the released [CPU reference](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/engine.h), with the other game fields omitted:
 
 ```cpp
 uint8_t  pearl[MAX_CELLS];
@@ -101,11 +101,11 @@ On 30 September, against toolkit 1.2.2, the check ran 100,000 games across all 1
 
 The last check takes the CPU port's text turn block, runs it through the encoder a served policy uses, and compares the resulting inputs with those the GPU wrote directly. It checks the observation, scalar inputs, sonar inbox and action mask. CPU and GPU agreeing on the winner would miss an observation that had been transposed, or a remembered cell that had been forgotten.
 
-The [released CPU reference](../harness/zig_judge/README.md#lockstep) lets a reader run the official-engine comparison without a graphics card. It now targets SDK 1.2.7, so reproducing the 1.2.2 checks above needs the [historical source](https://github.com/overyonder/the-loong-game/tree/2933c03/harness/zig_judge/reference) and matching official engine. The body representation in the code excerpts above is shared by the current CPU and CUDA references.
+The [released CPU reference](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/README.md#lockstep) lets a reader run the official-engine comparison without a graphics card. It now targets SDK 1.2.7, so reproducing the 1.2.2 checks above needs the [historical source](https://github.com/overyonder/the-loong-game/tree/2933c03/harness/zig_judge/reference) and matching official engine. The body representation in the code excerpts above is shared by the current CPU and CUDA references.
 
 ## Released CPU and CUDA references
 
-The [public reference directory](../harness/zig_judge/reference/README.md) contains the generic C++ CPU and CUDA libraries for SDK 1.2.7. They can play a complete game with real WASM bots and write its packed replay. The judge's official engine remains the default, and a native library is selected explicitly, as [the judge post](19-the-machine-inside-the-judge.md#selecting-native-simulation) shows.
+The [public reference directory](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md) contains the generic C++ CPU and CUDA libraries for SDK 1.2.7. They can play a complete game with real WASM bots and write its packed replay. The judge's official engine remains the default, and a native library is selected explicitly, as [the judge post](19-the-machine-inside-the-judge.md#selecting-native-simulation) shows.
 
 This interface has a different loop from the device-only training loop above:
 
@@ -129,7 +129,7 @@ CAPNP_PREFIX=/path/to/capnproto CXX=g++ NVCC=/path/to/nvcc \
 
 Both builds write their source hashes, compiler versions and flags beside the library, and refuse an existing output directory. The checked CUDA build is ahead-of-time machine code for `sm_120`, with no PTX image or runtime JIT fallback. CUDA produces native GPU code. Our approach here is C++ on CPU and CUDA C++ on GPU. The proposed Rake GPU backend is separate and isn't needed to build either reference.
 
-The extraction passed clean-export builds, CPU replay and per-turn point comparisons against the official engine in both initial team orders, and a small lockstep check. The extracted CUDA library's device instruction sections match the accepted source build byte for byte. Its runtime evidence belongs to that original build: no fresh GPU execution was run for the extracted artifact. Fixed-capacity failures refuse a complete replay, rather than truncating one. The [reference documentation](../harness/zig_judge/reference/README.md#bounds-and-evidence) records the limits and separates those checks from the original runtime evidence.
+The extraction passed clean-export builds, CPU replay and per-turn point comparisons against the official engine in both initial team orders, and a small lockstep check. The extracted CUDA library's device instruction sections match the accepted source build byte for byte. Its runtime evidence belongs to that original build: no fresh GPU execution was run for the extracted artifact. Fixed-capacity failures refuse a complete replay, rather than truncating one. The [reference documentation](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md#bounds-and-evidence) records the limits and separates those checks from the original runtime evidence.
 
 ## 761,000 dragon-turns a second
 

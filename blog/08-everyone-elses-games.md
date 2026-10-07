@@ -14,7 +14,7 @@ The [Battles page](https://game.battlecode.au/battles) lists every ladder series
 
 ## Being a good guest
 
-The part that needs care is how the collector talks to the site. Archive requests go through one small client in [replays/collection.nim](../replays/collection.nim), built as `loong-sample-replays`. It checks robots.txt first, makes one request at a time, waits at least two seconds between requests by default, and only follows redirects over HTTPS. The interesting part is what happens when the site pushes back. If it answers with a 429, meaning slow down, or a server error, the client doubles its interval up to a minute, honours any `Retry-After` the site sends, and stops after repeated rejections:
+The part that needs care is how the collector talks to the site. Archive requests go through one small client in [replays/collection.nim](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/collection.nim), built as `loong-sample-replays`. It checks robots.txt first, makes one request at a time, waits at least two seconds between requests by default, and only follows redirects over HTTPS. The interesting part is what happens when the site pushes back. If it answers with a 429, meaning slow down, or a server error, the client doubles its interval up to a minute, honours any `Retry-After` the site sends, and stops after repeated rejections:
 
 ```nim
 proc slowDown(client: var Client, status: int, retryAfter: string) =
@@ -52,7 +52,7 @@ Walking every archive page still costs requests and time, so start with a narrow
 just sample-replays --own-team YOUR_TEAM_ID --count 5 --output public-replays
 ```
 
-The collector reads the user's toolkit API key for its leaderboard snapshot. A saved ratings file also lets it plan retention offline. The [README](../replays/README.md) lists the pin and drop commands.
+The collector reads the user's toolkit API key for its leaderboard snapshot. A saved ratings file also lets it plan retention offline. The [README](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/README.md) lists the pin and drop commands.
 
 ## A first sample
 

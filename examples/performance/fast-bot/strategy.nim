@@ -1,3 +1,5 @@
+{.compile: "kernels.c".}
+
 # The first strategy bot, with its hot path in C: the room each first move leaves is
 # counted once a turn by the SIMD bitboard kernel in kernels.c, and room() looks it up.
 

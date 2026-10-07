@@ -30,7 +30,7 @@ get parentBody()  { return $.getList(0, e._ParentBody, this) }
 get childBody()   { return $.getList(1, e._ChildBody, this) }
 ```
 
-Writing every class down in Cap'n Proto's schema language gives the whole format, in [replays/viewer/replay.capnp](../replays/viewer/replay.capnp), with nothing guessed from byte patterns. The heart of it is the event list:
+Writing every class down in Cap'n Proto's schema language gives the whole format, in [replays/viewer/replay.capnp](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/viewer/replay.capnp), with nothing guessed from byte patterns. The heart of it is the event list:
 
 ```capnp
 struct Event {
@@ -53,9 +53,9 @@ seed :group {
 }
 ```
 
-An older file without those fields keeps Cap'n Proto's wire defaults. Its seed is unknown, rather than seed zero, and a missing queen length cannot tell us which dragon was the queen. The [native references](../harness/zig_judge/reference/README.md) write this same packed format, without an outer gzip layer.
+An older file without those fields keeps Cap'n Proto's wire defaults. Its seed is unknown, rather than seed zero, and a missing queen length cannot tell us which dragon was the queen. The [native references](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md) write this same packed format, without an outer gzip layer.
 
-With the schema, reading a replay takes very little code. `just decode` runs `loong-gamedata decode`, which has its own small Cap'n Proto reader in [gamedata/capnp_replay.nim](../gamedata/capnp_replay.nim), with accessors for the fields it uses. Undoing the packing from the table above is one short loop:
+With the schema, reading a replay takes very little code. `just decode` runs `loong-gamedata decode`, which has its own small Cap'n Proto reader in [gamedata/capnp_replay.nim](https://github.com/overyonder/the-loong-game/blob/ca25234/gamedata/capnp_replay.nim), with accessors for the fields it uses. Undoing the packing from the table above is one short loop:
 
 ```nim
 while at < packed.len:
@@ -88,7 +88,7 @@ Public replays leave the bot labels blank, so the decoder calls the players team
 
 ## Rebuilding the game
 
-A replay records changes in the order the engine made them, not pictures of the board, so knowing where everything was at round 200 means replaying 200 rounds of changes, as the official viewer does. The [reconstruction](../gamedata/board.nim) behind the debug viewer does the same. It reads the replay through the decoder's reader and the schema above, and applies each event in turn. The interesting one is a move:
+A replay records changes in the order the engine made them, not pictures of the board, so knowing where everything was at round 200 means replaying 200 rounds of changes, as the official viewer does. The [reconstruction](https://github.com/overyonder/the-loong-game/blob/ca25234/gamedata/board.nim) behind the debug viewer does the same. It reads the replay through the decoder's reader and the schema above, and applies each event in turn. The interesting one is a move:
 
 ```nim
 proc moveDragon*(board: var ReconstructedBoard, dragon: int32, head, tail: int, facing: char) =
@@ -121,7 +121,7 @@ for dy in -3 .. 3:
   for dx in -3 .. 3: visible.add board.cellAt(x + dx, y + dy)
 ```
 
-The [observations](../gamedata/observations.nim) that the viewer's recovery feeds back to a bot are built from these cells, exactly as the engine wrote them to it.
+The [observations](https://github.com/overyonder/the-loong-game/blob/ca25234/gamedata/observations.nim) that the viewer's recovery feeds back to a bot are built from these cells, exactly as the engine wrote them to it.
 
 There is one gap in site replays downloaded since 27 September: they no longer record pearl countdown events, and every tile's minimum and maximum spawn gaps are zero. The bot still received the live countdown in its window. [Pearls from the seed](10-pearls-from-the-seed.md) shows how the match seed and the engine's pearl generator constrain those hidden timings, including the variants the site serves under familiar map labels. A replay that no candidate explains stays unresolved.
 

@@ -1,3 +1,5 @@
+{.compile: "kernels.c".}
+
 # The first strategy bot, timing room-counting kernels on every window it sees.
 # Each turn it plays the first bot's move, then runs every kernel on the same window,
 # checks they agree, and logs the CPU points each one took.

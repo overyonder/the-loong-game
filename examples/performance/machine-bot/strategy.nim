@@ -1,3 +1,5 @@
+{.compile: "experiments.c".}
+
 # Runs one experiment from experiments.c per turn and logs the CPU points it took. In the
 # judge the clock advances one nanosecond per point, so the clock reads points.
 from ../../repertoire/games/loong/controller import nil

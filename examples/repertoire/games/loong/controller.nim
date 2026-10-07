@@ -51,9 +51,8 @@ proc clockNanoseconds*(): uint64 =
   ## reads points spent.
   discard wasi_clock_time_get(1, 1, result.addr)  # 1 is WASI's monotonic clock
 
-proc NimMain() {.importc, cdecl.}
 
-proc main(): cint {.exportc, cdecl.} =
-  ## The program's entry point, which runs the bot's turn loop. Each bot's nim.cfg sets
-  ## noMain, because wasi-libc can't start the main(argc, argv, env) Nim writes by default.
-  NimMain()
+when not defined(loongRuntimeMain):
+  proc NimMain() {.importc, cdecl.}
+  proc main(): cint {.exportc, cdecl.} =
+    NimMain()

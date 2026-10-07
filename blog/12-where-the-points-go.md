@@ -97,7 +97,7 @@ The build saves those remarks while compiling the staged source with the judge's
 just vector-remarks BUILD_GUID game.profile.tsv A 10
 ```
 
-That lets us start with the expensive function rather than a loop that merely looks worth optimising. Clang's cost model is for a processor, while the judge has its own price list, so a large SIMD share alone says little about the charged cost. After changing the loop, we profile the charged points again and check that the actions stayed the same. The [profile README](../harness/profiling/README.md) describes both sidecars and the joined columns.
+That lets us start with the expensive function rather than a loop that merely looks worth optimising. Clang's cost model is for a processor, while the judge has its own price list, so a large SIMD share alone says little about the charged cost. After changing the loop, we profile the charged points again and check that the actions stayed the same. The [profile README](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/profiling/README.md) describes both sidecars and the joined columns.
 
 ## Down to the instructions
 

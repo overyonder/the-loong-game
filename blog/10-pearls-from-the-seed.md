@@ -65,7 +65,7 @@ just regenerate --replay game.replay --seed MATCH_SEED \
   --maps maps --variants variants --output rebuilt.replay
 ```
 
-Without a bot build, regeneration drives both teams from the recorded actions. Adding `--build BUILD_GUID --side A` reruns that registered bot on side A, with the other side scripted. The [reconstruction README](../harness/README.md#regeneration) gives the formats and refusal conditions. Use the engine version that played the original game; a newer rule set can make the rerun differ.
+Without a bot build, regeneration drives both teams from the recorded actions. Adding `--build BUILD_GUID --side A` reruns that registered bot on side A, with the other side scripted. The [reconstruction README](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/README.md#regeneration) gives the formats and refusal conditions. Use the engine version that played the original game; a newer rule set can make the rerun differ.
 
 There are two different reruns. In a local evaluation we have both registered builds, the exact map and the seed. Playing both again in the [Zig judge](19-the-machine-inside-the-judge.md) lets us compare actions, the result and charged points, with the same accounting settings.
 

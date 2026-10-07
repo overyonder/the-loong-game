@@ -86,7 +86,7 @@ Whatever the number one team is doing, it's more careful than this. Perhaps thei
 
 `just tactics` builds the tactics bot, the coiling champion with feeders that forage and deliver, and runs the verdict against the roles bot:
 
-The recorded verdict and ladder below used toolkit 1.2.2. The recipes use the installed official engine by default, so repeating them under a newer toolkit tests a different game. Keep the original engine version when reproducing these figures. The newly released [CPU and CUDA references](../harness/zig_judge/reference/README.md) implement SDK 1.2.7. Reproducing the older figures requires the original 1.2.2 ruleset.
+The recorded verdict and ladder below used toolkit 1.2.2. The recipes use the installed official engine by default, so repeating them under a newer toolkit tests a different game. Keep the original engine version when reproducing these figures. The newly released [CPU and CUDA references](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md) implement SDK 1.2.7. Reproducing the older figures requires the original 1.2.2 ruleset.
 
 | Candidate | Opponent | W–D–L | Elo (95% interval) | Decision | Games used |
 | --- | --- | --- | --- | --- | --- |
