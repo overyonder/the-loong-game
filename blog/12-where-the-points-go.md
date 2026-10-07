@@ -1,4 +1,4 @@
-# Where the points go
+# Profiling CPU points
 
 > **Editor's note, 2 October 2026.** The judge can now profile charged points by function and instruction class without adding logging to the bot. The compiler's vectoriser remarks explain which loops became SIMD and why others didn't. The in-bot profile below is the original example.
 
@@ -87,7 +87,7 @@ It writes a `.profile.tsv` beside the replay, with each team's costliest functio
 
 The host collects the extra counters while observing the bot's charged instructions. The run prints its profile totals alongside the points recorded by completed turns. Those totals can differ by the work a sandbox does after its last completed turn, so compare the stated accounting boundary before treating a difference as a metering bug. And keep the first-read setting the same: our judge leaves it free by default, while the toolkit charges it.
 
-## Why a loop stayed scalar
+## Compiler vectorisation remarks
 
 A hot function's SIMD share is a useful clue, but it doesn't tell us whether a different loop would cost less. The compiler can explain its choices too. [LLVM has two vectorisers](https://llvm.org/docs/Vectorizers.html): the loop vectoriser combines work from consecutive iterations, and the SLP vectoriser combines independent scalar operations. Their remarks record successful transformations and reasons for missed ones, such as an uncertain dependency or a cost model that prefers scalar code.
 

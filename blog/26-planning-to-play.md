@@ -26,9 +26,9 @@ The world model has two halves. The **memory** keeps facts, each with its source
 
 The **belief** turns those facts into probabilities once a turn, and every later layer asks it questions rather than keeping rules of its own about how old a fact is. It has three parts:
 
-- **Geometry.** Each unseen edge gets a chance of being open, kelp or a portal, from counts of the edges seen so far with a prior of 87% open, 12.5% kelp and 0.5% portal: a Dirichlet prior on a multinomial, as in section 3.4 of Gelman and colleagues' *Bayesian Data Analysis* (3rd edition, 2013). Official maps are symmetric, so the belief scores the three possible symmetries by how well described edges agree with their partners, and fills unseen edges from their partners in proportion. Sonar echoes then correct the edges along each ray: a ray that came back reporting nothing makes the unknown edges it crossed less likely to be kelp.
-- **Pearls.** Each spawning tile's next attempt is a distribution over rounds, spread over the reset gaps we've watched there, which treats the tile as a renewal process (Feller, *An Introduction to Probability Theory and Its Applications*, volume 1, 3rd edition, 1968, chapter 13). Each cell's pearl is a two-state hidden Markov model (Rabiner's [tutorial](https://doi.org/10.1109/5.18626), 1989): out of sight, an attempt can make a pearl appear, and another dragon's head can eat it. The belief forecasts every cell's chance of a pearl for each of the next 64 rounds, so a behaviour can ask what will be there when it arrives.
-- **Dragons.** Every dragon we've heard of or seen has a Bernoulli filter (Ristic and colleagues' [tutorial](https://doi.org/10.1109/TSP.2013.2257765), 2013), over a histogram as in section 4.1 of *Probabilistic Robotics*: the chance it's still alive, and a histogram over its head's cell and heading given that it is. Each round the filter predicts one move, using how often that team's dragons turn and sprint, and corrects on what our window shows, including where a dragon isn't. A dragon that dies out of sight is never seen dying, so the chance of being alive falls at the team's watched death rate, and a dragon under 1% is set aside. Across all the filters, the belief keeps at most 3,000 states a turn, choosing which to keep with Hoare's selection algorithm, [Find](https://doi.org/10.1145/366622.366647) (1961).
+- For each unseen edge, the belief estimates the probability of being open, kelp or a portal, from counts of the edges seen so far with a prior of 87% open, 12.5% kelp and 0.5% portal: a Dirichlet prior on a multinomial, as in section 3.4 of Gelman and colleagues' *Bayesian Data Analysis* (3rd edition, 2013). Official maps are symmetric, so the belief scores the three possible symmetries by how well described edges agree with their partners, and fills unseen edges from their partners in proportion. Sonar echoes then correct the edges along each ray: a ray that came back reporting nothing makes the unknown edges it crossed less likely to be kelp.
+- For each spawning tile, the belief represents the next spawn attempt as a distribution over rounds, spread over the reset gaps we've watched there, which treats the tile as a renewal process (Feller, *An Introduction to Probability Theory and Its Applications*, volume 1, 3rd edition, 1968, chapter 13). Each cell's pearl is a two-state hidden Markov model (Rabiner's [tutorial](https://doi.org/10.1109/5.18626), 1989): out of sight, an attempt can make a pearl appear, and another dragon's head can eat it. The belief forecasts every cell's chance of a pearl for each of the next 64 rounds, so a behaviour can ask what will be there when it arrives.
+- Every dragon we've heard of or seen has a Bernoulli filter (Ristic and colleagues' [tutorial](https://doi.org/10.1109/TSP.2013.2257765), 2013), over a histogram as in section 4.1 of *Probabilistic Robotics*: the chance it's still alive, and a histogram over its head's cell and heading given that it is. Each round the filter predicts one move, using how often that team's dragons turn and sprint, and corrects on what our window shows, including where a dragon isn't. A dragon that dies out of sight is never seen dying, so the chance of being alive falls at the team's watched death rate, and a dragon under 1% is set aside. Across all the filters, the belief keeps at most 3,000 states a turn, choosing which to keep with Hoare's selection algorithm, [Find](https://doi.org/10.1145/366622.366647) (1961).
 
 The memory adds three things the textbook doesn't have. It detects deaths from a body turning into pearls, and withdraws everything it knew about that dragon. The memory treats a teammate still on a claimed path a round later as a longer champion that outranks this dragon. And a distance field counts steps from our head, from the nearest teammate's head and from each visible enemy head, letting a body's cells clear as it moves off them.
 
@@ -57,7 +57,17 @@ A frame starts with the send round mod 4, then records, each followed by a bit s
 
 Each turn, every dragon builds a picture of its team from the belief: itself, and every teammate the belief places, at its likeliest cell. The team's exact size is known, so if the picture holds more dragons than that, some died unseen, and the least certainly placed are dropped. Then it fills the role slots in order, each with the best-suited dragon left:
 
-![Role slots, filled in order. Champion, one: length 6 or more, and from round 420 any length if this dragon's picture holds the whole team; it goes to the longest. Understudy, one: from round 350, with a champion and 3 or more units; the next longest, 8 or more. Escort, one: with a champion and 4 or more units; the nearest, 4 or more shorter than the champion. Scouts, a third: while unseen board is left, with 2 or more units; the shortest. Harvesters: everyone left. Holding a role adds 3 to its suitability, and a role is kept for 20 rounds unless it stops being valid.](images/bot-roles.svg)
+![Role slots, filled in order: champion, understudy, escort, scouts and harvesters.](images/bot-roles.svg)
+
+| Role | Slots | Eligibility | Preference |
+| --- | --- | --- | --- |
+| Champion | One | Length 6 or more; from round 420, any length if this dragon's picture holds the whole team | Longest |
+| Understudy | One | From round 350, with a champion and at least 3 units; length at least 8 | Next longest |
+| Escort | One | With a champion and at least 4 units; at least 4 shorter than the champion | Nearest |
+| Scouts | A third | While unseen board remains, with at least 2 units | Shortest |
+| Harvesters | Everyone left | Remaining dragons | — |
+
+Holding a role adds 3 to its suitability, and a role is kept for 20 rounds unless it stops being valid.
 
 A dragon keeps its role for 20 rounds unless the role stops being valid: it can't take it any more, the team no longer needs it, or a teammate holding a one-place role outranks it. It also switches at once when it's assigned a one-place role that nobody holds, so the team never goes 20 rounds without a champion. Pictures differ between dragons, so their assignments can too. The rule that lets a short dragon be champion only when its picture holds the whole team came from a game where a team of twenty had eight champions at round 420.
 
@@ -73,7 +83,26 @@ A task on a cell claims it, a lightweight form of Smith's [contract net](https:/
 
 Each role lets a different set of behaviours compete:
 
-![What each role may do, as a grid of twenty behaviours against six roles. Eat: forage for harvesters, escorts and unassigned dragons; explore for scouts; scavenge and race for harvesters, scouts and escorts; farm for harvesters; probePortal for scouts. Grow the champion: championGrow for the champion, understudyGrow for the understudy, coil for both, escort for escorts. Split: expandSplit for every role but the understudy; standoffSplit for every role. Fight: contest, hunt and portalBlock for harvesters and escorts; strike for harvesters, scouts, escorts and unassigned dragons; tailStrike for harvesters, scouts and escorts. Orders and the end: door and feed for every role but the champion and understudy; endgame for every role.](images/bot-duties.svg)
+![The twenty behaviours permitted for the six roles.](images/bot-duties.svg)
+
+| Behaviour | Permitted roles |
+| --- | --- |
+| forage | Harvester, escort, unassigned |
+| explore | Scout |
+| scavenge, race | Harvester, scout, escort |
+| farm | Harvester |
+| probePortal | Scout |
+| championGrow | Champion |
+| understudyGrow | Understudy |
+| coil | Champion, understudy |
+| escort | Escort |
+| expandSplit | Every role except understudy |
+| standoffSplit | Every role |
+| contest, hunt, portalBlock | Harvester, escort |
+| strike | Harvester, scout, escort, unassigned |
+| tailStrike | Harvester, scout, escort |
+| door, feed | Every role except champion and understudy |
+| endgame | Every role |
 
 Here is what each one does and how it scores.
 
@@ -106,9 +135,9 @@ The population target sets how far the team splits. Where food is plentiful it's
 
 The task runs inside a small state machine. Three interrupts come first, in this order, and preempt any task while they apply:
 
-1. **Give way.** A teammate's head inside cells a champion has claimed walks out by the shortest way through free cells, found by breadth-first search (Cormen, Leiserson, Rivest and Stein, *Introduction to Algorithms*, 4th edition, 2022, chapter 20), and dies only when there's no way out or the champion's head is about to meet it. The champion treats its claimed path as clear.
-2. **Rescue.** With no legal step, the dragon dies whatever it does, so it splits off a child that takes all but two segments, unless every exit from the tail is known to be blocked.
-3. **Evade.** With no safe single step, it sprints away from the nearest enemy head.
+1. The give-way interrupt moves a teammate out of the champion's claimed cells by the shortest path through free cells, found by breadth-first search (Cormen, Leiserson, Rivest and Stein, *Introduction to Algorithms*, 4th edition, 2022, chapter 20). The teammate dies only when there's no way out or the champion's head is about to meet it. The champion treats its claimed path as clear.
+2. When the dragon has no legal step and will die whatever it does, the rescue interrupt splits off a child with all but two segments, unless every exit from the tail is known to be blocked.
+3. With no safe single step, the evade interrupt sprints away from the nearest enemy head.
 
 When none applies, the task acts. Seven behaviours work in phases, and the first phase that can act this turn runs: coil (escape, leave, follow, approach), door (destroy, leave, spin, reach), endgame (retreat, overtake), escort (guard, shadow), feed (dissolve, approach), probePortal (enter, approach) and tailStrike (strike, prepare). While an interrupt runs, the task keeps its phase and picks up where it was.
 
@@ -116,7 +145,25 @@ When none applies, the task acts. Seven behaviours work in phases, and the first
 
 Most behaviours don't choose a move themselves. They hand movement a target and an objective, and movement picks the safest move that serves them:
 
-![How movement picks a move. Legal options: single steps across edges the belief holds passable for certain, and sprints of up to 3 steps, searched as a beam of 64. Assess each: exits, heads that can meet ours, survival to our length plus 2, at most 24, the squeeze, the duel and sealed allies. Then the task's utility: the caller's objective in pearls, less soft costs for a squeeze, blind landings, cramped pockets, corridors and crowding. Eleven safety classes are compared first, in order: an exit after the move; assessed within the budget; fewest heads that can meet ours, when it's our last dragon or we're outnumbered; survives the horizon; steps survived, when short of it; fewest allied heads sealed in; no squeeze now, unless trading; the duel shows no forced loss; fewest heads that can meet ours, the rest; not pinned to one contested exit; lands on a cycle. A task's target and utility only break ties within the same safety class.](images/bot-movement.svg)
+![Movement compares legal options by safety, then by task utility.](images/bot-movement.svg)
+
+Legal options include single steps across edges the belief holds passable for certain, and sprints of up to 3 steps, searched as a beam of 64. Assessment considers exits, heads that can meet ours, survival to our length plus 2 (at most 24), the squeeze, the duel and sealed allies. The task's utility is its objective in pearls, less soft costs for a squeeze, blind landings, cramped pockets, corridors and crowding.
+
+Movement compares eleven safety classes first, in this order:
+
+1. An exit after the move.
+2. Assessed within the budget.
+3. Fewest heads that can meet ours, when this is our last dragon or we are outnumbered.
+4. Survives the horizon.
+5. Steps survived, when short of the horizon.
+6. Fewest allied heads sealed in.
+7. No squeeze now, unless trading.
+8. The duel shows no forced loss.
+9. Fewest heads that can meet ours, in the remaining cases.
+10. Not pinned to one contested exit.
+11. Lands on a cycle.
+
+A task's target and utility only break ties within the same safety class.
 
 A step is legal only across an edge the belief holds passable for certain, and onto a cell out of sight only if it's at least 50% likely to be empty. Routes to a target use [Dijkstra's algorithm](https://doi.org/10.1007/BF01386390) (1959), on Dial's [bucket queue](https://doi.org/10.1145/363269.363610) (1969), over every edge at least 5% likely to be passable, each priced 4 over that chance, so an uncertain shortcut costs more than a certain detour.
 

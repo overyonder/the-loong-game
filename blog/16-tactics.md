@@ -34,7 +34,7 @@ That's two tactics working together. The champion curls up tight against its own
 
 Let's try building both. Each one fits into the roles bot as new behaviour modules, so nothing else changes. The champion gains Coil, and the workers become feeders, with Forage for finding food and Deliver for the sacrifice:
 
-![The tactics bot's structure. The state machine enters a role: Champion with Split, Evade, Coil and Roam. Kamikaze with Hunt and Roam. Feeder with Evade, Deliver and Forage. Split, Hunt's strike and Deliver's sacrifice act as reflexes. Movement drops deadly steps and takes the best by the behaviour's objective. The dragon moves or splits and announces its team tag, ID, role, length and position.](images/tactics-architecture.svg)
+![The tactics bot's structure. The state machine enters a role. The champion can Split, Evade, Coil and Roam, while a kamikaze can Hunt and Roam. Feeders use Evade, Deliver and Forage. Split, Hunt's strike and Deliver's sacrifice act as reflexes. Movement drops deadly steps and takes the best by the behaviour's objective. The dragon moves or splits and announces its team tag, ID, role, length and position.](images/tactics-architecture.svg)
 
 The assembly is the roles bot's with the champion's and feeders' lists changed, and `indicate = 2` makes each dragon's indicator show its behaviour as well as its role:
 

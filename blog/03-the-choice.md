@@ -51,7 +51,7 @@ The two bots make exactly the same move on every turn. I checked by playing each
 
 ![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-c-python.svg)
 
-Python costs far more per turn, and most of what C spends isn't the strategy at all. A C bot that only repeats its last move costs almost as much, because nearly all of it is the single write to stdout that sends each move. Taking each language's idle bot away leaves just the strategy, and that's where the difference really shows:
+Python costs far more per turn, and most of what C spends isn't the strategy at all. A C bot that only repeats its last move costs almost as much, because nearly all of it is the single write to stdout that sends each move. Subtracting each language's idle-bot cost isolates the cost of its strategy:
 
 ![CPU points per turn for the strategy alone, with each language's idle cost removed, on a log scale: C 43,000 points and Python 19,700,000 points.](images/strategy-cost.svg)
 
@@ -175,11 +175,11 @@ This is why the room count is a good fit. It does the same few operations to eve
 
 ### Rake for the rest of the bot
 
-The [0.4.0 beta](https://rake-lang.org/) adds whole-program compilation. Ordinary code goes in `slow` functions, which can use records, arrays, slices, loops and persistent module state. Those functions handle input, memory and the turn loop; marked calls reach the vector routines. `crunch` still owns lane-wise work, while `run` owns traversals over collections of racks.
+The [0.4.0 beta](https://rake-lang.org/) adds whole-program compilation. Ordinary code goes in `slow` functions, which can use records, arrays, slices, loops and persistent module state. Those functions handle input, memory and the turn loop, calling the vector routines through explicitly marked calls. `crunch` still owns lane-wise work, while `run` owns traversals over collections of racks.
 
 ![Two routes to the judge. Our Nim strategy and Rake kernels each emit C and are linked together. A whole Rake program instead holds scalar setup and state in slow functions, which call run traversals and crunch kernels, and emits C itself. Both routes finish with the judge's clang producing metered WebAssembly.](images/rake-program.svg)
 
-The emitted C can call the starter's C API, so this route doesn't require a second protocol implementation or a Rake runtime inside the judge. It gives us a way to port a bot without replacing its decision structure. Our textbook line still uses the Nim-and-Rake split described above; a whole-bot port is separate work. No new speed measurement is implied by the compiler accepting more of the program. We still have to compare actions and measure the [charged points](12-where-the-points-go.md).
+The emitted C can call the starter's C API, so this route doesn't require a second protocol implementation or a Rake runtime inside the judge. It gives us a way to port a bot without replacing its decision structure. Our textbook line still uses the Nim-and-Rake split described above, with a whole-bot port left as separate work. No new speed measurement is implied by the compiler accepting more of the program. We still have to compare actions and measure the [charged points](12-where-the-points-go.md).
 
 ## Next up
 

@@ -49,9 +49,9 @@ A line's highest numbered version is the one being developed. When it reaches a 
 
 This gives an old result a precise identity. An identifier such as `textbook-main-NNNN` identifies the assembly. Its manifest lists every selected library file, and the registered build records the runtime, compiler settings and WebAssembly that actually played. Later edits elsewhere in `bots/` cannot quietly alter that evidence.
 
-Keeping old versions costs some space, but deleting them would discard useful opponents and the exact program behind a replay. They become baselines in the [ladder of our own](07-a-ladder-of-our-own.md), regression cases and provenance for the viewer. The number records when a version was made. The games say what happened.
+Keeping old versions costs some space, but deleting them would discard useful opponents and the exact program behind a replay. They become baselines in the [ladder of our own](07-a-ladder-of-our-own.md), regression cases and provenance for the viewer. Version numbers record creation order, while the retained games provide the results.
 
-## Why three lines
+## Three approaches to bot development
 
 With that machinery in view, a *line* has a simple meaning: a sequence of numbered bot assemblies, plus any library catalogue particular to that approach. We develop three because one approach cannot answer every useful question at once.
 
@@ -65,7 +65,7 @@ With that machinery in view, a *line* has a simple meaning: a sequence of number
 
 ### Textbook
 
-The textbook line stays close to standard computer-science methods. Its library is arranged by data structures, decision architectures, techniques and Loong-specific adapters. A behaviour owns one purpose, the circumstances in which it applies and the action it proposes. A version's `strategy.nim` assembles those behaviours and their parameters into an architecture.
+The textbook line stays close to standard computer-science methods. Its library is arranged by data structures, decision architectures, techniques and Loong-specific adapters. Each behaviour defines its purpose, checks when it applies and proposes an action. A version's `strategy.nim` assembles those behaviours and their parameters into an architecture.
 
 That gives the line a direction for improvement. Whenever its implementation departs from the method it is meant to follow, the departure becomes something to inspect. When an idea looks novel while the bot is still making ordinary mistakes, I first look for the established method it approximates.
 

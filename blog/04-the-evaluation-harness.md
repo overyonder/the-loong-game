@@ -45,7 +45,7 @@ If you don't ask for seeds, the games run unseeded and outside the judge's sandb
 
 ## Running games side by side
 
-A game takes anywhere from a second to several minutes, but games don't depend on each other, so the harness compiles each bot once and then plays as many games at once as you have cores. The one real risk is a bot that hangs, because in a long run that one bad game mustn't take the rest down with it. The catch is that `unswbc run` isn't a single process. It starts a separate process for every dragon, so if we only stopped the main process when a game hung, its dragons would be left running in the background, slowly eating the machine over a long run. So each game starts in its own process group, and when it finishes or runs past its time limit, the harness kills the whole group at once:
+A game takes anywhere from a second to several minutes, but games don't depend on each other, so the harness compiles each bot once and then plays as many games at once as you have cores. The harness needs to isolate a hung game so the remaining games can continue. The catch is that `unswbc run` isn't a single process. It starts a separate process for every dragon, so if we only stopped the main process when a game hung, its dragons would be left running in the background, slowly eating the machine over a long run. So each game starts in its own process group, and when it finishes or runs past its time limit, the harness kills the whole group at once:
 
 ```python
 process = subprocess.Popen(sys.argv[3:], stdout=output, stderr=subprocess.STDOUT,
@@ -67,7 +67,7 @@ Sandboxed games between compiled bots play in our own Zig judge, which plays exa
 
 ## Keeping errors separate from losses
 
-There's one more thing the harness has to get right, and it's easy to miss: when a game goes wrong, it mustn't be recorded as a loss. Imagine a change that makes our bot crash on one map in ten. If crashes counted as losses, the win rate would dip a little and we'd probably conclude the change was a slightly bad idea. In fact it's a bug, and a very fixable one, and hiding it inside the win rate throws that information away.
+Failed games need to be recorded separately from losses so bugs remain visible in the results. Imagine a change that makes our bot crash on one map in ten. If crashes counted as losses, the win rate would dip a little and we'd probably conclude the change was a slightly bad idea. In fact it's a bug, and a very fixable one, and hiding it inside the win rate throws that information away.
 
 ![How the harness sorts a finished game. Counted: a win, a loss or a draw, read from the engine's result line. Errors, in their own column: the match exceeded the harness timeout, Battlecode exited with a nonzero code, a bot execution failure such as running out of time, exiting, hitting a limit or having no valid action, no engine result found, or the replay was not written.](images/game-outcomes.svg)
 

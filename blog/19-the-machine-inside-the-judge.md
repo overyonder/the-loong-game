@@ -115,23 +115,23 @@ The ordinary game hosts the organisers' engine and metered WebAssembly bots. The
 
 The [viewer](11-through-one-dragons-eyes.md) feeds recorded turn blocks to an inspection build. Older turns can run quietly until the requested range, so opening a late decision doesn't have to collect every earlier explanation. The response separates the action from annotation records, captured memory, charged policy points and any failure.
 
-For a build using the observer imports, a scope saves the policy meter, runs the explanation under a separate allowance, then restores the meter. Clock reads inside the scope see frozen policy time. The scope can't read gameplay input, send an action, consume randomness or yield. Its diagnostic bytes have a separate path too, bounded at 64 MiB per turn; the ordinary action path keeps its 10 KiB limit and output charges. The observer allowance is one billion points, so a broken explanation still has a finite limit.
+For a build using the observer imports, a scope saves the policy meter, runs the explanation under a separate allowance, then restores the meter. Clock reads inside the scope see frozen policy time. The scope can't read gameplay input, send an action, consume randomness or yield. Diagnostic bytes also have a separate path, limited to 64 MiB per turn, while the ordinary action path keeps its 10 KiB limit and output charges. The observer allowance is one billion points, so a broken explanation still has a finite limit.
 
 ![Inspection accounting. Policy work uses the gameplay meter and sends actions through the charged 10 KiB output path. An explicit observer scope temporarily uses its own one-billion-point allowance and writes annotations through a separate 64 MiB path. On leaving the scope, the saved policy meter is restored.](images/inspection-accounting.svg)
 
-These imports are available only in inspection. Submission builds leave them out, and ordinary games refuse them. The flag-gated diagnostic blocks shown in [the viewer post](11-through-one-dragons-eyes.md#rebuilt-decisions) use a different route: they time their own work and subtract it from the clock the policy reads. The host still meters their instructions, under inspection's larger ceiling.
+These imports are available only in inspection. Submission builds leave them out, and ordinary games refuse them. The flag-gated diagnostic blocks shown in [the viewer post](11-through-one-dragons-eyes.md#rebuilt-decisions) use a different route: they time their own work and subtract it from the clock value reported to the policy. The host still meters their instructions, under inspection's larger ceiling.
 
 Both kinds of block are read-only: writing to the bot's decision state would change the decision we're trying to explain. Scope boundaries and a different compiler layout can still change small instruction costs, so recovery checks every action against the replay and ordinary games check the budget.
 
 ### A team outside WebAssembly
 
-`--serve SOCKET --serve-team A|B` connects one team to another process over a local UNIX socket. The protocol sends game setup, dragon spawns, turns, deaths and the end of the game; the process returns the team's actions. The other team still runs as ordinary bot instances.
+`--serve SOCKET --serve-team A|B` connects one team to another process over a local UNIX socket. The protocol sends game setup, dragon spawns, turns, deaths and the end of the game, and the process responds with the team's actions. The other team still runs as ordinary bot instances.
 
 We use this to play a large [teacher model](27-learning-to-play.md) against a judge bot before exporting a small student. The served process isn't metered and isn't competition-eligible. It's an evaluation boundary: it lets the engine ask for actions without needing to know whether the answer came from WebAssembly or a model process.
 
 ### Two engines, the same replies
 
-Lockstep runs the official engine beside a CPU reference port and compares each observation block byte for byte. Both get the same reply, chosen deterministically from a hash of that block. Odd seeds exercise reckless actions, including invalid splits and rejected moves; even seeds use more careful actions so games can reach later rounds. A difference stops the run at the first mismatched block.
+Lockstep runs the official engine beside a CPU reference port and compares each observation block byte for byte. Both get the same reply, chosen deterministically from a hash of that block. Odd seeds exercise reckless actions, including invalid splits and rejected moves, while even seeds use more careful actions so games can reach later rounds. A difference stops the run at the first mismatched block.
 
 This checks each observation block along the tested action sequences. The released [CPU reference and command](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU:
 
@@ -169,7 +169,7 @@ The build refuses an existing output directory. It doesn't install the library o
 
 The clean export built the host and both libraries. CPU games matched official packed replays and per-turn points in both initial team orders, and the small lockstep check compared 50 turns with no differences or skips. The extracted CUDA library has no fresh GPU execution result. Its device instruction sections are byte-identical to the accepted source build, whose runtime checks retain their original artifact identities.
 
-The host accepts the older 32-byte engine result and reads all twelve fields of the later 48-byte result, including queen and longest lengths. Missing fields in the older layout stay zero. Standard batch figures keep their existing fields; accepting the larger result doesn't add columns to that report. Reproducing an old game still needs the engine version that played it.
+The host accepts the older 32-byte engine result and reads all twelve fields of the later 48-byte result, including queen and longest lengths. Missing fields in the older layout stay zero. Standard batch figures keep their existing fields even when the host accepts the larger result. Reproducing an old game still needs the engine version that played it.
 
 The judge's [points profile](12-where-the-points-go.md#a-profiler-outside-the-bot) needs no change to either player. It attributes each team's charged work to functions and instruction classes.
 

@@ -16,11 +16,11 @@ The opposite temptation is to describe the game to an AI model and ask for a bot
 
 ## Adaptive problems need structure
 
-Put together, this is an adaptive, adversarial problem, played on partial information. Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* has a good vocabulary for it. It's *partially observable*, since a dragon only sees its 7×7 window. It's *multi-agent* in two directions at once, competing with the other team while cooperating with teammates it can't share memory with. The movement rules are known; an unseen map is hidden state, not an unknown rule. The other teams' policies are the part that keeps changing.
+Put together, this is an adaptive, adversarial problem, played on partial information. Russell and Norvig's *[Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/4th-ed/pdfs/newchap02.pdf)* has a good vocabulary for it. It's *partially observable*, since a dragon only sees its 7×7 window. It's *multi-agent* in two directions at once, competing with the other team while cooperating with teammates it can't share memory with. The movement rules are known, while unseen parts of the map are hidden state. The other teams' policies are the part that keeps changing.
 
 ![The same round of a public ladder game twice. On the left, the whole board. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
 
-Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see what it knew, which choices it considered, and why it picked that one. We review those decisions in the [viewer](11-through-one-dragons-eyes.md). The [verdict](05-better-worse-or-undecided.md) measures results over games; it can't tell us whether a particular decision was sound. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
+Problems like that reward bots we can understand and change quickly. When a dragon does something stupid, we need to see what it knew, which choices it considered, and why it picked that one. We review those decisions in the [viewer](11-through-one-dragons-eyes.md). The [verdict](05-better-worse-or-undecided.md) measures results over games, while assessing whether an individual decision was sound requires reviewing it in the viewer. That makes the bot's architecture, the way its decisions are organised, the first real strategic choice.
 
 ## A menu of architectures
 
@@ -92,7 +92,7 @@ Each behaviour is one short module. Roam keeps the most room, exactly as the flo
 
 Both behaviours use movement's safety checks. It drops steps into kelp and bodies, and steps next to an enemy head, since dragons move in turn and a head-on collision kills both. It also drops portals, because vision doesn't reach through them. If no safe step remains, the fallback relaxes those checks and can enter a dangerous tile:
 
-![examples/repertoire/games/loong/movement.nim. safeSteps keeps the first steps that are open and, unless allowed, not next to an enemy head. best takes the safe steps, falls back to steps within an enemy head's reach, then to an unseen portal, then to the current facing, and otherwise returns the step the behaviour's objective scores highest.](images/first-bot-movement.png)
+![examples/repertoire/games/loong/movement.nim. safeSteps keeps the first steps that are open and, unless allowed, not next to an enemy head. best takes the safe steps, falls back to steps within an enemy head's reach, then to an unseen portal, then to the current facing, and otherwise scores the steps against the behaviour's objective and returns the highest-scoring one.](images/first-bot-movement.png)
 
 ## The first result
 
@@ -110,7 +110,7 @@ The result files also count deaths. These are useful places to start looking for
 
 The first bot records fewer self-collisions and collisions with other dragons in this sample, and its longest dragon ends at 41.5 segments on average against 38.0. Those numbers don't establish better survival decisions: the bots may encounter different dangers, and a successful attack can itself cost a dragon. We need the replays to tell them apart.
 
-The run completed 72 games against the flood-fill bot before it stopped; the sequential decision above used its first 40. Across the completed games, the first bot won 30, with 18 wins by elimination, and lost 30, with 18 losses decided on length at round 500. The length losses give us a concrete question to take to the viewer: what stopped it growing?
+Although the run completed 72 games against the flood-fill bot before stopping, the sequential decision above used only the first 40. Across the completed games, the first bot won 30, with 18 wins by elimination, and lost 30, with 18 losses decided on length at round 500. The length losses give us a concrete question to take to the viewer: what stopped it growing?
 
 Here's one of those length losses in the viewer, the last round of a game on the bundled Portals map:
 

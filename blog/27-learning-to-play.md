@@ -59,7 +59,7 @@ The pool is generated before a training process starts. What changes dynamically
 
 The workstation is where a run begins and ends. It builds the judge and source bundle, prepares maps and demonstrations, starts the rental jobs, checks the exported student, and keeps the durable copy. Its RTX 5070 Ti can continue either network after the rental ends, with the 16 GB card alternating between them.
 
-The four-H100 host was deliberately disposable. Three cards ran the teacher with local SGD; the fourth ran the student. Its 64 CPU cores generated and encoded more demonstrations while the GPUs trained.
+The four-H100 host was deliberately disposable. Three cards ran the teacher with local SGD, while the fourth ran the student. Its 64 CPU cores generated and encoded more demonstrations while the GPUs trained.
 
 ### Two transfer paths
 

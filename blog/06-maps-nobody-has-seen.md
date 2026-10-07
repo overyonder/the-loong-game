@@ -8,16 +8,16 @@ The organisers have said that every Sprint, Qualifier and Grand Final map will b
 
 The generator, `just mapgen`, writes maps in the official format. The hard part is making them plausible: varied enough to find surprises, but still recognisably the same game. My first generator mixed a handful of random layouts and threw away the ones that came out unplayable, and it made maps no organiser would ever ship. The one the harness uses now is xCirno's layered world generator, which they shared with everyone in the competition Discord as [a gist](https://gist.github.com/xCirno1/ffdaac4236c1f1085c351af4fdfc1600). It builds each map in stages, and each stage reads what the earlier ones decided:
 
-1. **Canvas.** Size, symmetry and a closed or wrapping border, picked from the shapes the official maps use.
-2. **Climate.** Two noise fields, elevation and fertility, made symmetric so both teams get the same world.
-3. **Districts.** Camps where the dragons start and a heart on the symmetry axis are placed first, then every other tile joins its nearest seed point, which gives organic regions.
-4. **Biomes.** Each district's role and climate pick what it looks like: open sea, meadow, reef, ruins, caves, maze or vault.
-5. **Landmark.** One map-sized structure, such as a citadel of concentric walls, a great labyrinth, a walled city, diagonal lanes or a lattice of portals, with gated walls between the districts.
-6. **Structures.** A vault at the heart, the nests the first dragons start coiled in, buildings to suit each biome, portal shrines reachable only by portal, wormholes across the axis, and groves of pearls on the fertile ground.
-7. **Repair.** Every sealed pocket gets a door into the rest of the map, so no dragon is born into a hole and no pearl is wasted.
-8. **Economy.** One small palette of pearl spawn rates per map, like the official maps' few classes, scaled to suit the number of dragons.
-9. **Spawns.** Dragons coil out of each camp with their heads towards the enemy, with their exits checked and enemy heads kept apart.
-10. **Judge.** Several candidate worlds are scored on contested food, how soon the teams meet, detours, dead ends and portal use, and the best one is written.
+1. The generator chooses the map's size, symmetry and closed or wrapping border from the shapes used by official maps.
+2. Two symmetric noise fields describe elevation and fertility, giving both teams the same world.
+3. After placing the starting camps and a heart on the symmetry axis, the generator assigns every other tile to its nearest seed point, forming organically shaped districts.
+4. Each district's role and climate determine its biome: open sea, meadow, reef, ruins, caves, maze or vault.
+5. A map-sized landmark supplies the main structure, such as a citadel of concentric walls, a great labyrinth, a walled city, diagonal lanes or a lattice of portals, with gated walls between the districts.
+6. The heart contains a vault, and the starting dragons have nests to coil in. Elsewhere, the generator adds buildings suited to each biome, shrines reachable only by portal, wormholes across the axis and pearl groves on fertile ground.
+7. Every sealed pocket gets a door into the rest of the map, so no dragon starts trapped and no pearl is inaccessible.
+8. Each map has a small set of pearl spawn rates, following the official maps' use of a few classes and scaled to suit the number of dragons.
+9. Dragons start coiled out of each camp with their heads towards the enemy. Before accepting the placements, the generator checks their exits and keeps opposing heads apart.
+10. Several candidate worlds are scored on contested food, how soon the teams meet, detours, dead ends and portal use, and the highest-scoring candidate is written.
 
 Every map is symmetric, mirrored or rotated so both teams start in equivalent positions, which keeps the games fair. The generator guarantees it by never writing one side alone. Every change to the board goes through one setter, which writes the edge and its mirror image together:
 

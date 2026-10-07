@@ -95,7 +95,7 @@ In our bot library, the Rake kernel becomes a new numbered version of the flood-
 
 ## The fast bot
 
-The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. That's the split [The choice](03-the-choice.md) planned: strategy in Nim, and hot code in a kernel it calls. This example's kernel is hand-written C. Our competition bot writes any hot kernel in Rake, like the masks above. On the bundled maps the fast bot plays exactly the same games as the original:
+The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. As proposed in [The choice](03-the-choice.md), the strategy stays in Nim and calls a separate kernel for the hot code. This example's kernel is hand-written C. Our competition bot writes any hot kernel in Rake, like the masks above. On the bundled maps the fast bot plays exactly the same games as the original:
 
 ![A terminal running just fast. The first bot and the fast bot each play room-c on the default map with seed 0x42. Both games have the same five deaths and end with team B winning on length after 500 rounds. The first bot's median turn costs 3.2 million points, and the fast bot's 3.0 million.](images/fast-bot.png)
 

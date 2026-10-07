@@ -8,10 +8,10 @@ I'm Kieran Hannigan, and I run [over|yonder](https://over-yonder.tech), a perfor
 
 ## The series
 
-- **Weird bot ideas.** Most won't work, and I'll post the ones that fail as well as the ones that don't. One I'm keen on is testing ~~my-name-is~~-jev to see how smart this highly hyped 'System 1' model is.
-- **Beginner tips.** Getting a first bot running, reading the 7×7 window properly, and sprinting into our own tails as a rite of passage.
-- **Tools for unswbc.** Round-robin harnesses, offline Elo ladders, replay analysis and whatever else I end up wanting at 2am.
-- **WASM deep dives.** What our code compiles to under the judge's toolchain: SIMD, instruction counts, where the points go, and how to fit more search into the same budget.
+- I'll try weird bot ideas, most of which won't work, and post the failures as well as the successes. One I'm keen on is testing ~~my-name-is~~-jev to see how smart this highly hyped 'System 1' model is.
+- Beginner topics include getting a first bot running and reading the 7×7 window properly, with sprinting into our own tails as a rite of passage.
+- For unswbc, I'll build round-robin harnesses, offline Elo ladders, replay analysis and whatever else I end up wanting at 2am.
+- I'll also examine the WebAssembly produced by the judge's toolchain: SIMD, instruction counts, where the points are spent and ways to fit more search into the same budget.
 
 The top teams will turn up with advanced strategies and plenty of tooling, and most teams won't have either. The point is to raise the tide a little: share the tools, techniques and mistakes so more teams can give the top of the ladder a proper game. Everything's open source, and each post links to the code and results behind it.
 

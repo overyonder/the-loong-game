@@ -16,7 +16,14 @@ We can never play forever, so every answer is a bet, and there are two ways to l
 
 The third ingredient is the size of the difference we care about. A change that makes the bot win 70% of its games against the baseline is easy to spot. One that wins 51% is real but almost invisible, and chasing it would cost thousands of games. So before playing anything, we decide on the smallest improvement worth detecting, and that sets how many games the test needs:
 
-![Games needed to detect a better bot at α 0.05 and 80% power: about 36 at a true win rate of 70%, about +150 Elo; 66 at 65%, about +110 Elo; 150 at 60%, about +70 Elo; and 600 at 55%, about +35 Elo.](images/verdict-games-needed.svg)
+![Games needed to detect a better bot at α 0.05 and 80% power.](images/verdict-games-needed.svg)
+
+| True win rate | Approximate Elo improvement | Games needed |
+| --- | --- | --- |
+| 70% | +150 | 36 |
+| 65% | +110 | 66 |
+| 60% | +70 | 150 |
+| 55% | +35 | 600 |
 
 We size our verdicts for +70 Elo, which means winning about 60% of games against the baseline. Smaller gains are real, but a test that could see them would cost four times as many games, and on unseen tournament maps a change that small might not survive anyway. For comparison, the verdict we used before this redesign played a fixed schedule of about 3,700 games per candidate, whatever the question.
 
@@ -72,7 +79,7 @@ A sequential test can stop after 16 games, but only if those 16 games are a fair
 
 The other catch is how many games are running at once. Stopping is only a saving if the games still running when the test crosses a line are few. So the verdict keeps roughly as many games in flight as it expects to need, and cancels the rest the moment it decides.
 
-Concretely, the maps are shuffled into a fixed order for each run, and on each map every opponent that still needs games is played from both sides before moving on. Each test reads only the longest unbroken run of finished games in that order, never whichever games happen to finish first, so a slow map can't be skipped. An opponent whose test has decided gets no more games, and the whole run ends as soon as every test has.
+Concretely, the maps are shuffled into a fixed order for each run, and on each map every opponent that still needs games is played from both sides before moving on. Each test reads only the longest unbroken run of finished games in that order, never whichever games happen to finish first, so a slow map can't be skipped. Once an opponent's test reaches a decision, that opponent gets no more games, and the run ends when all tests have reached a decision.
 
 One more check runs alongside. Ten games against a bot that moves at random are mixed into the first few maps, and any game the candidate fails to win is flagged as a fault to watch. A decent bot should never lose to one, so those games never enter the statistics. Any fault is a bug to go and find.
 

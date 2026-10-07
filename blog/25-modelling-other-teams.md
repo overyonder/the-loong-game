@@ -35,7 +35,7 @@ The first study took the newest ranked games of the 16 teams with the most games
 
 To look for styles, each team's rates were shrunk towards the population by empirical Bayes (Clayton and Kaldor, 1987), reduced to principal components and clustered by Ward's method (1963). Only clusters that held up when the teams were resampled counted (Hennig, 2007). Across 71 teams with 15 or more ranked games, no clustering held up, so the ladder's bots form one continuous population. Five teams sit far from it, such as one that almost never sprints or starts a head-on.
 
-Last, a search for behaviour nobody had named compared runs of one to three turns, each a coarse context and the action taken, between the top band and teams rated 1500–1650. Dong and Li (1999) call these emerging patterns. The clearest was top-band dragons of length 2 to 4 taking no action in rounds 300–449 with a pearl in sight and room to move, which never happened in the lower band. A dragon that doesn't act dies, and its body is food, so this looks like the deliberate feeding the first census found. Top-band champions of 5 to 9 also split when boxed in during the first 100 rounds about eight times as often.
+To find additional patterns, we compared sequences of one to three turns between the top band and teams rated 1500–1650, representing each turn by its coarse context and action. Dong and Li (1999) call these emerging patterns. The clearest was top-band dragons of length 2 to 4 taking no action in rounds 300–449 with a pearl in sight and room to move, which never happened in the lower band. A dragon that doesn't act dies, and its body is food, so this looks like the deliberate feeding the first census found. Top-band champions of 5 to 9 also split when boxed in during the first 100 rounds about eight times as often.
 
 The study covers one day of ranked play, because the replay collector has only recorded which series are ranked since that morning.
 
@@ -55,7 +55,7 @@ The screens that found the ram rushers and the other styles in [Playing the ladd
 
 ### Determinism
 
-Last, we asked whether the top teams' bots draw their moves at random. From the replays, we rebuilt each dragon's input in the opening rounds, where the same map and seat repeat across games and a dragon can receive byte-identical input twice. Every top team we sampled answered those repeats as consistently as our own deterministic bot did, including one that has said publicly that it trained with reinforcement learning. If that team plays a learned network, it plays the network's best move rather than sampling from it. The test only covers openings.
+We also tested whether the top teams' bots choose moves randomly. From the replays, we rebuilt each dragon's input in the opening rounds, where the same map and seat repeat across games and a dragon can receive byte-identical input twice. Every top team we sampled answered those repeats as consistently as our own deterministic bot did, including one that has said publicly that it trained with reinforcement learning. If that team plays a learned network, it plays the network's best move rather than sampling from it. The test only covers openings.
 
 ## The gaps
 

@@ -14,13 +14,13 @@ countdown = lo + draw % (hi - lo + 1)
 
 On a symmetric map, reflected tiles share a countdown. The first tile encountered in the engine's scan owns that group, so initialisation takes one draw per group, not one per tile. When the group attempts to spawn it takes another draw to set its next countdown. An occupied tile still makes its attempt and consumes that draw even though no pearl appears.
 
-Spawn attempts happen at the start of a round, before the dragons act. An initial countdown of `c` first attempts in round `c - 1`; a fresh countdown of `c` drawn on an attempt in round `r` next attempts in round `r + c`. A pearl left by a dying dragon is a different event, not evidence of a spawn countdown.
+Spawn attempts happen at the start of a round, before the dragons act. An initial countdown of `c` produces its first spawn attempt in round `c - 1`, while a fresh countdown of `c` drawn during an attempt in round `r` produces the next attempt in round `r + c`. A pearl left by a dying dragon is a different event, not evidence of a spawn countdown.
 
 ![A site replay and match seed constrain a reconstruction. Seeded engine draws produce shared countdowns and spawn attempts, including attempts blocked by occupancy. A candidate table is checked against both appearances and their absence. Reconstruction compares state and our bot's actions, stopping at the first difference.](images/pearl-reconstruction.svg)
 
 ## Finding a table that explains the replay
 
-The published map is the first candidate. If its seeded attempts agree with the replay, we can use it to reconstruct that game. Otherwise the fitting tool searches bounded ranges of minimum and maximum gaps. Early appearances narrow the choices; later appearances reject them. Hidden attempts on occupied cells still have to be accounted for, or every later random draw shifts to the wrong tile.
+The published map is the first candidate. If its seeded attempts agree with the replay, we can use it to reconstruct that game. Otherwise the fitting tool searches bounded ranges of minimum and maximum gaps. Early appearances narrow the choices, and later appearances rule out candidates that no longer agree with the replay. Hidden attempts on occupied cells still have to be accounted for, or every later random draw shifts to the wrong tile.
 
 Matching the pearls that appeared isn't enough. A candidate that predicts a pearl on a free spawning tile where none appeared is wrong too. The check needs the board's occupancy at the start of each round, and keeps spawn events separate from pearls dropped by deaths. It also needs to agree with the replay's geometry and starting dragons: the right schedule on the wrong map is still the wrong game.
 
@@ -52,7 +52,7 @@ Those aggregate counts describe the stored games in this reconstruction study. T
 
 ## Rebuilding a game
 
-The public tools take a downloaded replay, its match seed, a candidate map and explicit map directories. They don't contain our fitted tables or need our ladder account. Fitting requires at least three seeded replays and refuses to write a map if its search leaves unresolved spawning tiles. Lookup requires exactly one compatible table among the supplied maps; missing or ambiguous matches are errors.
+The public tools take a downloaded replay, its match seed, a candidate map and explicit map directories. They don't contain our fitted tables or need our ladder account. Fitting requires at least three seeded replays and refuses to write a map if its search leaves unresolved spawning tiles. Lookup requires exactly one compatible table among the supplied maps, reporting an error if the match is missing or ambiguous.
 
 From `examples/tooling`, after `just tools-build`, the fitting input is a TSV with a seed and replay path on each row:
 
@@ -65,13 +65,13 @@ just regenerate --replay game.replay --seed MATCH_SEED \
   --maps maps --variants variants --output rebuilt.replay
 ```
 
-Without a bot build, regeneration drives both teams from the recorded actions. Adding `--build BUILD_GUID --side A` reruns that registered bot on side A, with the other side scripted. The [reconstruction README](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/README.md#regeneration) gives the formats and refusal conditions. Use the engine version that played the original game; a newer rule set can make the rerun differ.
+Without a bot build, regeneration drives both teams from the recorded actions. Adding `--build BUILD_GUID --side A` reruns that registered bot on side A, with the other side scripted. The [reconstruction README](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/README.md#regeneration) gives the formats and refusal conditions. Use the engine version that played the original game, because a newer rule set can make the rerun differ.
 
 There are two different reruns. In a local evaluation we have both registered builds, the exact map and the seed. Playing both again in the [Zig judge](19-the-machine-inside-the-judge.md) lets us compare actions, the result and charged points, with the same accounting settings.
 
 In a ladder game we don't have the other team's program. We can rerun our registered build while a scripted opponent sends the other team's recorded actions, including splits and sonar. That can check our actions and the resulting game state. It cannot recover how many CPU points the other team's original program spent choosing those actions. The check reports the first state or action difference, and only writes the reconstructed replay after the comparisons pass.
 
-This also limits what can be discarded. A local game can be regenerated from its compact result and frozen builds; a ladder reconstruction still needs the recorded opponent actions. An unresolved map remains unresolved even when its label matches a bundled file.
+This also limits what can be discarded. A local game can be regenerated from its compact result and frozen builds, whereas reconstructing a ladder game also needs the recorded opponent actions. An unresolved map remains unresolved even when its label matches a bundled file.
 
 Recovered countdowns give the [viewer](11-through-one-dragons-eyes.md) a way to show the Spawn gaps overlay and to check what a bot remembered about pearl timing. Unknown countdowns should remain unknown until a checked reconstruction supplies them. Zeroes in the downloaded replay aren't evidence that the ground never grows food.
 

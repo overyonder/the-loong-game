@@ -135,7 +135,7 @@ The extraction passed clean-export builds, CPU replay and per-turn point compari
 
 The recorded 1.2.2 throughput is 761,000 dragon-turns a second with 2,048 games and random actions on one RTX 5070 Ti, including observation construction. A dragon-turn is one dragon being observed and acted on. It is smaller than a round, which can contain many dragons, and very different from a complete game. The target I set for this engine was 100,000 dragon-turns a second.
 
-![Historical SDK 1.2.2 engine throughput with random actions and observation construction: 761,000 dragon-turns a second on an RTX 5070 Ti with 2,048 games, against a design target of 100,000. No network runs in this measurement. The design target was 100,000. A CPU baseline was unmeasured.](images/engine-throughput.svg)
+![Historical SDK 1.2.2 engine throughput with random actions and observation construction: 761,000 dragon-turns a second on an RTX 5070 Ti with 2,048 games, against a design target of 100,000. The measurement excludes network execution, and no CPU baseline was measured.](images/engine-throughput.svg)
 
 The number measures the environment's capacity to supply decisions with random actions and observation construction. The judge timings in the previous post measured a different workload: WebAssembly bots, startup and replay output. End-to-end training throughput includes policy inference, rollout storage and optimisation.
 

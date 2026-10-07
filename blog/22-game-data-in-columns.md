@@ -22,7 +22,7 @@ The header says this is version 1 of the container, with 57 columns, a directory
 
 ## Reading in place
 
-That makes the reader short. This is [the viewer's](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/viewer/columns.odin), in [Odin](https://odin-lang.org). It maps the file, checks the header, and indexes the directory by name:
+The [viewer's](https://github.com/overyonder/the-loong-game/blob/ca25234/replays/viewer/columns.odin) [Odin](https://odin-lang.org) reader needs little code: it maps the file, checks the header and indexes the directory by name:
 
 ```odin columns.odin
 open_columns_file :: proc(path: string, allocator := context.allocator) -> (file: Columns_File, ok: bool) {

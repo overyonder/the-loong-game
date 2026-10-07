@@ -55,7 +55,7 @@ Later in the season we tested these questions over 800 public replays from 20 te
 | Did a forged command make an enemy split? | No forgeable split command was found |
 | Did fake length claims move a tested team? | None of the teams we could test moved |
 
-Those negative results have narrow boundaries. They say what our tested messages achieved against the games we stored, rather than proving that sonar forgery can never work. [Modelling other teams](25-modelling-other-teams.md#sonar) puts the sonar census beside the rest of the opponent study and explains how little of it entered our bot.
+These negative results apply to the messages we tested against the stored games. [Modelling other teams](25-modelling-other-teams.md#sonar) puts the sonar census beside the rest of the opponent study and explains how little of it entered our bot.
 
 ## Poker
 

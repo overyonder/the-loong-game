@@ -2,7 +2,7 @@
 
 > **Editor's note, 2 October 2026.** The sampler now also maintains a capped replay store, keeping our games, recent games from strong teams and games pinned for study. Its manifest makes retention and deletion explicit. The five-game sample below was collected on 28 September.
 
-Every test so far has pitted our bots against our own bots. But the opponents that matter are the other teams, and every game on the public ladder can be downloaded and watched, which makes the ladder's history the best record we have of what strong bots actually do. This post builds the fifth tool on the wishlist, a collector that keeps a useful slice of those replays. The site belongs to the organisers, so fetching from it mustn't add any noticeable load.
+Every test so far has pitted our bots against our own bots. But the opponents that matter are the other teams, and every game on the public ladder can be downloaded and watched, which makes the ladder's history the best record we have of what strong bots actually do. This post builds the fifth tool on the wishlist, a collector that keeps a useful slice of those replays. The site belongs to the organisers, so we need to keep requests infrequent enough to avoid adding noticeable load.
 
 ## The public archive
 
@@ -37,12 +37,12 @@ A growing archive needs a rule for what to keep. Each run takes one leaderboard 
 | --- | --- |
 | Our team | Its indexed games |
 | Top-rated teams | The newest 500 per team at or above 1,950 Elo |
-| Pinned games | Games named for a particular review or experiment |
+| Pinned games | Games selected for a particular review or experiment |
 | Teams above us | The newest 40 per team above our current rating |
 
 A game can qualify in several ways and gets the highest of those priorities. The store's default cap is 100 GB. Retention counts stored bytes, drops unselected files first, and then works from the least protected, oldest games upwards. A pin records who needs the game and why, and sets its retention priority within the hard cap.
 
-![The replay collector's retention policy. Our indexed games, recent top-team games, pinned games and recent games from teams above us feed one selection. The manifest records membership and bytes. Files outside the selection are removed first; lower-priority, older selected files yield when the storage cap needs room.](images/collector-retention.svg)
+![The replay collector's retention policy. Our indexed games, recent top-team games, pinned games and recent games from teams above us feed one selection. The manifest records membership and bytes. The collector removes files outside the selection first, then lower-priority, older selected files if it needs more space.](images/collector-retention.svg)
 
 The manifest keeps the battle index even when the file goes, so a later run knows what it has already seen. Pins have an owner role and a reason, which lets us release the claim when the review is done. For a manual deletion, `--prune-plan` writes exact replay filenames and reports counts and bytes by priority. It deletes nothing. After reviewing and removing those files, `--prune-drop` removes their manifest rows only if the files are gone. Pins remain until explicitly released.
 

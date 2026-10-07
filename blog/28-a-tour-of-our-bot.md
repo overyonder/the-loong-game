@@ -22,7 +22,7 @@ There was no central program directing the team. Each dragon ran its own copy of
 
 The ordinary bot kept facts, inferred what might now be true, assigned a role, and chose a task from that role's repertoire. The task's acting state then called movement with its target and preferences. Movement searched and ranked the options. Once an action was chosen, the radio fitted messages to its four sonar rays.
 
-![The implemented pre-Queen turn. The protocol supplies a window, messages and echoes. Memory retains sourced facts; belief predicts hidden state. Roles gate utility-selected tasks, whose reactive phases call movement. Movement searches for a move or sprint; some behaviours issue splits or deliberate deaths directly. A fallback supplies an action when the policy cannot. The radio sends the action's urgent records and ambient facts, which enter another dragon's memory on its next turn.](images/tour-loop.svg)
+![The implemented pre-Queen turn. The protocol supplies a window, messages and echoes. Memory retains sourced facts, while belief predicts hidden state. Roles gate utility-selected tasks, whose reactive phases call movement. Movement searches for a move or sprint, while some behaviours issue splits or deliberate deaths directly. A fallback supplies an action when the policy cannot. The radio sends the action's urgent records and ambient facts, which enter another dragon's memory on its next turn.](images/tour-loop.svg)
 
 This is the code's flow. The intended five-layer drawing had a cleaner handoff, where a task produced an intent and a separate tactical stage turned it into an action. We hadn't reached that separation. Each behaviour called movement itself, with choices about sprinting, trading heads, paying length, moving away from a target and avoiding cells. Some actions bypassed movement entirely.
 
@@ -30,7 +30,7 @@ That distinction matters when reading an architectural diagram. A box labelled â
 
 ## Facts, guesses and old news
 
-The memory held one record per board cell. Edges could be unknown, open, kelp or a portal, with a landing when resolved. Pearls and spawn timers had their own source and round. Occupants were recorded as last seen. The same store held sightings, teammate statuses, tasks, path claims and deaths.
+Memory held one record per board cell, recording whether its edges were unknown, open, kelp or portals, including resolved portal landings. Pearl and spawn-timer records carried their own source and round, while occupants were retained as last seen. The same store held sightings, teammate statuses, tasks, path claims and deaths.
 
 Sight and a message didn't have equal authority. Seeing a tile rewrote it. A teammate's map report filled sides on cells we had never described by sight, and a pearl or timer report replaced an older one. A body turning into pearls could tell us a dragon had died, withdrawing its status and claims. A later status could overturn that death inference.
 
@@ -50,7 +50,7 @@ The distance field added a practical wrinkle. A tail cell blocked now might be o
 
 ## Agreement over four narrow rays
 
-The radio had four 64-bit values to work with. Each ray stopped at the first body it met, which could be an enemy or our own. We couldn't broadcast to everyone, and the echo didn't name the receiver. The radio asked the belief who was likely to hear each ray, then chose records that would be useful to that reader.
+The radio had four 64-bit values to work with. Each ray stopped at the first body it met, which could be an enemy or our own. We couldn't broadcast to everyone, and the echo didn't identify the receiver. The radio asked the belief who was likely to hear each ray, then chose records that would be useful to that reader.
 
 Ambient traffic included our status and task, sightings, deaths, map edges, pearls and portal links. Urgent traffic came from the behaviour that needed it: the champion's right of way, a feed order, a coil's request for a door guard, or a guard reporting the ground outside the champion's sight. The turn loop also reported a newly split child's body, since teammates otherwise had to discover it for themselves.
 
@@ -64,7 +64,7 @@ The resemblance to Stone and Veloso's [locker-room agreement](https://www.cs.ute
 
 ## Roles narrowed the choices
 
-The role allocator filled slots in order: champion, understudy when wanted, rearguard, vanguard, assassin, scouts, then harvesters. It used the team each dragon knew, discarding the least certainly placed members if that picture exceeded the exact team size. Length favoured champions and the assassin. Proximity favoured the guards. Short dragons were cheaper scouts to risk.
+The role allocator filled slots in order: champion, understudy when wanted, rearguard, vanguard, assassin, scouts, then harvesters. It used the team each dragon knew, discarding the least certainly placed members if that picture exceeded the exact team size. Length favoured champions and the assassin, while proximity mattered for guards. Shorter dragons made less costly scouts to risk.
 
 A role was normally held for twenty rounds, with a continuation bonus in its suitability. Invalidity or an unfilled one-place role could end that commitment sooner. The late-game rule allowing a short champion required a picture of the whole team. Otherwise a short dragon that hadn't heard of anyone longer would appoint itself.
 
@@ -84,7 +84,7 @@ That was twenty-three assembled behaviours, plus the give-way, rescue and evade 
 
 A task was a behaviour bound to a target, which could be a cell, an enemy dragon or no explicit target. Each allowed behaviour supplied eligible candidates and a score. Most used a food-like scale: a pearl worth 80 divided by one plus the time to reach it. The champion's growth used 120. Other choices, such as expansion and endgame retreat, used fixed scores once their conditions held.
 
-![Task selection in the historical bot. The role permits behaviours; each offers targets, eligibility and its own score. Weighted pairs are compared, with a switching margin of 2. Give way, rescue and evade get first refusal before the chosen task. A phase that produces no action falls through, and a task with no action can yield to the next candidate.](images/tour-tasks.svg)
+![Task selection in the historical bot. The role permits a set of behaviours, each offering targets, eligibility and its own score. Weighted pairs are compared, with a switching margin of 2. Give way, rescue and evade get first refusal before the chosen task. A phase that produces no action falls through, and a task with no action can yield to the next candidate.](images/tour-tasks.svg)
 
 The current pair stayed selected unless another beat it by more than 2. Changing the pair reset the behaviour's phase machine. Within a behaviour, phases were checked in priority order each turn. The coil checked escape before leave, follow and approach. The assassin checked strike, prepare, stalk and locate. Nine behaviours had phases, and fourteen acted directly.
 
