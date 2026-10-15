@@ -14,6 +14,6 @@
 <path d="M600 174 L640 174 L640 112 L678 112" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
 <path d="M990 112 L1005 112 L1005 406 L992 406" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
 <path d="M835 306 L835 348" fill="none" stroke="#66675e" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a)"/>
-<text x="20" y="346" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">library.toml chooses versions; it does not describe the turn loop.</text>
+<text x="20" y="346" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">library.toml chooses versions but doesn't describe the turn loop.</text>
 <text x="20" y="369" font-size="13" fill="#66675e" text-anchor="start" font-weight="normal">strategy.nim and the selected pieces own that decision structure.</text>
 </svg>

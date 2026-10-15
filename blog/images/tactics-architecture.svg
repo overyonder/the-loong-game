@@ -32,7 +32,7 @@
 <rect x="501.4" y="246" width="51" height="22" rx="11" fill="#7a4f8a"/><text x="526.9" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
 <rect x="558.4" y="246" width="66" height="22" rx="11" fill="#9c5b2e"/><text x="591.3" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Deliver</text>
 <rect x="630.2" y="246" width="58" height="22" rx="11" fill="#8f8a25"/><text x="659.4000000000001" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Forage</text>
-<text x="360" y="302" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">then the first behaviour whose guard holds; Split, Hunt's strike and Deliver's sacrifice act as reflexes</text>
+<text x="360" y="302" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">then the first behaviour whose guard holds. Split, Hunt's strike and Deliver's sacrifice act as reflexes</text>
 <path d="M360 310 L360 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
 <rect x="170" y="332" width="380" height="80" rx="7" fill="#f6f1e7" stroke="#b53b13" stroke-width="2.2"/>
 <text x="360.0" y="358" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Movement: hard constraints first</text>

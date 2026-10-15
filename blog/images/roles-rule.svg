@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">How a dragon picks its role</title>
-<desc id="d">Each turn a dragon compares its own length with the longest teammate it has heard of by sonar in the last 12 turns. If it is at least as long, it is the champion. Otherwise, if it is three segments or shorter, it is a kamikaze. Otherwise it is a worker.</desc>
+<desc id="d">Each turn a dragon compares its own length with the longest teammate heard by sonar in the last 12 turns. If it is at least as long, it is the champion. Otherwise, if it is three segments or shorter, it is a kamikaze. Otherwise it is a worker.</desc>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="720" height="330" fill="#ede5d5"/>
 <rect x="220" y="16" width="280" height="62" rx="7" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.2"/>

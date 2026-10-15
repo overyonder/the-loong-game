@@ -31,6 +31,6 @@
 <text x="462" y="247" font-size="14" fill="#20251f">enemy head</text>
 <text x="666" y="247" font-size="15" font-weight="bold" fill="#b53b13" text-anchor="end">1</text>
 <text x="450" y="314" font-size="12.5" fill="#66675e">Each ray also delivers its</text>
-<text x="450" y="330" font-size="12.5" fill="#66675e">64-bit value to the dragon it hits,</text>
+<text x="450" y="330" font-size="12.5" fill="#66675e">64-bit value to the dragon in its path,</text>
 <text x="450" y="346" font-size="12.5" fill="#66675e">with no sender and no team.</text>
 </svg>

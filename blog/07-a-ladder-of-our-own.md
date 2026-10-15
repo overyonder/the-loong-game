@@ -2,25 +2,24 @@
 
 > **Editor's note, 28 September 2026.** Ratings are now fitted to all the games at once with the Bradley–Terry model. The ladder below uses toolkit 1.2.2 and the new generated maps.
 
-The [verdict tool](05-better-worse-or-undecided.md) answers one question at a time: how sure can we be that this candidate scores differently from that opponent? That's a useful question about one change. But by now we have several bots, and the verdict post explained why beating the version before isn't enough, because a candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors. So we want something that plays every version against every other and gives each one a single number we can compare. That's the offline ladder from the wishlist.
+The [verdict tool](05-better-worse-or-undecided.md) compares one candidate with one opponent. A candidate can beat its parent and still lose to an older version, the way paper beats rock and loses to scissors, so we also need a ladder that plays every version against every other and gives each one a rating.
 
 ## Ratings
 
-The online ladder uses Elo ratings, from Arpad Elo's *The Rating of Chessplayers, Past and Present* (1978), and so will we, because the idea behind them is simple. Each bot gets a rating, and the gap between two ratings predicts how often the stronger bot wins. A gap of 400 points means ten-to-one odds, 200 points about three-to-one, and equal ratings mean an even match. A rating on its own means nothing. It only says something relative to the other bots it was measured against.
+We use Elo ratings, from Arpad Elo's *The Rating of Chessplayers, Past and Present* (1978), like the online ladder. The gap between two ratings predicts how often the stronger bot wins, so a rating only means something relative to its own pool:
 
-![Win probability against rating gap. The curve rises from an even match at a gap of 0, through about three-to-one at 200 points and ten-to-one at 400 points, towards certainty.](images/rating-odds.svg)
-
-## Fitting ratings offline
-
-The online ladder updates ratings one game at a time. After each game, the winner takes some points from the loser, more if the win was a surprise, with a factor called K deciding how big each step is. That suits a ladder that never stops, where new games keep arriving forever. It has two side effects we'd rather avoid, though. The ratings depend on the order the games happened in, and the most recent games move them the most, which is exactly the noise the [wishlist](02-the-wishlist.md) complained about.
-
-There's a third effect that surprised me more. With a fixed K, every game can only move a rating so far, so a bot with a lopsided record never gets the rating its record implies. On our own private ladders, a bot that scored 98 of 100 against its pool sat at 1916 under game-by-game Elo, and at 2270 when fitted to all its games at once, which is what its odds against that pool imply.
-
-Offline we're in a better position. The harness plays every game first, so we have all the results at once, and instead of replaying them in some order we can find the one set of ratings that explains all of them together. Every game counts equally, and the answer doesn't depend on the order the games finished in. The model is the one Elo already assumes, known to statisticians as Bradley–Terry: each bot has a hidden strength, and the chance that bot A beats bot B is A's strength divided by the two strengths added together.
+![Win probability against rating gap: even at 0, about three-to-one at 200 points and ten-to-one at 400.](images/rating-odds.svg)
 
 ## Fitting all the games at once
 
-The fit is in [harness/report/rating.nim](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/report/rating.nim), and `loong-report ratings` runs it. It fits Bradley and Terry's model of paired comparisons ([Rank Analysis of Incomplete Block Designs](https://doi.org/10.2307/2334029), 1952): it looks for the strengths that make the observed results most likely, and because that likelihood is a smooth hill with one peak, Newton's method climbs it in a handful of steps. Each step works out which way is uphill for every bot at once, and how sharply the hill curves, then jumps towards the top:
+The online ladder updates ratings after each game by a step of size K. That makes ratings depend on game order and favour recent games, and a fixed K caps how far a lopsided record can push a rating. One bot on our private ladders scored 98 of 100 against its pool:
+
+| Method | Rating |
+| --- | ---: |
+| Game-by-game Elo | 1916 |
+| Fitted to all its games at once | 2270 |
+
+Offline, the harness has every result before it rates anything, so it finds the one set of ratings that best explains them all, with every game counting equally. The model is the one already assumed by Elo, Bradley and Terry's paired comparisons ([Rank Analysis of Incomplete Block Designs](https://doi.org/10.2307/2334029), 1952): each bot has a hidden strength, and A beats B with probability A's strength divided by the sum of both. The likelihood has a single peak, so [the fit](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/report/rating.nim) uses Newton's method to reach it in a handful of steps, each using the slope and curvature for every bot at once:
 
 ```nim
 for i in 0 ..< size:
@@ -37,26 +36,15 @@ for i in 0 ..< size:
 let step = solve(hessian, gradient)
 ```
 
-Here `theta` is each bot's strength on a log scale, `played[i][j]` counts the games between two bots, and the gradient starts from the points each bot actually scored. The first three lines inside the loop add one imaginary draw against an average bot to every bot's record. Without it, a bot that won every game would have no finite rating, because no strength would ever be high enough. A draw counts as half a win for each side, and games that ended in an error are left out entirely. At the end, each strength becomes a rating of 1500 plus 400 times its base-10 logarithm, shifted so the pool averages 1500, which is what makes 400 points mean ten-to-one odds.
-
-An older, simpler way to fit the same model nudges one bot's strength at a time towards the value that would match its score, and it gets to the same answer. It just takes many more passes to get there, because each nudge moves one bot while the others stand still.
+`theta` is each bot's log strength, `played[i][j]` counts games between two bots, and the gradient starts from each bot's actual score. The first three lines in the loop add one imaginary draw against an average bot, so a bot that won every game still gets a finite rating. Draws count half, and games that ended in an error are left out. Each strength becomes a rating of 1500 plus 400 times its base-10 logarithm, centred on 1500, which is what makes 400 points mean ten-to-one.
 
 ## Playing a ladder in rounds
 
-The ladder, `just ladder` with its schedule in [harness/ladder.py](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/ladder.py), plays its games in rounds, and refits the ratings after each one. In a round every bot plays at most one game, with one bot sitting out in turn when the pool is odd. Sides reverse each time the opponents come round again, and the map changes after every full two-sided cycle, so over enough rounds every pair meets on every map from both sides. Seeds come from the map and the round, so a ladder can be stopped and resumed with `--resume` and still play exactly the same games, and the bots and maps it started with are kept as frozen copies and checked by hash when it resumes.
-
-A ladder writes three things: `results.json` with every game and every refit, `ratings.csv` with each bot's rating round by round, and a `summary.md` with the ratings, each bot's record, and a head-to-head table.
+The [ladder](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/ladder.py) plays in rounds where each bot plays at most one game, and refits after each round. Sides alternate and maps rotate, so every pair meets on every map from both sides. Seeds come from the map and round, so a stopped ladder resumes with exactly the same games.
 
 ## The first ladder
 
-At this point in the series we have six bots: the two starters, the flood-fill bot from [The choice](03-the-choice.md) in C, Python and Nim, and the pearl-chasing version the verdict found losing. From `examples/tooling`, a ladder of all six on toolkit 1.2.2's 15 bundled maps and the 20 generated ones plays 350 rounds, 1,050 games, 70 between each pair of bots:
-
-```sh
-just ladder --bots starter-c starter-py room-c room-nim room-py room-pearls \
-    --maps maps/*.map maps-generated/*.map --rounds 350
-```
-
-Here are the fitted ratings, with each bot's points against each other bot:
+Our six bots so far are the two starters, the flood-fill bot from [The choice](03-the-choice.md) in C, Python and Nim, and the losing pearl-chaser. On toolkit 1.2.2's 15 bundled maps and 20 generated ones, they played 1,050 games, 70 per pair:
 
 | Bot | Rating | Won | Drawn | Lost | vs room-c | vs room-py | vs room-nim | vs room-pearls | vs starter-py | vs starter-c |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -67,16 +55,12 @@ Here are the fitted ratings, with each bot's points against each other bot:
 | starter-py | 1211 | 60 | 1 | 289 | 3 | 3 | 2 | 20.5 | | 32 |
 | starter-c | 1192 | 54 | 1 | 295 | 0 | 2.5 | 2 | 12 | 38 | |
 
-The three flood-fill bots make the same move in every position, so any gap between them is luck. Each ladder game draws its own seed from its map and round, so the pearls fall differently in every game, and two identical bots don't split their games exactly. room-c took 42.5 of its 70 games against room-nim, a split that two equal bots produce about one time in eleven, and across three such pairings one of them looking that lopsided is unremarkable. So the 40 points between room-c and room-nim are noise, and a ladder this size can't separate bots closer than that.
-
-The pearl-chasing bot sits about 230 points below them, which predicts that it scores about one game in five against them, and it scored about one in four. The verdict already found it losing head to head, and the ladder agrees with a much broader comparison. The two starters trail everything and are nearly level with each other.
+The three flood-fill bots make identical moves, so the gaps between them are luck from different pearl draws. Equal bots split as unevenly as room-c and room-nim about one time in eleven, so a ladder this size can't separate bots that close. The pearl-chaser's rating predicts it scores about one game in five against them, and it scored about one in four.
 
 ## Looking for circles
 
-The head-to-head columns are there for a reason besides checking the ratings. A single number per bot assumes the pool is ordered, so that if A beats B and B beats C, then A beats C. When a rock-paper-scissors circle breaks that, the table shows it plainly: a lower-rated bot has a winning record against one above it, and the ratings get squeezed together to average over the circle.
-
-There's no circle here. The two upsets are both between bots that play alike: room-py edged room-c 35.5–34.5 despite rating 10 points lower, and starter-c beat starter-py 38–32 despite rating 19 lower, and a few games' margin between equal bots is a coin toss. Every other bot has a winning record against every bot rated below it. That's reassuring, but it's also a small pool of simple bots. The check matters more as the pool fills with versions of our own bot that differ in subtler ways, and from now on every saved version can join the ladder.
+A single rating assumes that if A beats B and B beats C, A beats C. A rock-paper-scissors circle would show in the head-to-head columns as a lower-rated bot with a winning record against a higher one. The only such upsets here are between bots that play alike, so there's no circle. The check matters more once the pool fills with saved versions of our own bot.
 
 ## Next up
 
-The ladder measures our bots against each other. The next two tools look outward, at everyone else's games, starting with [a sampler](08-everyone-elses-games.md) that downloads the public ladder's replays without loading the organisers' site.
+The next two tools look outward, starting with [a sampler](08-everyone-elses-games.md) that downloads the public ladder's replays without loading the organisers' site.

@@ -1,12 +1,10 @@
 # The choice
 
-> **Editor's note, 2 October 2026.** Rake can now compile whole programs as well as vector kernels. Its native register guarantees differ from what it can check in WebAssembly. The language-cost measurements remain the original flood-fill comparison.
-
-Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo later, since every line of the bot is written in it. The online judge accepts Python, C and C++, and runs all three inside WebAssembly. It charges each dragon for the work it does in CPU points, with a budget of 100 million per turn, and the language we pick decides how much of that budget is left over for actually thinking about the next move.
+Before writing any strategy, every team has to pick a language, and it's the hardest decision to undo, since every line of the bot is written in it. The online judge accepts Python, C and C++ and runs all three inside WebAssembly. It charges each dragon for its work in CPU points, with a budget of 100 million per turn, so the language decides how much of that budget is left for thinking about the next move.
 
 ## The cost of a language
 
-To see how much it matters, I wrote the same small strategy in Python and in C. The idea behind it is that a dragon usually dies by running out of room, so each turn it looks for the move that leaves it the most space. For every move, and every follow-up move after that, it flood-fills the visible 7×7 window from where it would end up and counts how many tiles it could still reach, a graph search of the kind in chapter 20 of Cormen, Leiserson, Rivest and Stein's *Introduction to Algorithms* (4th edition, 2022). That's up to 16 flood fills a turn, which is enough work to measure. Here's the flood fill in Python:
+To measure the difference, I wrote the same small strategy in Python and in C. A dragon usually dies by running out of room, so each turn it tries every move and every follow-up move, flood-fills the visible 7×7 window from where it would end up, and takes the move that leaves the most reachable tiles. That's up to 16 flood fills a turn, a graph search of the kind in chapter 20 of Cormen, Leiserson, Rivest and Stein's *Introduction to Algorithms* (4th edition, 2022). Here's the flood fill in Python:
 
 ```python
 def reachable(window, start, first):
@@ -47,27 +45,21 @@ static int CountReachableTiles(LocalWindow const* window, int start, int first_s
 }
 ```
 
-The two bots make exactly the same move on every turn. I checked by playing each against itself with the same seeds and comparing every move. Then I played each against itself on all 13 bundled maps and recorded the points spent on every turn, about 18,000 turns per bot. `unswbc run -v` prints each dragon's points after every turn, so we can measure each move directly. The bots and the script are in [examples/the-choice](../examples/the-choice/README.md).
+The two bots make identical moves, so any difference in cost comes from the language. Each played itself on all 13 bundled maps, and the bots and the measuring script are in [examples/the-choice](../examples/the-choice/README.md).
 
-![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-c-python.svg)
+![CPU points per turn for the C and Python bots, out of a 100 million budget, with the 99th percentile marked.](images/cpu-points-c-python.svg)
 
-Python costs far more per turn, and most of what C spends isn't the strategy at all. A C bot that only repeats its last move costs almost as much, because nearly all of it is the single write to stdout that sends each move. Subtracting each language's idle-bot cost isolates the cost of its strategy:
+Most of what C spends isn't the strategy at all. A C bot that only repeats its last move costs almost as much, because nearly all of it goes on the single write to stdout that sends each move. Subtracting each language's idle cost leaves the strategy on its own:
 
-![CPU points per turn for the strategy alone, with each language's idle cost removed, on a log scale: C 43,000 points and Python 19,700,000 points.](images/strategy-cost.svg)
+![CPU points per turn for the strategy alone in C and Python, with each language's idle cost removed, on a log scale.](images/strategy-cost.svg)
 
-This is a small search, and a stronger bot will want to look much further ahead. That's where the gap starts to bite. At 450 times the cost, a search that takes C 220,000 points a turn, a tiny fraction of its budget, would use up Python's entire 100 million. C++ goes through the same clang to the same WebAssembly, so it lands where C does.
-
-So the choice looks simple. Python is quick to write and slow to run. C and C++ are fast, but verbose and unforgiving while you're still trying ideas.
-
-![Three ways to write a bot for the judge. Python is quick to write, but the strategy costs 450 times as much as in C. C and C++ are fast, going through the same clang to the same WebAssembly, but verbose while ideas change. Nim reads like Python and compiles to C for compilation to WebAssembly.](images/language-options.svg)
+A stronger bot will search much further ahead, and a search that uses a tiny fraction of C's budget would use up all of Python's. C++ goes through the same clang to the same WebAssembly, so it lands where C does. Python is quick to write and slow to run, whereas C and C++ are fast but verbose and unforgiving while you're still trying ideas.
 
 ## Four less familiar languages
 
-This series will do a fair amount of its work in four languages a lot of folks have never heard of.
-
 ### Nim for strategies
 
-[Nim](https://nim-lang.org) reads a lot like Python, with indentation for blocks, inferred types and short loops. It also compiles to C, and C is one of several backends you can choose. With the right settings, `nim c` stops once it has written the C files, and the judge accepts C source. Here's the same flood fill, written the way a Python programmer would write it:
+[Nim](https://nim-lang.org) reads a lot like Python, with indentation for blocks, inferred types and short loops, but it compiles to C. With the right settings, `nim c` stops once it has written the C files, and the judge accepts C source. Here's the same flood fill, written as a Python programmer would write it:
 
 ```nim
 proc reachable(w: Window, start, first: int): int =
@@ -84,36 +76,30 @@ proc reachable(w: Window, start, first: int): int =
   queue.len
 ```
 
-The rest of the bot is just as short. It calls the starter's C helper directly through Nim's foreign function interface, and a three-line `main.c` starts Nim's runtime. The settings live in `nim.cfg`, so the build is one command:
+The rest of the bot calls the starter's C helper directly through Nim's foreign function interface, and with the settings in `nim.cfg`, the build is one command:
 
-![A terminal showing nim.cfg in bat, then nim c nimbot/strategy.nim, an eza tree of the bot folder with the generated C files in gen, and a match between the Nim bot and the Python bot. The Nim bot uses 3.0M points per turn at the median and the Python bot uses 26.6M.](images/nim-to-c.png)
+![A terminal showing nim.cfg, the nim c build, the generated C files in gen, and a match between the Nim bot and the Python bot.](images/nim-to-c.png)
 
-The Nim bot makes exactly the same moves as the C and Python bots, so it slots straight into the same measurement. Here's the chart again with Nim added:
+The Nim bot makes the same moves as the other two, and written like Python, it lands almost exactly where C does:
 
-![CPU points per turn out of a 100 million budget, with the 99th percentile marked. C: 3.0 million median, 3.0 million p99. Nim compiled to C: 3.0 million median, 3.1 million p99. Python: 23.8 million median, 55.4 million p99.](images/cpu-points-by-language.svg)
+![CPU points per turn for the strategy alone in C, Nim and Python, with each language's idle cost removed, on a log scale.](images/strategy-cost-nim.svg)
 
-Nim written the way you'd write Python lands almost exactly where C does, and taking the idle cost away again shows how close the strategies are:
-
-![CPU points per turn for the strategy alone, with each language's idle cost removed, on a log scale: C 43,000 points, Nim written like Python 69,000 points, and Python 19,700,000 points.](images/strategy-cost-nim.svg)
-
-The remaining gap to C is the growable list, which Nim allocates on the heap for every flood fill where the C uses a fixed array on the stack, and a fixed array in Nim brings it level with C. How Nim manages memory is configurable too:
+The remaining gap comes from the growable list. Nim allocates it on the heap for every flood fill, whereas the C uses a fixed array on the stack, and a fixed array in Nim brings it level with C. Nim's memory management is configurable too:
 
 ```nim nim.cfg
 mm = arc    # reference counting: memory is freed as soon as its last reference goes
 # mm = orc  # the Nim 2 default: ARC plus a collector for data that points back at itself
 ```
 
-ARC frees each object the moment nothing refers to it, so no garbage collector pauses to scan memory mid-turn. ORC adds a collector for reference cycles, which our bots never build.
+[ARC](https://nim-lang.org/docs/mm.html) frees each object the moment nothing refers to it, so no garbage collector pauses to scan memory mid-turn. ORC adds a collector for reference cycles, which never occur in our bots. Nim's [standard library](https://nim-lang.org/docs/lib.html) works under ARC too, and saves precious time writing collections and algorithms, from hash tables and priority queues to sorting and binary search.
 
-Nim's [standard library](https://nim-lang.org/docs/lib.html) is another reason it suits competitions. It has the collections and algorithms you'd otherwise spend precious time writing, from hash tables and priority queues to sorting and binary search, and [ARC](https://nim-lang.org/docs/mm.html) lets us use them without a tracing garbage collector. The whole bot is about 72 KB of C, well inside the 4 MB upload limit, with none of the build-time date or time macros the judge rejects.
+Nim's generated C is correct and fast, but nobody tuned it, and the hottest parts of a serious bot, like the inner loop of a search, still want vector code written for the job. So our competition bot uses Nim for strategy, which changes constantly, and [Rake](#rake-for-vector-kernels) for the kernels where every point counts. Rake emits C for WebAssembly, and Nim calls it like any other C:
 
-Nim doesn't make every loop fast. The generated C is correct and fast, but nobody tuned it, and the hottest parts of a serious bot, like the inner loop of a search, still want vector code written for the job. So the split is Nim for strategy, which we write and change constantly, and [Rake](#rake-for-vector-kernels) for the kernels where every point counts. Rake's WebAssembly profile emits C, which Nim calls like any other C. Our competition bot follows this split.
-
-![How a Nim bot reaches the judge. strategy.nim, the strategy in Nim, goes through nim c with compileOnly for wasm32, which writes C into gen/. Hot kernels in Rake, kernels.rk, join it as the C that rakec emits for the judge. The judge's clang compiles every .c file to WebAssembly, and bot.wasm is metered and run for each dragon, each turn.](images/nim-rake-build.svg)
+![The Nim strategy and the Rake kernels both become C, and the judge's clang compiles it into one metered WebAssembly module.](images/nim-rake-build.svg)
 
 ### Odin for tools
 
-Tools that never go near the judge can be written in anything, and the debug viewer from the [wishlist](02-the-wishlist.md) is written in [Odin](https://odin-lang.org), which is *very* good at graphics programming. The first reason is memory. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs. Odin passes an implicit `context` into every procedure, carrying the allocator, so setting it once makes everything called afterwards, library code included, allocate from wherever you chose:
+The debug viewer from the [wishlist](02-the-wishlist.md) is written in [Odin](https://odin-lang.org), which is *very* good at graphics programming. Graphics tools allocate a lot of short-lived data, and freeing it all correctly is a common source of bugs. Odin passes an implicit `context` carrying the allocator into every procedure, so setting it once makes everything called afterwards, library code included, allocate from wherever you chose:
 
 ```odin
 arena: virtual.Arena
@@ -126,15 +112,11 @@ tiles := make([]Tile, 64 * 64)   // this too, and anything the procedures we cal
 virtual.arena_destroy(&arena)    // one call frees the lot
 ```
 
-The viewer loads each game into an arena like this and throws the whole arena away when you open the next one.
-
-The second reason is libraries. Odin's `vendor` collection, maintained alongside the compiler, covers windowing, the major graphics APIs, raylib, stb and miniaudio, so the viewer's raylib is one `import "vendor:raylib"` away with no package manager. The third is that it holds up in demanding products: [JangaFX](https://jangafx.com) builds EmberGen and LiquiGen, its real-time fire and fluid simulators, in Odin.
+The viewer loads each game into an arena like this and throws the whole arena away when you open the next one. Odin's `vendor` collection, maintained alongside the compiler, covers windowing, the major graphics APIs, raylib, stb and miniaudio, so the viewer's raylib is one `import "vendor:raylib"` away with no package manager.
 
 ### Zig for the judge
 
-The third language came later, when we wrote [our own judge](19-the-machine-inside-the-judge.md) to play the toolkit's games faster. A judge is glue between C APIs: it hosts the organisers' engine and every dragon's bot inside wasmtime, a WebAssembly runtime whose API is C. [Zig](https://ziglang.org) is very good at exactly that kind of program.
-
-The first reason is that Zig reads C headers directly. There's no binding generator and no wrapper library to keep in step with wasmtime's releases. The judge imports the whole C API in three lines, and every wasmtime function and type is then available as if it were written in Zig:
+We wrote [our own judge](19-the-machine-inside-the-judge.md) later, to play games faster. It's glue between C APIs, hosting the organisers' engine and every dragon's bot inside wasmtime, a WebAssembly runtime with a C API. [Zig](https://ziglang.org) is very good at that kind of program, because it reads C headers directly. The judge imports wasmtime's whole API in three lines, with no bindings to keep in step with its releases:
 
 ```zig
 pub const c = @cImport({
@@ -142,25 +124,20 @@ pub const c = @cImport({
 });
 ```
 
-The second is that Zig has no runtime and no hidden allocations. Every function that allocates takes an allocator explicitly, much like Odin's context but passed by hand, so it's always visible where a turn's memory comes from and when it's freed. For a host that feeds every turn of every dragon through wasmtime, that makes the cost of each turn easy to see.
-
-The third is the build. Zig's build system is written in Zig, and the judge's `build.zig` links wasmtime statically in a few lines, so the result is one binary with nothing to install beside it. The whole host comes to about 2,100 lines.
-
+Zig also has no runtime and no hidden allocations. Every function that allocates takes an allocator explicitly, so it's always visible where a turn's memory comes from and when it's freed. The judge's `build.zig` links wasmtime statically in a few lines, so the result is one binary with nothing to install beside it.
 
 ### Rake for vector kernels
 
-The fourth language is my own. [Rake](https://rake-lang.org) is a language for writing vector kernels, the small hot loops that do the same arithmetic to many values at once with SIMD instructions.
+The fourth language is my own. [Rake](https://rake-lang.org) is for vector kernels, the small hot loops that do the same arithmetic to many values at once with SIMD instructions. I'm building it because the usual ways of getting SIMD code leave you checking it by hand. The compiler can leave a plain loop scalar, or turn a vectorised loop scalar after the next edit. Intrinsics tie the code to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
 
-I'm building it because the usual ways of getting SIMD code leave you checking it by hand. The compiler can leave a plain loop scalar, or turn a vectorised loop scalar after the next edit. You can write intrinsics, one function call per machine instruction, but then the code is tied to one vector width, and the compiler can still quietly spill vectors to memory or call a helper. Either way, the only way to know is to read the assembly.
-
-Rake makes vector code a condition of compiling. A kernel works on racks, with one element in each lane. On its native x86 and Arm targets a rack occupies a physical vector register, and verification rejects spills or hidden helper calls. On WebAssembly, racks are virtual 128-bit values: Rake checks the emitted SIMD operations, but the runtime still decides which physical registers they occupy. Here's a kernel from later in the series that turns sixteen tiles into a bitmask of the ones holding a dragon:
+Rake makes vector code a condition of compiling. A kernel works on racks, with one element in each lane. On native x86 and Arm targets a rack occupies a physical vector register, and verification rejects spills and hidden helper calls. On WebAssembly, racks are virtual 128-bit values, so Rake checks the emitted SIMD operations while the runtime picks the physical registers. Here's a kernel that turns sixteen tiles into a bitmask of the ones holding a dragon:
 
 ```rake
 crunch occupied_bits(tiles: u8s) -> u32:
   bitmask(tiles != <0>)
 ```
 
-A `crunch` does the same thing to every lane. `u8s` is a rack of bytes, sixteen of them in the 128-bit registers WebAssembly has, and `u8` without the `s` would be one byte. Angle brackets mark a value that's the same in every lane, so `<0>` is zero broadcast across the rack, and every broadcast is visible in the source. Longer kernels name their intermediate values in a fused chain:
+A `crunch` does the same thing to every lane. `u8s` is a rack of bytes, sixteen of them in one of WebAssembly's 128-bit registers, where `u8` would be a single byte. Angle brackets mark a value that's the same in every lane, so `<0>` is zero broadcast across the rack. Longer kernels give their intermediate values names in a fused chain:
 
 ```rake
 crunch advance(positions: f32s, velocities: f32s) -> f32s:
@@ -169,18 +146,16 @@ crunch advance(positions: f32s, velocities: f32s) -> f32s:
   result
 ```
 
-Each `| name <| expression` line reads right to left, with the value flowing into its binding. The native AVX2 target can fuse this chain into a multiply-add. WebAssembly emits separate multiply and add instructions. These examples use the bare final-expression syntax introduced in 0.6.0-beta.
+Each `| name <| expression` line reads right to left, with the value flowing into its binding. The native AVX2 target can fuse this chain into a multiply-add, while WebAssembly emits a separate multiply and add.
 
-This is why the room count is a good fit. It does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. [Counting room faster](18-counting-room-faster.md) writes the room count's masks in Rake and compiles them to WebAssembly through C.
+The room count suits Rake, because it does the same few operations to every tile in the window, and the judge's WebAssembly has 128-bit SIMD. [Counting room faster](18-counting-room-faster.md) writes its masks in Rake.
 
 ### Rake for the rest of the bot
 
-The [0.4.0 beta](https://rake-lang.org/) adds whole-program compilation. Ordinary code goes in `slow` functions, which can use records, arrays, slices, loops and persistent module state. Those functions handle input, memory and the turn loop, calling the vector routines through explicitly marked calls. `crunch` still owns lane-wise work, while `run` owns traversals over collections of racks.
+Rake's [0.4.0 beta](https://rake-lang.org/) also compiles whole programs. Ordinary code goes in `slow` functions, which handle input, memory and the turn loop with records, arrays, slices, loops and module state, and call kernels through explicitly marked calls. The emitted C can call the starter's C API, so a whole Rake bot needs no Rake runtime inside the judge, although our textbook line keeps the Nim-and-Rake split:
 
-![Two routes to the judge. Our Nim strategy and Rake kernels each emit C and are linked together. A whole Rake program instead holds scalar setup and state in slow functions, which call run traversals and crunch kernels, and emits C itself. Both routes finish with the judge's clang producing metered WebAssembly.](images/rake-program.svg)
-
-The emitted C can call the starter's C API, so this route doesn't require a second protocol implementation or a Rake runtime inside the judge. It gives us a way to port a bot without replacing its decision structure. Our textbook line still uses the Nim-and-Rake split described above, with a whole-bot port left as separate work. No new speed measurement is implied by the compiler accepting more of the program. We still have to compare actions and measure the [charged points](12-where-the-points-go.md).
+![Two routes to the judge: a Nim strategy linked with Rake kernels, or a whole Rake program, each emitted as C for the judge's clang.](images/rake-program.svg)
 
 ## Next up
 
-That's the end of the first stage, understanding the problem. The next stage builds the tools on the wishlist, starting with [the evaluation harness](04-the-evaluation-harness.md).
+The next stage builds the tools on the wishlist, starting with [the evaluation harness](04-the-evaluation-harness.md).

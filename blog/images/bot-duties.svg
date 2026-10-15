@@ -3,7 +3,7 @@
 <defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="806" height="838" fill="#ede5d5"/>
 <text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">What each role may do</text>
-<text x="40" y="64" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">A dot is a behaviour the role lets compete, all at weight 1.</text>
+<text x="40" y="64" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">A dot marks a behaviour allowed to compete in that role, all at weight 1.</text>
 <text x="40" y="82" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">Every other behaviour gets no weight and isn't offered.</text>
 <text x="238.0" y="116" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="middle">champion</text>
 <text x="334.0" y="116" font-size="13.5" font-weight="bold" fill="#20251f" text-anchor="middle">understudy</text>

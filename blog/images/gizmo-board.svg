@@ -20,7 +20,7 @@
 <text x="680" y="30" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">path</text>
 <rect x="680" y="44" width="238" height="170" fill="#1d3027" rx="4"/>
 <path d="M714 44v170M748 44v170M782 44v170M816 44v170M850 44v170M884 44v170M680 78h238M680 112h238M680 146h238M680 180h238" stroke="rgba(243,236,223,.07)"/>
-<text x="680" y="236" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">cells in the order they&#x27;re walked</text>
+<text x="680" y="236" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">cells in walking order</text>
 <circle cx="731.0" cy="163.0" r="11.56" fill="#ff7a3d"/>
 <circle cx="833.0" cy="95.0" r="7" fill="#e8c766"/>
 <path d="M731.0 163.0 L765.0 163.0 L799.0 163.0 L799.0 129.0 L833.0 129.0 L833.0 95.0" fill="none" stroke="#a8801a" stroke-width="3" stroke-linejoin="round"/>

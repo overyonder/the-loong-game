@@ -1,16 +1,16 @@
 # Counting room faster
 
-Every bot in this series counts how much room a move leaves, and [where the points go](12-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, one step at a time, from the Nim the first bot used down to vector instructions.
+Every bot in this series counts how much room a move leaves, and [where the points go](12-where-the-points-go.md) found that this count is the only part of a turn that grows when a bot thinks further ahead. This post makes it cheaper, from the first bot's Nim down to vector instructions.
 
-To compare versions fairly, I wrote a benchmark bot that plays the first bot's moves and, on every turn, runs each version of the room count on the same window. It checks that they all agree, then logs what each one cost using the judge's own clock, so the numbers are exact CPU points. Over 1,477 turns on six maps, every version agreed on every turn:
+A benchmark bot plays the first bot's moves and runs every version of the room count on the same window each turn, checking that they agree and timing each on the judge's own clock. Every version agreed on every turn:
 
-![CPU points to count the room behind all four first moves, median of 1,477 turns on six maps, log scale. Nim with a seq queue and a set: 116,218. Nim with fixed arrays: 59,871. C with fixed arrays: 59,645. C with bitboards: 10,810. C with one flood fill per region: 9,230. SIMD with two flood fills at once: 11,249. A hand-written WebAssembly step: 9,422. SIMD for building the bitboards: 1,745.](images/room-kernels.svg)
+![Median CPU points to count the room behind all four first moves, for each version in this post, on a log scale.](images/room-kernels.svg)
 
 The code is in [examples/performance](../examples/performance/bench-bot/kernels.c), and `just bench` reruns the benchmark on one map.
 
-## The C that Nim writes
+## Nim's generated C
 
-The first bot's flood fill keeps its queue in a growable `seq` and its visited tiles in a `set`, and counting the room behind all four first moves costs about 116,000 points. Nim compiles to C, so we can read what it made:
+The first bot's flood fill keeps its queue in a growable `seq` and its visited tiles in a `set`. Nim compiles to C, so we can read what it made:
 
 ```c
 visited_1 |= ((NU64)(1) << ((start_p1) % (sizeof(NU64) * 8)));
@@ -22,11 +22,11 @@ queue_1.len = 1; queue_1.p = (tySequence__qwqHTkRvwhrRyENtudHQ7g_Content*) newSe
 eqdestroy___fgengrtl_u293(queue_1);
 ```
 
-Two things stand out. The `set` has already become a single 64-bit word with one bit per tile, which is about as cheap as a visited set can be. The `seq` is where the cost is. Every flood fill allocates its queue on the heap with `newSeqPayload`, calls `add` for every tile it reaches, which checks the capacity and grows the queue as it fills, and frees it all at the end. Swapping the `seq` for a fixed array on the stack, still in Nim, halves the cost to about 60,000 points. Writing the same thing by hand in C costs almost exactly the same, because at that point Nim and C are producing the same program.
+The `set` is already a single 64-bit word, one bit per tile, so the cost is in the `seq`. Every flood fill allocates its queue on the heap, calls `add` for every reached tile, which checks the capacity and grows the queue, and frees it all at the end. A fixed array on the stack, still in Nim, halves the cost, and hand-written C costs the same, because Nim and C now produce the same program.
 
 ## Bitboards
 
-The rest of the cost is the flood fill's shape: one tile at a time, with a test at every step. The window is 49 tiles, which fits in one 64-bit word, so we can move every reached tile at once, as chess programs have kept boards in 64-bit words since Slate and Atkin's [CHESS 4.5](https://doi.org/10.1007/978-1-4612-5515-4_4) (1977). With bit `row × 7 + column` for each tile, a step north is a shift right by 7 and a step east a shift left by 1. A mask per direction marks the tiles with an open side that way:
+The rest of the cost is the flood fill's shape: one tile at a time, with a test at every step. The 49-tile window fits in one 64-bit word, so every reached tile can move at once, as chess programs have done since Slate and Atkin's [CHESS 4.5](https://doi.org/10.1007/978-1-4612-5515-4_4) (1977). With bit `row × 7 + column` for each tile, a step north is a shift right by 7 and a step east a shift left by 1, and a mask per direction marks the tiles open that way:
 
 ```c
 static uint64_t FloodFill(WindowBits const* bits, uint64_t reach, uint64_t allowed)
@@ -48,17 +48,17 @@ static uint64_t FloodFill(WindowBits const* bits, uint64_t reach, uint64_t allow
 }
 ```
 
-Each pass costs about twenty instructions however many tiles it adds, and one `popcnt` counts the result. That brings the count to about 10,800 points. Flooding once per connected region instead of once per follow-up move takes it to about 9,200, because two follow-ups either reach the same tiles or none in common.
+Each pass costs about twenty instructions however many tiles it adds, and one `popcnt` counts the result. Flooding once per connected region instead of once per follow-up move saves a little more, because two follow-ups either reach the same tiles or none in common.
 
-I tried two more ideas at this point, and neither helped. The judge only accepts C, but C can contain inline assembly, so I wrote the growth step by hand in WebAssembly. It cost about 9,400 points, a little more than the plain C, because Clang already emits that loop about as tightly as a person can, which is worth knowing before spending an afternoon on assembly. Then, since a 128-bit vector holds two bitboards, I tried flooding two regions side by side. That cost about 11,200, because the pair runs until the slower flood finishes, and packing and unpacking them cost more than it saved.
+A hand-written WebAssembly growth step, as inline assembly in the C, costs slightly more, because Clang already emits that loop about as tightly as a person can. Flooding two regions side by side in one 128-bit vector costs more too, because the pair runs until the slower flood finishes and the packing outweighs the saving.
 
-## SIMD where the work is
+## SIMD for the masks
 
-Timing the parts of the 9,200-point version showed that about 7,800 points went on building the bitboards: 49 tiles with four sides each, turned into five masks one bit at a time. The flood fills were already cheap.
+Most of the per-region version's points go on building the bitboards, turning 49 tiles with four sides each into five masks one bit at a time:
 
-![Where the 9,200-point room count spent its points: about 7,800 on building the bitboards, and about 1,400 on the flood fills and counting.](images/mask-cost.svg)
+![The per-region room count's points, split between building the bitboards and the flood fills.](images/mask-cost.svg)
 
-Building masks is what vector instructions are good at. The window arrives as bytes, one per tile and side, each 0 or 1. `i8x16.bitmask` gathers one bit from each of 16 bytes in a single instruction, and byte shuffles first pull out every fourth byte, since the sides are stored four to a tile:
+The window arrives as bytes, one per tile and side, each 0 or 1. `i8x16.bitmask` gathers one bit from each of 16 bytes in a single instruction, after byte shuffles pull out every fourth byte, since the sides are stored four to a tile:
 
 ```c
 for (int chunk = 0; chunk < 4; chunk++)
@@ -73,13 +73,11 @@ for (int chunk = 0; chunk < 4; chunk++)
 }
 ```
 
-The masks now cost about 435 points instead of 7,800, and the whole room count about 1,750. That's 66 times cheaper than where we started, and all of it is WebAssembly compiled from plain C.
+That brings the whole room count down to the chart's cheapest bar, all in WebAssembly compiled from plain C.
 
 ## Keeping it vectorised
 
-A small edit elsewhere can let the C compiler turn part of a vectorised kernel back into scalar code. Finding that change requires reading the assembly or noticing a slow benchmark.
-
-As I mentioned in [the choice](03-the-choice.md#rake-for-vector-kernels), Rake exists for exactly this problem: a kernel that would fall back to unsupported scalar code doesn't build. Its native targets also check physical register use. WebAssembly has virtual vector values, so this profile checks the emitted SIMD operations, leaving physical register allocation to the runtime. Here is the north mask in Rake:
+A small edit elsewhere can quietly turn part of a vectorised kernel back into scalar code. [Rake](03-the-choice.md#rake-for-vector-kernels) exists for this problem: a kernel that would fall back to scalar code doesn't build. Here is the north mask in Rake:
 
 ```rake
 crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:
@@ -89,20 +87,25 @@ crunch north_bits(a: u8s, b: u8s, c: u8s, d: u8s) -> u32:
   bitmask(sides != <0>)
 ```
 
-The judge only takes C, so the profile emits C, one intrinsic per selected instruction. `rakec --verify-native` then compiles that C, disassembles it, and rejects any function containing anything but locals, constants and vector instructions. In the benchmark the Rake masks cost 437 points against 435 for the hand-written intrinsics, and matched on every turn. The code is in [examples/performance/rake](../examples/performance/rake/window_bits.rk), and `just rake` regenerates the C.
+The judge only takes C, so Rake's WebAssembly profile emits C, one intrinsic per instruction, then compiles and disassembles it and rejects any function containing anything but locals, constants and vector instructions. The Rake masks matched the hand-written ones on every turn, at the same cost:
 
-In our bot library, the Rake kernel becomes a new numbered version of the flood-fill piece rather than changing the Nim version underneath old bots. [Three lines](14-three-lines.md#versioned-pieces) explains how those pieces stay pinned to the builds that used them.
+| Mask builder | CPU points |
+| --- | --- |
+| Hand-written SIMD intrinsics | 435 |
+| Rake | 437 |
+
+The code is in [examples/performance/rake](../examples/performance/rake/window_bits.rk). In our bot library it becomes a new numbered version of the flood-fill piece, leaving old bots on the Nim version, as [Three lines](14-three-lines.md#versioned-pieces) explains.
 
 ## The fast bot
 
-The fast kernel drops into the first bot as its `room` function, with the strategy left in Nim. As proposed in [The choice](03-the-choice.md), the strategy stays in Nim and calls a separate kernel for the hot code. This example's kernel is hand-written C. Our competition bot writes any hot kernel in Rake, like the masks above. On the bundled maps the fast bot plays exactly the same games as the original:
+The fast kernel drops into the first bot as its `room` function, with the strategy still in Nim, as [The choice](03-the-choice.md) proposed. On the bundled maps it plays exactly the same games as the original:
 
-![A terminal running just fast. The first bot and the fast bot each play room-c on the default map with seed 0x42. Both games have the same five deaths and end with team B winning on length after 500 rounds. The first bot's median turn costs 3.2 million points, and the fast bot's 3.0 million.](images/fast-bot.png)
+![The first bot and the fast bot playing the same game on room-c, with the same deaths and result, and each one's median turn cost.](images/fast-bot.png)
 
-The median turn only falls from 3.2 million points to 3.0 million, because the output fee and input parsing dominate a turn and no kernel can touch them. What changed is the budget for thinking: the same points now buy 66 times as much room counting, which is the currency a deeper search spends.
+The median turn barely gets cheaper, because the output fee and input parsing dominate it. The gain is in thinking: the same points now buy 66 times as much room counting for a deeper search.
 
-One wish remains. Of the mask builder's 260 or so WebAssembly instructions, 42 are shuffles that only pull every fourth byte out of the interleaved sides. x86 can gather arbitrary bits in one `PEXT` instruction, and WebAssembly has nothing like it.
+The mask builder still spends 42 of its 260 or so WebAssembly instructions on shuffles that only pull every fourth byte out of the interleaved sides. x86 can gather arbitrary bits in one `PEXT` instruction, but WebAssembly has nothing like it.
 
 ## Next up
 
-[The machine inside the judge](19-the-machine-inside-the-judge.md): the judge we wrote to play these games four times faster, and the machine it presents to a bot.
+[The machine inside the judge](19-the-machine-inside-the-judge.md): our own judge, which plays these games four times faster, and the machine inside it, as a bot sees it.

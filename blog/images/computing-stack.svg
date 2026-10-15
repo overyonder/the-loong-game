@@ -65,12 +65,12 @@
             <text class="domain" x="30" y="168">Data structure / access pattern</text><text class="intervention" x="558" y="156">replace scans with indexed lookups</text>
             <text class="domain" x="30" y="194">Allocation / garbage collection</text><text class="intervention" x="581" y="182">reuse arena storage in hot paths</text>
             <text class="domain" x="30" y="220">Data layout / locality</text><text class="intervention" x="604" y="208">pack hot fields into contiguous arrays</text>
-            <text class="domain" x="30" y="246">Concurrency / synchronization</text><text class="intervention" x="627" y="234">shard locks; remove contention</text>
+            <text class="domain" x="30" y="246">Concurrency / synchronization</text><text class="intervention" x="627" y="234">shard locks, remove contention</text>
             <text class="domain" x="30" y="294">Language runtime / virtual machine</text><text class="intervention" x="650" y="282">specialize hot-path dispatch</text>
             <text class="domain" x="30" y="320">Compiler / code generation</text><text class="intervention" x="673" y="308">fuse and vectorize hot kernels</text>
-            <text class="domain" x="30" y="368">Storage / filesystem / I/O</text><text class="intervention intervention-before" x="668" y="380">batch I/O; eliminate seeks and copies</text>
-            <text class="domain" x="30" y="394">Network / interprocess calls</text><text class="intervention intervention-before" x="691" y="406">coalesce RPCs; compress wire payloads</text>
-            <text class="domain" x="30" y="420">Operating system / scheduler</text><text class="intervention intervention-before" x="714" y="432">batch syscalls; keep state in kernel</text>
+            <text class="domain" x="30" y="368">Storage / filesystem / I/O</text><text class="intervention intervention-before" x="668" y="380">batch I/O, eliminate seeks and copies</text>
+            <text class="domain" x="30" y="394">Network / interprocess calls</text><text class="intervention intervention-before" x="691" y="406">coalesce RPCs, compress wire payloads</text>
+            <text class="domain" x="30" y="420">Operating system / scheduler</text><text class="intervention intervention-before" x="714" y="432">batch syscalls, keep state in kernel</text>
             <text class="domain" x="30" y="468">Instruction set / vector execution</text><text class="intervention intervention-before" x="737" y="480">pack data into SIMD lanes</text>
             <text class="domain" x="30" y="494">Microarchitecture / cache / memory</text><text class="intervention intervention-before" x="760" y="506">tile working sets to fit cache</text>
             <text class="domain" x="30" y="520">Graphics processor / accelerator</text><text class="intervention intervention-before" x="783" y="532">map independent work across GPU lanes</text>

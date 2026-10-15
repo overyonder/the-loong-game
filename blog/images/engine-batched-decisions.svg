@@ -18,5 +18,5 @@
 <text x="20" y="465" font-size="19" fill="#66675e" text-anchor="start" font-weight="normal">Dragon 19</text>
 <rect x="170" y="376" width="325" height="128" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="184" y="401" font-size="22" fill="#20251f" text-anchor="start" font-weight="bold">Observe · 128 threads</text><text x="184" y="436" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Thread 0: next decision</text><text x="184" y="462" font-size="20" fill="#66675e" text-anchor="start" font-weight="normal">Block: write observation</text>
 <rect x="545" y="376" width="190" height="128" rx="8" fill="#263d31" stroke="#b9ad99" stroke-width="1.6"/><text x="559" y="401" font-size="23" fill="#ede5d5" text-anchor="start" font-weight="bold">Apply</text><text x="559" y="436" font-size="20" fill="#d9d2c3" text-anchor="start" font-weight="normal">One thread</text><text x="559" y="462" font-size="20" fill="#d9d2c3" text-anchor="start" font-weight="normal">per game</text>
-<text x="380" y="558" font-size="19" fill="#66675e" text-anchor="middle" font-weight="normal">Illustrative rounds and IDs; games keep their own turn order</text>
+<text x="380" y="558" font-size="19" fill="#66675e" text-anchor="middle" font-weight="normal">Illustrative rounds and IDs. Games keep their own turn order</text>
 </svg>

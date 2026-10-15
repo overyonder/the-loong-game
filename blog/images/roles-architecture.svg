@@ -30,7 +30,7 @@
 <text x="590.0" y="231" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Worker</text>
 <rect x="539.7" y="246" width="51" height="22" rx="11" fill="#7a4f8a"/><text x="565.2" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Evade</text>
 <rect x="596.7" y="246" width="44" height="22" rx="11" fill="#5d8a2e"/><text x="618.5" y="261.5" font-size="12" fill="#ede5d5" text-anchor="middle" font-weight="bold">Roam</text>
-<text x="360" y="302" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">then the first behaviour whose guard holds; Split and Hunt's strike act as reflexes</text>
+<text x="360" y="302" font-size="12" fill="#66675e" text-anchor="middle" font-weight="normal">then the first behaviour whose guard holds. Split and Hunt's strike act as reflexes</text>
 <path d="M360 310 L360 330" stroke="#66675e" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
 <rect x="170" y="332" width="380" height="80" rx="7" fill="#f6f1e7" stroke="#b53b13" stroke-width="2.2"/>
 <text x="360.0" y="358" font-size="16" fill="#20251f" text-anchor="middle" font-weight="bold">Movement: hard constraints first</text>

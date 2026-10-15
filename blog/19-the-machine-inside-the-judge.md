@@ -1,22 +1,20 @@
 # The machine inside the judge
 
-> **Editor's note, 4 October 2026.** The judge now offers native C++ CPU and CUDA references for SDK 1.2.7, selected explicitly. It reads the twelve-field engine result, including queen and longest lengths. Ordinary metered games validate the competition budget. The original host comparisons and timings remain below.
+> **Editor's note, 4 October 2026.** The judge now offers native C++ CPU and CUDA references for SDK 1.2.7, and reads the later twelve-field engine result. The host comparisons and timings below are the originals.
 
-We wrote our own judge. In the host comparisons below it played the official toolkit's games event for event and, apart from one deliberate accounting difference, point for point, in about a quarter of the time. Our bot evaluations run in it, with the toolkit kept as the reference we check it against. And it rules out a race in the official sandbox that occasionally kills a freshly split dragon with "no valid action", because each bot runs as a fibre on the judge's own thread instead of on a thread of its own.
-
-This post explains that design, the bug it rules out, and what the machine underneath looks like to a bot. The judge is open source in [harness/zig_judge](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/src/main.zig). From `examples/tooling`, `just zig-judge-build` builds it with Zig 0.16 and the wasmtime C API. `just zig-judge --engine ENGINE run`, given the engine module from the installed toolkit, takes the same arguments as `unswbc run --sandbox` and writes the same log and replay. The harness's round robins, batches and ladders play sandboxed games between compiled bots through it by default, via [harness.py](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/harness.py).
+We wrote [our own judge](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/src/main.zig). It plays the official toolkit's games event for event in about a quarter of the time, and all our evaluations run through it. Because each bot runs as a fibre on the judge's own thread, it also can't hit a race in the official sandbox that occasionally kills a freshly split dragon.
 
 ## Engine and host
 
-The rules aren't in the judge. In its default mode, the organisers' WebAssembly module, `unswbc_engine.wasm`, owns every rule and writes the replay. The judge hosts it, along with one WebAssembly instance for every dragon. Each turn it gives a dragon its view as text on stdin, runs the bot until the bot finishes its reply with `ENDTURN`, and charges the CPU points the bot spent along the way.
+The rules aren't in the judge. The organisers' WebAssembly module, `unswbc_engine.wasm`, owns every rule and writes the replay, and the judge hosts it beside one WebAssembly instance per dragon. Each turn the judge gives a dragon its view on stdin, runs the bot until it ends its reply with `ENDTURN`, and charges for the CPU points spent.
 
-![What a judge does. The game engine, unswbc_engine.wasm, owns every rule and writes the replay, and talks to the judge through bot_spawn, bot_reply and log. The judge hosts the engine, feeds each dragon its turn, meters CPU points and reads the reply. Each dragon is its own bot.wasm instance, reading its view on stdin and replying on stdout.](images/judge-parts.svg)
+![The engine talks to the judge through bot_spawn, bot_reply and log. The judge feeds each dragon's bot.wasm instance its turn on stdin, reads the reply and meters CPU points.](images/judge-parts.svg)
 
-The online judge runs bots in Wasmer. The toolkit reproduces it in wasmtime, with a metering pass that inserts the same point counting into each bot's module. In the comparisons below, our judge uses the same engine module, and meters each bot itself with a port of that pass, [metering.zig](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/src/metering.zig), checked byte for byte against the original. Only the host around them is new.
+The online judge runs bots in Wasmer, and the toolkit reproduces it in wasmtime with a metering pass that counts points inside each bot's module. Our judge uses the same engine and a port of that pass, [metering.zig](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/src/metering.zig), which produces byte-identical modules. Only the host around them is new.
 
 ## The race in the official sandbox
 
-The toolkit's sandbox gives every dragon its own Python thread. The bot runs on that thread, and when it reads stdin with nothing waiting, the read blocks. That's how a turn ends: a bot that has written its reply goes back to read the next turn, and the host sees it waiting. The host counts these waits as *parks*. Before feeding a turn, it notes the count, and a count that has gone up since means the bot has stopped for this turn:
+The toolkit's sandbox gives every dragon its own Python thread. A bot that has written its reply goes back to read stdin, finds nothing waiting and blocks, and the host counts these waits as *parks*. Before feeding a turn, the host notes the count, so a higher count afterwards means the bot has finished this turn:
 
 ```python
 def _write(self, data: bytes) -> bool:
@@ -27,9 +25,7 @@ def _write(self, data: bytes) -> bool:
     return True
 ```
 
-Those two lines don't hold the pipe's lock between them. Usually that doesn't matter, because a bot between turns is frozen. A dragon that has just split is the exception. Its new sandbox is already running on its own thread, on its way to its first read. If it reaches that read between line 1469 and line 1470, it finds stdin empty and parks. Then the turn arrives. The host sees a park count higher than the one it noted, decides the new dragon has already finished its turn, and takes its empty reply. The dragon dies of "no valid action", and no error line says why.
-
-It's rare, and it lands on the worst dragon to lose: a fresh child, the whole point of a split. On busy cloud workers, 2 games in one batch of 384 lost a new dragon this way. It happens in toolkit 1.1.0, and the same two lines are unchanged in 1.2.2. The repair for anyone running the official toolkit is to take the pipe's lock across both steps:
+Those two lines don't hold the pipe's lock between them. That's usually harmless, because a bot between turns is frozen, but a dragon that has just split is already running on its own thread towards its first read. If it reaches that read between line 1469 and line 1470, it parks on an empty stdin. The host then sees a higher park count, takes the new dragon's empty reply, and the dragon dies of "no valid action" with no error line. It's rare, but it kills the fresh child that was the whole point of the split. The bug is in toolkit 1.1.0 and 1.2.2, and holding the lock across both steps fixes it:
 
 ```python
 with self._stdin.cv:
@@ -39,9 +35,7 @@ with self._stdin.cv:
 
 ## Fibres instead of threads
 
-Our judge never had this bug, because no bot ever runs on a thread of its own. wasmtime can run a WebAssembly call asynchronously, as a fibre: a call stack that can be paused and resumed on the same thread, the coroutine of Conway's [Design of a separable transition-diagram compiler](https://doi.org/10.1145/366663.366704) (1963). When a bot's read would block, the host call returns a pending continuation instead of waiting. The instance pauses, and the judge's own loop decides when to resume it, which is only ever on that dragon's turn.
-
-The park count only rises inside the judge's loop, when it resumes a bot and finds it still waiting for input:
+No bot in our judge runs on a thread of its own. wasmtime can run a WebAssembly call as a fibre, a call stack that pauses and resumes on the same thread, like the coroutine of Conway's [Design of a separable transition-diagram compiler](https://doi.org/10.1145/366663.366704) (1963). When a bot's read would block, the instance pauses, and the judge's loop resumes it only on that dragon's turn. The park count only rises inside that loop:
 
 ```zig
 fn suspendOn(self: *Instance, binding: *Binding) void {
@@ -55,7 +49,7 @@ fn suspendOn(self: *Instance, binding: *Binding) void {
 }
 ```
 
-And feeding a turn notes the count, appends the turn and lets the bot run, all on the same thread with no bot able to run in between:
+Feeding a turn notes the count, appends the turn and lets the bot run, with no bot able to run in between:
 
 ```zig
 pub fn write(self: *Instance, data: []const u8) !bool {
@@ -69,82 +63,63 @@ pub fn write(self: *Instance, data: []const u8) !bool {
 }
 ```
 
-So the race is impossible by construction. There's no window to close with a lock, because nothing crosses a thread. Ordinary games have the 100M-point turn budget. Inspection reruns have a larger ceiling for recovery, and use a separate observer allowance for explanations, described below. A rerun that finishes there still has to pass an ordinary metered game before it can say anything about the competition limit.
+Nothing crosses a thread, so there's no window to close with a lock.
 
-![Threads in the official sandbox, fibres in ours. In the official sandbox, a driver thread notes parks and feeds turns to dragon threads blocked in fd_read, and a new child's thread is already running, so it can reach its first read between the park count and the feed and be taken as done. In our judge, one thread per game holds the driver, the engine and every dragon, and a dragon's fibre pauses mid read and runs only when the driver resumes it, so no bot runs between noting the count and feeding a turn.](images/threads-fibres.svg)
-
-The judge is written in Zig, for reasons [The choice](03-the-choice.md) goes into: it reads wasmtime's C headers directly, has no runtime of its own, and builds to a single binary. An ordinary official-engine batch runs one game per thread, with every bot in a game sharing that game's thread.
+![In the official sandbox, a new child's thread can reach its first read between noting the park count and feeding the turn. In our judge, one thread runs the driver, engine and every dragon's fibre, so nothing runs in between.](images/threads-fibres.svg)
 
 ## Same games
 
-A faster judge is only useful if it plays the same games. A probe bot, written to call every one of the starter helper's 40 functions, played six paired games through both hosts, with the same bot, engine, maps and seeds. That covered splits, sprints, both sonar formats, portals and replay annotations, over 15,296 dragon turns and 183,711 replay events. Every decoded event matched, and so did the probe's per-turn clock readings and each team's median, mean and maximum CPU points.
+We played the same bots, engine, maps and seeds through both hosts and compared all their output:
 
-Before every game of ours moved to the judge, the check grew. 144 paired games across 12 maps, with portals, heavy kelp, flagships and boards from small to large, played through both hosts on the fleet against toolkit 1.1.0. All 144 gave identical replays apart from the team labels, identical per-turn points and identical logs. Between them they held 96 games that went to round 500, about 128,000 splits, 42,000 sprints and 1,030 turns over the CPU limit, some of them from a test bot built to fail on purpose. Every one of the 1,238 bot builds we had was also metered by both, and the judge produced byte-identical modules for all of them.
+| Check | Games | Result |
+| --- | --- | --- |
+| A probe bot calling all 40 starter helper functions, covering splits, sprints, sonar, portals and annotations | 6 paired games, 15,296 dragon turns | Identical events, clock readings and CPU points |
+| 12 varied maps against toolkit 1.1.0 | 144 paired games, 96 reaching round 500, about 128,000 splits and 1,030 turns over the CPU limit | Identical replays, per-turn points and logs |
+| Metering every bot build we had | 1,238 builds | Byte-identical modules |
 
-The same check ships with the judge. `just judge-fidelity` meters each bot with both passes and compares the modules byte for byte, then plays each seeded game through both hosts and compares the replays byte for byte and the logs line by line. By default it plays the flood-fill bot against the C starter on Arena and Portals, and under toolkit 1.2.2 both modules and all four games came out identical.
+The same comparison ships with the judge as `just judge-fidelity`.
 
-## First reads
-
-The one difference is deliberate. The toolkit charges a bot 6 points for every byte it reads from stdin, including the first read a new process makes, which carries the whole starting block. The competition's judge doesn't charge that first read: in 98 first turns of two of our ladder games, its points were the toolkit's less exactly 6 per byte of it. Our bots read through a 1,024-byte buffer, so those games can't tell a free first read from free first 1,024 bytes. For bots that read that way, the two charge the same.
-
-Our judge now charges what the competition's charges, so a dragon's first turn costs what it will online, and `run --charge-first-read` switches back to the toolkit's accounting. `just judge-fidelity` plays with that switch on, so everything else is still compared exactly.
+The one deliberate difference is the first read. The toolkit charges 6 points per byte read from stdin, including a new process's first read, which carries the whole starting block. The competition's judge doesn't charge that first read, so ours doesn't either, and a dragon's first turn costs what it will online.
 
 ## Four times faster
 
-Timed one game at a time on a Ryzen 7 5800X3D, with the same bot, map, seed, engine and replay output for both hosts, the Zig judge is about four times faster end to end in every game we timed:
+Timed one game at a time on the same inputs, the judge is about four times faster end to end, and the host does far less work:
 
-![End-to-end wall time for one game, in seconds on a log scale. Probe bot on Default: 3.16 with the toolkit and 0.83 with our judge. Older bot on Arena: 3.14 and 0.81. Older bot on Default: 124.9 and 28.2. Median of three runs each on a Ryzen 7 5800X3D, with identical replays from both hosts.](images/judge-speed.svg)
+![End-to-end wall time for three games, toolkit against our judge, on a log scale. Our judge is about four times faster in each.](images/judge-speed.svg)
 
-Each time is the median of three runs, including startup, compiling the WebAssembly and writing the replay, and all twelve paired games, warm-ups included, produced identical replays. The host also does far less work for the same games:
+![CPU time for the same three games, toolkit against our judge, on a log scale.](images/judge-cpu.svg)
 
-![CPU time for one game in seconds, on a log scale. Probe bot on Default: 4.08 with the toolkit and 2.03 with our judge. Older bot on Arena: 4.18 and 2.19. Older bot on Default: 125.96 and 29.44.](images/judge-cpu.svg)
+On a busy 32-vCPU fleet worker, the saving depends on how much of each game is the host's work, so it's smallest when the bots think hardest:
 
-Peak memory in the long game fell from 467 MiB to 294 MiB.
-
-That's one game at a time. What matters on the fleet is how much machine a game takes when every core is busy, and there the judge used 2.85 times fewer core-seconds a game than the toolkit on a 32-vCPU worker, 16.3 against 46.3 on average over the 144 paired games. The saving depends on how much of a game is the host's work: 2.4 times for our main line against an older version, where the bots' own thinking dominates, and 3.6 times for that older version against a bot that moves at random.
-
-The new host differs from the old one in two ways at once: a compiled loop in place of Python, and fibres in place of a thread per dragon with locks and condition variables between them. The timings cover both changes together.
+| Paired games | Toolkit core-seconds a game | Judge core-seconds a game | Saving |
+| --- | ---: | ---: | ---: |
+| All 144, on average | 46.3 | 16.3 | 2.85 times |
+| Our main line against an older version | | | 2.4 times |
+| That older version against a random bot | | | 3.6 times |
 
 ## Other ways to run the host
 
-The ordinary game hosts the organisers' engine and metered WebAssembly bots. The same host also gives us three more modes for inspection, external policies and engine checks:
+The same host runs three more modes besides the ordinary game:
 
-![Four uses of the judge. An ordinary game runs the official engine with metered bot instances. Inspection feeds recorded observations to a bot and collects actions, state and annotations. A served team exchanges turn messages with an external process whose work is not metered. Lockstep sends identical replies to the official engine and a CPU reference, stopping at the first different observation.](images/judge-modes.svg)
+![Four modes: an ordinary game, inspection of recorded turns, a served team in an external process, and lockstep against a CPU reference engine.](images/judge-modes.svg)
 
 ### Inspection without charging the explanation
 
-The [viewer](11-through-one-dragons-eyes.md) feeds recorded turn blocks to an inspection build. Older turns can run quietly until the requested range, so opening a late decision doesn't have to collect every earlier explanation. The response separates the action from annotation records, captured memory, charged policy points and any failure.
+The [viewer](11-through-one-dragons-eyes.md) replays recorded turns through an inspection build to recover a bot's decisions and explanations. An explanation runs inside an observer scope that saves the policy meter, uses its own one-billion-point allowance and a separate 64 MiB output path, then restores the meter. The scope can't read input, act, consume randomness or yield, so explaining a decision can't change it. Submission builds leave these imports out, and ordinary games refuse them.
 
-For a build using the observer imports, a scope saves the policy meter, runs the explanation under a separate allowance, then restores the meter. Clock reads inside the scope see frozen policy time. The scope can't read gameplay input, send an action, consume randomness or yield. Diagnostic bytes also have a separate path, limited to 64 MiB per turn, while the ordinary action path keeps its 10 KiB limit and output charges. The observer allowance is one billion points, so a broken explanation still has a finite limit.
-
-![Inspection accounting. Policy work uses the gameplay meter and sends actions through the charged 10 KiB output path. An explicit observer scope temporarily uses its own one-billion-point allowance and writes annotations through a separate 64 MiB path. On leaving the scope, the saved policy meter is restored.](images/inspection-accounting.svg)
-
-These imports are available only in inspection. Submission builds leave them out, and ordinary games refuse them. The flag-gated diagnostic blocks shown in [the viewer post](11-through-one-dragons-eyes.md#rebuilt-decisions) use a different route: they time their own work and subtract it from the clock value reported to the policy. The host still meters their instructions, under inspection's larger ceiling.
-
-Both kinds of block are read-only: writing to the bot's decision state would change the decision we're trying to explain. Scope boundaries and a different compiler layout can still change small instruction costs, so recovery checks every action against the replay and ordinary games check the budget.
+![Policy work uses the gameplay meter and the charged 10 KiB output path, while an observer scope uses its own allowance and a 64 MiB annotation path.](images/inspection-accounting.svg)
 
 ### A team outside WebAssembly
 
-`--serve SOCKET --serve-team A|B` connects one team to another process over a local UNIX socket. The protocol sends game setup, dragon spawns, turns, deaths and the end of the game, and the process responds with the team's actions. The other team still runs as ordinary bot instances.
-
-We use this to play a large [teacher model](27-learning-to-play.md) against a judge bot before exporting a small student. The served process isn't metered and isn't competition-eligible. It's an evaluation boundary: it lets the engine ask for actions without needing to know whether the answer came from WebAssembly or a model process.
+The judge can hand one team to an external process over a local socket, sending it setup, spawns, turns and deaths and taking back its actions. We use this to play a large [teacher model](27-learning-to-play.md) against our bots before distilling a small student. The served process isn't metered, so these games are for evaluation only.
 
 ### Two engines, the same replies
 
-Lockstep runs the official engine beside a CPU reference port and compares each observation block byte for byte. Both get the same reply, chosen deterministically from a hash of that block. Odd seeds exercise reckless actions, including invalid splits and rejected moves, while even seeds use more careful actions so games can reach later rounds. A difference stops the run at the first mismatched block.
-
-This checks each observation block along the tested action sequences. The released [CPU reference and command](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/README.md#lockstep) make the check reproducible without a GPU:
-
-```sh
-just zig-judge --engine /path/unswbc_engine.wasm \
-  --lockstep /path/maps.txt --games 2 --seed 123
-```
-
-The bundled reference now implements SDK 1.2.7. The official engine supplied to that command needs to match it. The older 1.2.2 reference is available in [Git history](https://github.com/overyonder/the-loong-game/tree/2933c03/harness/zig_judge/reference), with the older free-move and length-win rules. The replaceable C interface covers creating a game, reading its next observation, applying a reply and reading the result. A skipped or unsupported game isn't a passing check.
+Lockstep runs the official engine beside a CPU reference port and gives both the same reply each turn, chosen from a hash of the observation block. Odd seeds play recklessly, with invalid splits and rejected moves, while even seeds play carefully enough to reach later rounds. The run stops at the first observation block that differs. The released [CPU reference](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/README.md#lockstep) makes the check reproducible without a GPU.
 
 ### Selecting native simulation
 
-The same host can now run a complete game through a native library. Its bots still execute as metered WebAssembly instances:
+The host can also run the simulation through a native library, while the bots still run as metered WebAssembly:
 
 | Selected engine | Simulation | Bot execution | Text and replay output |
 | --- | --- | --- | --- |
@@ -152,32 +127,11 @@ The same host can now run a complete game through a native library. Its bots sti
 | Native CPU | C++ on CPU | Wasmtime on CPU | Native host code |
 | Native CUDA | CUDA on GPU | Wasmtime on CPU | Native host code |
 
-The [released libraries](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md) share fixed-array rule code, a reply parser and a packed replay writer. They implement SDK 1.2.7, including queen ownership when either team appears first in the map. Training tensors, learner action encoders and models are absent from this release.
-
-From `examples/tooling`, build the CPU library with C++20 and Cap'n Proto's development libraries and code generator, then select it explicitly:
-
-```sh
-CAPNP_PREFIX=/path/to/capnproto CXX=clang++ just zig-native-build cpu
-
-just zig-judge --engine /path/unswbc_engine.wasm \
-  --native-library ../../build/native-reference/cpu/libloong-native-cpu.so \
-  --charge-first-read --timeout 300 run --sandbox --seed 123 \
-  -o /path/cpu.replay /path/map.map /path/a.wasm /path/b.wasm
-```
-
-The build refuses an existing output directory. It doesn't install the library or change any default. The engine argument still identifies the official module loaded by the host, while `--native-library` selects the simulation used for this game. `run` writes the replay and each turn's points. CUDA jobs add `--cuda-batch N --threads T --jobs FILE --debug 31`, with live WASM decisions handled by host workers and point aggregates in the jobs output. The [reference README](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md#use-through-the-judge) gives the full CUDA command and input table.
-
-The clean export built the host and both libraries. CPU games matched official packed replays and per-turn points in both initial team orders, and the small lockstep check compared 50 turns with no differences or skips. The extracted CUDA library has no fresh GPU execution result. Its device instruction sections are byte-identical to the accepted source build, whose runtime checks retain their original artifact identities.
-
-The host accepts the older 32-byte engine result and reads all twelve fields of the later 48-byte result, including queen and longest lengths. Missing fields in the older layout stay zero. Standard batch figures keep their existing fields even when the host accepts the larger result. Reproducing an old game still needs the engine version that played it.
-
-The judge's [points profile](12-where-the-points-go.md#a-profiler-outside-the-bot) needs no change to either player. It attributes each team's charged work to functions and instruction classes.
+The [released libraries](https://github.com/overyonder/the-loong-game/blob/ca25234/harness/zig_judge/reference/README.md) implement SDK 1.2.7 with fixed-array rule code, a reply parser and a packed replay writer.
 
 ## The metered machine
 
-Underneath the judge is the machine our bots actually run on, and it's a strange one. The meter charges for WebAssembly instructions: 1 point for most arithmetic and local variables, 2 for loads, stores, branches and vector instructions, 3 for division, more for calls. Wasmer compiles those instructions to real machine code before running them, but the price is set by the instructions, whatever the hardware does with them.
-
-That makes the judge a CPU with no pipeline and no cache. A few loops show the difference, each run once in the judge and once natively. The code is in [examples/performance/machine-bot](../examples/performance/machine-bot/experiments.c), and `just machine` runs it:
+The meter charges for WebAssembly instructions: 1 point for most arithmetic, 2 for loads, stores, branches and vector instructions, 3 for division and more for calls. Whatever the hardware does with them, the price is set by the instructions, so the judge behaves like a CPU with no pipeline and no cache. A few [loops](../examples/performance/machine-bot/experiments.c) show it:
 
 | Loop | Natively | In the judge |
 | --- | ---: | ---: |
@@ -187,15 +141,15 @@ That makes the judge a CPU with no pipeline and no cache. A few loops show the d
 | Sum the same words 4 KB apart | 10.2 ms | 33,564,773 points |
 | Sum the same words four at a time with SIMD | 0.11 ms | 5,242,996 points |
 
-Four running totals let a real CPU overlap its additions, and the judge charges the same for both. A strided read misses the cache on every step and runs ten times slower natively, and costs exactly the same in the judge. Only vector instructions pay on both machines, because they do more work per instruction. In the judge, the way to make code cheaper is fewer instructions, and nothing else counts.
+Overlapping additions and cache-friendly access speed up a real CPU but cost the same in the judge. Only vector instructions pay on both, because they do more work per instruction, so in the judge the only way to make code cheaper is fewer instructions.
 
 ## Below the instruction set
 
-Everything in this series has happened above one line. Strategy, algorithms, data layout and instruction choice are all software, running on hardware someone else designed, and in the judge even the instruction set is fixed. On a real computer the stack keeps going, down through the microarchitecture to FPGAs and custom silicon, each step trading flexibility for speed:
+Everything in this series happens in software, and in the judge even the instruction set is fixed. On a real computer the stack keeps going down to FPGAs and custom silicon, each step trading flexibility for speed:
 
-![An optimisation path down the computing stack, plotted against the time per operation after each fix on a log scale from 1 second to 10 microseconds. Fixes in product and architecture, data and execution, runtime and toolchain, operating system and services, and machine architecture sit above a dashed line marked software. Fixes with reconfigurable logic and application-specific silicon sit below it, marked hardware.](images/computing-stack.svg)
+![Time per operation after each optimisation, on a log scale, falling through the software layers and then below a dashed line into reconfigurable logic and custom silicon.](images/computing-stack.svg)
 
-The judge stops our bots at WebAssembly. At [over|yonder](https://over-yonder.tech/) we work down the whole of that stack, including the part below the line.
+At [over|yonder](https://over-yonder.tech/) we work down the whole of that stack.
 
 ## Next up
 

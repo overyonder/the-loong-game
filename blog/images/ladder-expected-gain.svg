@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 480" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
-<title id="t">The average rating a game gains against opponents of each rating, for a bot stronger and a bot weaker than its rating</title>
+<title id="t">A game's average rating gain against opponents of each rating, for a bot stronger and a bot weaker than its rating</title>
 <defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="820" height="480" fill="#ede5d5"/>
 <text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">What a ranked game is worth</text>
-<text x="40" y="62" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">The rating a game gains on average, K × (p − E), at K = 24 for a bot rated 1700,</text>
+<text x="40" y="62" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">A game's average rating gain, K × (p − E), at K = 24 for a bot rated 1700,</text>
 <text x="40" y="80" font-size="13" font-weight="normal" fill="#66675e" text-anchor="start">against opponents of each rating.</text>
 <path d="M80 420.0H780" stroke="#b9ad99" opacity="0.5"/>
 <text x="70" y="424.0" font-size="12" font-weight="normal" fill="#66675e" text-anchor="end">-4</text>

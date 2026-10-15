@@ -44,11 +44,11 @@
 <text x="34" y="410" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">W</text>
 <text x="129" y="410" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">yes</text>
 <text x="224" y="410" font-size="12.5" fill="#20251f" text-anchor="start" font-weight="normal">4</text>
-<text x="20" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Rows marked selected, eligible or ineligible;</text>
-<text x="20" y="466" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">a row can open records of its own.</text>
+<text x="20" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">Rows marked selected, eligible or ineligible.</text>
+<text x="20" y="466" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">A row can open records of its own.</text>
 <text x="360" y="290" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">calculation</text>
 <rect x="360" y="304" width="300" height="90" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="374" y="329" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">utility = 8 − moves</text><text x="374" y="350" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">moves   2</text><text x="374" y="368" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">result   6</text>
-<text x="360" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">The expression as the bot wrote it; the</text>
+<text x="360" y="448" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">The expression as the bot wrote it. The</text>
 <text x="360" y="466" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">viewer shows the values and evaluates nothing.</text>
 <text x="700" y="290" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">sonar table</text>
 <rect x="700" y="304" width="130" height="70" rx="8" fill="#f6f1e7" stroke="#b9ad99" stroke-width="1.6"/><text x="714" y="329" font-size="15" fill="#20251f" text-anchor="start" font-weight="bold">D2 sent</text><text x="714" y="350" font-size="12.5" fill="#66675e" text-anchor="start" font-weight="normal">D2&#x27;s head, length 7</text>

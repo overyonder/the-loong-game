@@ -11,6 +11,12 @@ replay and per-turn points columns.
 just zig-judge --engine build/toolkit/unswbc/unswbc_engine.wasm run --sandbox --seed 1 -o assets/game.replay tools/evaluation/maps/arena.map build/random.wasm build/random.wasm
 ```
 
+The judge leaves each bot's first stdin read uncharged, as the ladder does,
+while the toolkit charges it. `run --charge-first-read` matches the toolkit, so
+use it when comparing points totals with `unswbc run`. A profile's totals can
+also differ from the completed turns' points by the work a sandbox does after
+its last completed turn.
+
 Use `--native-library PATH` before `run` to select a separately built
 native replay library. `--jobs FILE --threads N` plays a prepared batch.
 `--script-a FILE` and `--script-b FILE` replay recorded replies.

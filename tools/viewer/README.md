@@ -7,6 +7,9 @@ window, or an image or evaluation file when requested.
 Build with `just viewer-build`. Open a replay with `just viewer REPLAY`.
 The launcher converts the replay and passes additional arguments to the viewer.
 Add `--seat A GUID BOT --seat B GUID BOT` to recover decisions for registered builds.
+Recovery captures detailed records only in a window of rounds around the one on
+screen and resumes the bot from memory-bounded checkpoints. `--buffer N` sets
+that window, and `--memory` or `--memory-share` sets the checkpoint allowance.
 
 The viewer includes board playback, diagnostic inspection, belief views,
 queen knowledge and manual ghost play. The wire records are documented in

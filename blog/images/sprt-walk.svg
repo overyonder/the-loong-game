@@ -8,7 +8,7 @@
 <path d="M90 84.7H910" stroke="#b53b13" stroke-width="2"/>
 <text x="100" y="76.65834294770494" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">better: ln(0.8/0.05) = 2.77</text>
 <path d="M90 334.5H910" stroke="#b53b13" stroke-width="2"/>
-<text x="100" y="326.5083433488394" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">no material difference: ln(0.2/0.95) = −1.56</text>
+<text x="100" y="326.5083433488394" font-size="13" fill="#b53b13" text-anchor="start" font-weight="bold">not better: ln(0.2/0.95) = −1.56</text>
 <polyline points="90.0,244.6 90.0,234.1 135.6,234.1 135.6,223.6 181.1,223.6 181.1,213.1 226.7,213.1 226.7,202.5 272.2,202.5 272.2,192.0 317.8,192.0 317.8,181.5 363.3,181.5 363.3,171.0 408.9,171.0 408.9,160.5 454.4,160.5 454.4,149.9 500.0,149.9 500.0,139.4 545.6,139.4 545.6,128.9 591.1,128.9 591.1,118.4 636.7,118.4 636.7,107.9 682.2,107.9 682.2,97.4 727.8,97.4 727.8,86.8 773.3,86.8 773.3,76.3 818.9,76.3" fill="none" stroke="#263d31" stroke-width="3"/>
 <circle cx="818.9" cy="76.3" r="5" fill="#263d31"/>
 <path d="M522.8 272.3h28" stroke="#263d31" stroke-width="3"/>

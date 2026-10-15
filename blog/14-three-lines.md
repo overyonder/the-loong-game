@@ -2,7 +2,7 @@
 
 > **Editor's note, 2 October 2026.** Added the assembly of a bot from its numbered strategy, pinned library pieces and shared runtime.
 
-Before comparing our textbook, foil and learned bots, it helps to define what one bot actually is. The source tree catalogues the assemblies and library pieces. A numbered directory under `main/` holds one bot's assembly. The libraries hold pieces that assemblies may select. The runtime is the common boundary with the judge.
+Before comparing our textbook, foil and learned bots, it helps to define what one bot is. A numbered directory under `main/` holds one bot's assembly, the libraries hold selectable pieces, and the runtime connects every bot to the judge:
 
 ```text
 bots/
@@ -19,15 +19,13 @@ bots/
     main/NNNN/           # one numbered learned bot assembly
 ```
 
-A Nim assembly usually contains only `strategy.nim` and `library.toml`. The strategy says which behaviours and decision architecture make this bot. The manifest says which exact implementations those imports mean. A self-contained bot, such as one written directly in C, needs neither file.
+A Nim assembly usually holds just `strategy.nim`, which chooses the behaviours and decision architecture, and `library.toml`, which pins the exact implementations behind its imports.
 
-![A numbered bot supplies strategy.nim and library.toml. The manifest selects exact pieces from its line library and the common library, materialising them as one repertoire beside the strategy. The build adds the shared judge runtime and registers the resulting WebAssembly with hashes of every input.](images/bot-assembly.svg)
+![strategy.nim and library.toml select pinned pieces from the line and common libraries, and the build adds the shared runtime and registers the WebAssembly with hashes of every input.](images/bot-assembly.svg)
 
 ## Versioned pieces
 
-Each reusable library piece has numbered source versions. Its clearest form may begin as pseudocode, move into Nim when a bot uses it, and gain a Rake version when measurements show that a hot loop belongs in a vector kernel. Those are new versions of one piece, rather than silent rewrites of the source an older bot used.
-
-Here is a shortened manifest. The path on the left is the stable path `strategy.nim` imports. The path on the right chooses one numbered implementation from either the line's own library or the common library:
+Each library piece has numbered versions. A piece might start as pseudocode, become Nim when a bot uses it, and gain a Rake version when a hot loop needs a vector kernel, and each step is a new version, so an older bot's source never changes. The manifest maps each stable import path to one numbered implementation:
 
 ```toml
 mount = "repertoire"
@@ -37,27 +35,21 @@ mount = "repertoire"
 "techniques/cryptography/speck.nim" = "common/lib/techniques/cryptography/speck/0001.nim"
 ```
 
-Before compilation, the build materialises the numbered bot directory and every file named by `library.toml` into a content-addressed source tree. The selected pieces appear under the manifest's `mount`, so the strategy sees one ordinary `repertoire/` even though its contents came from several catalogues. The build assembles this generated tree from the versioned source owners.
-
-The shared runtime is added separately. It supplies the entry point and judge integration, while the strategy and its pinned pieces decide how a dragon thinks. The build snapshots all three inputs, records their hashes and compiler settings, and registers the resulting WebAssembly. Each strategy owns its outer decision loop.
+The build copies the bot and its selected pieces into a content-addressed tree, with the pieces under `repertoire/`, then adds the shared runtime, which supplies the entry point and judge integration. It records the hashes of every input and the compiler settings, and registers the resulting WebAssembly.
 
 ## Frozen versions
 
-![The current version is frozen, built with pinned library pieces and kept as replay provenance, an opponent and a regression test. Library pieces advance independently from pseudocode to Nim and, when a measured kernel needs it, Rake.](images/frozen-versions.svg)
+![A frozen version keeps its pinned pieces and serves as replay provenance, an opponent and a regression test, while library pieces keep gaining new versions.](images/frozen-versions.svg)
 
-A line's highest numbered version is the one being developed. When it reaches a point worth evaluating, we freeze that directory, register its build and begin work under the next number. A frozen version never changes, and neither do the numbered library pieces it pins.
-
-This gives an old result a precise identity. An identifier such as `textbook-main-NNNN` identifies the assembly. Its manifest lists every selected library file, and the registered build records the runtime, compiler settings and WebAssembly that actually played. Later edits elsewhere in `bots/` cannot quietly alter that evidence.
-
-Keeping old versions costs some space, but deleting them would discard useful opponents and the exact program behind a replay. They become baselines in the [ladder of our own](07-a-ladder-of-our-own.md), regression cases and provenance for the viewer. Version numbers record creation order, while the retained games provide the results.
+A line's highest-numbered version is the one in development. When it's worth evaluating, we freeze it, register its build and start the next number. A frozen version and its pinned pieces never change, so an identifier such as `textbook-main-NNNN` always means the exact program behind a result. Old versions stay as opponents in the [ladder](07-a-ladder-of-our-own.md), regression cases and provenance for replays.
 
 ## Three approaches to bot development
 
-With that machinery in view, a *line* has a simple meaning: a sequence of numbered bot assemblies, plus any library catalogue particular to that approach. We develop three because one approach cannot answer every useful question at once.
+A *line* is a sequence of numbered assemblies, plus any library particular to its approach. We develop three, because each asks a different question:
 
-![Three bot lines share the game, evaluation pool and replay evidence. The textbook line assembles known methods clearly, the foil is a rival free to use any method, and the learned line trains a policy and distils it into a small student.](images/three-bot-lines.svg)
+![Three lines share the game, evaluation pool and replays: the textbook line assembles known methods, the foil uses any method, and the learned line trains a policy.](images/three-bot-lines.svg)
 
-| Line | The question it keeps asking |
+| Line | Recurring question |
 | --- | --- |
 | Textbook | What established method should this layer use? |
 | Foil | What can beat the current bots, by any method? |
@@ -65,21 +57,17 @@ With that machinery in view, a *line* has a simple meaning: a sequence of number
 
 ### Textbook
 
-The textbook line stays close to standard computer-science methods. Its library is arranged by data structures, decision architectures, techniques and Loong-specific adapters. Each behaviour defines its purpose, checks when it applies and proposes an action. A version's `strategy.nim` assembles those behaviours and their parameters into an architecture.
-
-That gives the line a direction for improvement. Whenever its implementation departs from the method it is meant to follow, the departure becomes something to inspect. When an idea looks novel while the bot is still making ordinary mistakes, I first look for the established method it approximates.
+The textbook line assembles standard computer-science methods from a library arranged by data structures, decision architectures, techniques and Loong-specific adapters. Each behaviour checks when it applies and proposes an action. Any departure from the textbook method is something to inspect, and when an idea looks novel while the bot still makes ordinary mistakes, I first check which established method it approximates.
 
 ### Foil
 
-The foil is a rival and counterpoint. It can use whatever method seems likely to work, with no duty to resemble the textbook design or use its library. We play it against the textbook line, read the surprising games in the viewer and carry general lessons between them.
-
-The implementations remain separate even when one teaches the other something. Otherwise a comparison would quietly become a bot playing another version of itself, and we would lose the different set of mistakes that makes the foil useful.
+The foil is a rival that can use any method, with no duty to resemble the textbook design or share its library. We play it against the textbook line and carry lessons between them, but keep the code separate so the foil keeps its own mistakes instead of becoming another version of the same bot.
 
 ### Learned
 
-The learned line turns games into a policy. A large teacher can use more computation while training, then a smaller student learns its choices and fits inside the judge's time and memory limits. Its assembly pins the network code, observation format, search and other pieces that turn the trained parameters into moves. [Learning to play](27-learning-to-play.md) follows that pipeline from self-play through distillation.
+The learned line trains a large teacher, then distils it into a student small enough for the judge's time and memory limits. [Learning to play](27-learning-to-play.md) follows that pipeline.
 
-The lines share the judge runtime, build registry, generated maps, evaluation pool and replay viewer. They let us build and inspect each line on the same terms. Each line remains free to assemble a different turn loop, architecture and collection of behaviours while its results stay comparable on the same terms.
+All three share the runtime, build registry, maps, evaluation pool and viewer, so their results stay comparable.
 
 ## Next up
 

@@ -1,104 +1,90 @@
 # The wishlist
 
-Most of us start the same way: we run `unswbc init`, get a starter bot going, and immediately have a list of ideas for making it better. Before trying any of them, though, we need a way to tell whether a change actually helped. Otherwise we're just guessing, and a guess that feels like progress is worse than no change at all.
-
-So this post tries to answer that one question using only the official toolkit and its starter bots. Every time we get stuck, we'll write down the tool that would have got us unstuck. By the end, that list is the wishlist, and building it is the next stage of the series.
+Most of us start the same way: we run `unswbc init`, get a starter bot going, and immediately have a list of ideas for making it better. Before trying any of them, we need a way to tell whether a change actually helped. This post tries to answer that using only the official toolkit and its starter bots, and every time we get stuck, we'll write down the tool that would have got us unstuck. That list is the wishlist, and building it is the next stage of the series.
 
 ## Two starter bots and one game
 
-`unswbc init` makes a starter bot in C, C++ or Python. To have something to compare, we'll make one in C and one in Python and play them against each other in the judge's sandbox:
+`unswbc init` makes a starter bot in C, C++ or Python. We'll make one in C and one in Python and play them against each other in the judge's sandbox:
 
-![A terminal running unswbc init c alpha and unswbc init python bravo, which list the files each creates, then unswbc run --sandbox on default_small. The match uses seed 0xf80f04670677fc31, three dragons hit themselves, and team A wins after 60 rounds by elimination. Team A used 3.0M points per turn at p50, p99 and max. Team B used 5.0M at p50 and 20.4M at p99 and max.](images/unswbc-run.png)
+![A terminal creating a C bot called alpha and a Python bot called bravo, then playing them on default_small. Team A wins after 60 rounds, spending 3.0M points a turn to team B's 5.0M at p50.](images/unswbc-run.png)
 
-That's one game, and it tells us who won it. It also saves a replay we can watch in the [visualiser](https://game.battlecode.au/visualiser), and prints how many CPU points each team spent, which we'll come back to at the end. One game obviously isn't statistically significant, though, and working out how many games it does take is part of what this post is about.
+The game saves a replay for the [visualiser](https://game.battlecode.au/visualiser) and prints how many CPU points each team spent. One game obviously isn't statistically significant, though. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as, so running the match again gives a different game, and passing a seed back with `--seed` replays one exactly:
 
-We can get more games easily enough. Each run picks a random seed, which decides where pearls appear and what both bots' random numbers come out as, so running the same match again gives a different game. Passing a seed back with `--seed` replays one exactly, which will be handy for debugging:
-
-![Running the same match again without a seed gets seed 0x5007de0a57fc374d and a different 75-round game. Running it with --seed 0xf80f04670677fc31 repeats the first game exactly: the same three deaths and team A winning after 60 rounds.](images/unswbc-seed.png)
+![Running the match again without a seed gives a different 75-round game, while passing the first game's seed repeats it exactly.](images/unswbc-seed.png)
 
 ## Every map, both sides
 
-If one game isn't enough, the natural thing is to play lots. Maps matter too, since a bot can be strong on one layout and hopeless on another, and so does which side you start on. So the obvious next move is a loop that plays every one of the 13 bundled maps, with each bot taking each side. My shell is [fish](https://fishshell.com), which has a friendlier scripting syntax than bash, so the loop is a few lines of fish, shown here with [bat](https://github.com/sharkdp/bat), a `cat` with syntax highlighting:
+A bot can be strong on one map and hopeless on another, and the starting side matters too. A few lines of [fish](https://fishshell.com) play every one of the 13 bundled maps, with each bot taking each side:
 
-![A terminal showing loop.fish in bat, then time fish loop.fish printing 26 results, one per map and side, in 175.8 seconds.](images/unswbc-loop.png)
+![A fish loop printing 26 results, one per map and side, in 175.8 seconds.](images/unswbc-loop.png)
 
-Those 26 games took nearly three minutes, and the starter bots barely think. A bot that searches takes far longer: in one of my own test runs, 600 games between stronger bots added up to 14 hours played one after another.
+That's already slow for bots that barely think, and a bot that searches takes far longer: in one of my test runs, 600 games between stronger bots took 14 hours played one after another. We'll be improving our bot for weeks, and every change needs this kind of test. We'll want to pit a pool of bots against each other, keep a tidy record of every result and play independent games side by side on every core. That brings the usual chores: capping how many games run at once, giving up on a game that hangs, cleaning up after crashes, and not mistaking a crash for a loss.
 
-We're going to be improving our bot for weeks, and every change needs this kind of test, so running a loop by hand and reading the output isn't going to last. We'll want to pit a whole pool of bots against each other and keep a tidy record of every result, and since the games don't depend on each other, we can play them side by side on every core. Doing that well brings the usual chores with it: capping how many games run at once, giving up on a game that hangs, cleaning up after crashes, and not mistaking a crash for a loss.
-
-![Wishlist, 1 of 8: Evaluation harness.](images/wishlist-1.svg)
+![Wishlist, 1 of 8: evaluation harness.](images/wishlist-1.svg)
 
 ## Seventeen wins out of twenty-six
 
-Back to the results. Although `alpha` won 17 of the 26 games, that result alone doesn't establish a lead. Both starters do exactly the same thing each turn, stepping in a random direction that isn't blocked, so neither can really be better, and two equally good bots will still produce a split at least that lopsided about 8% of the time.
-
-This is the trap every bot developer falls into sooner or later: a handful of wins feels like proof. It takes far more games than intuition suggests. Reliably telling a bot that wins 60% of its games from an even match takes about 150 games, and a smaller improvement needs far more:
+`alpha` won 17 of the 26 games, but both starters step in a random unblocked direction every turn, so neither can really be better. Two equally good bots still produce a split at least that lopsided about 8% of the time. A handful of wins feels like proof, but telling a better bot from an even match takes far more games than intuition suggests:
 
 ![Games needed to detect a better bot at 95% confidence and 80% power, by its true win rate: about 3,900 at 52%, 617 at 55%, 153 at 60%, 37 at 70% and 23 at 75%. A 26-game loop only catches bots that win about 74% of the time or more.](images/games-needed.svg)
 
-So a pile of results can't be read by eye. The games are how we find what's wrong with a bot: the ones it should have won and didn't. But to say one version scores better than another, we need a tool that says how far the difference can be trusted, and how many more games it would take to be sure.
+The games, especially upset losses, are how we find what's wrong with a bot. To say one version scores better than another, though, we need a tool that says how far the difference can be trusted and how many more games it would take to be sure.
 
-![Wishlist, 2 of 8: Evaluation harness, Statistics.](images/wishlist-2.svg)
+![Wishlist, 2 of 8: statistics added.](images/wishlist-2.svg)
 
 ## A ladder of our own
 
-You might wonder why we don't just upload each version and let the online ladder play the games for us. The trouble is that it's slow, noisy, and answers a different question from ours. It's slow because the site draws each team one five-game battle an hour, and uploads are limited to 12 an hour, so a modest improvement would take days per idea to show up. It's noisy because a team's first new bot in any 12 hours starts its rating's K factor at 96, four times the settled value, which makes the rating swing hardest in exactly the games right after an upload. And even a settled rating compares you with whoever happens to be on the ladder this week, while they're changing their bots too.
+The online ladder is too slow and noisy for this. The site draws each team one five-game battle an hour and allows 12 uploads an hour, so a modest improvement would take days to show up. A team's first new bot in any 12 hours also starts its rating's K factor at 96, four times the settled value, so the rating swings hardest right after an upload. Even a settled rating only compares you with this week's opponents, who are changing their bots too.
 
-What we actually want to know is whether this version beats the last one. A ladder we run ourselves can answer that, rating the current bot against frozen copies of our older versions, so a new version only counts as progress if it beats the ones before it.
+We want to know whether this version beats the last one. Our own ladder rates the current bot against frozen copies of our older versions, so a new version only counts as progress if it beats them.
 
-![Wishlist, 3 of 8: Evaluation harness, Statistics, Offline Elo ladder.](images/wishlist-3.svg)
+![Wishlist, 3 of 8: offline Elo ladder added.](images/wishlist-3.svg)
 
-## Maps nobody has seen
+## Unseen maps
 
-Everything so far has used the 13 bundled maps, but those aren't the maps that matter. The organisers have said every Sprint, Qualifier and Grand Final map will be new, and a bot that has only been tested on the bundled maps can be quietly relying on something about them.
+The organisers have said every Sprint, Qualifier and Grand Final map will be new, so a bot tested only on the bundled maps can be quietly relying on something about them. That's already caught me out once. The docs say maps are at least 10 tiles on a side, so my bot refused to play on anything smaller, and when the ladder served a 16×8 map called Small, every one of my dragons died in round 0. We can't tune for unseen maps, but we can generate lots of plausible ones and test on those.
 
-That's already caught me out once. The docs say maps are at least 10 tiles on a side, so my bot refused to play on anything smaller. Then the ladder served a 16×8 map called Small, and every one of my dragons died in round 0. We can't tune for maps we haven't seen, but we can make lots of plausible ones and test on those.
-
-![Wishlist, 4 of 8: Evaluation harness, Statistics, Offline Elo ladder, Map generator.](images/wishlist-4.svg)
+![Wishlist, 4 of 8: map generator added.](images/wishlist-4.svg)
 
 ## Everyone else's games
 
-So far every test has been our bot against our own bots, but the real opponents are the other teams, and every ladder battle is public. Game IDs on the site are already past 88,000. That's a huge record of what the best bots actually do, and learning from it is how we'll spot ideas worth borrowing and weaknesses worth exploiting. Nobody can watch that many games, so we need a tool that downloads a useful sample, slowly enough not to load the organisers' server.
+The real opponents are the other teams, and every ladder battle is public, with game IDs already past 88,000. That record of what the best bots do is how we'll spot ideas worth borrowing and weaknesses worth exploiting. Nobody can watch that many games, so we need a tool that downloads a useful sample, slowly enough not to load the organisers' server.
 
-![Wishlist, 5 of 8: Evaluation harness, Statistics, Offline Elo ladder, Map generator, Replay sampler.](images/wishlist-5.svg)
+![Wishlist, 5 of 8: replay sampler added.](images/wishlist-5.svg)
 
 ## Reading a replay
 
-Once we have the replays, we hit the next wall. A replay file is packed binary, and opening one in a hex viewer shows the bot labels and scraps of the map text, and nothing else we can read:
+A replay file is packed binary, and a hex viewer shows only the bot labels and scraps of the map text:
 
-![hexyl showing the first 160 bytes of a replay file. The bot labels alpha and bravo and parts of the map text are readable, and the rest is binary.](images/replay-hexdump.png)
+![A hex dump of a replay file's first 160 bytes, with the bot labels and parts of the map text readable among binary data.](images/replay-hexdump.png)
 
 To ask questions of thousands of games, like how often top bots split early, we first need to decode the format and rebuild each game turn by turn.
 
-![Wishlist, 6 of 8: Evaluation harness, Statistics, Offline Elo ladder, Map generator, Replay sampler, Replay decoder.](images/wishlist-6.svg)
+![Wishlist, 6 of 8: replay decoder added.](images/wishlist-6.svg)
 
 ## Through one dragon's eyes
 
-Decoding replays helps with our own bot too. When one of our dragons does something stupid, the visualiser shows us the whole board, but the dragon never saw the whole board. It only saw the 7×7 square around its head, plus whatever it chose to remember:
+When one of our dragons does something stupid, the visualiser shows the whole board, but the dragon only saw the 7×7 square around its head, plus whatever it chose to remember:
 
-![The same round of a public ladder game twice. On the left, the whole board. On the right, everything outside one ringed dragon's 7 by 7 window is darkened.](images/board-vs-window.svg)
+![The same round of a ladder game twice: the whole board, and the board with everything outside one dragon's 7 by 7 window darkened.](images/board-vs-window.svg)
 
-So the question when debugging is never "what was on the board?" but "what did this dragon think was on the board?" It would be much easier with a viewer that shows exactly what one dragon saw and decided, turn by turn. I'm writing that viewer in Odin, and the next post explains why.
+Debugging needs a viewer that shows exactly what one dragon saw and decided, turn by turn. I'm writing it in Odin, and the next post explains why.
 
-![Wishlist, 7 of 8: Evaluation harness, Statistics, Offline Elo ladder, Map generator, Replay sampler, Replay decoder, Debug viewer.](images/wishlist-7.svg)
+![Wishlist, 7 of 8: debug viewer added.](images/wishlist-7.svg)
 
 ## Profiling CPU points
 
-Last, back to that first game's CPU points. Each dragon gets a budget of 100 million points per turn, and a smart bot will want to spend as much of it as possible thinking. The summary tells us how much was spent, but not what it was spent on.
+Each dragon gets 100 million points per turn, and a smart bot will want to spend as much of that as possible thinking. The game summary shows how much a bot spent, but not on what. Most of the C starter's points go on the one stdout write that sends its move, and finding that out took guesses and experiments. Once our bot runs a real search, every wasted point costs it search depth, so we'll want a profiler to show where the points go.
 
-The C starter spends 3.0 million points a turn just walking randomly, which seemed like a lot. My first guess was the log line it writes every turn, so I deleted it, and that saved about 0.1 million. Most of the rest is the single write to stdout that every turn needs to send its move, which costs 2.5 million on its own. That's useful to know, but it took a guess and an experiment to find out. Once our bot is running a real search, every wasted point is search depth it doesn't get, and we'll want a profiler to show us where the points go directly.
-
-![Wishlist, 8 of 8: Evaluation harness, Statistics, Offline Elo ladder, Map generator, Replay sampler, Replay decoder, Debug viewer, Profiling.](images/wishlist-8.svg)
+![Wishlist, 8 of 8: profiling added.](images/wishlist-8.svg)
 
 ## The full wishlist
 
-Here's how the eight tools connect, and where they'll sit around the bot next to the official toolkit:
+![How the tools fit together. Bot changes go through the evaluation harness on bundled and generated maps, its results feed the Elo ladder and statistical test, public replays pass through the sampler and decoder into the debug viewer, and profiling sits beside the bot.](images/wishlist-map.svg)
 
-![How the tools fit together. A bot change goes through the evaluation harness, which plays on generated maps as well as the bundled ones. Results feed the offline Elo ladder and a statistical test, which says how sure we can be of a difference, and the loop back to the bot is what to fix next. Public replays come in through the sampler, the decoder rebuilds them, and the debug viewer shows what each dragon saw, for public games and our own. Profiling sits beside the bot.](images/wishlist-map.svg)
+![Our tools around the bot. The Nim bot, compiled to WebAssembly with saved snapshots, sits between the official toolkit on the right and the eight wishlist tools on the left, each labelled with its language.](images/pipeline-wishlist.svg)
 
-![Our tools around the bot. The current bot sits in the middle, written in Nim with hot paths in C and compiled to WebAssembly, with numbered snapshots of earlier versions saved below it. The official toolkit is on the right: unswbc init, unswbc run --sandbox, --seed, unswbc maps, the visualiser and unswbc submit. The eight wishlist tools are on the left with their languages, all still on the wishlist: the evaluation harness, statistics, map generator, offline Elo ladder, replay sampler and replay decoder in Python, the debug viewer in Odin, profiling with perf, and the Zig judge. Ideas from the grand strategy, tactical ideas and espionage stages flow into the bot from the top.](images/pipeline-wishlist.svg)
-
-I already have most of these working in some form, so the tools posts will walk through real, working code, and everything after that leans on them. Whenever a later post tries a strategic idea, these tools are how we'll know whether it worked.
+I already have most of these working in some form, so the tools posts walk through real code, and every later post uses them to test its ideas.
 
 ## Next up
 

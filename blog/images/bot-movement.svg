@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 832 638" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
-<title id="t">How textbook-main-0025's movement ranks the moves a task leaves it</title>
+<title id="t">How textbook-main-0025's movement ranks a task's remaining moves</title>
 <defs><marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#263d31"/></marker><marker id="back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b53b13"/></marker><marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#66675e"/></marker></defs>
 <rect width="832" height="638" fill="#ede5d5"/>
 <text x="40" y="40" font-size="20" font-weight="bold" fill="#20251f" text-anchor="start">How movement picks a move</text>
